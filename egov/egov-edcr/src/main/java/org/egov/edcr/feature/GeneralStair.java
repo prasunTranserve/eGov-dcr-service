@@ -48,6 +48,10 @@ public class GeneralStair extends FeatureProcess {
     @Override
     public Plan process(Plan plan) {
         // validate(planDetail);
+    	boolean flage=true;
+    	if(flage)
+    		return plan;
+    	
         HashMap<String, String> errors = new HashMap<>();
         blk: for (Block block : plan.getBlocks()) {
             int generalStairCount = 0;

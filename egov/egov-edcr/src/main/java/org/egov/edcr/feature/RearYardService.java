@@ -132,7 +132,7 @@ public class RearYardService extends GeneralRule {
 		if (plot == null)
 			return;
 
-		validateRearYard(pl);
+		//validateRearYard(pl);
 
 		if (plot != null && !pl.getBlocks().isEmpty()) {
 			for (Block block : pl.getBlocks()) { // for each block

@@ -91,11 +91,11 @@ public class Coverage extends FeatureProcess {
     
     @Override
     public Plan validate(Plan pl) {
-        for (Block block : pl.getBlocks()) {
-            if (block.getCoverage().isEmpty()) {
-                pl.addError("coverageArea" + block.getNumber(), "Coverage Area for block " + block.getNumber() + " not Provided");
-            }
-        }
+//        for (Block block : pl.getBlocks()) {
+//            if (block.getCoverage().isEmpty()) {
+//                pl.addError("coverageArea" + block.getNumber(), "Coverage Area for block " + block.getNumber() + " not Provided");
+//            }
+//        }
         return pl;
     }
 
@@ -143,10 +143,11 @@ public class Coverage extends FeatureProcess {
         }
 
        BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
-       if(roadWidth != null && roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
-				&& roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) <= 0) {
-        processCoverage(pl, StringUtils.EMPTY, totalCoverage, Forty);
-       }
+//       if(roadWidth != null && roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
+//				&& roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) <= 0) {
+//        processCoverage(pl, StringUtils.EMPTY, totalCoverage, Forty);
+//       }
+       processCoverage(pl, StringUtils.EMPTY, totalCoverage, Forty);
 		/*
 		 * // for weighted coverage if (pl.getPlot().getArea().doubleValue() >= 5000) {
 		 * BigDecimal provideCoverage = BigDecimal.ZERO; BigDecimal weightedArea =
@@ -235,29 +236,39 @@ public class Coverage extends FeatureProcess {
         String desc = getLocaleMessage(RULE_DESCRIPTION_KEY, upperLimit.toString());
         String actualResult = getLocaleMessage(RULE_ACTUAL_KEY, coverage.toString());
         String expectedResult = getLocaleMessage(RULE_EXPECTED_KEY, upperLimit.toString());
-        if (coverage.doubleValue() <= upperLimit.doubleValue()) {
-            Map<String, String> details = new HashMap<>();
-            details.put(RULE_NO, RULE_38);
-            details.put(DESCRIPTION, desc);
-           // details.put(OCCUPANCY, occupancy);
-            details.put(PERMISSIBLE, expectedResult);
-            details.put(PROVIDED, actualResult);
-            details.put(STATUS, Result.Accepted.getResultVal());
-            scrutinyDetail.getDetail().add(details);
-            pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-
-        } else {
-            Map<String, String> details = new HashMap<>();
-            details.put(RULE_NO, RULE_38);
-            details.put(DESCRIPTION, desc);
-           // details.put(OCCUPANCY, occupancy);
-            details.put(PERMISSIBLE, expectedResult);
-            details.put(PROVIDED, actualResult);
-            details.put(STATUS, Result.Not_Accepted.getResultVal());
-            scrutinyDetail.getDetail().add(details);
-            pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-
-        }
+//        if (coverage.doubleValue() <= upperLimit.doubleValue()) {
+//            Map<String, String> details = new HashMap<>();
+//            details.put(RULE_NO, RULE_38);
+//            details.put(DESCRIPTION, desc);
+//           // details.put(OCCUPANCY, occupancy);
+//            details.put(PERMISSIBLE, expectedResult);
+//            details.put(PROVIDED, actualResult);
+//            details.put(STATUS, Result.Accepted.getResultVal());
+//            scrutinyDetail.getDetail().add(details);
+//            pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//
+//        } else {
+//            Map<String, String> details = new HashMap<>();
+//            details.put(RULE_NO, RULE_38);
+//            details.put(DESCRIPTION, desc);
+//           // details.put(OCCUPANCY, occupancy);
+//            details.put(PERMISSIBLE, expectedResult);
+//            details.put(PROVIDED, actualResult);
+//            details.put(STATUS, Result.Not_Accepted.getResultVal());
+//            scrutinyDetail.getDetail().add(details);
+//            pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//
+//        }
+        expectedResult="";
+        Map<String, String> details = new HashMap<>();
+        details.put(RULE_NO, RULE_38);
+        details.put(DESCRIPTION, desc);
+       // details.put(OCCUPANCY, occupancy);
+        details.put(PERMISSIBLE, expectedResult);
+        details.put(PROVIDED, actualResult);
+        details.put(STATUS, Result.Verify.getResultVal());
+        scrutinyDetail.getDetail().add(details);
+        pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
     }
 

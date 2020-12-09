@@ -143,7 +143,7 @@ public class FrontYardService extends GeneralRule {
 		// commercial building.
 		// In output show blockwise required and provided information.
 
-		validateFrontYard(pl);
+		//validateFrontYard(pl);
 
 		if (plot != null && !pl.getBlocks().isEmpty()) {
 			for (Block block : pl.getBlocks()) { // for each block

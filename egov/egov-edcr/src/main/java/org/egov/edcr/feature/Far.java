@@ -788,7 +788,10 @@ public class Far extends FeatureProcess {
 
         private Boolean processFarForSpecialOccupancy(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far,
                         String typeOfArea, BigDecimal roadWidth, HashMap<String, String> errors) {
-
+        		boolean flage=false;
+        	if(!flage)
+        		return flage;
+        	
                 OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding() != null ? pl.getVirtualBuilding().getMostRestrictiveFarHelper(): null ;
                 String expectedResult = StringUtils.EMPTY;
                 boolean isAccepted = false;
@@ -886,7 +889,7 @@ public class Far extends FeatureProcess {
                         BigDecimal roadWidth, HashMap<String, String> errors) {
 
                 String expectedResult = StringUtils.EMPTY;
-                boolean isAccepted = false;
+                boolean isAccepted = true;
 
                 if (typeOfArea.equalsIgnoreCase(OLD)) {
                         if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
@@ -1180,7 +1183,7 @@ public class Far extends FeatureProcess {
                 scrutinyDetail.setKey("Common_FAR");
 
                 String actualResult = far.toString();
-
+                expectedResult="";
                 Map<String, String> details = new HashMap<>();
                 details.put(RULE_NO, RULE_38);
                 details.put(OCCUPANCY, occupancyName);
@@ -1188,7 +1191,8 @@ public class Far extends FeatureProcess {
                 details.put(ROAD_WIDTH, roadWidth.toString());
                 details.put(PERMISSIBLE, expectedResult);
                 details.put(PROVIDED, actualResult);
-                details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+//                details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+                details.put(STATUS,Result.Verify.getResultVal() );
 
                 scrutinyDetail.getDetail().add(details);
                 pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);

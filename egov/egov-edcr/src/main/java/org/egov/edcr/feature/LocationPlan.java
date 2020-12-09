@@ -85,17 +85,18 @@ public class LocationPlan extends FeatureProcess {
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, RULE_5_4_I_A);
 		details.put(DESCRIPTION, LOCATION_PLAN_DESCRIPTION);
-		if (pl.getDrawingPreference().getLocationPlans() == null) {
-			errors.put("LOCATION_PLAN", "LOCATION_PLAN layer is not provided");
-			pl.addErrors(errors);
-		} else if (!pl.getDrawingPreference().getLocationPlans().isEmpty()) {
+//		if (pl.getDrawingPreference().getLocationPlans() == null) {
+//			errors.put("LOCATION_PLAN", "LOCATION_PLAN layer is not provided");
+//			pl.addErrors(errors);
+//		} else 
+		if (!pl.getDrawingPreference().getLocationPlans().isEmpty()) {
 			details.put(PROVIDED, "Location plans provided");
-			details.put(STATUS, Result.Accepted.getResultVal());
+			details.put(STATUS, Result.Verify.getResultVal());
 			scrutinyDetail.getDetail().add(details);
 			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		} else {
 			details.put(PROVIDED, "PolyLine is not defined in LOCATION_PLAN layer");
-			details.put(STATUS, Result.Not_Accepted.getResultVal());
+			details.put(STATUS, Result.Verify.getResultVal());
 			scrutinyDetail.getDetail().add(details);
 			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		}

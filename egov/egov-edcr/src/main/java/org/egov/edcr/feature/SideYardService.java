@@ -139,7 +139,7 @@ public class SideYardService extends GeneralRule {
         if (plot == null)
             return;
 
-        validateSideYardRule(pl);
+       // validateSideYardRule(pl);
 
         // Side yard 1 and side yard 2 both may not mandatory in same levels. Get
         // previous level side yards in this case.

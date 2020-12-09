@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
@@ -182,6 +183,16 @@ public class AdditionalFeature extends FeatureProcess {
         validateFireDeclaration(pl, errors);
 
         return pl;
+    }
+    
+    private void validateServiceFloor(Plan pl) {
+    	
+    }
+    
+    private boolean isServiceFloor(Floor f) {
+    	boolean flage=false;
+    		
+    	return flage;
     }
 
     private void validateFireDeclaration(Plan pl, HashMap<String, String> errors) {
@@ -480,9 +491,9 @@ public class AdditionalFeature extends FeatureProcess {
                     isAccepted = true;
                 }
             } else {
-                String plinthHeightLayer = String.format(DxfFileConstants.LAYER_PLINTH_HEIGHT, block.getNumber());
-                errors.put(plinthHeightLayer, "Plinth height is not defined in layer " + plinthHeightLayer);
-                pl.addErrors(errors);
+              //  String plinthHeightLayer = String.format(DxfFileConstants.LAYER_PLINTH_HEIGHT, block.getNumber());
+               // errors.put(plinthHeightLayer, "Plinth height is not defined in layer " + plinthHeightLayer);
+               // pl.addErrors(errors);
             }
 
             if (errors.isEmpty()) {
@@ -491,7 +502,7 @@ public class AdditionalFeature extends FeatureProcess {
                 details.put(DESCRIPTION, MIN_PLINTH_HEIGHT_DESC);
                 details.put(PERMISSIBLE, MIN_PLINTH_HEIGHT);
                 details.put(PROVIDED, String.valueOf(minPlinthHeight));
-                details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+                details.put(STATUS,  Result.Verify.getResultVal());
                 scrutinyDetail.getDetail().add(details);
                 pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
             }

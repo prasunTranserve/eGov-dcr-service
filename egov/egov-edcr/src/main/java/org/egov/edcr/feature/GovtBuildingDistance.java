@@ -97,50 +97,57 @@ public class GovtBuildingDistance extends FeatureProcess {
 		List<BigDecimal> distancesFromGovtBuilding = pl.getDistanceToExternalEntity().getGovtBuildings();
 		List<Block> blocks = pl.getBlocks();
 
-		if (StringUtils.isNotBlank(pl.getPlanInformation().getBuildingNearGovtBuilding())
-				&& "YES".equalsIgnoreCase(pl.getPlanInformation().getBuildingNearGovtBuilding())) {
-			if (!distancesFromGovtBuilding.isEmpty()) {
-
-				minDistanceFromGovtBuilding = distancesFromGovtBuilding.stream().reduce(BigDecimal::min).get();
-
-				for (Block b : blocks) {
-					if (b.getBuilding().getBuildingHeight().compareTo(maxHeightOfBuilding) > 0) {
-						maxHeightOfBuilding = b.getBuilding().getBuildingHeight();
-					}
-				}
-
-				if (minDistanceFromGovtBuilding.compareTo(BigDecimal.valueOf(200)) > 0) {
-					details.put(DISTANCE, ">200");
-					details.put(PERMITTED, "ALL");
-					details.put(PROVIDED, minDistanceFromGovtBuilding.toString());
-					details.put(STATUS, Result.Accepted.getResultVal());
-					scrutinyDetail.getDetail().add(details);
-					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-				} else {
-					if (maxHeightOfBuilding.compareTo(BigDecimal.valueOf(10)) <= 0) {
-
-						details.put(DISTANCE, "<=200");
-						details.put(PERMITTED, "Building Height: 10mt");
-						details.put(PROVIDED, "Building Height: " + maxHeightOfBuilding + "mt");
-						details.put(STATUS, Result.Accepted.getResultVal());
-						scrutinyDetail.getDetail().add(details);
-						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-
-					} else {
-
-						details.put(DISTANCE, "<=200");
-						details.put(PERMITTED, "Building Height: 10mt");
-						details.put(PROVIDED, "Building Height: " + maxHeightOfBuilding + "mt");
-						details.put(STATUS, Result.Not_Accepted.getResultVal());
-						scrutinyDetail.getDetail().add(details);
-						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-					}
-				}
-			} else {
-				errors.put("Distance_From_Govt_Building", "No distance is provided from government building");
-				pl.addErrors(errors);
-			}
-		}
+		details.put(DISTANCE, "");
+		details.put(PERMITTED, "");
+		details.put(PROVIDED, minDistanceFromGovtBuilding.toString());
+		details.put(STATUS, Result.Verify.getResultVal());
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		
+//		if (StringUtils.isNotBlank(pl.getPlanInformation().getBuildingNearGovtBuilding())
+//				&& "YES".equalsIgnoreCase(pl.getPlanInformation().getBuildingNearGovtBuilding())) {
+//			if (!distancesFromGovtBuilding.isEmpty()) {
+//
+//				minDistanceFromGovtBuilding = distancesFromGovtBuilding.stream().reduce(BigDecimal::min).get();
+//
+//				for (Block b : blocks) {
+//					if (b.getBuilding().getBuildingHeight().compareTo(maxHeightOfBuilding) > 0) {
+//						maxHeightOfBuilding = b.getBuilding().getBuildingHeight();
+//					}
+//				}
+//
+//				if (minDistanceFromGovtBuilding.compareTo(BigDecimal.valueOf(200)) > 0) {
+//					details.put(DISTANCE, ">200");
+//					details.put(PERMITTED, "ALL");
+//					details.put(PROVIDED, minDistanceFromGovtBuilding.toString());
+//					details.put(STATUS, Result.Accepted.getResultVal());
+//					scrutinyDetail.getDetail().add(details);
+//					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//				} else {
+//					if (maxHeightOfBuilding.compareTo(BigDecimal.valueOf(10)) <= 0) {
+//
+//						details.put(DISTANCE, "<=200");
+//						details.put(PERMITTED, "Building Height: 10mt");
+//						details.put(PROVIDED, "Building Height: " + maxHeightOfBuilding + "mt");
+//						details.put(STATUS, Result.Accepted.getResultVal());
+//						scrutinyDetail.getDetail().add(details);
+//						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//
+//					} else {
+//
+//						details.put(DISTANCE, "<=200");
+//						details.put(PERMITTED, "Building Height: 10mt");
+//						details.put(PROVIDED, "Building Height: " + maxHeightOfBuilding + "mt");
+//						details.put(STATUS, Result.Not_Accepted.getResultVal());
+//						scrutinyDetail.getDetail().add(details);
+//						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//					}
+//				}
+//			} else {
+//				errors.put("Distance_From_Govt_Building", "No distance is provided from government building");
+//				pl.addErrors(errors);
+//			}
+//		}
 		return pl;
 	}
 
