@@ -116,7 +116,7 @@ public class SegregatedToilet extends FeatureProcess {
                 && DxfFileConstants.A
                         .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
                 && maxHeightOfBuilding.compareTo(new BigDecimal(15)) >= 0)
-                || ((DxfFileConstants.I
+                || ((DxfFileConstants.B
                         .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
                         || DxfFileConstants.A
                                 .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())

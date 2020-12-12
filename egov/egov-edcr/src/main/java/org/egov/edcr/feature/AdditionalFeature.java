@@ -524,24 +524,24 @@ public class AdditionalFeature extends FeatureProcess {
                     : null;
 
             if (!basementSetbacks.isEmpty()) {
-                if (mostRestrictiveFarHelper != null && mostRestrictiveFarHelper.getType() != null
-                        && (DxfFileConstants.A_AF.equalsIgnoreCase(mostRestrictiveFarHelper.getSubtype().getCode())
-                                || DxfFileConstants.A_R
-                                        .equalsIgnoreCase(mostRestrictiveFarHelper.getSubtype().getCode())
-                                || DxfFileConstants.F.equalsIgnoreCase(mostRestrictiveFarHelper.getType().getCode()))
-                        && pl.getPlot() != null
-                        && pl.getPlot().getArea().compareTo(BigDecimal.valueOf(PLOTAREA_300)) <= 0) {
-                    isAccepted = basementSetbacks.size() <= 1 ? true : false;
-                    allowedBsmnt = "1";
-                } else if (mostRestrictiveFarHelper != null && mostRestrictiveFarHelper.getType() != null
-                        && mostRestrictiveFarHelper.getSubtype() != null
-                        && (DxfFileConstants.A_AF.equalsIgnoreCase(mostRestrictiveFarHelper.getSubtype().getCode())
-                                || DxfFileConstants.A_R
-                                        .equalsIgnoreCase(mostRestrictiveFarHelper.getSubtype().getCode())
-                                || DxfFileConstants.F.equalsIgnoreCase(mostRestrictiveFarHelper.getType().getCode()))) {
-                    isAccepted = basementSetbacks.size() <= 2 ? true : false;
-                    allowedBsmnt = "2";
-                }
+//                if (mostRestrictiveFarHelper != null && mostRestrictiveFarHelper.getType() != null
+//                        && (DxfFileConstants.A_AF.equalsIgnoreCase(mostRestrictiveFarHelper.getSubtype().getCode())
+//                                || DxfFileConstants.A_R
+//                                        .equalsIgnoreCase(mostRestrictiveFarHelper.getSubtype().getCode())
+//                                || DxfFileConstants.F.equalsIgnoreCase(mostRestrictiveFarHelper.getType().getCode()))
+//                        && pl.getPlot() != null
+//                        && pl.getPlot().getArea().compareTo(BigDecimal.valueOf(PLOTAREA_300)) <= 0) {
+//                    isAccepted = basementSetbacks.size() <= 1 ? true : false;
+//                    allowedBsmnt = "1";
+//                } else if (mostRestrictiveFarHelper != null && mostRestrictiveFarHelper.getType() != null
+//                        && mostRestrictiveFarHelper.getSubtype() != null
+//                        && (DxfFileConstants.A_AF.equalsIgnoreCase(mostRestrictiveFarHelper.getSubtype().getCode())
+//                                || DxfFileConstants.A_R
+//                                        .equalsIgnoreCase(mostRestrictiveFarHelper.getSubtype().getCode())
+//                                || DxfFileConstants.F.equalsIgnoreCase(mostRestrictiveFarHelper.getType().getCode()))) {
+//                    isAccepted = basementSetbacks.size() <= 2 ? true : false;
+//                    allowedBsmnt = "2";
+//                }
 
                 Map<String, String> details = new HashMap<>();
                 details.put(RULE_NO, RULE_47);

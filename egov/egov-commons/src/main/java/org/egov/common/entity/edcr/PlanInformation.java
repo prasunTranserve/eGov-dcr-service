@@ -166,8 +166,13 @@ public class PlanInformation implements Serializable {
     private String district;
     //YES/NO/NA.Extracted from Plan info. Rain water declared in plan.
     private transient String rwhDeclared = NA;
-
-
+    //NUMBER_OF_OCCUPANTS_OR_USERS
+    private BigDecimal numberOfOccupantsOrUsers=BigDecimal.ZERO;
+    
+    private boolean assemblyBuilding;
+    
+    private String landUseZone=NA;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -624,4 +629,24 @@ public class PlanInformation implements Serializable {
         this.rwhDeclared = rwhDeclared;
     }
 
+	
+    public BigDecimal getNumberOfOccupantsOrUsers() {
+		return numberOfOccupantsOrUsers;
+	}
+
+	public void setNumberOfOccupantsOrUsers(BigDecimal numberOfOccupantsOrUsers) {
+		this.numberOfOccupantsOrUsers = numberOfOccupantsOrUsers;
+	}
+
+	
+	public boolean isAssemblyBuilding() {
+		return assemblyBuilding;
+	}
+
+	public void setAssemblyBuilding(boolean assemblyBuilding) {
+		this.assemblyBuilding = assemblyBuilding;
+	}
+	
+	
+    
 }

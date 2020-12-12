@@ -344,10 +344,10 @@ public class GeneralStair extends FeatureProcess {
 
     private BigDecimal getRequiredWidth(Block block, OccupancyTypeHelper mostRestrictiveOccupancyType) {
         if (mostRestrictiveOccupancyType != null && mostRestrictiveOccupancyType.getType() != null
-                && DxfFileConstants.A_AF.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())) {
+                && DxfFileConstants.A_R.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())) {
             return BigDecimal.valueOf(1.9);
         } else if (mostRestrictiveOccupancyType != null && mostRestrictiveOccupancyType.getType() != null
-                && DxfFileConstants.A_AF_GH.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())) {
+                && DxfFileConstants.A_R.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())) {
             return BigDecimal.valueOf(0.75);
         } else if (mostRestrictiveOccupancyType != null && mostRestrictiveOccupancyType.getType() != null
                 && DxfFileConstants.A.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())
@@ -431,7 +431,7 @@ public class GeneralStair extends FeatureProcess {
 
     private BigDecimal getRequiredTread(OccupancyTypeHelper mostRestrictiveOccupancyType) {
         if (mostRestrictiveOccupancyType != null && mostRestrictiveOccupancyType.getSubtype() != null
-                && DxfFileConstants.A_AF.equalsIgnoreCase(mostRestrictiveOccupancyType.getSubtype().getCode())) {
+                && DxfFileConstants.A_R.equalsIgnoreCase(mostRestrictiveOccupancyType.getSubtype().getCode())) {
             return BigDecimal.valueOf(0.25);
         } else {
             return BigDecimal.valueOf(0.3);

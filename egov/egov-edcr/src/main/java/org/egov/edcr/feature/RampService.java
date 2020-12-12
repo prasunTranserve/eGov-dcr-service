@@ -47,7 +47,6 @@
 
 package org.egov.edcr.feature;
 
-import static org.egov.edcr.constants.DxfFileConstants.A_AF;
 import static org.egov.edcr.constants.DxfFileConstants.A_R;
 
 import java.math.BigDecimal;
@@ -380,11 +379,11 @@ public class RampService extends FeatureProcess {
                                                             .getCode().equalsIgnoreCase(DxfFileConstants.C))
                                                     || (mostRestrictiveFarHelper.getSubtype() != null &&
                                                             (mostRestrictiveFarHelper.getSubtype().getCode()
-                                                                    .equalsIgnoreCase(DxfFileConstants.C_MA)
+                                                                    .equalsIgnoreCase(DxfFileConstants.C)
                                                                     || mostRestrictiveFarHelper.getSubtype().getCode()
-                                                                            .equalsIgnoreCase(DxfFileConstants.C_MIP)
+                                                                            .equalsIgnoreCase(DxfFileConstants.C)
                                                                     || mostRestrictiveFarHelper.getSubtype().getCode()
-                                                                            .equalsIgnoreCase(DxfFileConstants.C_MOP))))) {
+                                                                            .equalsIgnoreCase(DxfFileConstants.C))))) {
                                                 expectedSlope = BigDecimal.valueOf(0.05);
                                             } else {
                                                 expectedSlope = ramp.getFloorHeight()

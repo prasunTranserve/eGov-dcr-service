@@ -48,40 +48,10 @@
 package org.egov.edcr.feature;
 
 import static org.egov.edcr.constants.DxfFileConstants.A;
-import static org.egov.edcr.constants.DxfFileConstants.A2;
-import static org.egov.edcr.constants.DxfFileConstants.A_AF;
-import static org.egov.edcr.constants.DxfFileConstants.A_FH;
 import static org.egov.edcr.constants.DxfFileConstants.A_R;
 import static org.egov.edcr.constants.DxfFileConstants.A_SA;
-import static org.egov.edcr.constants.DxfFileConstants.B2;
-import static org.egov.edcr.constants.DxfFileConstants.D_A;
-import static org.egov.edcr.constants.DxfFileConstants.D_B;
-import static org.egov.edcr.constants.DxfFileConstants.D_C;
-import static org.egov.edcr.constants.DxfFileConstants.E_CLG;
-import static org.egov.edcr.constants.DxfFileConstants.E_EARC;
-import static org.egov.edcr.constants.DxfFileConstants.E_NS;
-import static org.egov.edcr.constants.DxfFileConstants.E_PS;
-import static org.egov.edcr.constants.DxfFileConstants.E_SACA;
-import static org.egov.edcr.constants.DxfFileConstants.E_SFDAP;
-import static org.egov.edcr.constants.DxfFileConstants.E_SFMC;
 import static org.egov.edcr.constants.DxfFileConstants.F;
-import static org.egov.edcr.constants.DxfFileConstants.H_PP;
-import static org.egov.edcr.constants.DxfFileConstants.M_DFPAB;
-import static org.egov.edcr.constants.DxfFileConstants.M_HOTHC;
-import static org.egov.edcr.constants.DxfFileConstants.M_NAPI;
-import static org.egov.edcr.constants.DxfFileConstants.M_OHF;
-import static org.egov.edcr.constants.DxfFileConstants.M_VH;
-import static org.egov.edcr.constants.DxfFileConstants.S_BH;
-import static org.egov.edcr.constants.DxfFileConstants.S_CA;
-import static org.egov.edcr.constants.DxfFileConstants.S_CRC;
-import static org.egov.edcr.constants.DxfFileConstants.S_ECFG;
-import static org.egov.edcr.constants.DxfFileConstants.S_ICC;
-import static org.egov.edcr.constants.DxfFileConstants.S_MCH;
-import static org.egov.edcr.constants.DxfFileConstants.S_SAS;
-import static org.egov.edcr.constants.DxfFileConstants.S_SC;
 import static org.egov.edcr.constants.DxfFileConstants.G;
-import static org.egov.edcr.constants.DxfFileConstants.G_PHI;
-import static org.egov.edcr.constants.DxfFileConstants.G_NPHI;
 import static org.egov.edcr.utility.DcrConstants.DECIMALDIGITS_MEASUREMENTS;
 import static org.egov.edcr.utility.DcrConstants.OBJECTNOTDEFINED;
 import static org.egov.edcr.utility.DcrConstants.PLOT_AREA;
@@ -118,1100 +88,1373 @@ import org.springframework.stereotype.Service;
 @Service
 public class Far extends FeatureProcess {
 
-        private static final Logger LOG = Logger.getLogger(Far.class);
-
-        private static final String VALIDATION_NEGATIVE_FLOOR_AREA = "msg.error.negative.floorarea.occupancy.floor";
-        private static final String VALIDATION_NEGATIVE_EXISTING_FLOOR_AREA = "msg.error.negative.existing.floorarea.occupancy.floor";
-        private static final String VALIDATION_NEGATIVE_BUILTUP_AREA = "msg.error.negative.builtuparea.occupancy.floor";
-        private static final String VALIDATION_NEGATIVE_EXISTING_BUILTUP_AREA = "msg.error.negative.existing.builtuparea.occupancy.floor";
-        public static final String RULE_31_1 = "31-1";
-        public static final String RULE_38 = "38";
-
-        private static final BigDecimal POINTTWO = BigDecimal.valueOf(0.2);
-        private static final BigDecimal POINTFOUR = BigDecimal.valueOf(0.4);
-        private static final BigDecimal POINTFIVE = BigDecimal.valueOf(0.5);
-        private static final BigDecimal POINTSIX = BigDecimal.valueOf(0.6);
-        private static final BigDecimal POINTSEVEN = BigDecimal.valueOf(0.7);
-        private static final BigDecimal ONE = BigDecimal.valueOf(1);
-        private static final BigDecimal ONE_POINTTWO = BigDecimal.valueOf(1.2);
-        private static final BigDecimal ONE_POINTFIVE = BigDecimal.valueOf(1.5);
-        private static final BigDecimal ONE_POINTEIGHT = BigDecimal.valueOf(1.8);
-        private static final BigDecimal TWO = BigDecimal.valueOf(2);
-        private static final BigDecimal TWO_POINTFIVE = BigDecimal.valueOf(2.5);
-        private static final BigDecimal THREE = BigDecimal.valueOf(3);
-        private static final BigDecimal THREE_POINTTWOFIVE = BigDecimal.valueOf(3.25);
-        private static final BigDecimal THREE_POINTFIVE = BigDecimal.valueOf(3.5);
-        private static final BigDecimal FIFTEEN = BigDecimal.valueOf(15);
-
-        private static final BigDecimal ROAD_WIDTH_TWO_POINTFOUR = BigDecimal.valueOf(2.4);
-        private static final BigDecimal ROAD_WIDTH_TWO_POINTFOURFOUR = BigDecimal.valueOf(2.44);
-        private static final BigDecimal ROAD_WIDTH_THREE_POINTSIX = BigDecimal.valueOf(3.6);
-        private static final BigDecimal ROAD_WIDTH_FOUR_POINTEIGHT = BigDecimal.valueOf(4.8);
-        private static final BigDecimal ROAD_WIDTH_SIX_POINTONE = BigDecimal.valueOf(6.1);
-        private static final BigDecimal ROAD_WIDTH_NINE_POINTONE = BigDecimal.valueOf(9.1);
-        private static final BigDecimal ROAD_WIDTH_TWELVE_POINTTWO = BigDecimal.valueOf(12.2);
-
-        private static final BigDecimal ROAD_WIDTH_EIGHTEEN_POINTTHREE = BigDecimal.valueOf(18.3);
-        private static final BigDecimal ROAD_WIDTH_TWENTYFOUR_POINTFOUR = BigDecimal.valueOf(24.4);
-        private static final BigDecimal ROAD_WIDTH_TWENTYSEVEN_POINTFOUR = BigDecimal.valueOf(27.4);
-        private static final BigDecimal ROAD_WIDTH_THIRTY_POINTFIVE = BigDecimal.valueOf(30.5);
-
-        public static final String OLD = "OLD";
-        public static final String NEW = "NEW";
-        public static final String OLD_AREA_ERROR = "road width old area";
-        public static final String NEW_AREA_ERROR = "road width new area";
-        public static final String OLD_AREA_ERROR_MSG = "No construction shall be permitted if the road width is less than 2.4m for old area.";
-        public static final String NEW_AREA_ERROR_MSG = "No construction shall be permitted if the road width is less than 6.1m for new area.";
-
-
-        @Override
-    public Plan validate(Plan pl) {
-        if (pl.getPlot() == null
-                || (pl.getPlot() != null && (pl.getPlot().getArea() == null || pl.getPlot().getArea().doubleValue() == 0))) {
-            pl.addError(PLOT_AREA, getLocaleMessage(OBJECTNOTDEFINED, PLOT_AREA));
-        }
-        return pl;
-    }
-
-        @Override
-        public Plan process(Plan pl) {
-                decideNocIsRequired(pl);
-                HashMap<String, String> errorMsgs = new HashMap<>();
-                int errors = pl.getErrors().size();
-                validate(pl);
-                int validatedErrors = pl.getErrors().size();
-                if (validatedErrors > errors) {
-                        return pl;
-                }
-                BigDecimal totalExistingBuiltUpArea = BigDecimal.ZERO;
-                BigDecimal totalExistingFloorArea = BigDecimal.ZERO;
-                BigDecimal totalBuiltUpArea = BigDecimal.ZERO;
-                BigDecimal totalFloorArea = BigDecimal.ZERO;
-                BigDecimal totalCarpetArea = BigDecimal.ZERO;
-                BigDecimal totalExistingCarpetArea = BigDecimal.ZERO;
-                Set<OccupancyTypeHelper> distinctOccupancyTypesHelper = new HashSet<>();
-                for (Block blk : pl.getBlocks()) {
-                        BigDecimal flrArea = BigDecimal.ZERO;
-                        BigDecimal bltUpArea = BigDecimal.ZERO;
-                        BigDecimal existingFlrArea = BigDecimal.ZERO;
-                        BigDecimal existingBltUpArea = BigDecimal.ZERO;
-                        BigDecimal carpetArea = BigDecimal.ZERO;
-                        BigDecimal existingCarpetArea = BigDecimal.ZERO;
-                        Building building = blk.getBuilding();
-                        for (Floor flr : building.getFloors()) {
-                                for (Occupancy occupancy : flr.getOccupancies()) {
-                                        validate2(pl, blk, flr, occupancy);
-                                        /*
-                                         * occupancy.setCarpetArea(occupancy.getFloorArea().multiply
-                                         * (BigDecimal.valueOf(0.80))); occupancy
-                                         * .setExistingCarpetArea(occupancy.getExistingFloorArea().
-                                         * multiply(BigDecimal.valueOf(0.80)));
-                                         */
-
-                                        bltUpArea = bltUpArea.add(
-                                                        occupancy.getBuiltUpArea() == null ? BigDecimal.valueOf(0) : occupancy.getBuiltUpArea());
-                                        existingBltUpArea = existingBltUpArea.add(occupancy.getExistingBuiltUpArea() == null
-                                                        ? BigDecimal.valueOf(0) : occupancy.getExistingBuiltUpArea());
-                                        flrArea = flrArea.add(occupancy.getFloorArea());
-                                        existingFlrArea = existingFlrArea.add(occupancy.getExistingFloorArea());
-                                        carpetArea = carpetArea.add(occupancy.getCarpetArea());
-                                        existingCarpetArea = existingCarpetArea.add(occupancy.getExistingCarpetArea());
-                                }
-                        }
-                        building.setTotalFloorArea(flrArea);
-                        building.setTotalBuitUpArea(bltUpArea);
-                        building.setTotalExistingBuiltUpArea(existingBltUpArea);
-                        building.setTotalExistingFloorArea(existingFlrArea);
-
-                        // check block is completely existing building or not.
-                        if (existingBltUpArea.compareTo(bltUpArea) == 0)
-                                blk.setCompletelyExisting(Boolean.TRUE);
-
-                        totalFloorArea = totalFloorArea.add(flrArea);
-                        totalBuiltUpArea = totalBuiltUpArea.add(bltUpArea);
-                        totalExistingBuiltUpArea = totalExistingBuiltUpArea.add(existingBltUpArea);
-                        totalExistingFloorArea = totalExistingFloorArea.add(existingFlrArea);
-                        totalCarpetArea = totalCarpetArea.add(carpetArea);
-                        totalExistingCarpetArea = totalExistingCarpetArea.add(existingCarpetArea);
-
-                        // Find Occupancies by block and add
-                        Set<OccupancyTypeHelper> occupancyByBlock = new HashSet<>();
-                        for (Floor flr : building.getFloors()) {
-                                for (Occupancy occupancy : flr.getOccupancies()) {
-                                        if (occupancy.getTypeHelper() != null)
-                                                occupancyByBlock.add(occupancy.getTypeHelper());
-                                }
-                        }
-
-                        List<Map<String, Object>> listOfMapOfAllDtls = new ArrayList<>();
-                        List<OccupancyTypeHelper> listOfOccupancyTypes = new ArrayList<>();
-
-                        for (OccupancyTypeHelper occupancyType : occupancyByBlock) {
-
-                                Map<String, Object> allDtlsMap = new HashMap<>();
-                                BigDecimal blockWiseFloorArea = BigDecimal.ZERO;
-                                BigDecimal blockWiseBuiltupArea = BigDecimal.ZERO;
-                                BigDecimal blockWiseExistingFloorArea = BigDecimal.ZERO;
-                                BigDecimal blockWiseExistingBuiltupArea = BigDecimal.ZERO;
-                                for (Floor flr : blk.getBuilding().getFloors()) {
-                                        for (Occupancy occupancy : flr.getOccupancies()) {
-                                                if (occupancyType.getType() != null && occupancyType.getType().getCode()!=null && occupancy.getTypeHelper() != null && 
-                                                		occupancy.getTypeHelper().getType()!=null && occupancy.getTypeHelper().getType().getCode()!=null
-                                                                && occupancy.getTypeHelper().getType().getCode().equals(occupancyType.getType().getCode())) {
-                                                        blockWiseFloorArea = blockWiseFloorArea.add(occupancy.getFloorArea());
-                                                        blockWiseBuiltupArea = blockWiseBuiltupArea.add(occupancy.getBuiltUpArea() == null
-                                                                        ? BigDecimal.valueOf(0) : occupancy.getBuiltUpArea());
-                                                        blockWiseExistingFloorArea = blockWiseExistingFloorArea
-                                                                        .add(occupancy.getExistingFloorArea());
-                                                        blockWiseExistingBuiltupArea = blockWiseExistingBuiltupArea
-                                                                        .add(occupancy.getExistingBuiltUpArea() == null ? BigDecimal.valueOf(0)
-                                                                                        : occupancy.getExistingBuiltUpArea());
-
-                                                }
-                                        }
-                                }
-                                Occupancy occupancy = new Occupancy();
-                                occupancy.setBuiltUpArea(blockWiseBuiltupArea);
-                                occupancy.setFloorArea(blockWiseFloorArea);
-                                occupancy.setExistingFloorArea(blockWiseExistingFloorArea);
-                                occupancy.setExistingBuiltUpArea(blockWiseExistingBuiltupArea);
-                                occupancy.setCarpetArea(blockWiseFloorArea.multiply(BigDecimal.valueOf(.80)));
-                                occupancy.setTypeHelper(occupancyType);
-                                building.getTotalArea().add(occupancy);
-
-                                allDtlsMap.put("occupancy", occupancyType);
-                                allDtlsMap.put("totalFloorArea", blockWiseFloorArea);
-                                allDtlsMap.put("totalBuiltUpArea", blockWiseBuiltupArea);
-                                allDtlsMap.put("existingFloorArea", blockWiseExistingFloorArea);
-                                allDtlsMap.put("existingBuiltUpArea", blockWiseExistingBuiltupArea);
-
-                                listOfOccupancyTypes.add(occupancyType);
-
-                                listOfMapOfAllDtls.add(allDtlsMap);
-                        }
-                        Set<OccupancyTypeHelper> setOfOccupancyTypes = new HashSet<>(listOfOccupancyTypes);
-
-                        List<Occupancy> listOfOccupanciesOfAParticularblock = new ArrayList<>();
-                        // for each distinct converted occupancy types
-                        for (OccupancyTypeHelper occupancyType : setOfOccupancyTypes) {
-                                if (occupancyType != null) {
-                                        Occupancy occupancy = new Occupancy();
-                                        BigDecimal totalFlrArea = BigDecimal.ZERO;
-                                        BigDecimal totalBltUpArea = BigDecimal.ZERO;
-                                        BigDecimal totalExistingFlrArea = BigDecimal.ZERO;
-                                        BigDecimal totalExistingBltUpArea = BigDecimal.ZERO;
-
-                                        for (Map<String, Object> dtlsMap : listOfMapOfAllDtls) {
-                                                if (occupancyType.equals(dtlsMap.get("occupancy"))) {
-                                                        totalFlrArea = totalFlrArea.add((BigDecimal) dtlsMap.get("totalFloorArea"));
-                                                        totalBltUpArea = totalBltUpArea.add((BigDecimal) dtlsMap.get("totalBuiltUpArea"));
-
-                                                        totalExistingBltUpArea = totalExistingBltUpArea
-                                                                        .add((BigDecimal) dtlsMap.get("existingBuiltUpArea"));
-                                                        totalExistingFlrArea = totalExistingFlrArea
-                                                                        .add((BigDecimal) dtlsMap.get("existingFloorArea"));
-
-                                                }
-                                        }
-                                        occupancy.setTypeHelper(occupancyType);
-                                        occupancy.setBuiltUpArea(totalBltUpArea);
-                                        occupancy.setFloorArea(totalFlrArea);
-                                        occupancy.setExistingBuiltUpArea(totalExistingBltUpArea);
-                                        occupancy.setExistingFloorArea(totalExistingFlrArea);
-                                        occupancy.setExistingCarpetArea(totalExistingFlrArea.multiply(BigDecimal.valueOf(0.80)));
-                                        occupancy.setCarpetArea(totalFlrArea.multiply(BigDecimal.valueOf(0.80)));
-
-                                        listOfOccupanciesOfAParticularblock.add(occupancy);
-                                }
-                        }
-                        blk.getBuilding().setOccupancies(listOfOccupanciesOfAParticularblock);
-
-                        if (!listOfOccupanciesOfAParticularblock.isEmpty()) {
-                                // listOfOccupanciesOfAParticularblock already converted. In
-                                // case of professional building type, converted into A1
-                                // type
-                                boolean singleFamilyBuildingTypeOccupancyPresent = false;
-                                boolean otherThanSingleFamilyOccupancyTypePresent = false;
-
-                                for (Occupancy occupancy : listOfOccupanciesOfAParticularblock) {
-                                        if (occupancy.getTypeHelper().getSubtype() != null
-                                                        && A_R.equals(occupancy.getTypeHelper().getSubtype().getCode()))
-                                                singleFamilyBuildingTypeOccupancyPresent = true;
-                                        else {
-                                                otherThanSingleFamilyOccupancyTypePresent = true;
-                                                break;
-                                        }
-                                }
-                                blk.setSingleFamilyBuilding(
-                                                !otherThanSingleFamilyOccupancyTypePresent && singleFamilyBuildingTypeOccupancyPresent);
-                                int allResidentialOccTypes = 0;
-                                int allResidentialOrCommercialOccTypes = 0;
-
-                                for (Occupancy occupancy : listOfOccupanciesOfAParticularblock) {
-                                        if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getType()!=null) {
-                                                // setting residentialBuilding
-                                                int residentialOccupancyType = 0;
-                                                if (A.equals(occupancy.getTypeHelper().getType().getCode())) {
-                                                        residentialOccupancyType = 1;
-                                                }
-                                                if (residentialOccupancyType == 0) {
-                                                        allResidentialOccTypes = 0;
-                                                        break;
-                                                } else {
-                                                        allResidentialOccTypes = 1;
-                                                }
-                                        }
-                                }
-                                blk.setResidentialBuilding(allResidentialOccTypes == 1);
-                                for (Occupancy occupancy : listOfOccupanciesOfAParticularblock) {
-                                        if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getType()!=null) {
-                                                // setting residentialOrCommercial Occupancy Type
-                                                int residentialOrCommercialOccupancyType = 0;
-                                                if (A.equals(occupancy.getTypeHelper().getType().getCode())
-                                                                || F.equals(occupancy.getTypeHelper().getType().getCode())) {
-                                                        residentialOrCommercialOccupancyType = 1;
-                                                }
-                                                if (residentialOrCommercialOccupancyType == 0) {
-                                                        allResidentialOrCommercialOccTypes = 0;
-                                                        break;
-                                                } else {
-                                                        allResidentialOrCommercialOccTypes = 1;
-                                                }
-                                        }
-                                }
-                                blk.setResidentialOrCommercialBuilding(allResidentialOrCommercialOccTypes == 1);
-                        }
-
-                        if (blk.getBuilding().getFloors() != null && !blk.getBuilding().getFloors().isEmpty()) {
-                                BigDecimal noOfFloorsAboveGround = BigDecimal.ZERO;
-                                for (Floor floor : blk.getBuilding().getFloors()) {
-                                        if (floor.getNumber() != null && floor.getNumber() >= 0) {
-                                                noOfFloorsAboveGround = noOfFloorsAboveGround.add(BigDecimal.valueOf(1));
-                                        }
-                                }
-
-                                boolean hasTerrace = blk.getBuilding().getFloors().stream()
-                                                .anyMatch(floor -> floor.getTerrace().equals(Boolean.TRUE));
-
-                                noOfFloorsAboveGround = hasTerrace ? noOfFloorsAboveGround.subtract(BigDecimal.ONE)
-                                                : noOfFloorsAboveGround;
-
-                                blk.getBuilding().setMaxFloor(noOfFloorsAboveGround);
-                                blk.getBuilding().setFloorsAboveGround(noOfFloorsAboveGround);
-                                blk.getBuilding().setTotalFloors(BigDecimal.valueOf(blk.getBuilding().getFloors().size()));
-                        }
-
-                }
-
-                for (Block blk : pl.getBlocks()) {
-                        Building building = blk.getBuilding();
-                        List<OccupancyTypeHelper> blockWiseOccupancyTypes = new ArrayList<>();
-                        for (Occupancy occupancy : blk.getBuilding().getOccupancies()) {
-                                if (occupancy.getTypeHelper() != null )
-                                        blockWiseOccupancyTypes.add(occupancy.getTypeHelper());
-                        }
-                        Set<OccupancyTypeHelper> setOfBlockDistinctOccupancyTypes = new HashSet<>(blockWiseOccupancyTypes);
-                        OccupancyTypeHelper mostRestrictiveFar = getMostRestrictiveFar(setOfBlockDistinctOccupancyTypes);
-                        blk.getBuilding().setMostRestrictiveFarHelper(mostRestrictiveFar);
-
-                        for (Floor flr : building.getFloors()) {
-                                BigDecimal flrArea = BigDecimal.ZERO;
-                                BigDecimal existingFlrArea = BigDecimal.ZERO;
-                                BigDecimal carpetArea = BigDecimal.ZERO;
-                                BigDecimal existingCarpetArea = BigDecimal.ZERO;
-                                BigDecimal existingBltUpArea = BigDecimal.ZERO;
-                                for (Occupancy occupancy : flr.getOccupancies()) {
-                                        flrArea = flrArea.add(occupancy.getFloorArea());
-                                        existingFlrArea = existingFlrArea.add(occupancy.getExistingFloorArea());
-                                        carpetArea = carpetArea.add(occupancy.getCarpetArea());
-                                        existingCarpetArea = existingCarpetArea.add(occupancy.getExistingCarpetArea());
-                                }
-
-                                List<Occupancy> occupancies = flr.getOccupancies();
-                                for (Occupancy occupancy : occupancies) {
-                                        existingBltUpArea = existingBltUpArea.add(occupancy.getExistingBuiltUpArea() != null
-                                                        ? occupancy.getExistingBuiltUpArea() : BigDecimal.ZERO);
-                                }
-
-                                if (mostRestrictiveFar != null && mostRestrictiveFar.getConvertedSubtype() != null
-                                                && !A_R.equals(mostRestrictiveFar.getSubtype().getCode())) {
-                                        if (carpetArea.compareTo(BigDecimal.ZERO) == 0) {
-                                                pl.addError("Carpet area in block " + blk.getNumber() + "floor " + flr.getNumber(),
-                                                                "Carpet area is not defined in block " + blk.getNumber() + "floor " + flr.getNumber());
-                                        }
-
-                                        if (existingBltUpArea.compareTo(BigDecimal.ZERO) > 0
-                                                        && existingCarpetArea.compareTo(BigDecimal.ZERO) == 0) {
-                                                pl.addError("Existing Carpet area in block " + blk.getNumber() + "floor " + flr.getNumber(),
-                                                                "Existing Carpet area is not defined in block " + blk.getNumber() + "floor "
-                                                                                + flr.getNumber());
-                                        }
-                                }
-
-                                if (flrArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS, DcrConstants.ROUNDMODE_MEASUREMENTS)
-                                                .compareTo(carpetArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
-                                                                DcrConstants.ROUNDMODE_MEASUREMENTS)) < 0) {
-                                        pl.addError("Floor area in block " + blk.getNumber() + "floor " + flr.getNumber(),
-                                                        "Floor area is less than carpet area in block " + blk.getNumber() + "floor "
-                                                                        + flr.getNumber());
-                                }
-
-                                if (existingBltUpArea.compareTo(BigDecimal.ZERO) > 0 && existingFlrArea
-                                                .setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS, DcrConstants.ROUNDMODE_MEASUREMENTS)
-                                                .compareTo(existingCarpetArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
-                                                                DcrConstants.ROUNDMODE_MEASUREMENTS)) < 0) {
-                                        pl.addError("Existing floor area in block " + blk.getNumber() + "floor " + flr.getNumber(),
-                                                        "Existing Floor area is less than carpet area in block " + blk.getNumber() + "floor "
-                                                                        + flr.getNumber());
-                                }
-                        }
-                }
-
-                List<OccupancyTypeHelper> plotWiseOccupancyTypes = new ArrayList<>();
-                for (Block block : pl.getBlocks()) {
-                        for (Occupancy occupancy : block.getBuilding().getOccupancies()) {
-                                if (occupancy.getTypeHelper() != null)
-                                        plotWiseOccupancyTypes.add(occupancy.getTypeHelper());
-                        }
-                }
-
-                Set<OccupancyTypeHelper> setOfDistinctOccupancyTypes = new HashSet<>(plotWiseOccupancyTypes);
-
-                distinctOccupancyTypesHelper.addAll(setOfDistinctOccupancyTypes);
-
-                List<Occupancy> occupanciesForPlan = new ArrayList<>();
-
-                for (OccupancyTypeHelper occupancyType : setOfDistinctOccupancyTypes) {
-                        if (occupancyType != null) {
-                                BigDecimal totalFloorAreaForAllBlks = BigDecimal.ZERO;
-                                BigDecimal totalBuiltUpAreaForAllBlks = BigDecimal.ZERO;
-                                BigDecimal totalCarpetAreaForAllBlks = BigDecimal.ZERO;
-                                BigDecimal totalExistBuiltUpAreaForAllBlks = BigDecimal.ZERO;
-                                BigDecimal totalExistFloorAreaForAllBlks = BigDecimal.ZERO;
-                                BigDecimal totalExistCarpetAreaForAllBlks = BigDecimal.ZERO;
-                                Occupancy occupancy = new Occupancy();
-                                for (Block block : pl.getBlocks()) {
-                                        for (Occupancy buildingOccupancy : block.getBuilding().getOccupancies()) {
-                                                if (occupancyType.equals(buildingOccupancy.getTypeHelper())) {
-                                                        totalFloorAreaForAllBlks = totalFloorAreaForAllBlks.add(buildingOccupancy.getFloorArea());
-                                                        totalBuiltUpAreaForAllBlks = totalBuiltUpAreaForAllBlks
-                                                                        .add(buildingOccupancy.getBuiltUpArea());
-                                                        totalCarpetAreaForAllBlks = totalCarpetAreaForAllBlks
-                                                                        .add(buildingOccupancy.getCarpetArea());
-                                                        totalExistBuiltUpAreaForAllBlks = totalExistBuiltUpAreaForAllBlks
-                                                                        .add(buildingOccupancy.getExistingBuiltUpArea());
-                                                        totalExistFloorAreaForAllBlks = totalExistFloorAreaForAllBlks
-                                                                        .add(buildingOccupancy.getExistingFloorArea());
-                                                        totalExistCarpetAreaForAllBlks = totalExistCarpetAreaForAllBlks
-                                                                        .add(buildingOccupancy.getExistingCarpetArea());
-                                                }
-                                        }
-                                }
-                                occupancy.setTypeHelper(occupancyType);
-                                occupancy.setBuiltUpArea(totalBuiltUpAreaForAllBlks);
-                                occupancy.setCarpetArea(totalCarpetAreaForAllBlks);
-                                occupancy.setFloorArea(totalFloorAreaForAllBlks);
-                                occupancy.setExistingBuiltUpArea(totalExistBuiltUpAreaForAllBlks);
-                                occupancy.setExistingFloorArea(totalExistFloorAreaForAllBlks);
-                                occupancy.setExistingCarpetArea(totalExistCarpetAreaForAllBlks);
-                                occupanciesForPlan.add(occupancy);
-                        }
-                }
-
-                pl.setOccupancies(occupanciesForPlan);
-                pl.getVirtualBuilding().setTotalFloorArea(totalFloorArea);
-                pl.getVirtualBuilding().setTotalCarpetArea(totalCarpetArea);
-                pl.getVirtualBuilding().setTotalExistingBuiltUpArea(totalExistingBuiltUpArea);
-                pl.getVirtualBuilding().setTotalExistingFloorArea(totalExistingFloorArea);
-                pl.getVirtualBuilding().setTotalExistingCarpetArea(totalExistingCarpetArea);
-                pl.getVirtualBuilding().setOccupancyTypes(distinctOccupancyTypesHelper);
-                pl.getVirtualBuilding().setTotalBuitUpArea(totalBuiltUpArea);
-                pl.getVirtualBuilding().setMostRestrictiveFarHelper(getMostRestrictiveFar(setOfDistinctOccupancyTypes));
-
-                if (!distinctOccupancyTypesHelper.isEmpty()) {
-                        int allResidentialOccTypesForPlan = 0;
-                        for (OccupancyTypeHelper occupancy : distinctOccupancyTypesHelper) {
-                                LOG.info("occupancy :" + occupancy);
-                                // setting residentialBuilding
-                                int residentialOccupancyType = 0;
-                                if (occupancy.getType()!=null && A.equals(occupancy.getType().getCode())) {
-                                        residentialOccupancyType = 1;
-                                }
-                                if (residentialOccupancyType == 0) {
-                                        allResidentialOccTypesForPlan = 0;
-                                        break;
-                                } else {
-                                        allResidentialOccTypesForPlan = 1;
-                                }
-                        }
-                        pl.getVirtualBuilding().setResidentialBuilding(allResidentialOccTypesForPlan == 1);
-                        int allResidentialOrCommercialOccTypesForPlan = 0;
-                        for (OccupancyTypeHelper occupancyType : distinctOccupancyTypesHelper) {
-                                int residentialOrCommercialOccupancyTypeForPlan = 0;
-                                if (occupancyType.getType()!=null  && (A.equals(occupancyType.getType().getCode()) || F.equals(occupancyType.getType().getCode()))) {
-                                        residentialOrCommercialOccupancyTypeForPlan = 1;
-                                }
-                                if (residentialOrCommercialOccupancyTypeForPlan == 0) {
-                                        allResidentialOrCommercialOccTypesForPlan = 0;
-                                        break;
-                                } else {
-                                        allResidentialOrCommercialOccTypesForPlan = 1;
-                                }
-                        }
-                        pl.getVirtualBuilding().setResidentialOrCommercialBuilding(allResidentialOrCommercialOccTypesForPlan == 1);
-                }
-        
-                OccupancyTypeHelper mostRestrictiveOccupancy = pl.getVirtualBuilding() != null
-                        ? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
-                        : null;
-                        
-                if (!(pl.getVirtualBuilding().getResidentialOrCommercialBuilding()
-                        || (mostRestrictiveOccupancy != null && mostRestrictiveOccupancy.getType() != null
-                                && DxfFileConstants.G.equalsIgnoreCase(mostRestrictiveOccupancy.getType().getCode())))) {
-                    pl.getErrors().put(DxfFileConstants.OCCUPANCY_ALLOWED_KEY, DxfFileConstants.OCCUPANCY_ALLOWED);
-                    return pl;
-                }
-                
-                Set<String> occupancyCodes = new HashSet<>();
-                for (OccupancyTypeHelper oth : pl.getVirtualBuilding().getOccupancyTypes()) {
-                    if (oth.getSubtype() != null) {
-                        occupancyCodes.add(oth.getSubtype().getCode());
-                    }
-                }
-        
-                if (occupancyCodes.size() == 1 && occupancyCodes.contains(DxfFileConstants.A_PO)) {
-                    pl.getErrors().put(DxfFileConstants.OCCUPANCY_PO_NOT_ALLOWED_KEY, DxfFileConstants.OCCUPANCY_PO_NOT_ALLOWED);
-                    return pl;
-                }
-        
-                OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-                BigDecimal providedFar = BigDecimal.ZERO;
-                BigDecimal surrenderRoadArea = BigDecimal.ZERO;
-
-                if (!pl.getSurrenderRoads().isEmpty()) {
-                        for (Measurement measurement : pl.getSurrenderRoads()) {
-                                surrenderRoadArea = surrenderRoadArea.add(measurement.getArea());
-                        }
-                }
-
-                pl.setTotalSurrenderRoadArea(surrenderRoadArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
-                                DcrConstants.ROUNDMODE_MEASUREMENTS));
-                BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea().add(surrenderRoadArea) : BigDecimal.ZERO;
-                if (plotArea.doubleValue() > 0)
-                        providedFar = pl.getVirtualBuilding().getTotalFloorArea().divide(plotArea, DECIMALDIGITS_MEASUREMENTS,
-                                        ROUNDMODE_MEASUREMENTS);
-
-                pl.setFarDetails(new FarDetails());
-                pl.getFarDetails().setProvidedFar(providedFar.doubleValue());
-                String typeOfArea = pl.getPlanInformation().getTypeOfArea();
-                BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
-
-                if (mostRestrictiveOccupancyType != null && 
-                        StringUtils.isNotBlank(typeOfArea) && roadWidth != null && !processFarForSpecialOccupancy(pl,
-                                mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth, errorMsgs)) {
-                        if ((mostRestrictiveOccupancyType.getType() != null
-                                        && DxfFileConstants.A.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode()))
-                                        || (mostRestrictiveOccupancyType.getSubtype() != null
-                                                        && (A_R.equalsIgnoreCase(mostRestrictiveOccupancyType.getSubtype().getCode())
-                                                        || A_AF.equalsIgnoreCase(mostRestrictiveOccupancyType.getSubtype().getCode())))) {
-                                processFarResidential(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth, errorMsgs);
-                        }
-                        if (mostRestrictiveOccupancyType.getType() != null
-                                        && (DxfFileConstants.G.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())
-                                                        || DxfFileConstants.B.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())
-                                                        || DxfFileConstants.D.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode()))) {
-                                processFarForGBDOccupancy(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth,
-                                                errorMsgs);
-                        }
-                        if (mostRestrictiveOccupancyType.getType() != null
-                                        && DxfFileConstants.I.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())) {
-                                processFarHaazardous(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth, errorMsgs);
-                        } 
-                        if (mostRestrictiveOccupancyType.getType() != null
-                                && DxfFileConstants.F.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())) { 
-                                processFarNonResidential(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth,
-                                                errorMsgs);
-                        }
-                }
-                ProcessPrintHelper.print(pl);
-                return pl;
-        }
-
-        private void decideNocIsRequired(Plan pl) {
-                Boolean isHighRise = false;
-                for (Block b : pl.getBlocks()) {
-                        if ((b.getBuilding() != null
-                                        /*
-                                         * && b.getBuilding().getIsHighRise() != null &&
-                                         * b.getBuilding().getIsHighRise()
-                                         */ && b.getBuilding().getBuildingHeight().compareTo(new BigDecimal(5)) > 0)
-                                        || (b.getBuilding() != null && b.getBuilding().getCoverageArea() != null
-                                                        && b.getBuilding().getCoverageArea().compareTo(new BigDecimal(500)) > 0)) {
-                                isHighRise = true;
-
-                        }
-                }
-                if (isHighRise) {
-                        pl.getPlanInformation().setNocFireDept("YES");
-                }
-
-                if (StringUtils.isNotBlank(pl.getPlanInformation().getBuildingNearMonument())
-                                && "YES".equalsIgnoreCase(pl.getPlanInformation().getBuildingNearMonument())) {
-                        BigDecimal minDistanceFromMonument = BigDecimal.ZERO;
-                        List<BigDecimal> distancesFromMonument = pl.getDistanceToExternalEntity().getMonuments();
-                        if (!distancesFromMonument.isEmpty()) {
-
-                                minDistanceFromMonument = distancesFromMonument.stream().reduce(BigDecimal::min).get();
-
-                                if (minDistanceFromMonument.compareTo(BigDecimal.valueOf(300)) > 0) {
-                                        pl.getPlanInformation().setNocNearMonument("YES");
-                                }
-                        }
-
-                }
-
-        }
-
-        private void validate2(Plan pl, Block blk, Floor flr, Occupancy occupancy) {
-                String occupancyTypeHelper = StringUtils.EMPTY;
-                if (occupancy.getTypeHelper() != null) {
-                        if (occupancy.getTypeHelper().getType() != null) {
-                                occupancyTypeHelper = occupancy.getTypeHelper().getType().getName();
-                        } else if (occupancy.getTypeHelper().getSubtype() != null) {
-                                occupancyTypeHelper = occupancy.getTypeHelper().getSubtype().getName();
-                        }
-                }
-
-                if (occupancy.getBuiltUpArea() != null && occupancy.getBuiltUpArea().compareTo(BigDecimal.valueOf(0)) < 0) {
-                        pl.addError(VALIDATION_NEGATIVE_BUILTUP_AREA, getLocaleMessage(VALIDATION_NEGATIVE_BUILTUP_AREA,
-                                        blk.getNumber(), flr.getNumber().toString(), occupancyTypeHelper));
-                }
-                if (occupancy.getExistingBuiltUpArea() != null
-                                && occupancy.getExistingBuiltUpArea().compareTo(BigDecimal.valueOf(0)) < 0) {
-                        pl.addError(VALIDATION_NEGATIVE_EXISTING_BUILTUP_AREA,
-                                        getLocaleMessage(VALIDATION_NEGATIVE_EXISTING_BUILTUP_AREA, blk.getNumber(),
-                                                        flr.getNumber().toString(), occupancyTypeHelper));
-                }
-                occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
-                                .subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()));
-                if (occupancy.getFloorArea() != null && occupancy.getFloorArea().compareTo(BigDecimal.valueOf(0)) < 0) {
-                        pl.addError(VALIDATION_NEGATIVE_FLOOR_AREA, getLocaleMessage(VALIDATION_NEGATIVE_FLOOR_AREA,
-                                        blk.getNumber(), flr.getNumber().toString(), occupancyTypeHelper));
-                }
-                occupancy.setExistingFloorArea(
-                                (occupancy.getExistingBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getExistingBuiltUpArea())
-                                                .subtract(occupancy.getExistingDeduction() == null ? BigDecimal.ZERO
-                                                                : occupancy.getExistingDeduction()));
-                if (occupancy.getExistingFloorArea() != null
-                                && occupancy.getExistingFloorArea().compareTo(BigDecimal.valueOf(0)) < 0) {
-                        pl.addError(VALIDATION_NEGATIVE_EXISTING_FLOOR_AREA,
-                                        getLocaleMessage(VALIDATION_NEGATIVE_EXISTING_FLOOR_AREA, blk.getNumber(),
-                                                        flr.getNumber().toString(), occupancyTypeHelper));
-                }
-        }
-
-        protected OccupancyTypeHelper getMostRestrictiveFar(Set<OccupancyTypeHelper> distinctOccupancyTypes) {
-                Set<String> codes = new HashSet<>();
-                Map<String, OccupancyTypeHelper> codesMap = new HashMap<>();
-                for (OccupancyTypeHelper typeHelper : distinctOccupancyTypes) {
-
-                        if (typeHelper.getType() != null)
-                                codesMap.put(typeHelper.getType().getCode(), typeHelper);
-                        if (typeHelper.getSubtype() != null)
-                                codesMap.put(typeHelper.getSubtype().getCode(), typeHelper);
-                }
-                codes = codesMap.keySet();
-                if (codes.contains(S_ECFG))
-                        return codesMap.get(S_ECFG);
-                else if (codes.contains(A_FH))
-                        return codesMap.get(A_FH);
-                else if (codes.contains(S_SAS))
-                        return codesMap.get(S_SAS);
-                else if (codes.contains(D_B))
-                        return codesMap.get(D_B);
-                else if (codes.contains(D_C))
-                        return codesMap.get(D_C);
-                else if (codes.contains(D_A))
-                        return codesMap.get(D_A);
-                else if (codes.contains(H_PP))
-                        return codesMap.get(H_PP);
-                else if (codes.contains(E_NS))
-                        return codesMap.get(E_NS);
-                else if (codes.contains(M_DFPAB))
-                        return codesMap.get(M_DFPAB);
-                else if (codes.contains(E_PS))
-                        return codesMap.get(E_PS);
-                else if (codes.contains(E_SFMC))
-                        return codesMap.get(E_SFMC);
-                else if (codes.contains(E_SFDAP))
-                        return codesMap.get(E_SFDAP);
-                else if (codes.contains(E_EARC))
-                        return codesMap.get(E_EARC);
-                else if (codes.contains(S_MCH))
-                        return codesMap.get(S_MCH);
-                else if (codes.contains(S_BH))
-                        return codesMap.get(S_BH);
-                else if (codes.contains(S_CRC))
-                        return codesMap.get(S_CRC);
-                else if (codes.contains(S_CA))
-                        return codesMap.get(S_CA);
-                else if (codes.contains(S_SC))
-                        return codesMap.get(S_SC);
-                else if (codes.contains(S_ICC))
-                        return codesMap.get(S_ICC);
-                else if (codes.contains(A2))
-                        return codesMap.get(A2);
-                else if (codes.contains(E_CLG))
-                        return codesMap.get(E_CLG);
-                else if (codes.contains(M_OHF))
-                        return codesMap.get(M_OHF);
-                else if (codes.contains(M_VH))
-                        return codesMap.get(M_VH);
-                else if (codes.contains(M_NAPI))
-                        return codesMap.get(M_NAPI);
-                else if (codes.contains(A_SA))
-                        return codesMap.get(A_SA);
-                else if (codes.contains(M_HOTHC))
-                        return codesMap.get(M_HOTHC);
-                else if (codes.contains(E_SACA))
-                        return codesMap.get(E_SACA);
-                else if (codes.contains(G))
-                    return codesMap.get(G);
-                else if (codes.contains(F))
-                        return codesMap.get(F);
-                else if (codes.contains(A))
-                        return codesMap.get(A);
-                else
-                        return null;
-
-        }
-
-        private Boolean processFarForSpecialOccupancy(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far,
-                        String typeOfArea, BigDecimal roadWidth, HashMap<String, String> errors) {
-        		boolean flage=false;
-        	if(!flage)
-        		return flage;
-        	
-                OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding() != null ? pl.getVirtualBuilding().getMostRestrictiveFarHelper(): null ;
-                String expectedResult = StringUtils.EMPTY;
-                boolean isAccepted = false;
-                if (mostRestrictiveOccupancyType != null && mostRestrictiveOccupancyType.getSubtype() != null) {
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_ECFG)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(A_FH)) {
-                                isAccepted = far.compareTo(POINTTWO) <= 0;
-                                expectedResult = "<= 0.2";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_SAS)) {
-                                isAccepted = far.compareTo(POINTFOUR) <= 0;
-                                expectedResult = "<= 0.4";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(D_B)) {
-                                isAccepted = far.compareTo(POINTFIVE) <= 0;
-                                expectedResult = "<= 0.5";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(D_C)) {
-                                isAccepted = far.compareTo(POINTSIX) <= 0;
-                                expectedResult = "<= 0.6";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(D_A)) {
-                                isAccepted = far.compareTo(POINTSEVEN) <= 0;
-                                expectedResult = "<= 0.7";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(H_PP)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_NS)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(M_DFPAB)) {
-                                isAccepted = far.compareTo(ONE) <= 0;
-                                expectedResult = "<= 1";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_PS)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_SFMC)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_SFDAP)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_EARC)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_MCH)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_BH)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_CRC)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_CA)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_SC)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_ICC)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(A2)) {
-                                isAccepted = far.compareTo(ONE_POINTTWO) <= 0;
-                                expectedResult = "<= 1.2";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(B2)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_CLG)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(M_OHF)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(M_VH)
-                                        || mostRestrictiveOccupancyType.getSubtype().getCode().equals(M_NAPI)) {
-                                isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
-                                expectedResult = "<= 1.5";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(A_SA)) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                expectedResult = "<= 2.5";
-                                return true;
-                        }
-
-                        if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_SACA)) {
-                                isAccepted = far.compareTo(FIFTEEN) <= 0;
-                                expectedResult = "<= 15";
-                                return true;
-                        }
-
-                }
-
-                String occupancyName = occupancyType.getSubtype() != null ? occupancyType.getSubtype().getName()
-                        : occupancyType.getType().getName();
-                
-                if (StringUtils.isNotBlank(expectedResult)) {
-                        buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
-                }
-
-                return false;
-        }
-
-        private void processFarResidential(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
-                        BigDecimal roadWidth, HashMap<String, String> errors) {
-
-                String expectedResult = StringUtils.EMPTY;
-                boolean isAccepted = true;
-
-                if (typeOfArea.equalsIgnoreCase(OLD)) {
-                        if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
-                                errors.put(OLD_AREA_ERROR, OLD_AREA_ERROR_MSG);
-                                pl.addErrors(errors);
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOURFOUR) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_THREE_POINTSIX) < 0) {
-                                isAccepted = far.compareTo(ONE_POINTTWO) <= 0;
-                                pl.getFarDetails().setPermissableFar(ONE_POINTTWO.doubleValue());
-                                expectedResult = "<= 1.2";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_THREE_POINTSIX) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_FOUR_POINTEIGHT) < 0) {
-                                isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(ONE_POINTFIVE.doubleValue());
-                                expectedResult = "<= 1.5";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_FOUR_POINTEIGHT) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
-                                isAccepted = far.compareTo(ONE_POINTEIGHT) <= 0;
-                                pl.getFarDetails().setPermissableFar(ONE_POINTEIGHT.doubleValue());
-                                expectedResult = "<= 1.8";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) < 0) {
-                                isAccepted = far.compareTo(TWO) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO.doubleValue());
-                                expectedResult = "<= 2";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) < 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) >= 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        }
-
-                }
-
-                if (typeOfArea.equalsIgnoreCase(NEW)) {
-                        if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
-                                errors.put(NEW_AREA_ERROR, NEW_AREA_ERROR_MSG);
-                                pl.addErrors(errors);
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) < 0) {
-                                isAccepted = far.compareTo(TWO) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO.doubleValue());
-                                expectedResult = "<= 2";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) < 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) < 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_TWENTYSEVEN_POINTFOUR) < 0) {
-                                isAccepted = far.compareTo(THREE) <= 0;
-                                pl.getFarDetails().setPermissableFar(THREE.doubleValue());
-                                expectedResult = "<= 3";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYSEVEN_POINTFOUR) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) < 0) {
-                                isAccepted = far.compareTo(THREE_POINTTWOFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(THREE_POINTTWOFIVE.doubleValue());
-                                expectedResult = "<= 3.25";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) >= 0) {
-                                isAccepted = far.compareTo(THREE_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(THREE_POINTFIVE.doubleValue());
-                                expectedResult = "<= 3.5";
-                        }
-
-                }
-
-                String occupancyName = occupancyType.getType().getName();
-                if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
-                        buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
-                }
-        }
-
-        private void processFarNonResidential(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
-                        BigDecimal roadWidth, HashMap<String, String> errors) {
-
-                String expectedResult = StringUtils.EMPTY;
-                boolean isAccepted = false;
-
-                if (typeOfArea.equalsIgnoreCase(OLD)) {
-                        if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
-                                errors.put(OLD_AREA_ERROR, OLD_AREA_ERROR_MSG);
-                                pl.addErrors(errors);
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOURFOUR) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_THREE_POINTSIX) < 0) {
-                                isAccepted = far.compareTo(ONE_POINTTWO) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO.doubleValue());
-                                expectedResult = "<= 1.2";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_THREE_POINTSIX) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_FOUR_POINTEIGHT) < 0) {
-                                isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
-                                pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
-                                expectedResult = "0";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_FOUR_POINTEIGHT) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
-                                isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
-                                pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
-                                expectedResult = "0";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) < 0) {
-                                isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
-                                pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
-                                expectedResult = "0";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
-                                isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
-                                pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
-                                expectedResult = "0";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) < 0) {
-                                isAccepted = far.compareTo(TWO) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO.doubleValue());
-                                expectedResult = "<= 2";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) >= 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        }
-
-                }
-
-                if (typeOfArea.equalsIgnoreCase(NEW)) {
-                        if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
-                                errors.put(NEW_AREA_ERROR, NEW_AREA_ERROR_MSG);
-                                pl.addErrors(errors);
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) < 0) {
-                                isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
-                                pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
-                                expectedResult = "0";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
-                                isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
-                                pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
-                                expectedResult = "0";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) < 0) {
-                                isAccepted = far.compareTo(TWO) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO.doubleValue());
-                                expectedResult = "<= 2";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) < 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_TWENTYSEVEN_POINTFOUR) < 0) {
-                                isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
-                                expectedResult = "<= 2.5";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYSEVEN_POINTFOUR) >= 0
-                                        && roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) < 0) {
-                                isAccepted = far.compareTo(THREE) <= 0;
-                                pl.getFarDetails().setPermissableFar(THREE.doubleValue());
-                                expectedResult = "<= 3";
-                        } else if (roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) >= 0) {
-                                isAccepted = far.compareTo(THREE_POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(THREE_POINTFIVE.doubleValue());
-                                expectedResult = "<= 3";
-                        }
-
-                }
-
-                String occupancyName = occupancyType.getType().getName();
-                
-                if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
-                        buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
-                }
-        }
-
-        private void processFarForGBDOccupancy(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far,
-                    String typeOfArea, BigDecimal roadWidth, HashMap<String, String> errors) {
-        
-                String expectedResult = StringUtils.EMPTY;
-                boolean isAccepted = false;
-        
-                if (typeOfArea.equalsIgnoreCase(OLD)) {
-                    if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
-                        errors.put(OLD_AREA_ERROR, OLD_AREA_ERROR_MSG);
-                        pl.addErrors(errors);
-                        return;
-                    } else {
-                        isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
-                        pl.getFarDetails().setPermissableFar(ONE_POINTFIVE.doubleValue());
-                        expectedResult = "<=" + ONE_POINTFIVE;
-                    }
-        
-                }
-        
-                if (typeOfArea.equalsIgnoreCase(NEW)) {
-                    if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
-                        errors.put(NEW_AREA_ERROR, NEW_AREA_ERROR_MSG);
-                        pl.addErrors(errors);
-                        return;
-                    } else {
-                        isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
-                        pl.getFarDetails().setPermissableFar(ONE_POINTFIVE.doubleValue());
-                        expectedResult = "<=" + ONE_POINTFIVE;
-                    }
-        
-                }
-        
-                String occupancyName = occupancyType.getType().getName();
-        
-                if (occupancyType.getSubtype() != null) {
-                    OccupancyHelperDetail subtype = occupancyType.getSubtype();
-                    occupancyName = subtype.getName();
-                    String code = subtype.getCode();
-        
-                    if (G_PHI.equalsIgnoreCase(code)) {
-                        isAccepted = far.compareTo(POINTFIVE) <= 0;
-                        pl.getFarDetails().setPermissableFar(POINTFIVE.doubleValue());
-                        expectedResult = "<=" + POINTFIVE;
-                    } else if (G_NPHI.equalsIgnoreCase(code)) {
-                        isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
-                        pl.getFarDetails().setPermissableFar(ONE_POINTFIVE.doubleValue());
-                        expectedResult = "<=" + ONE_POINTFIVE;
-                    }
-                }
-        
-                if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
-                    buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
-                }
-            }
-
-        private void processFarHaazardous(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
-                        BigDecimal roadWidth, HashMap<String, String> errors) {
-
-                String expectedResult = StringUtils.EMPTY;
-                boolean isAccepted = false;
-
-                if (typeOfArea.equalsIgnoreCase(OLD)) {
-                        if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
-                                errors.put(OLD_AREA_ERROR, OLD_AREA_ERROR_MSG);
-                                pl.addErrors(errors);
-                        } else {
-                                isAccepted = far.compareTo(POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(POINTFIVE.doubleValue());
-                                expectedResult = "<=" + POINTFIVE;
-                        }
-
-                }
-
-                if (typeOfArea.equalsIgnoreCase(NEW)) {
-                        if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
-                                errors.put(NEW_AREA_ERROR, NEW_AREA_ERROR_MSG);
-                                pl.addErrors(errors);
-                        } else {
-                                isAccepted = far.compareTo(POINTFIVE) <= 0;
-                                pl.getFarDetails().setPermissableFar(POINTFIVE.doubleValue());
-                                expectedResult = "<=" + POINTFIVE;
-                        }
-
-                }
-
-                String occupancyName = occupancyType.getType().getName();
-                
-                if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
-                        buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
-                }
-        }
-
-        private void buildResult(Plan pl, String occupancyName, BigDecimal far, String typeOfArea,
-                        BigDecimal roadWidth, String expectedResult, boolean isAccepted) {
-                ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-                scrutinyDetail.addColumnHeading(1, RULE_NO);
-                scrutinyDetail.addColumnHeading(2, OCCUPANCY);
-                scrutinyDetail.addColumnHeading(3, AREA_TYPE);
-                scrutinyDetail.addColumnHeading(4, ROAD_WIDTH);
-                scrutinyDetail.addColumnHeading(5, PERMISSIBLE);
-                scrutinyDetail.addColumnHeading(6, PROVIDED);
-                scrutinyDetail.addColumnHeading(7, STATUS);
-                scrutinyDetail.setKey("Common_FAR");
-
-                String actualResult = far.toString();
-                expectedResult="";
-                Map<String, String> details = new HashMap<>();
-                details.put(RULE_NO, RULE_38);
-                details.put(OCCUPANCY, occupancyName);
-                details.put(AREA_TYPE, typeOfArea);
-                details.put(ROAD_WIDTH, roadWidth.toString());
-                details.put(PERMISSIBLE, expectedResult);
-                details.put(PROVIDED, actualResult);
+	private static final Logger LOG = Logger.getLogger(Far.class);
+
+	private static final String VALIDATION_NEGATIVE_FLOOR_AREA = "msg.error.negative.floorarea.occupancy.floor";
+	private static final String VALIDATION_NEGATIVE_EXISTING_FLOOR_AREA = "msg.error.negative.existing.floorarea.occupancy.floor";
+	private static final String VALIDATION_NEGATIVE_BUILTUP_AREA = "msg.error.negative.builtuparea.occupancy.floor";
+	private static final String VALIDATION_NEGATIVE_EXISTING_BUILTUP_AREA = "msg.error.negative.existing.builtuparea.occupancy.floor";
+	public static final String RULE_31_1 = "31-1";
+	public static final String RULE_38 = "38";
+
+	private static final BigDecimal POINTTWO = BigDecimal.valueOf(0.2);
+	private static final BigDecimal POINTFOUR = BigDecimal.valueOf(0.4);
+	private static final BigDecimal POINTFIVE = BigDecimal.valueOf(0.5);
+	private static final BigDecimal POINTSIX = BigDecimal.valueOf(0.6);
+	private static final BigDecimal POINTSEVEN = BigDecimal.valueOf(0.7);
+	private static final BigDecimal ONE = BigDecimal.valueOf(1);
+	private static final BigDecimal ONE_POINTTWO = BigDecimal.valueOf(1.2);
+	private static final BigDecimal ONE_POINTFIVE = BigDecimal.valueOf(1.5);
+	private static final BigDecimal ONE_POINTEIGHT = BigDecimal.valueOf(1.8);
+	private static final BigDecimal TWO = BigDecimal.valueOf(2);
+	private static final BigDecimal TWO_POINTFIVE = BigDecimal.valueOf(2.5);
+	private static final BigDecimal THREE = BigDecimal.valueOf(3);
+	private static final BigDecimal THREE_POINTTWOFIVE = BigDecimal.valueOf(3.25);
+	private static final BigDecimal THREE_POINTFIVE = BigDecimal.valueOf(3.5);
+	private static final BigDecimal FIFTEEN = BigDecimal.valueOf(15);
+
+	private static final BigDecimal ROAD_WIDTH_TWO_POINTFOUR = BigDecimal.valueOf(2.4);
+	private static final BigDecimal ROAD_WIDTH_TWO_POINTFOURFOUR = BigDecimal.valueOf(2.44);
+	private static final BigDecimal ROAD_WIDTH_THREE_POINTSIX = BigDecimal.valueOf(3.6);
+	private static final BigDecimal ROAD_WIDTH_FOUR_POINTEIGHT = BigDecimal.valueOf(4.8);
+	private static final BigDecimal ROAD_WIDTH_SIX_POINTONE = BigDecimal.valueOf(6.1);
+	private static final BigDecimal ROAD_WIDTH_NINE_POINTONE = BigDecimal.valueOf(9.1);
+	private static final BigDecimal ROAD_WIDTH_TWELVE_POINTTWO = BigDecimal.valueOf(12.2);
+
+	private static final BigDecimal ROAD_WIDTH_EIGHTEEN_POINTTHREE = BigDecimal.valueOf(18.3);
+	private static final BigDecimal ROAD_WIDTH_TWENTYFOUR_POINTFOUR = BigDecimal.valueOf(24.4);
+	private static final BigDecimal ROAD_WIDTH_TWENTYSEVEN_POINTFOUR = BigDecimal.valueOf(27.4);
+	private static final BigDecimal ROAD_WIDTH_THIRTY_POINTFIVE = BigDecimal.valueOf(30.5);
+
+	public static final String OLD = "OLD";
+	public static final String NEW = "NEW";
+	public static final String OLD_AREA_ERROR = "road width old area";
+	public static final String NEW_AREA_ERROR = "road width new area";
+	public static final String OLD_AREA_ERROR_MSG = "No construction shall be permitted if the road width is less than 2.4m for old area.";
+	public static final String NEW_AREA_ERROR_MSG = "No construction shall be permitted if the road width is less than 6.1m for new area.";
+
+	@Override
+	public Plan validate(Plan pl) {
+		if (pl.getPlot() == null || (pl.getPlot() != null
+				&& (pl.getPlot().getArea() == null || pl.getPlot().getArea().doubleValue() == 0))) {
+			pl.addError(PLOT_AREA, getLocaleMessage(OBJECTNOTDEFINED, PLOT_AREA));
+		}
+		return pl;
+	}
+
+	@Override
+	public Plan process(Plan pl) {
+		decideNocIsRequired(pl);
+		HashMap<String, String> errorMsgs = new HashMap<>();
+		int errors = pl.getErrors().size();
+		validate(pl);
+		int validatedErrors = pl.getErrors().size();
+		if (validatedErrors > errors) {
+			return pl;
+		}
+		BigDecimal totalExistingBuiltUpArea = BigDecimal.ZERO;
+		BigDecimal totalExistingFloorArea = BigDecimal.ZERO;
+		BigDecimal totalBuiltUpArea = BigDecimal.ZERO;
+		BigDecimal totalFloorArea = BigDecimal.ZERO;
+		BigDecimal totalCarpetArea = BigDecimal.ZERO;
+		BigDecimal totalExistingCarpetArea = BigDecimal.ZERO;
+		Set<OccupancyTypeHelper> distinctOccupancyTypesHelper = new HashSet<>();
+		for (Block blk : pl.getBlocks()) {
+			BigDecimal flrArea = BigDecimal.ZERO;
+			BigDecimal bltUpArea = BigDecimal.ZERO;
+			BigDecimal existingFlrArea = BigDecimal.ZERO;
+			BigDecimal existingBltUpArea = BigDecimal.ZERO;
+			BigDecimal carpetArea = BigDecimal.ZERO;
+			BigDecimal existingCarpetArea = BigDecimal.ZERO;
+			Building building = blk.getBuilding();
+			for (Floor flr : building.getFloors()) {
+				for (Occupancy occupancy : flr.getOccupancies()) {
+					validate2(pl, blk, flr, occupancy);
+					/*
+					 * occupancy.setCarpetArea(occupancy.getFloorArea().multiply
+					 * (BigDecimal.valueOf(0.80))); occupancy
+					 * .setExistingCarpetArea(occupancy.getExistingFloorArea().
+					 * multiply(BigDecimal.valueOf(0.80)));
+					 */
+
+					bltUpArea = bltUpArea.add(
+							occupancy.getBuiltUpArea() == null ? BigDecimal.valueOf(0) : occupancy.getBuiltUpArea());
+					existingBltUpArea = existingBltUpArea
+							.add(occupancy.getExistingBuiltUpArea() == null ? BigDecimal.valueOf(0)
+									: occupancy.getExistingBuiltUpArea());
+					flrArea = flrArea.add(occupancy.getFloorArea());
+					existingFlrArea = existingFlrArea.add(occupancy.getExistingFloorArea());
+					carpetArea = carpetArea.add(occupancy.getCarpetArea());
+					existingCarpetArea = existingCarpetArea.add(occupancy.getExistingCarpetArea());
+				}
+			}
+			building.setTotalFloorArea(flrArea);
+			building.setTotalBuitUpArea(bltUpArea);
+			building.setTotalExistingBuiltUpArea(existingBltUpArea);
+			building.setTotalExistingFloorArea(existingFlrArea);
+
+			// check block is completely existing building or not.
+			if (existingBltUpArea.compareTo(bltUpArea) == 0)
+				blk.setCompletelyExisting(Boolean.TRUE);
+
+			totalFloorArea = totalFloorArea.add(flrArea);
+			totalBuiltUpArea = totalBuiltUpArea.add(bltUpArea);
+			totalExistingBuiltUpArea = totalExistingBuiltUpArea.add(existingBltUpArea);
+			totalExistingFloorArea = totalExistingFloorArea.add(existingFlrArea);
+			totalCarpetArea = totalCarpetArea.add(carpetArea);
+			totalExistingCarpetArea = totalExistingCarpetArea.add(existingCarpetArea);
+
+			// Find Occupancies by block and add
+			Set<OccupancyTypeHelper> occupancyByBlock = new HashSet<>();
+			for (Floor flr : building.getFloors()) {
+				for (Occupancy occupancy : flr.getOccupancies()) {
+					if (occupancy.getTypeHelper() != null)
+						occupancyByBlock.add(occupancy.getTypeHelper());
+				}
+			}
+
+			List<Map<String, Object>> listOfMapOfAllDtls = new ArrayList<>();
+			List<OccupancyTypeHelper> listOfOccupancyTypes = new ArrayList<>();
+
+			for (OccupancyTypeHelper occupancyType : occupancyByBlock) {
+
+				Map<String, Object> allDtlsMap = new HashMap<>();
+				BigDecimal blockWiseFloorArea = BigDecimal.ZERO;
+				BigDecimal blockWiseBuiltupArea = BigDecimal.ZERO;
+				BigDecimal blockWiseExistingFloorArea = BigDecimal.ZERO;
+				BigDecimal blockWiseExistingBuiltupArea = BigDecimal.ZERO;
+				for (Floor flr : blk.getBuilding().getFloors()) {
+					for (Occupancy occupancy : flr.getOccupancies()) {
+						if (occupancyType.getType() != null && occupancyType.getType().getCode() != null
+								&& occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getType() != null
+								&& occupancy.getTypeHelper().getType().getCode() != null && occupancy.getTypeHelper()
+										.getType().getCode().equals(occupancyType.getType().getCode())) {
+							blockWiseFloorArea = blockWiseFloorArea.add(occupancy.getFloorArea());
+							blockWiseBuiltupArea = blockWiseBuiltupArea
+									.add(occupancy.getBuiltUpArea() == null ? BigDecimal.valueOf(0)
+											: occupancy.getBuiltUpArea());
+							blockWiseExistingFloorArea = blockWiseExistingFloorArea
+									.add(occupancy.getExistingFloorArea());
+							blockWiseExistingBuiltupArea = blockWiseExistingBuiltupArea
+									.add(occupancy.getExistingBuiltUpArea() == null ? BigDecimal.valueOf(0)
+											: occupancy.getExistingBuiltUpArea());
+
+						}
+					}
+				}
+				Occupancy occupancy = new Occupancy();
+				occupancy.setBuiltUpArea(blockWiseBuiltupArea);
+				occupancy.setFloorArea(blockWiseFloorArea);
+				occupancy.setExistingFloorArea(blockWiseExistingFloorArea);
+				occupancy.setExistingBuiltUpArea(blockWiseExistingBuiltupArea);
+				occupancy.setCarpetArea(blockWiseFloorArea.multiply(BigDecimal.valueOf(.80)));
+				occupancy.setTypeHelper(occupancyType);
+				building.getTotalArea().add(occupancy);
+
+				allDtlsMap.put("occupancy", occupancyType);
+				allDtlsMap.put("totalFloorArea", blockWiseFloorArea);
+				allDtlsMap.put("totalBuiltUpArea", blockWiseBuiltupArea);
+				allDtlsMap.put("existingFloorArea", blockWiseExistingFloorArea);
+				allDtlsMap.put("existingBuiltUpArea", blockWiseExistingBuiltupArea);
+
+				listOfOccupancyTypes.add(occupancyType);
+
+				listOfMapOfAllDtls.add(allDtlsMap);
+			}
+			Set<OccupancyTypeHelper> setOfOccupancyTypes = new HashSet<>(listOfOccupancyTypes);
+
+			List<Occupancy> listOfOccupanciesOfAParticularblock = new ArrayList<>();
+			// for each distinct converted occupancy types
+			for (OccupancyTypeHelper occupancyType : setOfOccupancyTypes) {
+				if (occupancyType != null) {
+					Occupancy occupancy = new Occupancy();
+					BigDecimal totalFlrArea = BigDecimal.ZERO;
+					BigDecimal totalBltUpArea = BigDecimal.ZERO;
+					BigDecimal totalExistingFlrArea = BigDecimal.ZERO;
+					BigDecimal totalExistingBltUpArea = BigDecimal.ZERO;
+
+					for (Map<String, Object> dtlsMap : listOfMapOfAllDtls) {
+						if (occupancyType.equals(dtlsMap.get("occupancy"))) {
+							totalFlrArea = totalFlrArea.add((BigDecimal) dtlsMap.get("totalFloorArea"));
+							totalBltUpArea = totalBltUpArea.add((BigDecimal) dtlsMap.get("totalBuiltUpArea"));
+
+							totalExistingBltUpArea = totalExistingBltUpArea
+									.add((BigDecimal) dtlsMap.get("existingBuiltUpArea"));
+							totalExistingFlrArea = totalExistingFlrArea
+									.add((BigDecimal) dtlsMap.get("existingFloorArea"));
+
+						}
+					}
+					occupancy.setTypeHelper(occupancyType);
+					occupancy.setBuiltUpArea(totalBltUpArea);
+					occupancy.setFloorArea(totalFlrArea);
+					occupancy.setExistingBuiltUpArea(totalExistingBltUpArea);
+					occupancy.setExistingFloorArea(totalExistingFlrArea);
+					occupancy.setExistingCarpetArea(totalExistingFlrArea.multiply(BigDecimal.valueOf(0.80)));
+					occupancy.setCarpetArea(totalFlrArea.multiply(BigDecimal.valueOf(0.80)));
+
+					listOfOccupanciesOfAParticularblock.add(occupancy);
+				}
+			}
+			blk.getBuilding().setOccupancies(listOfOccupanciesOfAParticularblock);
+
+			if (!listOfOccupanciesOfAParticularblock.isEmpty()) {
+				// listOfOccupanciesOfAParticularblock already converted. In
+				// case of professional building type, converted into A1
+				// type
+				boolean singleFamilyBuildingTypeOccupancyPresent = false;
+				boolean otherThanSingleFamilyOccupancyTypePresent = false;
+
+				for (Occupancy occupancy : listOfOccupanciesOfAParticularblock) {
+					if (occupancy.getTypeHelper().getSubtype() != null
+							&& A_R.equals(occupancy.getTypeHelper().getSubtype().getCode()))
+						singleFamilyBuildingTypeOccupancyPresent = true;
+					else {
+						otherThanSingleFamilyOccupancyTypePresent = true;
+						break;
+					}
+				}
+				blk.setSingleFamilyBuilding(
+						!otherThanSingleFamilyOccupancyTypePresent && singleFamilyBuildingTypeOccupancyPresent);
+				int allResidentialOccTypes = 0;
+				int allResidentialOrCommercialOccTypes = 0;
+
+				for (Occupancy occupancy : listOfOccupanciesOfAParticularblock) {
+					if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getType() != null) {
+						// setting residentialBuilding
+						int residentialOccupancyType = 0;
+						if (A.equals(occupancy.getTypeHelper().getType().getCode())) {
+							residentialOccupancyType = 1;
+						}
+						if (residentialOccupancyType == 0) {
+							allResidentialOccTypes = 0;
+							break;
+						} else {
+							allResidentialOccTypes = 1;
+						}
+					}
+				}
+				blk.setResidentialBuilding(allResidentialOccTypes == 1);
+				for (Occupancy occupancy : listOfOccupanciesOfAParticularblock) {
+					if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getType() != null) {
+						// setting residentialOrCommercial Occupancy Type
+						int residentialOrCommercialOccupancyType = 0;
+						if (A.equals(occupancy.getTypeHelper().getType().getCode())
+								|| F.equals(occupancy.getTypeHelper().getType().getCode())) {
+							residentialOrCommercialOccupancyType = 1;
+						}
+						if (residentialOrCommercialOccupancyType == 0) {
+							allResidentialOrCommercialOccTypes = 0;
+							break;
+						} else {
+							allResidentialOrCommercialOccTypes = 1;
+						}
+					}
+				}
+				blk.setResidentialOrCommercialBuilding(allResidentialOrCommercialOccTypes == 1);
+			}
+
+			if (blk.getBuilding().getFloors() != null && !blk.getBuilding().getFloors().isEmpty()) {
+				BigDecimal noOfFloorsAboveGround = BigDecimal.ZERO;
+				for (Floor floor : blk.getBuilding().getFloors()) {
+					if (floor.getNumber() != null && floor.getNumber() >= 0) {
+						noOfFloorsAboveGround = noOfFloorsAboveGround.add(BigDecimal.valueOf(1));
+					}
+				}
+
+				boolean hasTerrace = blk.getBuilding().getFloors().stream()
+						.anyMatch(floor -> floor.getTerrace().equals(Boolean.TRUE));
+
+				noOfFloorsAboveGround = hasTerrace ? noOfFloorsAboveGround.subtract(BigDecimal.ONE)
+						: noOfFloorsAboveGround;
+
+				blk.getBuilding().setMaxFloor(noOfFloorsAboveGround);
+				blk.getBuilding().setFloorsAboveGround(noOfFloorsAboveGround);
+				blk.getBuilding().setTotalFloors(BigDecimal.valueOf(blk.getBuilding().getFloors().size()));
+			}
+
+		}
+
+		for (Block blk : pl.getBlocks()) {
+			Building building = blk.getBuilding();
+			List<OccupancyTypeHelper> blockWiseOccupancyTypes = new ArrayList<>();
+			for (Occupancy occupancy : blk.getBuilding().getOccupancies()) {
+				if (occupancy.getTypeHelper() != null)
+					blockWiseOccupancyTypes.add(occupancy.getTypeHelper());
+			}
+			Set<OccupancyTypeHelper> setOfBlockDistinctOccupancyTypes = new HashSet<>(blockWiseOccupancyTypes);
+			OccupancyTypeHelper mostRestrictiveFar = getMostRestrictiveFar(setOfBlockDistinctOccupancyTypes);
+			blk.getBuilding().setMostRestrictiveFarHelper(mostRestrictiveFar);
+
+			for (Floor flr : building.getFloors()) {
+				BigDecimal flrArea = BigDecimal.ZERO;
+				BigDecimal existingFlrArea = BigDecimal.ZERO;
+				BigDecimal carpetArea = BigDecimal.ZERO;
+				BigDecimal existingCarpetArea = BigDecimal.ZERO;
+				BigDecimal existingBltUpArea = BigDecimal.ZERO;
+				for (Occupancy occupancy : flr.getOccupancies()) {
+					flrArea = flrArea.add(occupancy.getFloorArea());
+					existingFlrArea = existingFlrArea.add(occupancy.getExistingFloorArea());
+					carpetArea = carpetArea.add(occupancy.getCarpetArea());
+					existingCarpetArea = existingCarpetArea.add(occupancy.getExistingCarpetArea());
+				}
+
+				List<Occupancy> occupancies = flr.getOccupancies();
+				for (Occupancy occupancy : occupancies) {
+					existingBltUpArea = existingBltUpArea
+							.add(occupancy.getExistingBuiltUpArea() != null ? occupancy.getExistingBuiltUpArea()
+									: BigDecimal.ZERO);
+				}
+
+				if (mostRestrictiveFar != null && mostRestrictiveFar.getConvertedSubtype() != null
+						&& !A_R.equals(mostRestrictiveFar.getSubtype().getCode())) {
+					if (carpetArea.compareTo(BigDecimal.ZERO) == 0) {
+						pl.addError("Carpet area in block " + blk.getNumber() + "floor " + flr.getNumber(),
+								"Carpet area is not defined in block " + blk.getNumber() + "floor " + flr.getNumber());
+					}
+
+					if (existingBltUpArea.compareTo(BigDecimal.ZERO) > 0
+							&& existingCarpetArea.compareTo(BigDecimal.ZERO) == 0) {
+						pl.addError("Existing Carpet area in block " + blk.getNumber() + "floor " + flr.getNumber(),
+								"Existing Carpet area is not defined in block " + blk.getNumber() + "floor "
+										+ flr.getNumber());
+					}
+				}
+
+				if (flrArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS, DcrConstants.ROUNDMODE_MEASUREMENTS)
+						.compareTo(carpetArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+								DcrConstants.ROUNDMODE_MEASUREMENTS)) < 0) {
+					pl.addError("Floor area in block " + blk.getNumber() + "floor " + flr.getNumber(),
+							"Floor area is less than carpet area in block " + blk.getNumber() + "floor "
+									+ flr.getNumber());
+				}
+
+				if (existingBltUpArea.compareTo(BigDecimal.ZERO) > 0 && existingFlrArea
+						.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS, DcrConstants.ROUNDMODE_MEASUREMENTS)
+						.compareTo(existingCarpetArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+								DcrConstants.ROUNDMODE_MEASUREMENTS)) < 0) {
+					pl.addError("Existing floor area in block " + blk.getNumber() + "floor " + flr.getNumber(),
+							"Existing Floor area is less than carpet area in block " + blk.getNumber() + "floor "
+									+ flr.getNumber());
+				}
+			}
+		}
+
+		List<OccupancyTypeHelper> plotWiseOccupancyTypes = new ArrayList<>();
+		for (Block block : pl.getBlocks()) {
+			for (Occupancy occupancy : block.getBuilding().getOccupancies()) {
+				if (occupancy.getTypeHelper() != null)
+					plotWiseOccupancyTypes.add(occupancy.getTypeHelper());
+			}
+		}
+
+		Set<OccupancyTypeHelper> setOfDistinctOccupancyTypes = new HashSet<>(plotWiseOccupancyTypes);
+
+		distinctOccupancyTypesHelper.addAll(setOfDistinctOccupancyTypes);
+
+		List<Occupancy> occupanciesForPlan = new ArrayList<>();
+
+		for (OccupancyTypeHelper occupancyType : setOfDistinctOccupancyTypes) {
+			if (occupancyType != null) {
+				BigDecimal totalFloorAreaForAllBlks = BigDecimal.ZERO;
+				BigDecimal totalBuiltUpAreaForAllBlks = BigDecimal.ZERO;
+				BigDecimal totalCarpetAreaForAllBlks = BigDecimal.ZERO;
+				BigDecimal totalExistBuiltUpAreaForAllBlks = BigDecimal.ZERO;
+				BigDecimal totalExistFloorAreaForAllBlks = BigDecimal.ZERO;
+				BigDecimal totalExistCarpetAreaForAllBlks = BigDecimal.ZERO;
+				Occupancy occupancy = new Occupancy();
+				for (Block block : pl.getBlocks()) {
+					for (Occupancy buildingOccupancy : block.getBuilding().getOccupancies()) {
+						if (occupancyType.equals(buildingOccupancy.getTypeHelper())) {
+							totalFloorAreaForAllBlks = totalFloorAreaForAllBlks.add(buildingOccupancy.getFloorArea());
+							totalBuiltUpAreaForAllBlks = totalBuiltUpAreaForAllBlks
+									.add(buildingOccupancy.getBuiltUpArea());
+							totalCarpetAreaForAllBlks = totalCarpetAreaForAllBlks
+									.add(buildingOccupancy.getCarpetArea());
+							totalExistBuiltUpAreaForAllBlks = totalExistBuiltUpAreaForAllBlks
+									.add(buildingOccupancy.getExistingBuiltUpArea());
+							totalExistFloorAreaForAllBlks = totalExistFloorAreaForAllBlks
+									.add(buildingOccupancy.getExistingFloorArea());
+							totalExistCarpetAreaForAllBlks = totalExistCarpetAreaForAllBlks
+									.add(buildingOccupancy.getExistingCarpetArea());
+						}
+					}
+				}
+				occupancy.setTypeHelper(occupancyType);
+				occupancy.setBuiltUpArea(totalBuiltUpAreaForAllBlks);
+				occupancy.setCarpetArea(totalCarpetAreaForAllBlks);
+				occupancy.setFloorArea(totalFloorAreaForAllBlks);
+				occupancy.setExistingBuiltUpArea(totalExistBuiltUpAreaForAllBlks);
+				occupancy.setExistingFloorArea(totalExistFloorAreaForAllBlks);
+				occupancy.setExistingCarpetArea(totalExistCarpetAreaForAllBlks);
+				occupanciesForPlan.add(occupancy);
+			}
+		}
+
+		pl.setOccupancies(occupanciesForPlan);
+		pl.getVirtualBuilding().setTotalFloorArea(totalFloorArea);
+		pl.getVirtualBuilding().setTotalCarpetArea(totalCarpetArea);
+		pl.getVirtualBuilding().setTotalExistingBuiltUpArea(totalExistingBuiltUpArea);
+		pl.getVirtualBuilding().setTotalExistingFloorArea(totalExistingFloorArea);
+		pl.getVirtualBuilding().setTotalExistingCarpetArea(totalExistingCarpetArea);
+		pl.getVirtualBuilding().setOccupancyTypes(distinctOccupancyTypesHelper);
+		pl.getVirtualBuilding().setTotalBuitUpArea(totalBuiltUpArea);
+		pl.getVirtualBuilding().setMostRestrictiveFarHelper(getMostRestrictiveFar(setOfDistinctOccupancyTypes));
+
+		if (!distinctOccupancyTypesHelper.isEmpty()) {
+			int allResidentialOccTypesForPlan = 0;
+			for (OccupancyTypeHelper occupancy : distinctOccupancyTypesHelper) {
+				LOG.info("occupancy :" + occupancy);
+				// setting residentialBuilding
+				int residentialOccupancyType = 0;
+				if (occupancy.getType() != null && A.equals(occupancy.getType().getCode())) {
+					residentialOccupancyType = 1;
+				}
+				if (residentialOccupancyType == 0) {
+					allResidentialOccTypesForPlan = 0;
+					break;
+				} else {
+					allResidentialOccTypesForPlan = 1;
+				}
+			}
+			pl.getVirtualBuilding().setResidentialBuilding(allResidentialOccTypesForPlan == 1);
+			int allResidentialOrCommercialOccTypesForPlan = 0;
+			for (OccupancyTypeHelper occupancyType : distinctOccupancyTypesHelper) {
+				int residentialOrCommercialOccupancyTypeForPlan = 0;
+				if (occupancyType.getType() != null && (A.equals(occupancyType.getType().getCode())
+						|| F.equals(occupancyType.getType().getCode()))) {
+					residentialOrCommercialOccupancyTypeForPlan = 1;
+				}
+				if (residentialOrCommercialOccupancyTypeForPlan == 0) {
+					allResidentialOrCommercialOccTypesForPlan = 0;
+					break;
+				} else {
+					allResidentialOrCommercialOccTypesForPlan = 1;
+				}
+			}
+			pl.getVirtualBuilding().setResidentialOrCommercialBuilding(allResidentialOrCommercialOccTypesForPlan == 1);
+		}
+
+		OccupancyTypeHelper mostRestrictiveOccupancy = pl.getVirtualBuilding() != null
+				? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
+				: null;
+
+//		occupancy limit
+//		if (!(pl.getVirtualBuilding().getResidentialOrCommercialBuilding()
+//				|| (mostRestrictiveOccupancy != null && mostRestrictiveOccupancy.getType() != null
+//						&& DxfFileConstants.G.equalsIgnoreCase(mostRestrictiveOccupancy.getType().getCode())))) {
+//			pl.getErrors().put(DxfFileConstants.OCCUPANCY_ALLOWED_KEY, DxfFileConstants.OCCUPANCY_ALLOWED);
+//			return pl;
+//		}
+
+		Set<String> occupancyCodes = new HashSet<>();
+		for (OccupancyTypeHelper oth : pl.getVirtualBuilding().getOccupancyTypes()) {
+			if (oth.getSubtype() != null) {
+				occupancyCodes.add(oth.getSubtype().getCode());
+			}
+		}
+
+//                if (occupancyCodes.size() == 1 && occupancyCodes.contains(DxfFileConstants.A_PO)) {
+//                    pl.getErrors().put(DxfFileConstants.OCCUPANCY_PO_NOT_ALLOWED_KEY, DxfFileConstants.OCCUPANCY_PO_NOT_ALLOWED);
+//                    return pl;
+//                }
+
+		OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		BigDecimal providedFar = BigDecimal.ZERO;
+		BigDecimal surrenderRoadArea = BigDecimal.ZERO;
+
+		if (!pl.getSurrenderRoads().isEmpty()) {
+			for (Measurement measurement : pl.getSurrenderRoads()) {
+				surrenderRoadArea = surrenderRoadArea.add(measurement.getArea());
+			}
+		}
+
+		pl.setTotalSurrenderRoadArea(surrenderRoadArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+				DcrConstants.ROUNDMODE_MEASUREMENTS));
+		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea().add(surrenderRoadArea) : BigDecimal.ZERO;
+		if (plotArea.doubleValue() > 0)
+			providedFar = pl.getVirtualBuilding().getTotalFloorArea().divide(plotArea, DECIMALDIGITS_MEASUREMENTS,
+					ROUNDMODE_MEASUREMENTS);
+
+		pl.setFarDetails(new FarDetails());
+		pl.getFarDetails().setProvidedFar(providedFar.doubleValue());
+		String typeOfArea = pl.getPlanInformation().getTypeOfArea();
+		BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
+
+//		if (mostRestrictiveOccupancyType != null && StringUtils.isNotBlank(typeOfArea) && roadWidth != null
+//				&& !processFarForSpecialOccupancy(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth,
+//						errorMsgs)) {
+			if (mostRestrictiveOccupancyType != null && StringUtils.isNotBlank(typeOfArea) && roadWidth != null) {
+
+			processFar(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth, errorMsgs);
+//                        if ((mostRestrictiveOccupancyType.getType() != null
+//                                        && DxfFileConstants.A.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode()))
+//                                        || (mostRestrictiveOccupancyType.getSubtype() != null
+//                                                        && (A_R.equalsIgnoreCase(mostRestrictiveOccupancyType.getSubtype().getCode())
+//                                                        || A_AF.equalsIgnoreCase(mostRestrictiveOccupancyType.getSubtype().getCode())))) {
+//                                processFarResidential(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth, errorMsgs);
+//                        }
+//                        if (mostRestrictiveOccupancyType.getType() != null
+//                                        && (DxfFileConstants.G.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())
+//                                                        || DxfFileConstants.B.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())
+//                                                        || DxfFileConstants.D.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode()))) {
+//                                processFarForGBDOccupancy(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth,
+//                                                errorMsgs);
+//                        }
+//                        if (mostRestrictiveOccupancyType.getType() != null
+//                                        && DxfFileConstants.I.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())) {
+//                                processFarHaazardous(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth, errorMsgs);
+//                        } 
+//                        if (mostRestrictiveOccupancyType.getType() != null
+//                                && DxfFileConstants.F.equalsIgnoreCase(mostRestrictiveOccupancyType.getType().getCode())) { 
+//                                processFarNonResidential(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth,
+//                                                errorMsgs);
+//                        }
+		}
+		ProcessPrintHelper.print(pl);
+		return pl;
+	}
+
+	private void decideNocIsRequired(Plan pl) {
+		Boolean isHighRise = false;
+		for (Block b : pl.getBlocks()) {
+			if ((b.getBuilding() != null/*
+										 * && b.getBuilding().getIsHighRise() != null && b.getBuilding().getIsHighRise()
+										 */ && b.getBuilding().getBuildingHeight().compareTo(new BigDecimal(5)) > 0)
+					|| (b.getBuilding() != null && b.getBuilding().getCoverageArea() != null
+							&& b.getBuilding().getCoverageArea().compareTo(new BigDecimal(500)) > 0)) {
+				isHighRise = true;
+
+			}
+		}
+		if (isHighRise) {
+			pl.getPlanInformation().setNocFireDept("YES");
+		}
+
+		if (StringUtils.isNotBlank(pl.getPlanInformation().getBuildingNearMonument())
+				&& "YES".equalsIgnoreCase(pl.getPlanInformation().getBuildingNearMonument())) {
+			BigDecimal minDistanceFromMonument = BigDecimal.ZERO;
+			List<BigDecimal> distancesFromMonument = pl.getDistanceToExternalEntity().getMonuments();
+			if (!distancesFromMonument.isEmpty()) {
+
+				minDistanceFromMonument = distancesFromMonument.stream().reduce(BigDecimal::min).get();
+
+				if (minDistanceFromMonument.compareTo(BigDecimal.valueOf(300)) > 0) {
+					pl.getPlanInformation().setNocNearMonument("YES");
+				}
+			}
+
+		}
+
+	}
+
+	private void validate2(Plan pl, Block blk, Floor flr, Occupancy occupancy) {
+		String occupancyTypeHelper = StringUtils.EMPTY;
+		if (occupancy.getTypeHelper() != null) {
+			if (occupancy.getTypeHelper().getType() != null) {
+				occupancyTypeHelper = occupancy.getTypeHelper().getType().getName();
+			} else if (occupancy.getTypeHelper().getSubtype() != null) {
+				occupancyTypeHelper = occupancy.getTypeHelper().getSubtype().getName();
+			}
+		}
+
+		if (occupancy.getBuiltUpArea() != null && occupancy.getBuiltUpArea().compareTo(BigDecimal.valueOf(0)) < 0) {
+			pl.addError(VALIDATION_NEGATIVE_BUILTUP_AREA, getLocaleMessage(VALIDATION_NEGATIVE_BUILTUP_AREA,
+					blk.getNumber(), flr.getNumber().toString(), occupancyTypeHelper));
+		}
+		if (occupancy.getExistingBuiltUpArea() != null
+				&& occupancy.getExistingBuiltUpArea().compareTo(BigDecimal.valueOf(0)) < 0) {
+			pl.addError(VALIDATION_NEGATIVE_EXISTING_BUILTUP_AREA,
+					getLocaleMessage(VALIDATION_NEGATIVE_EXISTING_BUILTUP_AREA, blk.getNumber(),
+							flr.getNumber().toString(), occupancyTypeHelper));
+		}
+		occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
+				.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()));
+		if (occupancy.getFloorArea() != null && occupancy.getFloorArea().compareTo(BigDecimal.valueOf(0)) < 0) {
+			pl.addError(VALIDATION_NEGATIVE_FLOOR_AREA, getLocaleMessage(VALIDATION_NEGATIVE_FLOOR_AREA,
+					blk.getNumber(), flr.getNumber().toString(), occupancyTypeHelper));
+		}
+		occupancy.setExistingFloorArea(
+				(occupancy.getExistingBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getExistingBuiltUpArea())
+						.subtract(occupancy.getExistingDeduction() == null ? BigDecimal.ZERO
+								: occupancy.getExistingDeduction()));
+		if (occupancy.getExistingFloorArea() != null
+				&& occupancy.getExistingFloorArea().compareTo(BigDecimal.valueOf(0)) < 0) {
+			pl.addError(VALIDATION_NEGATIVE_EXISTING_FLOOR_AREA,
+					getLocaleMessage(VALIDATION_NEGATIVE_EXISTING_FLOOR_AREA, blk.getNumber(),
+							flr.getNumber().toString(), occupancyTypeHelper));
+		}
+	}
+
+	protected OccupancyTypeHelper getMostRestrictiveFar(Set<OccupancyTypeHelper> distinctOccupancyTypes) {
+		Set<String> codes = new HashSet<>();
+		Map<String, OccupancyTypeHelper> codesMap = new HashMap<>();
+		for (OccupancyTypeHelper typeHelper : distinctOccupancyTypes) {
+
+			if (typeHelper.getType() != null)
+				codesMap.put(typeHelper.getType().getCode(), typeHelper);
+			if (typeHelper.getSubtype() != null)
+				codesMap.put(typeHelper.getSubtype().getCode(), typeHelper);
+		}
+		codes = codesMap.keySet();
+		if (codes.contains(DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING))
+			return codesMap.get(DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING);
+		else if (codes.contains(DxfFileConstants.SEMI_DETACHED))
+			return codesMap.get(DxfFileConstants.SEMI_DETACHED);
+		else if (codes.contains(DxfFileConstants.ROW_HOUSING))
+			return codesMap.get(DxfFileConstants.ROW_HOUSING);
+		else if (codes.contains(DxfFileConstants.APARTMENT_BUILDING))
+			return codesMap.get(DxfFileConstants.APARTMENT_BUILDING);
+		else if (codes.contains(DxfFileConstants.HOUSING_PROJECT))
+			return codesMap.get(DxfFileConstants.HOUSING_PROJECT);
+		else if (codes.contains(DxfFileConstants.WORK_CUM_RESIDENTIAL))
+			return codesMap.get(DxfFileConstants.WORK_CUM_RESIDENTIAL);
+		else if (codes.contains(DxfFileConstants.STUDIO_APARTMENTS))
+			return codesMap.get(DxfFileConstants.STUDIO_APARTMENTS);
+		else if (codes.contains(DxfFileConstants.DHARMASALA))
+			return codesMap.get(DxfFileConstants.DHARMASALA);
+		else if (codes.contains(DxfFileConstants.DORMITORY))
+			return codesMap.get(DxfFileConstants.DORMITORY);
+		else if (codes.contains(DxfFileConstants.EWS))
+			return codesMap.get(DxfFileConstants.EWS);
+		else if (codes.contains(DxfFileConstants.LOW_INCOME_HOUSING))
+			return codesMap.get(DxfFileConstants.LOW_INCOME_HOUSING);
+		else if (codes.contains(DxfFileConstants.MEDIUM_INCOME_HOUSING))
+			return codesMap.get(DxfFileConstants.MEDIUM_INCOME_HOUSING);
+		else if (codes.contains(DxfFileConstants.HOSTEL))
+			return codesMap.get(DxfFileConstants.HOSTEL);
+		else if (codes.contains(DxfFileConstants.SHELTER_HOUSE))
+			return codesMap.get(DxfFileConstants.SHELTER_HOUSE);
+		else if (codes.contains(DxfFileConstants.STAFF_QAURTER))
+			return codesMap.get(DxfFileConstants.STAFF_QAURTER);
+		else if (codes.contains(DxfFileConstants.HOTEL))
+			return codesMap.get(DxfFileConstants.HOTEL);
+		else if (codes.contains(DxfFileConstants.FIVE_STAR_HOTEL))
+			return codesMap.get(DxfFileConstants.FIVE_STAR_HOTEL);
+		else if (codes.contains(DxfFileConstants.MOTELS))
+			return codesMap.get(DxfFileConstants.MOTELS);
+		else if (codes.contains(DxfFileConstants.SERVICES_FOR_HOUSEHOLDS))
+			return codesMap.get(DxfFileConstants.SERVICES_FOR_HOUSEHOLDS);
+		else if (codes.contains(DxfFileConstants.SHOP_CUM_RESIDENTIAL))
+			return codesMap.get(DxfFileConstants.SHOP_CUM_RESIDENTIAL);
+		else if (codes.contains(DxfFileConstants.BANK))
+			return codesMap.get(DxfFileConstants.BANK);
+		else if (codes.contains(DxfFileConstants.RESORTS))
+			return codesMap.get(DxfFileConstants.RESORTS);
+		else if (codes.contains(DxfFileConstants.LAGOONS_AND_LAGOON_RESORT))
+			return codesMap.get(DxfFileConstants.LAGOONS_AND_LAGOON_RESORT);
+		else if (codes.contains(DxfFileConstants.AMUSEMENT_BUILDING_OR_PARK_AND_WATER_SPORTS))
+			return codesMap.get(DxfFileConstants.AMUSEMENT_BUILDING_OR_PARK_AND_WATER_SPORTS);
+		else if (codes.contains(DxfFileConstants.FINANCIAL_SERVICES_AND_STOCK_EXCHANGES))
+			return codesMap.get(DxfFileConstants.FINANCIAL_SERVICES_AND_STOCK_EXCHANGES);
+		else if (codes.contains(DxfFileConstants.COLD_STORAGE_AND_ICE_FACTORY))
+			return codesMap.get(DxfFileConstants.COLD_STORAGE_AND_ICE_FACTORY);
+		else if (codes.contains(DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX))
+			return codesMap.get(DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX);
+		else if (codes.contains(DxfFileConstants.CONVENIENCE_AND_NEIGHBORHOOD_SHOPPING))
+			return codesMap.get(DxfFileConstants.CONVENIENCE_AND_NEIGHBORHOOD_SHOPPING);
+		else if (codes.contains(DxfFileConstants.PROFESSIONAL_OFFICES))
+			return codesMap.get(DxfFileConstants.PROFESSIONAL_OFFICES);
+		else if (codes.contains(DxfFileConstants.DEPARTMENTAL_STORE))
+			return codesMap.get(DxfFileConstants.DEPARTMENTAL_STORE);
+		else if (codes.contains(DxfFileConstants.GAS_GODOWN))
+			return codesMap.get(DxfFileConstants.GAS_GODOWN);
+		else if (codes.contains(DxfFileConstants.GODOWNS))
+			return codesMap.get(DxfFileConstants.GODOWNS);
+		else if (codes.contains(DxfFileConstants.GOOD_STORAGE))
+			return codesMap.get(DxfFileConstants.GOOD_STORAGE);
+		else if (codes.contains(DxfFileConstants.GUEST_HOUSES))
+			return codesMap.get(DxfFileConstants.GUEST_HOUSES);
+		else if (codes.contains(DxfFileConstants.HOLIDAY_RESORT))
+			return codesMap.get(DxfFileConstants.HOLIDAY_RESORT);
+		else if (codes.contains(DxfFileConstants.BOARDING_AND_LODGING_HOUSES))
+			return codesMap.get(DxfFileConstants.BOARDING_AND_LODGING_HOUSES);
+		else if (codes.contains(DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION))
+			return codesMap.get(DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION);
+		else if (codes.contains(DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION))
+			return codesMap.get(DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION);
+		else if (codes.contains(DxfFileConstants.CNG_MOTHER_STATION))
+			return codesMap.get(DxfFileConstants.CNG_MOTHER_STATION);
+		else if (codes.contains(DxfFileConstants.RESTAURANT))
+			return codesMap.get(DxfFileConstants.RESTAURANT);
+		else if (codes.contains(DxfFileConstants.LOCAL_RETAIL_SHOPPING))
+			return codesMap.get(DxfFileConstants.LOCAL_RETAIL_SHOPPING);
+		else if (codes.contains(DxfFileConstants.SHOPPING_CENTER))
+			return codesMap.get(DxfFileConstants.SHOPPING_CENTER);
+		else if (codes.contains(DxfFileConstants.SHOPPING_MALL))
+			return codesMap.get(DxfFileConstants.SHOPPING_MALL);
+		else if (codes.contains(DxfFileConstants.SHOWROOM))
+			return codesMap.get(DxfFileConstants.SHOWROOM);
+		else if (codes.contains(DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE))
+			return codesMap.get(DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE);
+		else if (codes.contains(DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE))
+			return codesMap.get(DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE);
+		else if (codes.contains(DxfFileConstants.STORAGE_OR_HANGERS_OR_TERMINAL_DEPOT))
+			return codesMap.get(DxfFileConstants.STORAGE_OR_HANGERS_OR_TERMINAL_DEPOT);
+		else if (codes.contains(DxfFileConstants.SUPERMARKETS))
+			return codesMap.get(DxfFileConstants.SUPERMARKETS);
+		else if (codes.contains(DxfFileConstants.WARE_HOUSE))
+			return codesMap.get(DxfFileConstants.WARE_HOUSE);
+		else if (codes.contains(DxfFileConstants.WHOLESALE_MARKET))
+			return codesMap.get(DxfFileConstants.WHOLESALE_MARKET);
+		else if (codes.contains(DxfFileConstants.MEDIA_CENTRES))
+			return codesMap.get(DxfFileConstants.MEDIA_CENTRES);
+		else if (codes.contains(DxfFileConstants.FOOD_COURTS))
+			return codesMap.get(DxfFileConstants.FOOD_COURTS);
+		else if (codes.contains(DxfFileConstants.WEIGH_BRIDGES))
+			return codesMap.get(DxfFileConstants.WEIGH_BRIDGES);
+		else if (codes.contains(DxfFileConstants.MERCENTILE))
+			return codesMap.get(DxfFileConstants.MERCENTILE);
+		else if (codes.contains(DxfFileConstants.AUDITORIUM))
+			return codesMap.get(DxfFileConstants.AUDITORIUM);
+		else if (codes.contains(DxfFileConstants.BANQUET_HALL))
+			return codesMap.get(DxfFileConstants.BANQUET_HALL);
+		else if (codes.contains(DxfFileConstants.CINEMA))
+			return codesMap.get(DxfFileConstants.CINEMA);
+		else if (codes.contains(DxfFileConstants.CLUB))
+			return codesMap.get(DxfFileConstants.CLUB);
+		else if (codes.contains(DxfFileConstants.MUSIC_PAVILIONS))
+			return codesMap.get(DxfFileConstants.MUSIC_PAVILIONS);
+		else if (codes.contains(DxfFileConstants.COMMUNITY_HALL))
+			return codesMap.get(DxfFileConstants.COMMUNITY_HALL);
+		else if (codes.contains(DxfFileConstants.ORPHANAGE))
+			return codesMap.get(DxfFileConstants.ORPHANAGE);
+		else if (codes.contains(DxfFileConstants.OLD_AGE_HOME))
+			return codesMap.get(DxfFileConstants.OLD_AGE_HOME);
+		else if (codes.contains(DxfFileConstants.SCIENCE_CENTRE_OR_MUSEUM))
+			return codesMap.get(DxfFileConstants.SCIENCE_CENTRE_OR_MUSEUM);
+		else if (codes.contains(DxfFileConstants.CONFERNCE_HALL))
+			return codesMap.get(DxfFileConstants.CONFERNCE_HALL);
+		else if (codes.contains(DxfFileConstants.CONVENTION_HALL))
+			return codesMap.get(DxfFileConstants.CONVENTION_HALL);
+		else if (codes.contains(DxfFileConstants.SCULPTURE_COMPLEX))
+			return codesMap.get(DxfFileConstants.SCULPTURE_COMPLEX);
+		else if (codes.contains(DxfFileConstants.CULTURAL_COMPLEX))
+			return codesMap.get(DxfFileConstants.CULTURAL_COMPLEX);
+		else if (codes.contains(DxfFileConstants.EXHIBITION_CENTER))
+			return codesMap.get(DxfFileConstants.EXHIBITION_CENTER);
+		else if (codes.contains(DxfFileConstants.GYMNASIA))
+			return codesMap.get(DxfFileConstants.GYMNASIA);
+		else if (codes.contains(DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP))
+			return codesMap.get(DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP);
+		else if (codes.contains(DxfFileConstants.MULTIPLEX))
+			return codesMap.get(DxfFileConstants.MULTIPLEX);
+		else if (codes.contains(DxfFileConstants.MUSUEM))
+			return codesMap.get(DxfFileConstants.MUSUEM);
+		else if (codes.contains(DxfFileConstants.PLACE_OF_WORKSHIP))
+			return codesMap.get(DxfFileConstants.PLACE_OF_WORKSHIP);
+		else if (codes.contains(DxfFileConstants.PUBLIC_LIBRARIES))
+			return codesMap.get(DxfFileConstants.PUBLIC_LIBRARIES);
+		else if (codes.contains(DxfFileConstants.RECREATION_BLDG))
+			return codesMap.get(DxfFileConstants.RECREATION_BLDG);
+		else if (codes.contains(DxfFileConstants.SPORTS_COMPLEX))
+			return codesMap.get(DxfFileConstants.SPORTS_COMPLEX);
+		else if (codes.contains(DxfFileConstants.STADIUM))
+			return codesMap.get(DxfFileConstants.STADIUM);
+		else if (codes.contains(DxfFileConstants.THEATRE))
+			return codesMap.get(DxfFileConstants.THEATRE);
+		else if (codes.contains(DxfFileConstants.ADMINISTRATIVE_BUILDINGS))
+			return codesMap.get(DxfFileConstants.ADMINISTRATIVE_BUILDINGS);
+		else if (codes.contains(DxfFileConstants.GOVERNMENT_OFFICES))
+			return codesMap.get(DxfFileConstants.GOVERNMENT_OFFICES);
+		else if (codes.contains(DxfFileConstants.LOCAL_AND_SEMI_GOVERNMENT_OFFICES))
+			return codesMap.get(DxfFileConstants.LOCAL_AND_SEMI_GOVERNMENT_OFFICES);
+		else if (codes.contains(DxfFileConstants.POLICE_OR_ARMY_OR_BARRACK))
+			return codesMap.get(DxfFileConstants.POLICE_OR_ARMY_OR_BARRACK);
+		else if (codes.contains(DxfFileConstants.RELIGIOUS_BUILDING))
+			return codesMap.get(DxfFileConstants.RELIGIOUS_BUILDING);
+		else if (codes.contains(DxfFileConstants.SOCIAL_AND_WELFARE_CENTRES))
+			return codesMap.get(DxfFileConstants.SOCIAL_AND_WELFARE_CENTRES);
+		else if (codes.contains(DxfFileConstants.CLINIC))
+			return codesMap.get(DxfFileConstants.CLINIC);
+		else if (codes.contains(DxfFileConstants.DISPENSARY))
+			return codesMap.get(DxfFileConstants.DISPENSARY);
+		else if (codes.contains(DxfFileConstants.DIAGNOSTIC_CENTRE))
+			return codesMap.get(DxfFileConstants.DIAGNOSTIC_CENTRE);
+		else if (codes.contains(DxfFileConstants.GOVT_SEMI_GOVT_HOSPITAL))
+			return codesMap.get(DxfFileConstants.GOVT_SEMI_GOVT_HOSPITAL);
+		else if (codes.contains(DxfFileConstants.REGISTERED_TRUST))
+			return codesMap.get(DxfFileConstants.REGISTERED_TRUST);
+		else if (codes.contains(DxfFileConstants.HEALTH_CENTRE))
+			return codesMap.get(DxfFileConstants.HEALTH_CENTRE);
+		else if (codes.contains(DxfFileConstants.HOSPITAL))
+			return codesMap.get(DxfFileConstants.HOSPITAL);
+		else if (codes.contains(DxfFileConstants.LAB))
+			return codesMap.get(DxfFileConstants.LAB);
+		else if (codes.contains(DxfFileConstants.MATERNITY_HOME))
+			return codesMap.get(DxfFileConstants.MATERNITY_HOME);
+		else if (codes.contains(DxfFileConstants.MEDICAL_BUILDING))
+			return codesMap.get(DxfFileConstants.MEDICAL_BUILDING);
+		else if (codes.contains(DxfFileConstants.NURSING_HOME))
+			return codesMap.get(DxfFileConstants.NURSING_HOME);
+		else if (codes.contains(DxfFileConstants.POLYCLINIC))
+			return codesMap.get(DxfFileConstants.POLYCLINIC);
+		else if (codes.contains(DxfFileConstants.REHABILITAION_CENTER))
+			return codesMap.get(DxfFileConstants.REHABILITAION_CENTER);
+		else if (codes.contains(DxfFileConstants.VETERINARY_HOSPITAL_FOR_PET_ANIMALS_AND_BIRDS))
+			return codesMap.get(DxfFileConstants.VETERINARY_HOSPITAL_FOR_PET_ANIMALS_AND_BIRDS);
+		else if (codes.contains(DxfFileConstants.RESEARCH_AND_TRAINING_INSTITUTE))
+			return codesMap.get(DxfFileConstants.RESEARCH_AND_TRAINING_INSTITUTE);
+		else if (codes.contains(DxfFileConstants.POLICE_STATION))
+			return codesMap.get(DxfFileConstants.POLICE_STATION);
+		else if (codes.contains(DxfFileConstants.FIRE_STATION))
+			return codesMap.get(DxfFileConstants.FIRE_STATION);
+		else if (codes.contains(DxfFileConstants.JAIL_OR_PRISON))
+			return codesMap.get(DxfFileConstants.JAIL_OR_PRISON);
+		else if (codes.contains(DxfFileConstants.POST_OFFICE))
+			return codesMap.get(DxfFileConstants.POST_OFFICE);
+		else if (codes.contains(DxfFileConstants.BILL_COLLECTION_CENTER))
+			return codesMap.get(DxfFileConstants.BILL_COLLECTION_CENTER);
+		else if (codes.contains(DxfFileConstants.BROADCASTING_TRANSMISSION_CENTRE))
+			return codesMap.get(DxfFileConstants.BROADCASTING_TRANSMISSION_CENTRE);
+		else if (codes.contains(DxfFileConstants.BURIAL_AND_CREMATION_GROUNDS))
+			return codesMap.get(DxfFileConstants.BURIAL_AND_CREMATION_GROUNDS);
+		else if (codes.contains(DxfFileConstants.PUBLIC_DISTRIBUTION_SYSTEM_SHOP))
+			return codesMap.get(DxfFileConstants.PUBLIC_DISTRIBUTION_SYSTEM_SHOP);
+		else if (codes.contains(DxfFileConstants.PUBLIC_TOILETS_IN_PUBLIC_AREA))
+			return codesMap.get(DxfFileConstants.PUBLIC_TOILETS_IN_PUBLIC_AREA);
+		else if (codes.contains(DxfFileConstants.PUBLIC_UTILITY_BLDG))
+			return codesMap.get(DxfFileConstants.PUBLIC_UTILITY_BLDG);
+		else if (codes.contains(DxfFileConstants.SUB_STATION))
+			return codesMap.get(DxfFileConstants.SUB_STATION);
+		else if (codes.contains(DxfFileConstants.TELECOMMUNICATION))
+			return codesMap.get(DxfFileConstants.TELECOMMUNICATION);
+		else if (codes.contains(DxfFileConstants.WATER_PUMPING_STATIONS))
+			return codesMap.get(DxfFileConstants.WATER_PUMPING_STATIONS);
+		else if (codes.contains(DxfFileConstants.SERVICE_AND_STORAGE_YARDS))
+			return codesMap.get(DxfFileConstants.SERVICE_AND_STORAGE_YARDS);
+		else if (codes.contains(DxfFileConstants.ELECTRICAL_DISTRIBUTION_DEPOTS))
+			return codesMap.get(DxfFileConstants.ELECTRICAL_DISTRIBUTION_DEPOTS);
+		else if (codes.contains(DxfFileConstants.INDUSTRIAL_BUILDINGS_FACTORIES_WORKSHOPS_ETC))
+			return codesMap.get(DxfFileConstants.INDUSTRIAL_BUILDINGS_FACTORIES_WORKSHOPS_ETC);
+		else if (codes.contains(DxfFileConstants.NON_POLLUTING_INDUSTRIAL))
+			return codesMap.get(DxfFileConstants.NON_POLLUTING_INDUSTRIAL);
+		else if (codes.contains(DxfFileConstants.IT_ITES_BUILDINGS))
+			return codesMap.get(DxfFileConstants.IT_ITES_BUILDINGS);
+		else if (codes.contains(DxfFileConstants.SEZ_INDUSTRIAL))
+			return codesMap.get(DxfFileConstants.SEZ_INDUSTRIAL);
+		else if (codes.contains(DxfFileConstants.LOADING_OR_UNLOADING_SPACES))
+			return codesMap.get(DxfFileConstants.LOADING_OR_UNLOADING_SPACES);
+		else if (codes.contains(DxfFileConstants.FLATTED_FACTORY))
+			return codesMap.get(DxfFileConstants.FLATTED_FACTORY);
+		else if (codes.contains(DxfFileConstants.SMALL_FACTORIES_AND_ETC_FALLS_IN_INDUSTRIAL))
+			return codesMap.get(DxfFileConstants.SMALL_FACTORIES_AND_ETC_FALLS_IN_INDUSTRIAL);
+		else if (codes.contains(DxfFileConstants.COACHING_CENTRE))
+			return codesMap.get(DxfFileConstants.COACHING_CENTRE);
+		else if (codes.contains(DxfFileConstants.COMMERCIAL_INSTITUTE))
+			return codesMap.get(DxfFileConstants.COMMERCIAL_INSTITUTE);
+		else if (codes.contains(DxfFileConstants.COLLEGE))
+			return codesMap.get(DxfFileConstants.COLLEGE);
+		else if (codes.contains(DxfFileConstants.COMPUTER_TRAINING_INSTITUTE))
+			return codesMap.get(DxfFileConstants.COMPUTER_TRAINING_INSTITUTE);
+		else if (codes.contains(DxfFileConstants.NURSERY_SCHOOL))
+			return codesMap.get(DxfFileConstants.NURSERY_SCHOOL);
+		else if (codes.contains(DxfFileConstants.PRIMARY_SCHOOL))
+			return codesMap.get(DxfFileConstants.PRIMARY_SCHOOL);
+		else if (codes.contains(DxfFileConstants.HOSTEL_CAPTIVE))
+			return codesMap.get(DxfFileConstants.HOSTEL_CAPTIVE);
+		else if (codes.contains(DxfFileConstants.HIGH_SCHOOL))
+			return codesMap.get(DxfFileConstants.HIGH_SCHOOL);
+		else if (codes.contains(DxfFileConstants.PLAY_SCHOOL))
+			return codesMap.get(DxfFileConstants.PLAY_SCHOOL);
+		else if (codes.contains(DxfFileConstants.CRECHE))
+			return codesMap.get(DxfFileConstants.CRECHE);
+		else if (codes.contains(DxfFileConstants.SCHOOL_FOR_MENTALLY_CHALLENGED))
+			return codesMap.get(DxfFileConstants.SCHOOL_FOR_MENTALLY_CHALLENGED);
+		else if (codes.contains(DxfFileConstants.ART_ACADEMY))
+			return codesMap.get(DxfFileConstants.ART_ACADEMY);
+		else if (codes.contains(DxfFileConstants.TECHNICAL_COLLEGE))
+			return codesMap.get(DxfFileConstants.TECHNICAL_COLLEGE);
+		else if (codes.contains(DxfFileConstants.SPORTS_TRAINING_CENTERS))
+			return codesMap.get(DxfFileConstants.SPORTS_TRAINING_CENTERS);
+		else if (codes.contains(DxfFileConstants.TRAINING_INSTITUTE))
+			return codesMap.get(DxfFileConstants.TRAINING_INSTITUTE);
+		else if (codes.contains(DxfFileConstants.VETERINARY_INSTITUTE))
+			return codesMap.get(DxfFileConstants.VETERINARY_INSTITUTE);
+		else if (codes.contains(DxfFileConstants.MEDICAL_COLLEGE))
+			return codesMap.get(DxfFileConstants.MEDICAL_COLLEGE);
+		else if (codes.contains(DxfFileConstants.RESEARCH_AND_TRAINING_CENTER))
+			return codesMap.get(DxfFileConstants.RESEARCH_AND_TRAINING_CENTER);
+		else if (codes.contains(DxfFileConstants.AIRPORT))
+			return codesMap.get(DxfFileConstants.AIRPORT);
+		else if (codes.contains(DxfFileConstants.AUTO_STAND))
+			return codesMap.get(DxfFileConstants.AUTO_STAND);
+		else if (codes.contains(DxfFileConstants.METRO_STATION))
+			return codesMap.get(DxfFileConstants.METRO_STATION);
+		else if (codes.contains(DxfFileConstants.BUS_STAND))
+			return codesMap.get(DxfFileConstants.BUS_STAND);
+		else if (codes.contains(DxfFileConstants.BUS_TERMINAL))
+			return codesMap.get(DxfFileConstants.BUS_TERMINAL);
+		else if (codes.contains(DxfFileConstants.ISBT))
+			return codesMap.get(DxfFileConstants.ISBT);
+		else if (codes.contains(DxfFileConstants.RAILWAY_STATION))
+			return codesMap.get(DxfFileConstants.RAILWAY_STATION);
+		else if (codes.contains(DxfFileConstants.TAXI_STAND))
+			return codesMap.get(DxfFileConstants.TAXI_STAND);
+		else if (codes.contains(DxfFileConstants.MULTI_LEVEL_CAR_PARKING))
+			return codesMap.get(DxfFileConstants.MULTI_LEVEL_CAR_PARKING);
+		else if (codes.contains(DxfFileConstants.PUBLIC_PARKING))
+			return codesMap.get(DxfFileConstants.PUBLIC_PARKING);
+		else if (codes.contains(DxfFileConstants.TOLL_PLAZA))
+			return codesMap.get(DxfFileConstants.TOLL_PLAZA);
+		else if (codes.contains(DxfFileConstants.TRUCK_TERMINAL))
+			return codesMap.get(DxfFileConstants.TRUCK_TERMINAL);
+		else if (codes.contains(DxfFileConstants.AGRICULTURE_FARM))
+			return codesMap.get(DxfFileConstants.AGRICULTURE_FARM);
+		else if (codes.contains(DxfFileConstants.AGRO_GODOWN))
+			return codesMap.get(DxfFileConstants.AGRO_GODOWN);
+		else if (codes.contains(DxfFileConstants.AGRO_RESEARCH_FARM))
+			return codesMap.get(DxfFileConstants.AGRO_RESEARCH_FARM);
+		else if (codes.contains(DxfFileConstants.FARM_HOUSE))
+			return codesMap.get(DxfFileConstants.FARM_HOUSE);
+		else if (codes.contains(DxfFileConstants.COUNTRY_HOMES))
+			return codesMap.get(DxfFileConstants.COUNTRY_HOMES);
+		else if (codes.contains(DxfFileConstants.NURSERY_AND_GREEN_HOUSES))
+			return codesMap.get(DxfFileConstants.NURSERY_AND_GREEN_HOUSES);
+		else if (codes.contains(DxfFileConstants.POLUTRY_DIARY_AND_SWINE_OR_GOAT_OR_HORSE))
+			return codesMap.get(DxfFileConstants.POLUTRY_DIARY_AND_SWINE_OR_GOAT_OR_HORSE);
+		else if (codes.contains(DxfFileConstants.HORTICULTURE))
+			return codesMap.get(DxfFileConstants.HORTICULTURE);
+		else if (codes.contains(DxfFileConstants.SERI_CULTURE))
+			return codesMap.get(DxfFileConstants.SERI_CULTURE);
+		else
+			return null;
+
+	}
+
+//	private Boolean processFarForSpecialOccupancy(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far,
+//			String typeOfArea, BigDecimal roadWidth, HashMap<String, String> errors) {
+//		boolean flage = false;
+//		if (!flage)
+//			return flage;
+//
+//		OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding() != null
+//				? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
+//				: null;
+//		String expectedResult = StringUtils.EMPTY;
+//		boolean isAccepted = false;
+//		if (mostRestrictiveOccupancyType != null && mostRestrictiveOccupancyType.getSubtype() != null) {
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_ECFG)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(A_FH)) {
+//				isAccepted = far.compareTo(POINTTWO) <= 0;
+//				expectedResult = "<= 0.2";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_SAS)) {
+//				isAccepted = far.compareTo(POINTFOUR) <= 0;
+//				expectedResult = "<= 0.4";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(D_B)) {
+//				isAccepted = far.compareTo(POINTFIVE) <= 0;
+//				expectedResult = "<= 0.5";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(D_C)) {
+//				isAccepted = far.compareTo(POINTSIX) <= 0;
+//				expectedResult = "<= 0.6";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(D_A)) {
+//				isAccepted = far.compareTo(POINTSEVEN) <= 0;
+//				expectedResult = "<= 0.7";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(H_PP)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_NS)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(M_DFPAB)) {
+//				isAccepted = far.compareTo(ONE) <= 0;
+//				expectedResult = "<= 1";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_PS)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_SFMC)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_SFDAP)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_EARC)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_MCH)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_BH)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_CRC)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_CA)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_SC)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(S_ICC)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(A2)) {
+//				isAccepted = far.compareTo(ONE_POINTTWO) <= 0;
+//				expectedResult = "<= 1.2";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(B2)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_CLG)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(M_OHF)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(M_VH)
+//					|| mostRestrictiveOccupancyType.getSubtype().getCode().equals(M_NAPI)) {
+//				isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
+//				expectedResult = "<= 1.5";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(A_SA)) {
+//				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+//				expectedResult = "<= 2.5";
+//				return true;
+//			}
+//
+//			if (mostRestrictiveOccupancyType.getSubtype().getCode().equals(E_SACA)) {
+//				isAccepted = far.compareTo(FIFTEEN) <= 0;
+//				expectedResult = "<= 15";
+//				return true;
+//			}
+//
+//		}
+//
+//		String occupancyName = occupancyType.getSubtype() != null ? occupancyType.getSubtype().getName()
+//				: occupancyType.getType().getName();
+//
+//		if (StringUtils.isNotBlank(expectedResult)) {
+//			buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
+//		}
+//
+//		return false;
+//	}
+
+	private void processFar(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
+			BigDecimal roadWidth, HashMap<String, String> errors) {
+
+	}
+
+	private void processFarResidential(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
+			BigDecimal roadWidth, HashMap<String, String> errors) {
+
+		String expectedResult = StringUtils.EMPTY;
+		boolean isAccepted = true;
+
+		if (typeOfArea.equalsIgnoreCase(OLD)) {
+			if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
+				errors.put(OLD_AREA_ERROR, OLD_AREA_ERROR_MSG);
+				pl.addErrors(errors);
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOURFOUR) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_THREE_POINTSIX) < 0) {
+				isAccepted = far.compareTo(ONE_POINTTWO) <= 0;
+				pl.getFarDetails().setPermissableFar(ONE_POINTTWO.doubleValue());
+				expectedResult = "<= 1.2";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_THREE_POINTSIX) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_FOUR_POINTEIGHT) < 0) {
+				isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(ONE_POINTFIVE.doubleValue());
+				expectedResult = "<= 1.5";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_FOUR_POINTEIGHT) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
+				isAccepted = far.compareTo(ONE_POINTEIGHT) <= 0;
+				pl.getFarDetails().setPermissableFar(ONE_POINTEIGHT.doubleValue());
+				expectedResult = "<= 1.8";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) < 0) {
+				isAccepted = far.compareTo(TWO) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO.doubleValue());
+				expectedResult = "<= 2";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) < 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) >= 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			}
+
+		}
+
+		if (typeOfArea.equalsIgnoreCase(NEW)) {
+			if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
+				errors.put(NEW_AREA_ERROR, NEW_AREA_ERROR_MSG);
+				pl.addErrors(errors);
+			} else if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) < 0) {
+				isAccepted = far.compareTo(TWO) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO.doubleValue());
+				expectedResult = "<= 2";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) < 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) < 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_TWENTYSEVEN_POINTFOUR) < 0) {
+				isAccepted = far.compareTo(THREE) <= 0;
+				pl.getFarDetails().setPermissableFar(THREE.doubleValue());
+				expectedResult = "<= 3";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYSEVEN_POINTFOUR) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) < 0) {
+				isAccepted = far.compareTo(THREE_POINTTWOFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(THREE_POINTTWOFIVE.doubleValue());
+				expectedResult = "<= 3.25";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) >= 0) {
+				isAccepted = far.compareTo(THREE_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(THREE_POINTFIVE.doubleValue());
+				expectedResult = "<= 3.5";
+			}
+
+		}
+
+		String occupancyName = occupancyType.getType().getName();
+		if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
+			buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
+		}
+	}
+
+	private void processFarNonResidential(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
+			BigDecimal roadWidth, HashMap<String, String> errors) {
+
+		String expectedResult = StringUtils.EMPTY;
+		boolean isAccepted = false;
+
+		if (typeOfArea.equalsIgnoreCase(OLD)) {
+			if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
+				errors.put(OLD_AREA_ERROR, OLD_AREA_ERROR_MSG);
+				pl.addErrors(errors);
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOURFOUR) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_THREE_POINTSIX) < 0) {
+				isAccepted = far.compareTo(ONE_POINTTWO) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO.doubleValue());
+				expectedResult = "<= 1.2";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_THREE_POINTSIX) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_FOUR_POINTEIGHT) < 0) {
+				isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
+				pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
+				expectedResult = "0";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_FOUR_POINTEIGHT) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
+				isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
+				pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
+				expectedResult = "0";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) < 0) {
+				isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
+				pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
+				expectedResult = "0";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+				isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
+				pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
+				expectedResult = "0";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) < 0) {
+				isAccepted = far.compareTo(TWO) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO.doubleValue());
+				expectedResult = "<= 2";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) >= 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			}
+
+		}
+
+		if (typeOfArea.equalsIgnoreCase(NEW)) {
+			if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
+				errors.put(NEW_AREA_ERROR, NEW_AREA_ERROR_MSG);
+				pl.addErrors(errors);
+			} else if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) < 0) {
+				isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
+				pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
+				expectedResult = "0";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_NINE_POINTONE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+				isAccepted = far.compareTo(BigDecimal.ZERO) >= 0;
+				pl.getFarDetails().setPermissableFar(BigDecimal.ZERO.doubleValue());
+				expectedResult = "0";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) < 0) {
+				isAccepted = far.compareTo(TWO) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO.doubleValue());
+				expectedResult = "<= 2";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_EIGHTEEN_POINTTHREE) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) < 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYFOUR_POINTFOUR) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_TWENTYSEVEN_POINTFOUR) < 0) {
+				isAccepted = far.compareTo(TWO_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(TWO_POINTFIVE.doubleValue());
+				expectedResult = "<= 2.5";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_TWENTYSEVEN_POINTFOUR) >= 0
+					&& roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) < 0) {
+				isAccepted = far.compareTo(THREE) <= 0;
+				pl.getFarDetails().setPermissableFar(THREE.doubleValue());
+				expectedResult = "<= 3";
+			} else if (roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) >= 0) {
+				isAccepted = far.compareTo(THREE_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(THREE_POINTFIVE.doubleValue());
+				expectedResult = "<= 3";
+			}
+
+		}
+
+		String occupancyName = occupancyType.getType().getName();
+
+		if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
+			buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
+		}
+	}
+
+	private void processFarForGBDOccupancy(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far,
+			String typeOfArea, BigDecimal roadWidth, HashMap<String, String> errors) {
+
+		String expectedResult = StringUtils.EMPTY;
+		boolean isAccepted = false;
+
+		if (typeOfArea.equalsIgnoreCase(OLD)) {
+			if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
+				errors.put(OLD_AREA_ERROR, OLD_AREA_ERROR_MSG);
+				pl.addErrors(errors);
+				return;
+			} else {
+				isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(ONE_POINTFIVE.doubleValue());
+				expectedResult = "<=" + ONE_POINTFIVE;
+			}
+
+		}
+
+		if (typeOfArea.equalsIgnoreCase(NEW)) {
+			if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
+				errors.put(NEW_AREA_ERROR, NEW_AREA_ERROR_MSG);
+				pl.addErrors(errors);
+				return;
+			} else {
+				isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(ONE_POINTFIVE.doubleValue());
+				expectedResult = "<=" + ONE_POINTFIVE;
+			}
+
+		}
+
+		String occupancyName = occupancyType.getType().getName();
+
+		if (occupancyType.getSubtype() != null) {
+			OccupancyHelperDetail subtype = occupancyType.getSubtype();
+			occupancyName = subtype.getName();
+			String code = subtype.getCode();
+
+//                    if (G_PHI.equalsIgnoreCase(code)) {
+//                        isAccepted = far.compareTo(POINTFIVE) <= 0;
+//                        pl.getFarDetails().setPermissableFar(POINTFIVE.doubleValue());
+//                        expectedResult = "<=" + POINTFIVE;
+//                    } else if (G_NPHI.equalsIgnoreCase(code)) {
+//                        isAccepted = far.compareTo(ONE_POINTFIVE) <= 0;
+//                        pl.getFarDetails().setPermissableFar(ONE_POINTFIVE.doubleValue());
+//                        expectedResult = "<=" + ONE_POINTFIVE;
+//                    }
+		}
+
+		if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
+			buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
+		}
+	}
+
+	private void processFarHaazardous(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
+			BigDecimal roadWidth, HashMap<String, String> errors) {
+
+		String expectedResult = StringUtils.EMPTY;
+		boolean isAccepted = false;
+
+		if (typeOfArea.equalsIgnoreCase(OLD)) {
+			if (roadWidth.compareTo(ROAD_WIDTH_TWO_POINTFOUR) < 0) {
+				errors.put(OLD_AREA_ERROR, OLD_AREA_ERROR_MSG);
+				pl.addErrors(errors);
+			} else {
+				isAccepted = far.compareTo(POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(POINTFIVE.doubleValue());
+				expectedResult = "<=" + POINTFIVE;
+			}
+
+		}
+
+		if (typeOfArea.equalsIgnoreCase(NEW)) {
+			if (roadWidth.compareTo(ROAD_WIDTH_SIX_POINTONE) < 0) {
+				errors.put(NEW_AREA_ERROR, NEW_AREA_ERROR_MSG);
+				pl.addErrors(errors);
+			} else {
+				isAccepted = far.compareTo(POINTFIVE) <= 0;
+				pl.getFarDetails().setPermissableFar(POINTFIVE.doubleValue());
+				expectedResult = "<=" + POINTFIVE;
+			}
+
+		}
+
+		String occupancyName = occupancyType.getType().getName();
+
+		if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
+			buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
+		}
+	}
+
+	private void buildResult(Plan pl, String occupancyName, BigDecimal far, String typeOfArea, BigDecimal roadWidth,
+			String expectedResult, boolean isAccepted) {
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, OCCUPANCY);
+		scrutinyDetail.addColumnHeading(3, AREA_TYPE);
+		scrutinyDetail.addColumnHeading(4, ROAD_WIDTH);
+		scrutinyDetail.addColumnHeading(5, PERMISSIBLE);
+		scrutinyDetail.addColumnHeading(6, PROVIDED);
+		scrutinyDetail.addColumnHeading(7, STATUS);
+		scrutinyDetail.setKey("Common_FAR");
+
+		String actualResult = far.toString();
+		expectedResult = "";
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, RULE_38);
+		details.put(OCCUPANCY, occupancyName);
+		details.put(AREA_TYPE, typeOfArea);
+		details.put(ROAD_WIDTH, roadWidth.toString());
+		details.put(PERMISSIBLE, expectedResult);
+		details.put(PROVIDED, actualResult);
 //                details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
-                details.put(STATUS,Result.Verify.getResultVal() );
+		details.put(STATUS, Result.Verify.getResultVal());
 
-                scrutinyDetail.getDetail().add(details);
-                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-        }
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
 
-        private ScrutinyDetail getFarScrutinyDetail(String key) {
-                ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-                scrutinyDetail.addColumnHeading(1, RULE_NO);
-                scrutinyDetail.addColumnHeading(2, "Area Type");
-                scrutinyDetail.addColumnHeading(3, "Road Width");
-                scrutinyDetail.addColumnHeading(4, PERMISSIBLE);
-                scrutinyDetail.addColumnHeading(5, PROVIDED);
-                scrutinyDetail.addColumnHeading(6, STATUS);
-                scrutinyDetail.setKey(key);
-                return scrutinyDetail;
-        }
+	private ScrutinyDetail getFarScrutinyDetail(String key) {
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, "Area Type");
+		scrutinyDetail.addColumnHeading(3, "Road Width");
+		scrutinyDetail.addColumnHeading(4, PERMISSIBLE);
+		scrutinyDetail.addColumnHeading(5, PROVIDED);
+		scrutinyDetail.addColumnHeading(6, STATUS);
+		scrutinyDetail.setKey(key);
+		return scrutinyDetail;
+	}
 
-        @Override
-        public Map<String, Date> getAmendments() {
-                return new LinkedHashMap<>();
-        }
+	@Override
+	public Map<String, Date> getAmendments() {
+		return new LinkedHashMap<>();
+	}
 }

@@ -52,8 +52,6 @@ package org.egov.edcr.feature;
 import static org.egov.edcr.constants.DxfFileConstants.B;
 import static org.egov.edcr.constants.DxfFileConstants.D;
 import static org.egov.edcr.constants.DxfFileConstants.F;
-import static org.egov.edcr.constants.DxfFileConstants.F_CB;
-import static org.egov.edcr.constants.DxfFileConstants.F_RT;
 import static org.egov.edcr.constants.DxfFileConstants.G;
 
 import java.math.BigDecimal;
@@ -148,8 +146,8 @@ public class RoadWidth extends FeatureProcess {
         roadWidthValues.put(D, TWELVE_POINT_TWENTY);
         roadWidthValues.put(G, TWELVE_POINT_TWENTY);
         roadWidthValues.put(F, TWELVE_POINT_TWENTY);
-        roadWidthValues.put(F_RT, TWELVE_POINT_TWENTY);
-        roadWidthValues.put(F_CB, TWELVE_POINT_TWENTY);
+//        roadWidthValues.put(F_RT, TWELVE_POINT_TWENTY);
+//        roadWidthValues.put(F_CB, TWELVE_POINT_TWENTY);
         return roadWidthValues;
 
     }

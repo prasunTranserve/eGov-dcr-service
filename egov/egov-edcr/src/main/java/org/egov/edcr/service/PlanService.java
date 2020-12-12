@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -93,6 +94,7 @@ public class PlanService {
                 featureService.getFeatures());
         plan.setMdmsMasterData(dcrApplication.getMdmsMasterData());
         plan.getErrors().clear();
+        updateOdPlanInfo(plan);
         plan = applyRules(plan, amd, cityDetails);
 
         String comparisonDcrNumber = dcrApplication.getEdcrApplicationDetails().get(0).getComparisonDcrNumber();
@@ -167,6 +169,19 @@ public class PlanService {
             updateFinalReport(dcrApplication.getEdcrApplicationDetails().get(0).getReportOutputId());
         }
         return plan;
+    }
+    
+    public void updateOdPlanInfo(Plan pl) {
+    	
+    	//NUMBER_OF_OCCUPANTS_OR_USERS 
+    	try {
+			pl.getPlanInformation().setNumberOfOccupantsOrUsers(pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS)!=null?new BigDecimal(pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS)):BigDecimal.ZERO);
+			if(pl.getPlanInformation().getNumberOfOccupantsOrUsers().compareTo(BigDecimal.ZERO)<=0)
+				pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS", "NUMBER_OF_OCCUPANTS_OR_USERS is not defined in plan info.");
+    	}catch (Exception e) {
+			pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS", "NUMBER_OF_OCCUPANTS_OR_USERS is invalid in planinfo layer.");
+		}
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

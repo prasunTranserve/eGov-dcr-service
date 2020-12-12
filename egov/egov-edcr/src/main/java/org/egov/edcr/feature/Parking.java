@@ -48,13 +48,8 @@
 package org.egov.edcr.feature;
 
 import static org.egov.edcr.constants.DxfFileConstants.A;
-import static org.egov.edcr.constants.DxfFileConstants.A_AF;
 import static org.egov.edcr.constants.DxfFileConstants.F;
 import static org.egov.edcr.constants.DxfFileConstants.F_H;
-import static org.egov.edcr.constants.DxfFileConstants.F_RT;
-import static org.egov.edcr.constants.DxfFileConstants.F_LD;
-import static org.egov.edcr.constants.DxfFileConstants.F_CB;
-import static org.egov.edcr.constants.DxfFileConstants.F_IT;
 import static org.egov.edcr.constants.DxfFileConstants.G;
 import static org.egov.edcr.constants.DxfFileConstants.PARKING_SLOT;
 import static org.egov.edcr.utility.DcrConstants.SQMTRS;
@@ -307,14 +302,14 @@ public class Parking extends FeatureProcess {
             if (mostRestrictiveOccupancy != null && A.equals(mostRestrictiveOccupancy.getType().getCode())) {
                 requiredCarParkArea = totalBuiltupArea.doubleValue() * PARK_A;
                 if (mostRestrictiveOccupancy != null && mostRestrictiveOccupancy.getSubtype() != null
-                        && A_AF.equals(mostRestrictiveOccupancy.getSubtype().getCode()))
+                        && A.equals(mostRestrictiveOccupancy.getSubtype().getCode()))
                     requiredVisitorParkArea = requiredCarParkArea * PARK_VISITOR;
             } 
             else if (mostRestrictiveOccupancy != null && (F.equals(mostRestrictiveOccupancy.getType().getCode()))) {
                 requiredCarParkArea = totalBuiltupArea.doubleValue() * PARK_F;
-                if (mostRestrictiveOccupancy != null && mostRestrictiveOccupancy.getSubtype() != null && ( F_H.equals(mostRestrictiveOccupancy.getSubtype().getCode()) || F_RT.equals(mostRestrictiveOccupancy.getSubtype().getCode())
-                		|| F_LD.equals(mostRestrictiveOccupancy.getSubtype().getCode()) || F_CB.equals(mostRestrictiveOccupancy.getSubtype().getCode())
-                		|| F_IT.equals(mostRestrictiveOccupancy.getSubtype().getCode()))) {
+                if (mostRestrictiveOccupancy != null && mostRestrictiveOccupancy.getSubtype() != null && ( F_H.equals(mostRestrictiveOccupancy.getSubtype().getCode()) || F.equals(mostRestrictiveOccupancy.getSubtype().getCode())
+                		|| F.equals(mostRestrictiveOccupancy.getSubtype().getCode()) || F.equals(mostRestrictiveOccupancy.getSubtype().getCode())
+                		|| F.equals(mostRestrictiveOccupancy.getSubtype().getCode()))) {
                     requiredCarParkArea = totalBuiltupArea.doubleValue() * PARK_F;
             }
           }

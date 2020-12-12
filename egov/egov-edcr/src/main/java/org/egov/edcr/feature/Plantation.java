@@ -47,7 +47,6 @@
 
 package org.egov.edcr.feature;
 
-import static org.egov.edcr.constants.DxfFileConstants.A_AF;
 import static org.egov.edcr.constants.DxfFileConstants.A_SA;
 import static org.egov.edcr.constants.DxfFileConstants.B;
 import static org.egov.edcr.constants.DxfFileConstants.D;
@@ -66,6 +65,7 @@ import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -115,7 +115,7 @@ public class Plantation extends FeatureProcess {
             }
             if (totalArea.intValue() > 0 && plotArea != null && plotArea.intValue() > 0)
                 plantationPer = totalArea.divide(plotArea, DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
-            if (A_AF.equals(subType) || A_SA.equals(subType) || B.equals(type) || D.equals(type) || G.equals(type)) {
+            if (DxfFileConstants.A.equals(subType) || A_SA.equals(subType) || B.equals(type) || D.equals(type) || G.equals(type)) {
                 if (plantationPer.compareTo(new BigDecimal("0.10")) < 0) {
                     details.put(REQUIRED, ">= 10%");
                     details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");

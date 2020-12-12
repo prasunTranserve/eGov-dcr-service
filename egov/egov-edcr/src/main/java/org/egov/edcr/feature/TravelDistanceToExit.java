@@ -53,7 +53,6 @@ import static org.egov.edcr.constants.DxfFileConstants.D;
 import static org.egov.edcr.constants.DxfFileConstants.F;
 import static org.egov.edcr.constants.DxfFileConstants.G;
 import static org.egov.edcr.constants.DxfFileConstants.H;
-import static org.egov.edcr.constants.DxfFileConstants.I;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -177,7 +176,7 @@ public class TravelDistanceToExit extends FeatureProcess {
         roadWidthValues.put(H, VAL_30);
 
         roadWidthValues.put(A, VAL_20);
-        roadWidthValues.put(I, VAL_20);
+       // roadWidthValues.put(I, VAL_20);
         roadWidthValues.put(B, VAL_20);
 
         return roadWidthValues;

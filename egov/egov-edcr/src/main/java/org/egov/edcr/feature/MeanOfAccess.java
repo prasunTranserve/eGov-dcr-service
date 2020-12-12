@@ -62,11 +62,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.OccupancyType;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.service.ProcessHelper;
 import org.egov.edcr.utility.DcrConstants;
+import org.kabeja.dxf.DXFConstants;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -98,234 +102,164 @@ public class MeanOfAccess extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-//		scrutinyDetail = new ScrutinyDetail();
-//		scrutinyDetail.setKey("Common_Access Width");
-//		scrutinyDetail.addColumnHeading(1, RULE_NO);
-//		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-//		scrutinyDetail.addColumnHeading(3, OCCPNCYCONDITION);
-//		scrutinyDetail.addColumnHeading(4, REQUIRED);
-//		scrutinyDetail.addColumnHeading(5, PROVIDED);
-//		scrutinyDetail.addColumnHeading(6, STATUS);
-//		scrutinyDetail.addColumnHeading(7, REMARKS);
-//		
-//		String rule = ACCESS_WIDTH; String subRule = null; Boolean valid = false;
-//		BigDecimal expectedValue=BigDecimal.ZERO;
-//		
-//		
-		/*
-		 * boolean extemption = ProcessHelper.isSmallPlot(pl); if (!extemption) {
-		 * BigDecimal totalFloorAreaOfAllBlocks = pl.getVirtualBuilding()!= null &&
-		 * pl.getVirtualBuilding().getTotalFloorArea() == null ? BigDecimal.ZERO :
-		 * pl.getVirtualBuilding().getTotalFloorArea(); List<Map<String, Object>>
-		 * listOfOccupancyMinimumAccessWidthMap = new ArrayList<>(); if
-		 * (pl.getVirtualBuilding() != null &&
-		 * !pl.getVirtualBuilding().getOccupancies().isEmpty()) { if
-		 * (pl.getVirtualBuilding().getOccupancies().stream() .anyMatch(occupancyType ->
-		 * !(occupancyType.equals(OccupancyType.OCCUPANCY_B1) ||
-		 * occupancyType.equals(OccupancyType.OCCUPANCY_B2)))) { // occupancies present
-		 * are other than B1 and B2. for (OccupancyType occupancy :
-		 * pl.getVirtualBuilding().getOccupancies()) { // map of occupancy, subrule and
-		 * minimum access width Map<String, Object> occupancyMinimumAccessWidthMap = new
-		 * HashMap<>(); BigDecimal minimumAccessWidth = BigDecimal.ZERO; if
-		 * (occupancy.equals(OccupancyType.OCCUPANCY_A1) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_A4) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_A5)) { if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_300) <= 0) { // dont validate access
-		 * width for single family residential with floor area <= 300 if
-		 * (occupancy.equals(OccupancyType.OCCUPANCY_A1)) break; else {
-		 * minimumAccessWidth = BigDecimal.valueOf(1.2); } } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_300) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_600) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(2); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_600) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_1000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(3); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_1000) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_4000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(3.6); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_4000) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_8000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(5); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_8000) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_18000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(6); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_18000) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_24000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(7); } else { minimumAccessWidth = BigDecimal.valueOf(10);
-		 * } subRule = SUBRULE_33_1; } else if
-		 * (occupancy.equals(OccupancyType.OCCUPANCY_A2) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_A3) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_B1) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_B2) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_B3) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_C) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_C1) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_C2) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_C3) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_D) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_D1) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_D2) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_E) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_F) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_F1) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_F2) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_F3) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_F4)) { if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_300) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(1.2); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_300) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_1500) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(3.6); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_1500) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_6000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(5); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_6000) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_12000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(6); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_12000) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_18000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(7); } else { minimumAccessWidth = BigDecimal.valueOf(10);
-		 * } subRule = SUBRULE_33_1; } else if
-		 * (occupancy.equals(OccupancyType.OCCUPANCY_G1) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_G2)) { if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_300) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(3); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_300) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_1500) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(3.6); } else if
-		 * (totalFloorAreaOfAllBlocks.compareTo(VAL_1500) > 0 &&
-		 * totalFloorAreaOfAllBlocks.compareTo(VAL_6000) <= 0) { minimumAccessWidth =
-		 * BigDecimal.valueOf(5); } else { minimumAccessWidth = BigDecimal.valueOf(6); }
-		 * subRule = SUBRULE_57_5; } else if
-		 * (occupancy.equals(OccupancyType.OCCUPANCY_H)) { minimumAccessWidth =
-		 * BigDecimal.valueOf(7); subRule = SUBRULE_58_3b; } else if
-		 * (occupancy.equals(OccupancyType.OCCUPANCY_I1) ||
-		 * occupancy.equals(OccupancyType.OCCUPANCY_I2)) { minimumAccessWidth =
-		 * BigDecimal.valueOf(7); subRule = SUBRULE_59_4; }
-		 * occupancyMinimumAccessWidthMap.put("subRule", subRule);
-		 * occupancyMinimumAccessWidthMap.put("minAccessWidth", minimumAccessWidth);
-		 * occupancyMinimumAccessWidthMap.put(OCCUPANCY,
-		 * occupancy.getOccupancyTypeVal());
-		 * listOfOccupancyMinimumAccessWidthMap.add(occupancyMinimumAccessWidthMap); } }
-		 * else { // validations for educational institutions String occupancyType =
-		 * pl.getVirtualBuilding().getOccupancies().contains(OccupancyType.OCCUPANCY_B2)
-		 * ? OccupancyType.OCCUPANCY_B2.getOccupancyTypeVal() :
-		 * OccupancyType.OCCUPANCY_B1.getOccupancyTypeVal(); if (pl.getPlanInformation()
-		 * != null && pl.getPlanInformation().getGovernmentOrAidedSchool() != null &&
-		 * pl.getPlanInformation().getGovernmentOrAidedSchool()) {
-		 * setReportOutputDetails(pl, SUBRULE_33_1, SUB_RULE_DES, occupancyType, "", "",
-		 * Result.Verify.getResultVal(), "The existing access shall be sufficient " +
-		 * "for addition of toilet blocks and other sanitation arrangements"); } if
-		 * (pl.getPlanInformation() != null &&
-		 * pl.getVirtualBuilding().getTotalFloorArea() != null &&
-		 * pl.getVirtualBuilding().getTotalExistingFloorArea() != null &&
-		 * pl.getVirtualBuilding().getTotalFloorArea() .intValue() <= 5000 &&
-		 * pl.getVirtualBuilding().getTotalFloorArea().compareTo(
-		 * pl.getVirtualBuilding().getTotalExistingFloorArea()
-		 * .add(pl.getPlanInformation().getDemolitionArea())) < 0) { if
-		 * (pl.getPlanInformation().getAccessWidth() != null &&
-		 * pl.getPlanInformation().getAccessWidth().compareTo(BigDecimal.valueOf(3.6))
-		 * >= 0) { valid = true; } if (valid) { setReportOutputDetails(pl, SUBRULE_33_1,
-		 * SUB_RULE_DES, occupancyType, String.valueOf(3.6),
-		 * pl.getPlanInformation().getAccessWidth().toString(),
-		 * Result.Accepted.getResultVal(), ""); } else { setReportOutputDetails(pl,
-		 * SUBRULE_33_1, SUB_RULE_DES, occupancyType, String.valueOf(3.6),
-		 * pl.getPlanInformation().getAccessWidth().toString(),
-		 * Result.Not_Accepted.getResultVal(), ""); } } } } // calculate maximum of all
-		 * minimum access widths and the occupancy corresponding to it is most
-		 * restrictive Map<String, Object> maxOfMinAccessWidth = new HashMap<>(); if
-		 * (!listOfOccupancyMinimumAccessWidthMap.isEmpty()) { maxOfMinAccessWidth =
-		 * listOfOccupancyMinimumAccessWidthMap.get(0); for (Map<String, Object>
-		 * mapOfAllDtls : listOfOccupancyMinimumAccessWidthMap) { if (((BigDecimal)
-		 * mapOfAllDtls.get("minAccessWidth")) .compareTo((BigDecimal)
-		 * maxOfMinAccessWidth.get("minAccessWidth")) == 0) { // if subrules are same
-		 * for any number of same minimum access width in map , show it only once,
-		 * duplicates // are not shown. // if subrules are different for any number of
-		 * same minimum access width in map, show all subrules by // comma separated. if
-		 * (mapOfAllDtls.get("subRule") != null &&
-		 * !mapOfAllDtls.get("subRule").equals(maxOfMinAccessWidth.get("subRule"))) {
-		 * SortedSet<String> uniqueSubrules = new TreeSet<>(); String[] subRuleString =
-		 * (mapOfAllDtls.get("subRule") + " , " + maxOfMinAccessWidth.get("subRule"))
-		 * .split(" , "); for (String str : subRuleString) { uniqueSubrules.add(str); }
-		 * String subRuleStr = removeDuplicates(uniqueSubrules);
-		 * maxOfMinAccessWidth.put("subRule", subRuleStr); } // if occupancies are same
-		 * for any number of same minimum access width in map , show it only once, //
-		 * duplicates are not shown. // if occupancies are different for any number of
-		 * same minimum access width in map, show all occupancies // by comma separated.
-		 * if (mapOfAllDtls.get(OCCUPANCY) != null &&
-		 * !(mapOfAllDtls.get(OCCUPANCY)).equals(maxOfMinAccessWidth.get(OCCUPANCY))) {
-		 * SortedSet<String> uniqueOccupancies = new TreeSet<>(); String[]
-		 * occupancyString = (mapOfAllDtls.get(OCCUPANCY) + " , " +
-		 * maxOfMinAccessWidth.get(OCCUPANCY)) .split(" , "); for (String str :
-		 * occupancyString) { uniqueOccupancies.add(str); } String occupancyStr =
-		 * removeDuplicates(uniqueOccupancies); maxOfMinAccessWidth.put(OCCUPANCY,
-		 * occupancyStr); } continue; } if (((BigDecimal)
-		 * maxOfMinAccessWidth.get("minAccessWidth")) .compareTo((BigDecimal)
-		 * mapOfAllDtls.get("minAccessWidth")) < 0) {
-		 * maxOfMinAccessWidth.putAll(mapOfAllDtls); } } } // add height of all blocks
-		 * to sorted set (in asc order) SortedSet<BigDecimal> heightOfBlocks = new
-		 * TreeSet<>(); for (Block block : pl.getBlocks()) { if
-		 * (block.getBuilding().getBuildingHeight() != null) {
-		 * heightOfBlocks.add(block.getBuilding().getBuildingHeight()); } } Map<String,
-		 * Object> mapOfHeightWiseValues = new ConcurrentHashMap<>(); Map<String,
-		 * Object> mapOfFinalAccessWidthValues = new ConcurrentHashMap<>();
-		 * List<BigDecimal> hghtOfBlks = new ArrayList<>(heightOfBlocks); // reverse the
-		 * list so that all heights will come in desc order
-		 * Collections.reverse(hghtOfBlks); // add subrule if height condition is
-		 * satisfied. if (!hghtOfBlks.isEmpty() &&
-		 * hghtOfBlks.get(0).compareTo(BigDecimal.valueOf(16)) > 0) {
-		 * mapOfHeightWiseValues.put("subRule", SUBRULE_116);
-		 * mapOfHeightWiseValues.put("minAccessWidth", BigDecimal.valueOf(5));
-		 * mapOfHeightWiseValues.put(OCCUPANCY, "Height Of Building Greater Than 16"); }
-		 * // calculate which access width amongst height condition or most restrictive
-		 * occupancy is greater and process rule as // per that if
-		 * (!maxOfMinAccessWidth.isEmpty()) { if (!mapOfHeightWiseValues.isEmpty()) { if
-		 * (((BigDecimal) mapOfHeightWiseValues.get("minAccessWidth"))
-		 * .compareTo((BigDecimal) maxOfMinAccessWidth.get("minAccessWidth")) > 0) {
-		 * mapOfFinalAccessWidthValues = mapOfHeightWiseValues; } else if (((BigDecimal)
-		 * mapOfHeightWiseValues.get("minAccessWidth")) .compareTo((BigDecimal)
-		 * maxOfMinAccessWidth.get("minAccessWidth")) < 0) { mapOfFinalAccessWidthValues
-		 * = maxOfMinAccessWidth; } else { // if access width as per height condition
-		 * and access width for most restrictive occupancy is same // if occupancies are
-		 * same , show only once. if they are different show comma separated if
-		 * (!(mapOfHeightWiseValues.get(OCCUPANCY)).equals(maxOfMinAccessWidth.get(
-		 * OCCUPANCY))) { SortedSet<String> uniqueOccupancies = new TreeSet<>();
-		 * String[] occupancyString = (mapOfHeightWiseValues.get(OCCUPANCY) + " , " +
-		 * maxOfMinAccessWidth.get(OCCUPANCY)).split(" , "); for (String str :
-		 * occupancyString) { uniqueOccupancies.add(str); } String occupancyStr =
-		 * removeDuplicates(uniqueOccupancies);
-		 * mapOfFinalAccessWidthValues.put(OCCUPANCY, occupancyStr); } else {
-		 * mapOfFinalAccessWidthValues.put(OCCUPANCY,
-		 * mapOfHeightWiseValues.get(OCCUPANCY)); }
-		 * mapOfFinalAccessWidthValues.put("minAccessWidth",
-		 * mapOfHeightWiseValues.get("minAccessWidth")); // if subrules are same , show
-		 * only once. if they are different show comma separated if
-		 * (!mapOfHeightWiseValues.get("subRule").equals(maxOfMinAccessWidth.get(
-		 * "subRule"))) { SortedSet<String> uniqueSubrules = new TreeSet<>(); String[]
-		 * subRuleString = (mapOfHeightWiseValues.get("subRule") + " , " +
-		 * maxOfMinAccessWidth.get("subRule")).split(" , "); for (String str :
-		 * subRuleString) { uniqueSubrules.add(str); } String subRuleStr =
-		 * removeDuplicates(uniqueSubrules); mapOfFinalAccessWidthValues.put("subRule",
-		 * subRuleStr); } else { mapOfFinalAccessWidthValues.put("subRule",
-		 * mapOfHeightWiseValues.get("subRule")); } } } else {
-		 * mapOfFinalAccessWidthValues = maxOfMinAccessWidth; } } if
-		 * (pl.getPlanInformation().getAccessWidth() != null && (BigDecimal)
-		 * mapOfFinalAccessWidthValues.get("minAccessWidth") != null) { if
-		 * (pl.getPlanInformation().getAccessWidth() .compareTo((BigDecimal)
-		 * mapOfFinalAccessWidthValues.get("minAccessWidth")) >= 0) valid = true; if
-		 * (valid) { setReportOutputDetails(pl, (String)
-		 * mapOfFinalAccessWidthValues.get("subRule"), SUB_RULE_DES,
-		 * mapOfFinalAccessWidthValues.get(OCCUPANCY).toString(),
-		 * mapOfFinalAccessWidthValues.get("minAccessWidth").toString() +
-		 * DcrConstants.IN_METER, pl.getPlanInformation().getAccessWidth().toString() +
-		 * DcrConstants.IN_METER, Result.Accepted.getResultVal(), ""); } else {
-		 * setReportOutputDetails(pl, (String)
-		 * mapOfFinalAccessWidthValues.get("subRule"), SUB_RULE_DES,
-		 * mapOfFinalAccessWidthValues.get(OCCUPANCY).toString(),
-		 * mapOfFinalAccessWidthValues.get("minAccessWidth").toString() +
-		 * DcrConstants.IN_METER, pl.getPlanInformation().getAccessWidth().toString() +
-		 * DcrConstants.IN_METER, Result.Not_Accepted.getResultVal(), ""); } } }
-		 */
+		scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_Access Width");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+
+		BigDecimal expectedValue = BigDecimal.ZERO;
+
+		boolean isAssemblyBuilding = OdishaUtill.isAssemblyBuildingCriteria(pl);
+		BigDecimal provided = pl.getPlanInformation().getAccessWidth();
+
+		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+
+		if (DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING
+				.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SEMI_DETACHED.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.ROW_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WORK_CUM_RESIDENTIAL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.DHARMASALA.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.DORMITORY.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.EWS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LOW_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HOSTEL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SHELTER_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.STAFF_QAURTER.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MOTELS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SERVICES_FOR_HOUSEHOLDS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SHOP_CUM_RESIDENTIAL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.BANK.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.RESORTS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LAGOONS_AND_LAGOON_RESORT.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.AMUSEMENT_BUILDING_OR_PARK_AND_WATER_SPORTS
+						.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.FINANCIAL_SERVICES_AND_STOCK_EXCHANGES
+						.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.COLD_STORAGE_AND_ICE_FACTORY.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CONVENIENCE_AND_NEIGHBORHOOD_SHOPPING
+						.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PROFESSIONAL_OFFICES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.DEPARTMENTAL_STORE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.GODOWNS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.GOOD_STORAGE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.GUEST_HOUSES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HOLIDAY_RESORT.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.BOARDING_AND_LODGING_HOUSES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LOCAL_RETAIL_SHOPPING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SHOWROOM.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SUPERMARKETS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WARE_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WHOLESALE_MARKET.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MEDIA_CENTRES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WEIGH_BRIDGES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MERCENTILE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.COUNTRY_HOMES.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			expectedValue = new BigDecimal("6");
+		} else if (DxfFileConstants.APARTMENT_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HOUSING_PROJECT.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.STUDIO_APARTMENTS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PRIMARY_SCHOOL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.NURSERY_SCHOOL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PLAY_SCHOOL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CRECHE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			expectedValue = new BigDecimal("9");
+		} else if (DxfFileConstants.HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX
+						.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.GAS_GODOWN.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CNG_MOTHER_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.RESTAURANT.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SHOPPING_CENTER.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SHOPPING_MALL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.STORAGE_OR_HANGERS_OR_TERMINAL_DEPOT
+						.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.FOOD_COURTS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.AUDITORIUM.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.BANQUET_HALL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CLUB.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MUSIC_PAVILIONS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.COMMUNITY_HALL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.ORPHANAGE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.OLD_AGE_HOME.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SCIENCE_CENTRE_OR_MUSEUM.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CONFERNCE_HALL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SCULPTURE_COMPLEX.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CULTURAL_COMPLEX.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.EXHIBITION_CENTER.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.GYMNASIA.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MUSUEM.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PLACE_OF_WORKSHIP.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PUBLIC_LIBRARIES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.RECREATION_BLDG.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SPORTS_COMPLEX.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.THEATRE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.ADMINISTRATIVE_BUILDINGS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.GOVERNMENT_OFFICES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LOCAL_AND_SEMI_GOVERNMENT_OFFICES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.POLICE_OR_ARMY_OR_BARRACK.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.RELIGIOUS_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SOCIAL_AND_WELFARE_CENTRES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CLINIC.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.DISPENSARY.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.YOGA_CENTER.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.DIAGNOSTIC_CENTRE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.GOVT_SEMI_GOVT_HOSPITAL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.REGISTERED_TRUST.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HEALTH_CENTRE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HOSPITAL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LAB.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MATERNITY_HOME.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MEDICAL_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.NURSING_HOME.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.POLYCLINIC.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.REHABILITAION_CENTER.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.VETERINARY_HOSPITAL_FOR_PET_ANIMALS_AND_BIRDS
+						.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.RESEARCH_AND_TRAINING_INSTITUTE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.POLICE_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.FIRE_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.JAIL_OR_PRISON.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.POST_OFFICE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.OC_PUBLIC_UTILITY.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_EDUCATION.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_TRANSPORTATION.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_AGRICULTURE.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_MIXED_USE.equals(occupancyTypeHelper.getType().getCode())) {
+			expectedValue = new BigDecimal("12");
+		} else if (DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION
+				.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION
+						.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			expectedValue = new BigDecimal("30");
+		} else {
+			if (isAssemblyBuilding) {
+				expectedValue = new BigDecimal("18");
+			} else {
+				expectedValue = new BigDecimal("12");
+			}
+		}
+
+		boolean status = provided.compareTo(expectedValue) >= 0 ? true : false;
+
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, SUBRULE_33_1);
+		details.put(DESCRIPTION, SUB_RULE_DESCRIPTION);
+		details.put(REQUIRED, expectedValue.toString());
+		details.put(PROVIDED, provided.toString());
+		details.put(STATUS, status ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
 		return pl;
 
@@ -343,32 +277,6 @@ public class MeanOfAccess extends FeatureProcess {
 		return pl;
 	}
 
-	private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String occupancy, String expected,
-			String actual, String status, String remarks) {
-		Map<String, String> details = new HashMap<>();
-		details.put(RULE_NO, ruleNo);
-		details.put(DESCRIPTION, ruleDesc);
-		details.put(OCCPNCYCONDITION, occupancy);
-		details.put(REQUIRED, expected);
-		details.put(PROVIDED, actual);
-		details.put(STATUS, status);
-		details.put(REMARKS, remarks);
-		scrutinyDetail.getDetail().add(details);
-		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-	}
-
-	private String removeDuplicates(SortedSet<String> uniqueData) {
-		StringBuilder str = new StringBuilder();
-		List<String> unqList = new ArrayList<>(uniqueData);
-		for (String unique : unqList) {
-			str.append(unique);
-			if (!unique.equals(unqList.get(unqList.size() - 1))) {
-				str.append(" , ");
-			}
-		}
-		return str.toString();
-	}
-
 	@Override
 	public Plan validate(Plan pl) {
 		return pl;
@@ -378,7 +286,5 @@ public class MeanOfAccess extends FeatureProcess {
 	public Map<String, Date> getAmendments() {
 		return new LinkedHashMap<>();
 	}
-	
-	
-	
+
 }

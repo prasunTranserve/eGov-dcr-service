@@ -136,7 +136,7 @@ public class LiftService extends FeatureProcess {
                      * housing, commercial, institutional and office buildings
                      */
                     if (block.getBuilding().getIsHighRise() &&
-                            (DxfFileConstants.A_AF
+                            (DxfFileConstants.A_P
                                     .equals(plan.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype()
                                             .getCode())
                                     || DxfFileConstants.B

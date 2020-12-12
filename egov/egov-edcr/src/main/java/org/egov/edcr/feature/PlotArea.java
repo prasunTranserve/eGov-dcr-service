@@ -49,12 +49,6 @@
 
 package org.egov.edcr.feature;
 
-import static org.egov.edcr.constants.DxfFileConstants.E_PS;
-import static org.egov.edcr.constants.DxfFileConstants.F_CB;
-import static org.egov.edcr.constants.DxfFileConstants.F_RT;
-import static org.egov.edcr.constants.DxfFileConstants.M_NAPI;
-import static org.egov.edcr.constants.DxfFileConstants.S_MCH;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
@@ -142,11 +136,11 @@ public class PlotArea extends FeatureProcess {
     public Map<String, BigDecimal> getOccupancyValues() {
 
         Map<String, BigDecimal> plotAreaValues = new HashMap<>();
-        plotAreaValues.put(F_RT, THREE_ZERO);
-        plotAreaValues.put(M_NAPI, THREE_ZERO);
-        plotAreaValues.put(F_CB, THREE_ZERO);
-        plotAreaValues.put(S_MCH, FIVE_ZERO);
-        plotAreaValues.put(E_PS, THREE_ZERO);
+//        plotAreaValues.put(F_RT, THREE_ZERO);
+//        plotAreaValues.put(M_NAPI, THREE_ZERO);
+//        plotAreaValues.put(F_CB, THREE_ZERO);
+//        plotAreaValues.put(S_MCH, FIVE_ZERO);
+//        plotAreaValues.put(E_PS, THREE_ZERO);
         return plotAreaValues;
     }
 }
