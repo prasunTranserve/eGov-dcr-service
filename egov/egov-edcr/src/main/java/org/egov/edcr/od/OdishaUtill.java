@@ -64,4 +64,10 @@ public class OdishaUtill {
 		pl.getPlanInformation().setAssemblyBuilding(isAssemblyBuilding);
 		return isAssemblyBuilding;
 	}
+	
+	public static BigDecimal getMaxBuildingHeight(Plan pl) {
+		BigDecimal buildingHeight=BigDecimal.ZERO;
+		buildingHeight=pl.getBlocks().stream().map(block->block.getBuilding().getBuildingHeight()).reduce(BigDecimal::max).get();
+		return buildingHeight;
+	}
 }

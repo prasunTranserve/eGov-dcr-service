@@ -64,6 +64,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.utils.StringUtils;
 import org.springframework.stereotype.Service;
@@ -355,8 +356,7 @@ public class Coverage extends FeatureProcess {
 	}	
 	
 	private BigDecimal getGeneralCriteria(Plan pl) {
-		BigDecimal buildingHeight=BigDecimal.ZERO;
-		buildingHeight=pl.getBlocks().stream().map(block->block.getBuilding().getBuildingHeight()).reduce(BigDecimal::max).get();
+		BigDecimal buildingHeight=OdishaUtill.getMaxBuildingHeight(pl);;
 		BigDecimal maxPermissibleGroundCoverage = BigDecimal.ZERO;
 		if(buildingHeight.compareTo(new BigDecimal("15"))<0)
 			maxPermissibleGroundCoverage=BigDecimal.ZERO;

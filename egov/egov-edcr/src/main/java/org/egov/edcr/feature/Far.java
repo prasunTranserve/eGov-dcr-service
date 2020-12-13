@@ -80,6 +80,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.service.ProcessPrintHelper;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.utils.StringUtils;
@@ -584,7 +585,7 @@ public class Far extends FeatureProcess {
 //		if (mostRestrictiveOccupancyType != null && StringUtils.isNotBlank(typeOfArea) && roadWidth != null
 //				&& !processFarForSpecialOccupancy(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth,
 //						errorMsgs)) {
-			if (mostRestrictiveOccupancyType != null && StringUtils.isNotBlank(typeOfArea) && roadWidth != null) {
+		if (mostRestrictiveOccupancyType != null && StringUtils.isNotBlank(typeOfArea) && roadWidth != null) {
 
 			processFar(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth, errorMsgs);
 //                        if ((mostRestrictiveOccupancyType.getType() != null
@@ -1126,6 +1127,152 @@ public class Far extends FeatureProcess {
 	private void processFar(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
 			BigDecimal roadWidth, HashMap<String, String> errors) {
 
+		String expectedResult = StringUtils.EMPTY;
+		boolean isAccepted = false;
+
+		pl.getFarDetails().setProvidedFar(far.doubleValue());
+
+		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+
+		if (DxfFileConstants.EWS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LOW_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL
+						.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_PUBLIC_UTILITY.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_EDUCATION.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.OC_TRANSPORTATION.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.AGRICULTURE_FARM.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.AGRO_GODOWN.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.AGRO_RESEARCH_FARM.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.NURSERY_AND_GREEN_HOUSES.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.POLUTRY_DIARY_AND_SWINE_OR_GOAT_OR_HORSE
+						.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HORTICULTURE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SERI_CULTURE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			generalCriteriasFar(pl.getFarDetails(), roadWidth);
+		} else if (DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION
+				.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION
+						.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			pl.getFarDetails().setBaseFar(2d);
+			pl.getFarDetails().setPermissableFar(2d);
+		} else if (DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING
+				.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SEMI_DETACHED.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.APARTMENT_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WORK_CUM_RESIDENTIAL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.STUDIO_APARTMENTS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.DHARMASALA.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.DORMITORY.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HOSTEL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SHELTER_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.STAFF_QAURTER.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.OC_COMMERCIAL.equals(occupancyTypeHelper.getType().getCode())) {
+
+			BigDecimal buildingHeight = BigDecimal.ZERO;
+			buildingHeight = OdishaUtill.getMaxBuildingHeight(pl);
+
+			if (buildingHeight.compareTo(new BigDecimal("10")) > 0
+					|| pl.getPlot().getArea().compareTo(new BigDecimal("115")) > 0) {
+				generalCriteriasFar(pl.getFarDetails(), roadWidth);
+			}
+
+		} else if (DxfFileConstants.ROW_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())) {
+
+			if (roadWidth.compareTo(new BigDecimal("6")) < 0) {
+				pl.getFarDetails().setBaseFar(1.5);
+				pl.getFarDetails().setPermissableFar(1.5);
+			} else {
+				pl.getFarDetails().setBaseFar(1.5);
+				pl.getFarDetails().setPermissableFar(1.5);
+			}
+		} else if (DxfFileConstants.HOUSING_PROJECT.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.APARTMENT_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			BigDecimal buildingHeight = BigDecimal.ZERO;
+			buildingHeight = OdishaUtill.getMaxBuildingHeight(pl);
+			if (buildingHeight.compareTo(new BigDecimal("10")) > 0
+					|| pl.getPlot().getArea().compareTo(new BigDecimal("115")) > 0) {
+				generalCriteriasFar(pl.getFarDetails(), roadWidth);
+			}
+		} else if (DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			BigDecimal buildingHeight = BigDecimal.ZERO;
+			buildingHeight = OdishaUtill.getMaxBuildingHeight(pl);
+			if (buildingHeight.compareTo(new BigDecimal("10")) > 0
+					|| pl.getPlot().getArea().compareTo(new BigDecimal("115")) > 0) {
+				generalCriteriasFar(pl.getFarDetails(), roadWidth);
+				pl.getFarDetails().setPermissableFar(pl.getFarDetails().getPermissableFar() + 0.25);
+			}
+
+		} else if (DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.COUNTRY_HOMES.equals(occupancyTypeHelper.getSubtype().getCode())) {
+
+			validateBuilupArea(pl);
+		}
+		
+		//far validation
+		
+		if(pl.getFarDetails().getPermissableFar()>0) {
+			isAccepted = far.compareTo(new BigDecimal(pl.getFarDetails().getPermissableFar())) <= 0;
+		}else
+			isAccepted=true;
+		
+		String occupancyName = occupancyType.getType().getName();
+		if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
+			buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
+		}
+		
+	}
+
+	private void validateBuilupArea(Plan pl) {
+		BigDecimal totalBuildUpArea = pl.getVirtualBuilding().getTotalBuitUpArea();
+		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+
+		BigDecimal plotArea = pl.getPlot().getArea();
+
+		if(DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			int multipler = plotArea.divide(new BigDecimal("10000"),1).intValue();
+			if (multipler < 0)
+				multipler = 1;
+			BigDecimal AllowedBuildUpArea=new BigDecimal("500").multiply(new BigDecimal(multipler));
+			if(totalBuildUpArea.compareTo(AllowedBuildUpArea)>0)
+				pl.addError("Far", "Max "+AllowedBuildUpArea+" SQM BuildUpArea is Allowed");
+		}
+		
+		if(DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			int multipler = plotArea.divide(new BigDecimal("2000"),1).intValue();
+			if (multipler < 0)
+				multipler = 1;
+			BigDecimal AllowedBuildUpArea=new BigDecimal("250").multiply(new BigDecimal(multipler));
+			if(totalBuildUpArea.compareTo(AllowedBuildUpArea)>0)
+				pl.addError("Far", "Max "+AllowedBuildUpArea+" SQM BuildUpArea is Allowed");
+		}
+	}
+
+	private void generalCriteriasFar(FarDetails farDetails, BigDecimal roadWidth) {
+		if (roadWidth.compareTo(new BigDecimal("6")) < 0) {
+			farDetails.setBaseFar(1.5);
+			farDetails.setPermissableFar(1.5);
+		} else if (roadWidth.compareTo(new BigDecimal("6")) >= 0 && roadWidth.compareTo(new BigDecimal("9")) < 0) {
+			farDetails.setBaseFar(2d);
+			farDetails.setPermissableFar(2d);
+		} else if (roadWidth.compareTo(new BigDecimal("9")) >= 0 && roadWidth.compareTo(new BigDecimal("12")) < 0) {
+			farDetails.setBaseFar(2d);
+			farDetails.setPermissableFar(3d);
+		} else if (roadWidth.compareTo(new BigDecimal("12")) >= 0 && roadWidth.compareTo(new BigDecimal("18")) < 0) {
+			farDetails.setBaseFar(2d);
+			farDetails.setPermissableFar(4d);
+		} else if (roadWidth.compareTo(new BigDecimal("18")) >= 0 && roadWidth.compareTo(new BigDecimal("30")) < 0) {
+			farDetails.setBaseFar(2d);
+			farDetails.setPermissableFar(5d);
+		} else if (roadWidth.compareTo(new BigDecimal("30")) >= 0 && roadWidth.compareTo(new BigDecimal("60")) < 0) {
+			farDetails.setBaseFar(2d);
+			farDetails.setPermissableFar(6d);
+		} else {
+			farDetails.setBaseFar(2d);
+			farDetails.setPermissableFar(7d);
+		}
+
 	}
 
 	private void processFarResidential(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far, String typeOfArea,
@@ -1417,25 +1564,27 @@ public class Far extends FeatureProcess {
 			String expectedResult, boolean isAccepted) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
-		scrutinyDetail.addColumnHeading(2, OCCUPANCY);
-		scrutinyDetail.addColumnHeading(3, AREA_TYPE);
-		scrutinyDetail.addColumnHeading(4, ROAD_WIDTH);
-		scrutinyDetail.addColumnHeading(5, PERMISSIBLE);
-		scrutinyDetail.addColumnHeading(6, PROVIDED);
-		scrutinyDetail.addColumnHeading(7, STATUS);
+		// scrutinyDetail.addColumnHeading(2, OCCUPANCY);
+		// scrutinyDetail.addColumnHeading(3, AREA_TYPE);
+		// scrutinyDetail.addColumnHeading(4, ROAD_WIDTH);
+		scrutinyDetail.addColumnHeading(2, BASE_FAR);
+		scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
 		scrutinyDetail.setKey("Common_FAR");
 
 		String actualResult = far.toString();
 		expectedResult = "";
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, RULE_38);
-		details.put(OCCUPANCY, occupancyName);
-		details.put(AREA_TYPE, typeOfArea);
-		details.put(ROAD_WIDTH, roadWidth.toString());
-		details.put(PERMISSIBLE, expectedResult);
+		// details.put(OCCUPANCY, occupancyName);
+		// details.put(AREA_TYPE, typeOfArea);
+		// details.put(ROAD_WIDTH, roadWidth.toString());
+		details.put(BASE_FAR, pl.getFarDetails().getBaseFar().toString());
+		details.put(PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString());
 		details.put(PROVIDED, actualResult);
-//                details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
-		details.put(STATUS, Result.Verify.getResultVal());
+		details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+		// details.put(STATUS, Result.Verify.getResultVal());
 
 		scrutinyDetail.getDetail().add(details);
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
