@@ -171,6 +171,13 @@ public class PlanInformation implements Serializable {
     
     private boolean assemblyBuilding;
     
+    private boolean lowRiskBuilding;
+    
+    //IS_THE_PLOT_PART_OF_THE_LAYOUT_APPROVED_BY_THE_AUTHORITY_OR_DEVELOPED_AND_ALLOTTED_BY_THE_GOVERNMENT_OR_STATUTORY_BODIES_OR_IS_A_FINAL_PLOT_IN_TOWN_PLANNING_SCHEMES_OR_DEVELOPMENT_SCHEMES
+    private String approvedLayoutDeclaration=NA;
+    
+    private String buildingUnderHazardousOccupancyCategory=NA;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -643,6 +650,31 @@ public class PlanInformation implements Serializable {
 
 	public void setAssemblyBuilding(boolean assemblyBuilding) {
 		this.assemblyBuilding = assemblyBuilding;
+	}
+
+	
+	public boolean isLowRiskBuilding() {
+		return lowRiskBuilding;
+	}
+
+	public void setLowRiskBuilding(boolean lowRiskBuilding) {
+		this.lowRiskBuilding = lowRiskBuilding;
+	}
+
+	public String getApprovedLayoutDeclaration() {
+		return approvedLayoutDeclaration;
+	}
+
+	public void setApprovedLayoutDeclaration(String approvedLayoutDeclaration) {
+		this.approvedLayoutDeclaration = approvedLayoutDeclaration;
+	}
+
+	public String getBuildingUnderHazardousOccupancyCategory() {
+		return buildingUnderHazardousOccupancyCategory;
+	}
+
+	public void setBuildingUnderHazardousOccupancyCategory(String buildingUnderHazardousOccupancyCategory) {
+		this.buildingUnderHazardousOccupancyCategory = buildingUnderHazardousOccupancyCategory;
 	}
 	
 	

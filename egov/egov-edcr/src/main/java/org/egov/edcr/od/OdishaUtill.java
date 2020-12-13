@@ -61,7 +61,7 @@ public class OdishaUtill {
 				}
 			}
 		}
-
+		pl.getPlanInformation().setAssemblyBuilding(isAssemblyBuilding);
 		return isAssemblyBuilding;
 	}
 }

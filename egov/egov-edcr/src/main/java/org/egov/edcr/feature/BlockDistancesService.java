@@ -58,10 +58,12 @@ import java.util.Map;
 
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.BlockDistances;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.common.entity.edcr.SetBack;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.utils.StringUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -258,34 +260,36 @@ public class BlockDistancesService extends FeatureProcess {
 		List<BigDecimal> blkHeights = Arrays.asList(bHeight, blockHeight);
 		BigDecimal maxHeight = blkHeights.stream().reduce(BigDecimal::max).get();
 
-		ArrayList<BigDecimal> setBacksValues = new ArrayList();
-		setBacksValues.add(THREE);
-		List<SetBack> setBacks = block.getSetBacks();
-		for (SetBack setback : setBacks) {
-			if (setback.getRearYard() != null)
-				setBacksValues.add(setback.getRearYard().getHeight());
-			if (setback.getSideYard1() != null)
-				setBacksValues.add(setback.getSideYard1().getHeight());
-			if (setback.getSideYard2() != null)
-				setBacksValues.add(setback.getSideYard2().getHeight());
-		}
+//		ArrayList<BigDecimal> setBacksValues = new ArrayList();
+//		setBacksValues.add(THREE);
+//		List<SetBack> setBacks = block.getSetBacks();
+//		for (SetBack setback : setBacks) {
+//			if (setback.getRearYard() != null)
+//				setBacksValues.add(setback.getRearYard().getHeight());
+//			if (setback.getSideYard1() != null)
+//				setBacksValues.add(setback.getSideYard1().getHeight());
+//			if (setback.getSideYard2() != null)
+//				setBacksValues.add(setback.getSideYard2().getHeight());
+//		}
 		
 
-		BigDecimal dividedHeight = maxHeight.divide(THREE, DcrConstants.DECIMALDIGITS_MEASUREMENTS,
-				DcrConstants.ROUNDMODE_MEASUREMENTS);
+//		BigDecimal dividedHeight = maxHeight.divide(THREE, DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+//				DcrConstants.ROUNDMODE_MEASUREMENTS);
 
 		
-		List<BigDecimal> heights = Arrays.asList(dividedHeight, BigDecimal.valueOf(18));
-		BigDecimal minHeight = heights.stream().reduce(BigDecimal::min).get();
-
+		//List<BigDecimal> heights = Arrays.asList(dividedHeight, BigDecimal.valueOf(18));
+		//BigDecimal minHeight = heights.stream().reduce(BigDecimal::min).get();
+		
+		BigDecimal minHeight=getMiniDistance(pl, maxHeight);
+		
 		if (actualDistance.compareTo(minHeight) >= 0) {
 			valid1 = true;
 		}
 
-		BigDecimal maxSetBack = setBacksValues.stream().reduce(BigDecimal::max).get();
-		if (actualDistance.compareTo(maxSetBack) >= 0) {
-			valid2 = true;
-		}
+//		BigDecimal maxSetBack = setBacksValues.stream().reduce(BigDecimal::max).get();
+//		if (actualDistance.compareTo(maxSetBack) >= 0) {
+//			valid2 = true;
+//		}
 
 		if (valid1) {
 			setReportOutputDetails(pl, SUBRULE_37_1, String.format(SUB_RULE_DES, b.getNumber(), block.getNumber()),
@@ -297,17 +301,39 @@ public class BlockDistancesService extends FeatureProcess {
 					Result.Not_Accepted.getResultVal());
 		}
 
-		if (valid2) {
-			setReportOutputDetails(pl, SUBRULE_37_1, String.format(SUB_RULE_DES, b.getNumber(), block.getNumber()),
-					StringUtils.EMPTY, MINIMUM_DISTANCE_SETBACK, actualDistance.toString() + DcrConstants.IN_METER,
-					Result.Accepted.getResultVal());
-		} else {
-			setReportOutputDetails(pl, SUBRULE_37_1, String.format(SUB_RULE_DES, b.getNumber(), block.getNumber()),
-					StringUtils.EMPTY, MINIMUM_DISTANCE_SETBACK, actualDistance.toString() + DcrConstants.IN_METER,
-					Result.Not_Accepted.getResultVal());
-		}
+//		if (valid2) {
+//			setReportOutputDetails(pl, SUBRULE_37_1, String.format(SUB_RULE_DES, b.getNumber(), block.getNumber()),
+//					StringUtils.EMPTY, MINIMUM_DISTANCE_SETBACK, actualDistance.toString() + DcrConstants.IN_METER,
+//					Result.Accepted.getResultVal());
+//		} else {
+//			setReportOutputDetails(pl, SUBRULE_37_1, String.format(SUB_RULE_DES, b.getNumber(), block.getNumber()),
+//					StringUtils.EMPTY, MINIMUM_DISTANCE_SETBACK, actualDistance.toString() + DcrConstants.IN_METER,
+//					Result.Not_Accepted.getResultVal());
+//		}
 
 	}
+	
+	public BigDecimal getMiniDistance(Plan plan,BigDecimal maxBuildHeight) {
+		OccupancyTypeHelper occupancyTypeHelper=plan.getVirtualBuilding().getMostRestrictiveFarHelper();
+		BigDecimal minDistance=BigDecimal.ZERO;
+		if(maxBuildHeight.compareTo(new BigDecimal("15"))<0)
+			minDistance=new BigDecimal("3");
+		else if(maxBuildHeight.compareTo(new BigDecimal("15"))>=0 && maxBuildHeight.compareTo(new BigDecimal("18"))<=0)
+			minDistance=new BigDecimal("4.5");
+		else if(maxBuildHeight.compareTo(new BigDecimal("18"))>0 && maxBuildHeight.compareTo(new BigDecimal("40"))<=0)
+			minDistance=new BigDecimal("6");
+		else
+			minDistance=new BigDecimal("9");
+		
+		if(DxfFileConstants.EWS.equals(occupancyTypeHelper.getSubtype().getCode())
+			|| DxfFileConstants.LOW_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
+				) {
+			minDistance=new BigDecimal("2");
+		}
+		
+		return minDistance;
+	}
+	
 
 	@Override
 	public Map<String, Date> getAmendments() {

@@ -1,5 +1,12 @@
 package org.egov.edcr.service;
 
+//import static org.egov.edcr.constants.DxfFileConstants.NA;
+//import static org.egov.edcr.constants.DxfFileConstants.YES;
+//import static org.egov.edcr.constants.DxfFileConstants.NO;
+import static org.egov.edcr.constants.DxfFileConstants.APPROVED_LAYOUT_DECLARATION;
+import static org.egov.edcr.constants.DxfFileConstants.IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY;
+import static org.egov.edcr.constants.DxfFileConstants.NO;
+import static org.egov.edcr.constants.DxfFileConstants.YES;
 import static org.egov.infra.utils.PdfUtils.appendFiles;
 
 import java.awt.Color;
@@ -93,7 +100,7 @@ public class PlanService {
         Plan plan = extractService.extract(dcrApplication.getSavedDxfFile(), amd, asOnDate,
                 featureService.getFeatures());
         plan.setMdmsMasterData(dcrApplication.getMdmsMasterData());
-        plan.getErrors().clear();
+      //  plan.getErrors().clear();
         updateOdPlanInfo(plan);
         plan = applyRules(plan, amd, cityDetails);
 
@@ -170,7 +177,7 @@ public class PlanService {
         }
         return plan;
     }
-    
+
     public void updateOdPlanInfo(Plan pl) {
     	
     	//NUMBER_OF_OCCUPANTS_OR_USERS 
@@ -182,8 +189,23 @@ public class PlanService {
 			pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS", "NUMBER_OF_OCCUPANTS_OR_USERS is invalid in planinfo layer.");
 		}
     	
-    	//LAND_USE_ZONE
+    	//APPROVED_LAYOUT_DECLARATION
+    	String approvedLayoutDeclaration=pl.getPlanInfoProperties().get(APPROVED_LAYOUT_DECLARATION);
     	
+    	if(YES.equalsIgnoreCase(approvedLayoutDeclaration) || NO.equalsIgnoreCase(approvedLayoutDeclaration)) {
+    		pl.getPlanInformation().setApprovedLayoutDeclaration(approvedLayoutDeclaration);
+    	}else {
+    		pl.addError("APPROVED_LAYOUT_DECLARATION", "APPROVED_LAYOUT_DECLARATION is not defined in plan info.");
+    	}
+    	
+    	//IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY
+    	String buildingUnderHazardousOccupancyCategory=pl.getPlanInfoProperties().get(IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY);
+    	
+    	if(YES.equalsIgnoreCase(approvedLayoutDeclaration) || NO.equalsIgnoreCase(approvedLayoutDeclaration)) {
+    		pl.getPlanInformation().setBuildingUnderHazardousOccupancyCategory(buildingUnderHazardousOccupancyCategory);
+    	}else {
+    		pl.addError("IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY", "IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY is not defined in plan info.");
+    	}
     	
     }
 
