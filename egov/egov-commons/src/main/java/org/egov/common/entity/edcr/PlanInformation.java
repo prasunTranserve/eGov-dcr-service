@@ -171,8 +171,6 @@ public class PlanInformation implements Serializable {
     
     private boolean assemblyBuilding;
     
-    private String landUseZone=NA;
-    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }

@@ -182,6 +182,9 @@ public class PlanService {
 			pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS", "NUMBER_OF_OCCUPANTS_OR_USERS is invalid in planinfo layer.");
 		}
     	
+    	//LAND_USE_ZONE
+    	
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {
