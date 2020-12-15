@@ -179,7 +179,7 @@ public class AdditionalFeature extends FeatureProcess {
         // validateIntCourtYard(pl, errors);
         validateBarrierFreeAccess(pl, errors);
         validateBasement(pl, errors);
-        validateGreenBuildingsAndSustainability(pl, errors);
+       // validateGreenBuildingsAndSustainability(pl, errors);
         validateFireDeclaration(pl, errors);
 
         return pl;

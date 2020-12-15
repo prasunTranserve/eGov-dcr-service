@@ -103,7 +103,7 @@ public class MeanOfAccess extends FeatureProcess {
 	@Override
 	public Plan process(Plan pl) {
 		scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_Access Width");
+		scrutinyDetail.setKey("Common_Means of access");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 		scrutinyDetail.addColumnHeading(3, REQUIRED);

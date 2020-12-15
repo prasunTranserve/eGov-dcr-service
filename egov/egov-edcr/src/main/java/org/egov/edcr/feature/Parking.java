@@ -154,7 +154,7 @@ public class Parking extends FeatureProcess {
         scrutinyDetail.addColumnHeading(3, REQUIRED);
         scrutinyDetail.addColumnHeading(4, PROVIDED);
         scrutinyDetail.addColumnHeading(5, STATUS);
-        processParking(pl);
+       // processParking(pl);
         //processMechanicalParking(pl);
         return pl;
     }

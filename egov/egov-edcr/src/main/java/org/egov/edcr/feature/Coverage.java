@@ -154,9 +154,9 @@ public class Coverage extends FeatureProcess {
 //				&& roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) <= 0) {
 //        processCoverage(pl, StringUtils.EMPTY, totalCoverage, Forty);
 //       }
-		
-		BigDecimal requiredCoverage=getPermissibleGroundCoverage(pl);
-		if(requiredCoverage.compareTo(BigDecimal.ZERO)>0)
+
+		BigDecimal requiredCoverage = getPermissibleGroundCoverage(pl);
+		// if(requiredCoverage.compareTo(BigDecimal.ZERO)>0)
 		processCoverage(pl, StringUtils.EMPTY, totalCoverage, requiredCoverage);
 		/*
 		 * // for weighted coverage if (pl.getPlot().getArea().doubleValue() >= 5000) {
@@ -246,37 +246,23 @@ public class Coverage extends FeatureProcess {
 		String desc = getLocaleMessage(RULE_DESCRIPTION_KEY, upperLimit.toString());
 		String actualResult = getLocaleMessage(RULE_ACTUAL_KEY, coverage.toString());
 		String expectedResult = getLocaleMessage(RULE_EXPECTED_KEY, upperLimit.toString());
-        if (coverage.doubleValue() <= upperLimit.doubleValue()) {
-            Map<String, String> details = new HashMap<>();
-            details.put(RULE_NO, RULE_38);
-            details.put(DESCRIPTION, desc);
-           // details.put(OCCUPANCY, occupancy);
-            details.put(PERMISSIBLE, expectedResult);
-            details.put(PROVIDED, actualResult);
-            details.put(STATUS, Result.Accepted.getResultVal());
-            scrutinyDetail.getDetail().add(details);
-            pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
-        } else {
-            Map<String, String> details = new HashMap<>();
-            details.put(RULE_NO, RULE_38);
-            details.put(DESCRIPTION, desc);
-           // details.put(OCCUPANCY, occupancy);
-            details.put(PERMISSIBLE, expectedResult);
-            details.put(PROVIDED, actualResult);
-            details.put(STATUS, Result.Not_Accepted.getResultVal());
-            scrutinyDetail.getDetail().add(details);
-            pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-
-        }
-		expectedResult = "";
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, RULE_38);
-		details.put(DESCRIPTION, desc);
-		// details.put(OCCUPANCY, occupancy);
-		details.put(PERMISSIBLE, expectedResult);
-		details.put(PROVIDED, actualResult);
-		details.put(STATUS, Result.Accepted.getResultVal());
+		details.put(DESCRIPTION, "Coverage");
+		details.put(PERMISSIBLE, upperLimit.toString());
+		details.put(PROVIDED, coverage.toString());
+		if (upperLimit.compareTo(BigDecimal.ZERO) > 0) {
+			if (coverage.doubleValue() <= upperLimit.doubleValue()) {
+				details.put(STATUS, Result.Accepted.getResultVal());
+			} else {
+				details.put(STATUS, Result.Not_Accepted.getResultVal());
+			}
+
+		} else {
+			details.put(STATUS, Result.Verify.getResultVal());
+		}
+
 		scrutinyDetail.getDetail().add(details);
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
@@ -327,57 +313,59 @@ public class Coverage extends FeatureProcess {
 		BigDecimal maxPermissibleGroundCoverage = BigDecimal.ZERO;
 		switch (pl.getPlanInformation().getLandUseZone()) {
 		case OPEN_SPACE_USE_ZONE:
-			if(getPublicOpenSpace(pl).compareTo(new BigDecimal("40"))<0)
-				maxPermissibleGroundCoverage=new BigDecimal("30");
+			if (getPublicOpenSpace(pl).compareTo(new BigDecimal("40")) < 0)
+				maxPermissibleGroundCoverage = new BigDecimal("30");
 			break;
 		case ENVIRONMENTALLY_SENSITIVE_ZONE:
 			maxPermissibleGroundCoverage = new BigDecimal("40");
 			break;
 		}
-		
-		if(maxPermissibleGroundCoverage.compareTo(BigDecimal.ZERO)>0)
+
+		if (maxPermissibleGroundCoverage.compareTo(BigDecimal.ZERO) > 0)
 			return maxPermissibleGroundCoverage;
-		
-		//General Criteria
-		OccupancyTypeHelper occupancyTypeHelper=pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-		if(DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
-			|| DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
-			|| DxfFileConstants.CNG_MOTHER_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
-				)
-			maxPermissibleGroundCoverage=new BigDecimal("20");
-		else if(DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.COUNTRY_HOMES.equals(occupancyTypeHelper.getSubtype().getCode())
-				)
-			maxPermissibleGroundCoverage=new BigDecimal("15");
-		else 
-			maxPermissibleGroundCoverage=getGeneralCriteria(pl);
-		
-		return maxPermissibleGroundCoverage;
-	}	
-	
-	private BigDecimal getGeneralCriteria(Plan pl) {
-		BigDecimal buildingHeight=OdishaUtill.getMaxBuildingHeight(pl);;
-		BigDecimal maxPermissibleGroundCoverage = BigDecimal.ZERO;
-		if(buildingHeight.compareTo(new BigDecimal("15"))<0)
-			maxPermissibleGroundCoverage=BigDecimal.ZERO;
-		else if(buildingHeight.compareTo(new BigDecimal("15"))>=0 && buildingHeight.compareTo(new BigDecimal("18"))<0)
-			maxPermissibleGroundCoverage=new BigDecimal("50");
-		else if(buildingHeight.compareTo(new BigDecimal("18"))>=0 && buildingHeight.compareTo(new BigDecimal("40"))<=0)
-			maxPermissibleGroundCoverage=new BigDecimal("40");
+
+		// General Criteria
+		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		if (DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION
+						.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CNG_MOTHER_STATION.equals(occupancyTypeHelper.getSubtype().getCode()))
+			maxPermissibleGroundCoverage = new BigDecimal("20");
+		else if (DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.COUNTRY_HOMES.equals(occupancyTypeHelper.getSubtype().getCode()))
+			maxPermissibleGroundCoverage = new BigDecimal("15");
 		else
-			maxPermissibleGroundCoverage=new BigDecimal("40");
+			maxPermissibleGroundCoverage = getGeneralCriteria(pl);
+
 		return maxPermissibleGroundCoverage;
 	}
-	
+
+	private BigDecimal getGeneralCriteria(Plan pl) {
+		BigDecimal buildingHeight = OdishaUtill.getMaxBuildingHeight(pl);
+		;
+		BigDecimal maxPermissibleGroundCoverage = BigDecimal.ZERO;
+		if (buildingHeight.compareTo(new BigDecimal("15")) < 0)
+			maxPermissibleGroundCoverage = BigDecimal.ZERO;
+		else if (buildingHeight.compareTo(new BigDecimal("15")) >= 0
+				&& buildingHeight.compareTo(new BigDecimal("18")) < 0)
+			maxPermissibleGroundCoverage = new BigDecimal("50");
+		else if (buildingHeight.compareTo(new BigDecimal("18")) >= 0
+				&& buildingHeight.compareTo(new BigDecimal("40")) <= 0)
+			maxPermissibleGroundCoverage = new BigDecimal("40");
+		else
+			maxPermissibleGroundCoverage = new BigDecimal("40");
+		return maxPermissibleGroundCoverage;
+	}
+
 	private BigDecimal getPublicOpenSpace(Plan pl) {
 		BigDecimal totalPublicOpenSace = BigDecimal.ZERO;
-		BigDecimal inPercentage=BigDecimal.ZERO;
+		BigDecimal inPercentage = BigDecimal.ZERO;
 		for (Block block : pl.getBlocks()) {
 			for (Measurement measurement : block.getPlantationGreenStripes()) {
-				totalPublicOpenSace=totalPublicOpenSace.add(measurement.getArea());
+				totalPublicOpenSace = totalPublicOpenSace.add(measurement.getArea());
 			}
 		}
-		inPercentage=totalPublicOpenSace.divide(pl.getPlot().getArea()).multiply(new BigDecimal("100"));
+		inPercentage = totalPublicOpenSace.divide(pl.getPlot().getArea()).multiply(new BigDecimal("100"));
 		return inPercentage;
 	}
 

@@ -90,30 +90,30 @@ public class ExitWidth extends FeatureProcess {
     private static final String FLOOR = "Floor";
 
     private Plan validateExitWidth(Plan pl) {
-        HashMap<String, String> errors = new HashMap<>();
-        // validate either exit width door or exit width stair should be compulsory
-        if (!pl.getBlocks().isEmpty()) {
-            blk: for (Block block : pl.getBlocks()) {
-                if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
-                    OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-                    if (mostRestrictiveOccupancyType != null && mostRestrictiveOccupancyType.getSubtype() != null
-                            && A_R.equalsIgnoreCase(mostRestrictiveOccupancyType.getSubtype().getCode())) {
-                        continue blk;
-                    }
-                    for (Floor floor : block.getBuilding().getFloors()) {
-                        if (floor.getExitWidthDoor().isEmpty() && floor.getExitWidthStair().isEmpty()) {
-                            errors.put(String.format(DcrConstants.EXIT_WIDTH_DOORSTAIRWAYS, block.getNumber(),
-                                    floor.getNumber()),
-                                    edcrMessageSource.getMessage(DcrConstants.OBJECTNOTDEFINED,
-                                            new String[] { String.format(DcrConstants.EXIT_WIDTH_DOORSTAIRWAYS, block.getNumber(),
-                                                    floor.getNumber()) },
-                                            LocaleContextHolder.getLocale()));
-                            pl.addErrors(errors);
-                        }
-                    }
-                }
-            }
-        }
+//        HashMap<String, String> errors = new HashMap<>();
+//        // validate either exit width door or exit width stair should be compulsory
+//        if (!pl.getBlocks().isEmpty()) {
+//            blk: for (Block block : pl.getBlocks()) {
+//                if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
+//                    OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+//                    if (mostRestrictiveOccupancyType != null && mostRestrictiveOccupancyType.getSubtype() != null
+//                            && A_R.equalsIgnoreCase(mostRestrictiveOccupancyType.getSubtype().getCode())) {
+//                        continue blk;
+//                    }
+//                    for (Floor floor : block.getBuilding().getFloors()) {
+//                        if (floor.getExitWidthDoor().isEmpty() && floor.getExitWidthStair().isEmpty()) {
+//                            errors.put(String.format(DcrConstants.EXIT_WIDTH_DOORSTAIRWAYS, block.getNumber(),
+//                                    floor.getNumber()),
+//                                    edcrMessageSource.getMessage(DcrConstants.OBJECTNOTDEFINED,
+//                                            new String[] { String.format(DcrConstants.EXIT_WIDTH_DOORSTAIRWAYS, block.getNumber(),
+//                                                    floor.getNumber()) },
+//                                            LocaleContextHolder.getLocale()));
+//                            pl.addErrors(errors);
+//                        }
+//                    }
+//                }
+//            }
+//        }
         return pl;
     }
 
