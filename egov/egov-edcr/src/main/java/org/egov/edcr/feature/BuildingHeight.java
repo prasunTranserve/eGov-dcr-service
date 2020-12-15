@@ -120,13 +120,13 @@ public class BuildingHeight extends FeatureProcess {
 				expectedResult = exptectedDistance.toString() + "" + DcrConstants.IN_METER;
 			;
 
-			if (actualDistance.compareTo(exptectedDistance) > 0) {
+			if (actualDistance.compareTo(exptectedDistance) >= 0) {
 				Map<String, String> details = new HashMap<>();
 				details.put(RULE_NO, subRule);
 				details.put(DESCRIPTION, HEIGHT_OF_BUILDING + " for Block " + block.getNumber());
 				details.put(UPTO, expectedResult);
 				details.put(PROVIDED, actualResult);
-				details.put(STATUS, Result.Not_Accepted.getResultVal());
+				details.put(STATUS, Result.Accepted.getResultVal());
 				scrutinyDetail.getDetail().add(details);
 				plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
@@ -136,7 +136,7 @@ public class BuildingHeight extends FeatureProcess {
 				details.put(DESCRIPTION, HEIGHT_OF_BUILDING + " for Block " + block.getNumber());
 				details.put(UPTO, expectedResult);
 				details.put(PROVIDED, actualResult);
-				details.put(STATUS, Result.Verify.getResultVal());
+				details.put(STATUS, Result.Not_Accepted.getResultVal());
 				scrutinyDetail.getDetail().add(details);
 				plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
