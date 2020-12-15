@@ -323,9 +323,12 @@ public class Coverage extends FeatureProcess {
 
 		if (maxPermissibleGroundCoverage.compareTo(BigDecimal.ZERO) > 0)
 			return maxPermissibleGroundCoverage;
-
+		
 		// General Criteria
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		System.out.println(occupancyTypeHelper);
+		System.out.println(occupancyTypeHelper+" - "+ occupancyTypeHelper.getSubtype());
+		System.out.println(occupancyTypeHelper+" - "+ occupancyTypeHelper.getSubtype()+" - "+ occupancyTypeHelper.getSubtype().getCode());
 		if (DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION
 						.equals(occupancyTypeHelper.getSubtype().getCode())
