@@ -178,6 +178,11 @@ public class PlanInformation implements Serializable {
     
     private String buildingUnderHazardousOccupancyCategory=NA;
     
+    //PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT = number
+    private BigDecimal benchmarkValuePerAcre;
+    
+    private boolean isShelterFeeRequired;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -675,6 +680,22 @@ public class PlanInformation implements Serializable {
 
 	public void setBuildingUnderHazardousOccupancyCategory(String buildingUnderHazardousOccupancyCategory) {
 		this.buildingUnderHazardousOccupancyCategory = buildingUnderHazardousOccupancyCategory;
+	}
+
+	public BigDecimal getBenchmarkValuePerAcre() {
+		return benchmarkValuePerAcre;
+	}
+
+	public void setBenchmarkValuePerAcre(BigDecimal benchmarkValuePerAcre) {
+		this.benchmarkValuePerAcre = benchmarkValuePerAcre;
+	}
+
+	public boolean isShelterFeeRequired() {
+		return isShelterFeeRequired;
+	}
+
+	public void setShelterFeeRequired(boolean isShelterFeeRequired) {
+		this.isShelterFeeRequired = isShelterFeeRequired;
 	}
 	
 	

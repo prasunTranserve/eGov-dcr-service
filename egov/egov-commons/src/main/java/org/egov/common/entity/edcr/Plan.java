@@ -198,6 +198,8 @@ public class Plan implements Serializable {
     private HashMap<String, String> featureAmendments = new LinkedHashMap<>();
     private transient Map<String, List<Object>> mdmsMasterData;
     private transient Boolean mainDcrPassed = false;
+    
+    private BigDecimal totalEWSArea;
 
     public List<BigDecimal> getCanopyDistanceFromPlotBoundary() {
         return canopyDistanceFromPlotBoundary;
@@ -629,4 +631,13 @@ public class Plan implements Serializable {
         this.mainDcrPassed = mainDcrPassed;
     }
 
+	public BigDecimal getTotalEWSArea() {
+		return totalEWSArea;
+	}
+
+	public void setTotalEWSArea(BigDecimal totalEWSArea) {
+		this.totalEWSArea = totalEWSArea;
+	}
+
+    
 }

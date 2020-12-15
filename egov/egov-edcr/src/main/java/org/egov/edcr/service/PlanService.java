@@ -207,6 +207,14 @@ public class PlanService {
     		pl.addError("IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY", "IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY is not defined in plan info.");
     	}
     	
+    	//PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT
+    	
+    	//NUMBER_OF_OCCUPANTS_OR_USERS 
+    	try {
+			pl.getPlanInformation().setBenchmarkValuePerAcre(pl.getPlanInfoProperties().get(DxfFileConstants.PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT)!=null?new BigDecimal(pl.getPlanInfoProperties().get(DxfFileConstants.PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT)):BigDecimal.ZERO);
+    	}catch (Exception e) {
+			pl.addError("PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT", "PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT is invalid in planinfo layer.");
+		}
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {
