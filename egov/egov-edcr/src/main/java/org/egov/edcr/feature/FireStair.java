@@ -95,151 +95,151 @@ public class FireStair extends FeatureProcess {
     @Override
     public Plan process(Plan plan) {
         // validate(planDetail);
-        HashMap<String, String> errors = new HashMap<>();
-        blk: for (Block block : plan.getBlocks()) {
-            int fireStairCount = 0;
-            if (block.getBuilding() != null) {
-                /*
-                 * if (Util.checkExemptionConditionForBuildingParts(block) ||
-                 * Util.checkExemptionConditionForSmallPlotAtBlkLevel(planDetail .getPlot(), block)) { continue blk; }
-                 */
-                ScrutinyDetail scrutinyDetail2 = new ScrutinyDetail();
-                scrutinyDetail2.addColumnHeading(1, RULE_NO);
-                scrutinyDetail2.addColumnHeading(2, FLOOR);
-                scrutinyDetail2.addColumnHeading(3, DESCRIPTION);
-                scrutinyDetail2.addColumnHeading(4, PERMISSIBLE);
-                scrutinyDetail2.addColumnHeading(5, PROVIDED);
-                scrutinyDetail2.addColumnHeading(6, STATUS);
-                scrutinyDetail2.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Width");
-
-                ScrutinyDetail scrutinyDetail3 = new ScrutinyDetail();
-                scrutinyDetail3.addColumnHeading(1, RULE_NO);
-                scrutinyDetail3.addColumnHeading(2, FLOOR);
-                scrutinyDetail3.addColumnHeading(3, DESCRIPTION);
-                scrutinyDetail3.addColumnHeading(4, PERMISSIBLE);
-                scrutinyDetail3.addColumnHeading(5, PROVIDED);
-                scrutinyDetail3.addColumnHeading(6, STATUS);
-                scrutinyDetail3.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Tread width");
-
-                ScrutinyDetail scrutinyDetailRise = new ScrutinyDetail();
-                scrutinyDetailRise.addColumnHeading(1, RULE_NO);
-                scrutinyDetailRise.addColumnHeading(2, FLOOR);
-                scrutinyDetailRise.addColumnHeading(3, DESCRIPTION);
-                scrutinyDetailRise.addColumnHeading(4, PERMISSIBLE);
-                scrutinyDetailRise.addColumnHeading(5, PROVIDED);
-                scrutinyDetailRise.addColumnHeading(6, STATUS);
-                scrutinyDetailRise.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Number of risers");
-
-                ScrutinyDetail scrutinyDetailLanding = new ScrutinyDetail();
-                scrutinyDetailLanding.addColumnHeading(1, RULE_NO);
-                scrutinyDetailLanding.addColumnHeading(2, FLOOR);
-                scrutinyDetailLanding.addColumnHeading(3, DESCRIPTION);
-                scrutinyDetailLanding.addColumnHeading(4, PERMISSIBLE);
-                scrutinyDetailLanding.addColumnHeading(5, PROVIDED);
-                scrutinyDetailLanding.addColumnHeading(6, STATUS);
-                scrutinyDetailLanding.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Mid landing");
-
-                ScrutinyDetail scrutinyDetailAbutBltUp = new ScrutinyDetail();
-                scrutinyDetailAbutBltUp.addColumnHeading(1, RULE_NO);
-                scrutinyDetailAbutBltUp.addColumnHeading(2, FLOOR);
-                scrutinyDetailAbutBltUp.addColumnHeading(3, DESCRIPTION);
-                scrutinyDetailAbutBltUp.addColumnHeading(4, PROVIDED);
-                scrutinyDetailAbutBltUp.addColumnHeading(5, STATUS);
-                scrutinyDetailAbutBltUp.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Abutting External Wall");
-
-                // int spiralStairCount = 0;
-                OccupancyTypeHelper mostRestrictiveOccupancyType = plan.getVirtualBuilding() != null ? plan.getVirtualBuilding().getMostRestrictiveFarHelper(): null ;
-                /*
-                 * String occupancyType = mostRestrictiveOccupancy != null ? mostRestrictiveOccupancy.getOccupancyType() : null;
-                 */
-
-                List<Floor> floors = block.getBuilding().getFloors();
-                // BigDecimal floorSize =
-                // block.getBuilding().getFloorsAboveGround();
-                List<String> fireStairAbsent = new ArrayList<>();
-                for (Floor floor : floors) {
-                    if (!floor.getTerrace()) {
-                        boolean isTypicalRepititiveFloor = false;
-                        Map<String, Object> typicalFloorValues = Util.getTypicalFloorValues(block, floor,
-                                isTypicalRepititiveFloor);
-
-                        List<org.egov.common.entity.edcr.FireStair> fireStairs = floor.getFireStairs();
-                        fireStairCount = fireStairCount + fireStairs.size();
-                        // spiralStairCount = spiralStairCount +
-                        // floor.getSpiralStairs().size();
-                        if (!fireStairs.isEmpty()) {
-                            for (org.egov.common.entity.edcr.FireStair fireStair : fireStairs) {
-                                setReportOutputDetailsBltUp(plan, RULE42_5_II, floor.getNumber().toString(),
-                                        "Fire stair should abut floor external wall",
-                                        fireStair.isAbuttingBltUp() ? "Is abuting external wall" : "Not abuting external wall",
-                                        fireStair.isAbuttingBltUp() ? Result.Accepted.getResultVal()
-                                                : Result.Not_Accepted.getResultVal(),
-                                        scrutinyDetailAbutBltUp);
-
-                                validateFlight(plan, errors, block, scrutinyDetail2, scrutinyDetail3,
-                                        scrutinyDetailRise, mostRestrictiveOccupancyType, floor, typicalFloorValues,
-                                        fireStair);
-
-                                List<StairLanding> landings = fireStair.getLandings();
-                                if (!landings.isEmpty()) {
-                                    validateLanding(plan,  block, scrutinyDetailLanding, floor, typicalFloorValues,
-                                            fireStair, landings, errors);
-                                } else {
-                                    errors.put(
-                                            "Fire Stair landing not defined in blk " + block.getNumber() + " floor "
-                                                    + floor.getNumber() + " fire stair " + fireStair.getNumber(),
-                                            "Fire Stair landing not defined in blk " + block.getNumber() + " floor "
-                                                    + floor.getNumber() + " fire stair " + fireStair.getNumber());
-                                    plan.addErrors(errors);
-                                }
-                            }
-                        } else {
-                            if (block.getBuilding().getIsHighRise()) {
-                                fireStairAbsent.add("Block " + block.getNumber() + " floor " + floor.getNumber());
-                            }
-                        }
-
-                    }
-                }
-
-                if (!fireStairAbsent.isEmpty()) {
-                    for (String error : fireStairAbsent) {
-                        errors.put("Fire Stair " + error, "Fire stair not defined in " + error);
-                        plan.addErrors(errors);
-                    }
-                }
-
-                if (block.getBuilding().getIsHighRise() && fireStairCount == 0) {
-                    errors.put("FireStair not defined in blk " + block.getNumber(), "FireStair not defined in block "
-                            + block.getNumber() + ", it is mandatory for building with height more than 15m.");
-                    plan.addErrors(errors);
-                }
-
-                /*
-                 * boolean isAbuting = abutingList.stream().anyMatch(aBoolean -> aBoolean == true); if (occupancyType != null) {
-                 * if (occupancyType.equalsIgnoreCase("RESIDENTIAL") && floorSize.compareTo(BigDecimal.valueOf(3)) > 0) { if
-                 * (fireStairCount > 0) { setReportOutputDetails(planDetail, RULE42, String.format(DcrConstants.RULE114,
-                 * block.getNumber()), "", DcrConstants.OBJECTDEFINED_DESC, Result.Accepted.getResultVal(), scrutinyDetail4); }
-                 * else { if (spiralStairCount == 0) setReportOutputDetails(planDetail, RULE42,
-                 * String.format(DcrConstants.RULE114, block.getNumber()), "Minimum 1 fire stair is required",
-                 * DcrConstants.OBJECTNOTDEFINED_DESC, Result.Not_Accepted.getResultVal(), scrutinyDetail4); } } else { if
-                 * (floorSize.compareTo(BigDecimal.valueOf(2)) > 0) { if (fireStairCount > 0) { setReportOutputDetails(planDetail,
-                 * RULE42, String.format(DcrConstants.RULE114, block.getNumber()), "", DcrConstants.OBJECTDEFINED_DESC,
-                 * Result.Accepted.getResultVal(), scrutinyDetail4); } else { if (spiralStairCount == 0)
-                 * setReportOutputDetails(planDetail, RULE42, String.format(DcrConstants.RULE114, block.getNumber()), "",
-                 * DcrConstants.OBJECTNOTDEFINED_DESC, Result.Not_Accepted.getResultVal(), scrutinyDetail4); } } } }
-                 */
-
-                /*
-                 * if (fireStairCount > 0) { if (isAbuting) { setReportOutputDetails(planDetail, RULE114,
-                 * String.format(DcrConstants.RULE114, block.getNumber()), "should abut built up area",
-                 * "is abutting built up area", Result.Accepted.getResultVal(), scrutinyDetail7); } else {
-                 * setReportOutputDetails(planDetail, RULE114, String.format(DcrConstants.RULE114, block.getNumber()),
-                 * "should abut built up area", "is not abutting built up area", Result.Not_Accepted.getResultVal(),
-                 * scrutinyDetail7); } }
-                 */
-            }
-        }
+//        HashMap<String, String> errors = new HashMap<>();
+//        blk: for (Block block : plan.getBlocks()) {
+//            int fireStairCount = 0;
+//            if (block.getBuilding() != null) {
+//                /*
+//                 * if (Util.checkExemptionConditionForBuildingParts(block) ||
+//                 * Util.checkExemptionConditionForSmallPlotAtBlkLevel(planDetail .getPlot(), block)) { continue blk; }
+//                 */
+//                ScrutinyDetail scrutinyDetail2 = new ScrutinyDetail();
+//                scrutinyDetail2.addColumnHeading(1, RULE_NO);
+//                scrutinyDetail2.addColumnHeading(2, FLOOR);
+//                scrutinyDetail2.addColumnHeading(3, DESCRIPTION);
+//                scrutinyDetail2.addColumnHeading(4, PERMISSIBLE);
+//                scrutinyDetail2.addColumnHeading(5, PROVIDED);
+//                scrutinyDetail2.addColumnHeading(6, STATUS);
+//                scrutinyDetail2.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Width");
+//
+//                ScrutinyDetail scrutinyDetail3 = new ScrutinyDetail();
+//                scrutinyDetail3.addColumnHeading(1, RULE_NO);
+//                scrutinyDetail3.addColumnHeading(2, FLOOR);
+//                scrutinyDetail3.addColumnHeading(3, DESCRIPTION);
+//                scrutinyDetail3.addColumnHeading(4, PERMISSIBLE);
+//                scrutinyDetail3.addColumnHeading(5, PROVIDED);
+//                scrutinyDetail3.addColumnHeading(6, STATUS);
+//                scrutinyDetail3.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Tread width");
+//
+//                ScrutinyDetail scrutinyDetailRise = new ScrutinyDetail();
+//                scrutinyDetailRise.addColumnHeading(1, RULE_NO);
+//                scrutinyDetailRise.addColumnHeading(2, FLOOR);
+//                scrutinyDetailRise.addColumnHeading(3, DESCRIPTION);
+//                scrutinyDetailRise.addColumnHeading(4, PERMISSIBLE);
+//                scrutinyDetailRise.addColumnHeading(5, PROVIDED);
+//                scrutinyDetailRise.addColumnHeading(6, STATUS);
+//                scrutinyDetailRise.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Number of risers");
+//
+//                ScrutinyDetail scrutinyDetailLanding = new ScrutinyDetail();
+//                scrutinyDetailLanding.addColumnHeading(1, RULE_NO);
+//                scrutinyDetailLanding.addColumnHeading(2, FLOOR);
+//                scrutinyDetailLanding.addColumnHeading(3, DESCRIPTION);
+//                scrutinyDetailLanding.addColumnHeading(4, PERMISSIBLE);
+//                scrutinyDetailLanding.addColumnHeading(5, PROVIDED);
+//                scrutinyDetailLanding.addColumnHeading(6, STATUS);
+//                scrutinyDetailLanding.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Mid landing");
+//
+//                ScrutinyDetail scrutinyDetailAbutBltUp = new ScrutinyDetail();
+//                scrutinyDetailAbutBltUp.addColumnHeading(1, RULE_NO);
+//                scrutinyDetailAbutBltUp.addColumnHeading(2, FLOOR);
+//                scrutinyDetailAbutBltUp.addColumnHeading(3, DESCRIPTION);
+//                scrutinyDetailAbutBltUp.addColumnHeading(4, PROVIDED);
+//                scrutinyDetailAbutBltUp.addColumnHeading(5, STATUS);
+//                scrutinyDetailAbutBltUp.setKey("Block_" + block.getNumber() + "_" + "Fire Stair - Abutting External Wall");
+//
+//                // int spiralStairCount = 0;
+//                OccupancyTypeHelper mostRestrictiveOccupancyType = plan.getVirtualBuilding() != null ? plan.getVirtualBuilding().getMostRestrictiveFarHelper(): null ;
+//                /*
+//                 * String occupancyType = mostRestrictiveOccupancy != null ? mostRestrictiveOccupancy.getOccupancyType() : null;
+//                 */
+//
+//                List<Floor> floors = block.getBuilding().getFloors();
+//                // BigDecimal floorSize =
+//                // block.getBuilding().getFloorsAboveGround();
+//                List<String> fireStairAbsent = new ArrayList<>();
+//                for (Floor floor : floors) {
+//                    if (!floor.getTerrace()) {
+//                        boolean isTypicalRepititiveFloor = false;
+//                        Map<String, Object> typicalFloorValues = Util.getTypicalFloorValues(block, floor,
+//                                isTypicalRepititiveFloor);
+//
+//                        List<org.egov.common.entity.edcr.FireStair> fireStairs = floor.getFireStairs();
+//                        fireStairCount = fireStairCount + fireStairs.size();
+//                        // spiralStairCount = spiralStairCount +
+//                        // floor.getSpiralStairs().size();
+//                        if (!fireStairs.isEmpty()) {
+//                            for (org.egov.common.entity.edcr.FireStair fireStair : fireStairs) {
+//                                setReportOutputDetailsBltUp(plan, RULE42_5_II, floor.getNumber().toString(),
+//                                        "Fire stair should abut floor external wall",
+//                                        fireStair.isAbuttingBltUp() ? "Is abuting external wall" : "Not abuting external wall",
+//                                        fireStair.isAbuttingBltUp() ? Result.Accepted.getResultVal()
+//                                                : Result.Not_Accepted.getResultVal(),
+//                                        scrutinyDetailAbutBltUp);
+//
+//                                validateFlight(plan, errors, block, scrutinyDetail2, scrutinyDetail3,
+//                                        scrutinyDetailRise, mostRestrictiveOccupancyType, floor, typicalFloorValues,
+//                                        fireStair);
+//
+//                                List<StairLanding> landings = fireStair.getLandings();
+//                                if (!landings.isEmpty()) {
+//                                    validateLanding(plan,  block, scrutinyDetailLanding, floor, typicalFloorValues,
+//                                            fireStair, landings, errors);
+//                                } else {
+//                                    errors.put(
+//                                            "Fire Stair landing not defined in blk " + block.getNumber() + " floor "
+//                                                    + floor.getNumber() + " fire stair " + fireStair.getNumber(),
+//                                            "Fire Stair landing not defined in blk " + block.getNumber() + " floor "
+//                                                    + floor.getNumber() + " fire stair " + fireStair.getNumber());
+//                                    plan.addErrors(errors);
+//                                }
+//                            }
+//                        } else {
+//                            if (block.getBuilding().getIsHighRise()) {
+//                                fireStairAbsent.add("Block " + block.getNumber() + " floor " + floor.getNumber());
+//                            }
+//                        }
+//
+//                    }
+//                }
+//
+//                if (!fireStairAbsent.isEmpty()) {
+//                    for (String error : fireStairAbsent) {
+//                        errors.put("Fire Stair " + error, "Fire stair not defined in " + error);
+//                        plan.addErrors(errors);
+//                    }
+//                }
+//
+//                if (block.getBuilding().getIsHighRise() && fireStairCount == 0) {
+//                    errors.put("FireStair not defined in blk " + block.getNumber(), "FireStair not defined in block "
+//                            + block.getNumber() + ", it is mandatory for building with height more than 15m.");
+//                    plan.addErrors(errors);
+//                }
+//
+//                /*
+//                 * boolean isAbuting = abutingList.stream().anyMatch(aBoolean -> aBoolean == true); if (occupancyType != null) {
+//                 * if (occupancyType.equalsIgnoreCase("RESIDENTIAL") && floorSize.compareTo(BigDecimal.valueOf(3)) > 0) { if
+//                 * (fireStairCount > 0) { setReportOutputDetails(planDetail, RULE42, String.format(DcrConstants.RULE114,
+//                 * block.getNumber()), "", DcrConstants.OBJECTDEFINED_DESC, Result.Accepted.getResultVal(), scrutinyDetail4); }
+//                 * else { if (spiralStairCount == 0) setReportOutputDetails(planDetail, RULE42,
+//                 * String.format(DcrConstants.RULE114, block.getNumber()), "Minimum 1 fire stair is required",
+//                 * DcrConstants.OBJECTNOTDEFINED_DESC, Result.Not_Accepted.getResultVal(), scrutinyDetail4); } } else { if
+//                 * (floorSize.compareTo(BigDecimal.valueOf(2)) > 0) { if (fireStairCount > 0) { setReportOutputDetails(planDetail,
+//                 * RULE42, String.format(DcrConstants.RULE114, block.getNumber()), "", DcrConstants.OBJECTDEFINED_DESC,
+//                 * Result.Accepted.getResultVal(), scrutinyDetail4); } else { if (spiralStairCount == 0)
+//                 * setReportOutputDetails(planDetail, RULE42, String.format(DcrConstants.RULE114, block.getNumber()), "",
+//                 * DcrConstants.OBJECTNOTDEFINED_DESC, Result.Not_Accepted.getResultVal(), scrutinyDetail4); } } } }
+//                 */
+//
+//                /*
+//                 * if (fireStairCount > 0) { if (isAbuting) { setReportOutputDetails(planDetail, RULE114,
+//                 * String.format(DcrConstants.RULE114, block.getNumber()), "should abut built up area",
+//                 * "is abutting built up area", Result.Accepted.getResultVal(), scrutinyDetail7); } else {
+//                 * setReportOutputDetails(planDetail, RULE114, String.format(DcrConstants.RULE114, block.getNumber()),
+//                 * "should abut built up area", "is not abutting built up area", Result.Not_Accepted.getResultVal(),
+//                 * scrutinyDetail7); } }
+//                 */
+//            }
+//        }
 
         return plan;
     }

@@ -78,30 +78,30 @@ public class GovtBuildingDistance extends FeatureProcess {
 	@Override
 	public Plan process(Plan pl) {
 
-		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_Government Building Distance");
-		scrutinyDetail.addColumnHeading(1, RULE_NO);
-		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-		scrutinyDetail.addColumnHeading(3, DISTANCE);
-		scrutinyDetail.addColumnHeading(4, PERMITTED);
-		scrutinyDetail.addColumnHeading(5, PROVIDED);
-		scrutinyDetail.addColumnHeading(6, STATUS);
-
-		HashMap<String, String> errors = new HashMap<>();
-		Map<String, String> details = new HashMap<>();
-		details.put(RULE_NO, RULE_21);
-		details.put(DESCRIPTION, GOVTBUILDING_DESCRIPTION);
-
-		BigDecimal minDistanceFromGovtBuilding = BigDecimal.ZERO;
-		BigDecimal maxHeightOfBuilding = BigDecimal.ZERO;
-		List<BigDecimal> distancesFromGovtBuilding = pl.getDistanceToExternalEntity().getGovtBuildings();
-		List<Block> blocks = pl.getBlocks();
-
-		details.put(DISTANCE, "");
-		details.put(PERMITTED, "");
-		details.put(PROVIDED, minDistanceFromGovtBuilding.toString());
-		details.put(STATUS, Result.Verify.getResultVal());
-		scrutinyDetail.getDetail().add(details);
+//		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+//		scrutinyDetail.setKey("Common_Government Building Distance");
+//		scrutinyDetail.addColumnHeading(1, RULE_NO);
+//		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+//		scrutinyDetail.addColumnHeading(3, DISTANCE);
+//		scrutinyDetail.addColumnHeading(4, PERMITTED);
+//		scrutinyDetail.addColumnHeading(5, PROVIDED);
+//		scrutinyDetail.addColumnHeading(6, STATUS);
+//
+//		HashMap<String, String> errors = new HashMap<>();
+//		Map<String, String> details = new HashMap<>();
+//		details.put(RULE_NO, RULE_21);
+//		details.put(DESCRIPTION, GOVTBUILDING_DESCRIPTION);
+//
+//		BigDecimal minDistanceFromGovtBuilding = BigDecimal.ZERO;
+//		BigDecimal maxHeightOfBuilding = BigDecimal.ZERO;
+//		List<BigDecimal> distancesFromGovtBuilding = pl.getDistanceToExternalEntity().getGovtBuildings();
+//		List<Block> blocks = pl.getBlocks();
+//
+//		details.put(DISTANCE, "");
+//		details.put(PERMITTED, "");
+//		details.put(PROVIDED, minDistanceFromGovtBuilding.toString());
+//		details.put(STATUS, Result.Verify.getResultVal());
+//		scrutinyDetail.getDetail().add(details);
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		
 //		if (StringUtils.isNotBlank(pl.getPlanInformation().getBuildingNearGovtBuilding())

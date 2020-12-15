@@ -49,13 +49,10 @@ package org.egov.edcr.feature;
 
 import static org.egov.edcr.constants.DxfFileConstants.OPEN_SPACE_USE_ZONE;
 import static org.egov.edcr.constants.DxfFileConstants.SPECIAL_HERITAGE_ZONE;
-import static org.egov.edcr.utility.DcrConstants.DECIMALDIGITS_MEASUREMENTS;
 import static org.egov.edcr.utility.DcrConstants.HEIGHT_OF_BUILDING;
-import static org.egov.edcr.utility.DcrConstants.ROUNDMODE_MEASUREMENTS;
 import static org.egov.edcr.utility.DcrConstants.SECURITY_ZONE;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -85,57 +82,30 @@ public class BuildingHeight extends FeatureProcess {
 	private static final String SUB_RULE_32_3 = "32-3";
 	public static final String UPTO = "Up To";
 	public static final String DECLARED = "Declared";
-	private static final BigDecimal TWELVE = BigDecimal.valueOf(12);
 	private static final BigDecimal TEN = BigDecimal.valueOf(10);
 
 	@Override
 	public Plan validate(Plan pl) {
-		/*
-		 * HashMap<String, String> errors = new HashMap<>(); if
-		 * (!ProcessHelper.isSmallPlot(pl)) { for (Block block : pl.getBlocks()) { if
-		 * (!block.getCompletelyExisting()) { if (block.getBuilding() != null &&
-		 * (block.getBuilding().getBuildingHeight() == null ||
-		 * block.getBuilding().getBuildingHeight().compareTo(BigDecimal.ZERO) <= 0)) {
-		 * errors.put(BUILDING_HEIGHT + block.getNumber(),
-		 * getLocaleMessage(OBJECTNOTDEFINED, BUILDING_HEIGHT + " for block " +
-		 * block.getNumber())); pl.addErrors(errors); } // distance from end of road to
-		 * foot print is mandatory. if
-		 * (block.getBuilding().getDistanceFromBuildingFootPrintToRoadEnd().isEmpty()) {
-		 * errors.put(SHORTESTDISTINACETOBUILDINGFOOTPRINT + block.getNumber(),
-		 * getLocaleMessage(OBJECTNOTDEFINED, SHORTESTDISTINACETOBUILDINGFOOTPRINT +
-		 * " for block " + block.getNumber())); pl.addErrors(errors); } } } }
-		 */
 		return pl;
 	}
 
 	@Override
 	public Plan process(Plan Plan) {
-
-		/*
-		 * validate(Plan); scrutinyDetail = new ScrutinyDetail();
-		 * scrutinyDetail.setKey("Common_Height of Building");
-		 * scrutinyDetail.addColumnHeading(1, RULE_NO);
-		 * scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-		 * scrutinyDetail.addColumnHeading(3, UPTO); scrutinyDetail.addColumnHeading(4,
-		 * PROVIDED); scrutinyDetail.addColumnHeading(5, STATUS); if
-		 * (!ProcessHelper.isSmallPlot(Plan)) { checkBuildingHeight(Plan); }
-		 * checkBuildingInSecurityZoneArea(Plan);
-		 */
-		checkBuildingInSecurityZoneArea(Plan);
+		checkBuildingHeight(Plan);
 		return Plan;
 	}
 
 	private void checkBuildingHeight(Plan plan) {
 		String subRule = SUB_RULE_32_1A;
-		String rule = HEIGHT_OF_BUILDING;
 
-		BigDecimal maximumDistanceToRoad = BigDecimal.ZERO;
-
-		// Get Maximum road distane from plot.
-		maximumDistanceToRoad = getMaximimShortestdistanceFromRoad(plan, maximumDistanceToRoad);
-
-		// get maximum height from buildings.
 		for (Block block : plan.getBlocks()) {
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, UPTO);
+			scrutinyDetail.addColumnHeading(4, PROVIDED);
+			scrutinyDetail.addColumnHeading(5, STATUS);
+			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Height of Building");
 
 			BigDecimal exptectedDistance = BigDecimal.ZERO;
 			BigDecimal actualDistance = BigDecimal.ZERO;
@@ -143,38 +113,35 @@ public class BuildingHeight extends FeatureProcess {
 			exptectedDistance = getMaxBulHeight(plan);
 			actualDistance = block.getBuilding().getBuildingHeight();
 
-			// Show for each block height
-			if (exptectedDistance.compareTo(BigDecimal.ZERO) > 0) {
-//				String actualResult = getLocaleMessage(RULE_ACTUAL_KEY, actualDistance.toString());
-//				String expectedResult = getLocaleMessage(RULE_EXPECTED_KEY, exptectedDistance.toString());
-				String actualResult = actualDistance.toString()+""+DcrConstants.IN_METER;
-				String expectedResult = "-";
-				
-				if(exptectedDistance.compareTo(BigDecimal.ZERO)>0)
-					expectedResult=exptectedDistance.toString()+""+DcrConstants.IN_METER;;
-				
-				if (actualDistance.compareTo(exptectedDistance) > 0) {
-					Map<String, String> details = new HashMap<>();
-					details.put(RULE_NO, subRule);
-					details.put(DESCRIPTION, HEIGHT_OF_BUILDING + " for Block " + block.getNumber());
-					details.put(UPTO, expectedResult);
-					details.put(PROVIDED, actualResult);
-					details.put(STATUS, Result.Not_Accepted.getResultVal());
-					scrutinyDetail.getDetail().add(details);
-					plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+			String actualResult = actualDistance.toString() + "" + DcrConstants.IN_METER;
+			String expectedResult = "-";
 
-				} else {
-					Map<String, String> details = new HashMap<>();
-					details.put(RULE_NO, subRule);
-					details.put(DESCRIPTION, HEIGHT_OF_BUILDING + " for Block " + block.getNumber());
-					details.put(UPTO, expectedResult);
-					details.put(PROVIDED, actualResult);
-					details.put(STATUS, Result.Verify.getResultVal());
-					scrutinyDetail.getDetail().add(details);
-					plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+			if (exptectedDistance.compareTo(BigDecimal.ZERO) > 0)
+				expectedResult = exptectedDistance.toString() + "" + DcrConstants.IN_METER;
+			;
 
-				}
+			if (actualDistance.compareTo(exptectedDistance) > 0) {
+				Map<String, String> details = new HashMap<>();
+				details.put(RULE_NO, subRule);
+				details.put(DESCRIPTION, HEIGHT_OF_BUILDING + " for Block " + block.getNumber());
+				details.put(UPTO, expectedResult);
+				details.put(PROVIDED, actualResult);
+				details.put(STATUS, Result.Not_Accepted.getResultVal());
+				scrutinyDetail.getDetail().add(details);
+				plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
+			} else {
+				Map<String, String> details = new HashMap<>();
+				details.put(RULE_NO, subRule);
+				details.put(DESCRIPTION, HEIGHT_OF_BUILDING + " for Block " + block.getNumber());
+				details.put(UPTO, expectedResult);
+				details.put(PROVIDED, actualResult);
+				details.put(STATUS, Result.Verify.getResultVal());
+				scrutinyDetail.getDetail().add(details);
+				plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
 			}
+			// }
 		}
 	}
 

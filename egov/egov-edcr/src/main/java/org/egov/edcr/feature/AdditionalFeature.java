@@ -170,17 +170,17 @@ public class AdditionalFeature extends FeatureProcess {
         String typeOfArea = pl.getPlanInformation().getTypeOfArea();
         BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
 
-        if (StringUtils.isNotBlank(typeOfArea) && roadWidth != null) {
-            validateNumberOfFloors(pl, errors, typeOfArea, roadWidth);
-            validateHeightOfBuilding(pl, errors, typeOfArea, roadWidth);
-        }
+//        if (StringUtils.isNotBlank(typeOfArea) && roadWidth != null) {
+//           // validateNumberOfFloors(pl, errors, typeOfArea, roadWidth);
+//            //validateHeightOfBuilding(pl, errors, typeOfArea, roadWidth);
+//        }
 
-        validatePlinthHeight(pl, errors);
+       // validatePlinthHeight(pl, errors);
         // validateIntCourtYard(pl, errors);
-        validateBarrierFreeAccess(pl, errors);
-        validateBasement(pl, errors);
+       // validateBarrierFreeAccess(pl, errors);
+       // validateBasement(pl, errors);
        // validateGreenBuildingsAndSustainability(pl, errors);
-        validateFireDeclaration(pl, errors);
+        //validateFireDeclaration(pl, errors);
 
         return pl;
     }

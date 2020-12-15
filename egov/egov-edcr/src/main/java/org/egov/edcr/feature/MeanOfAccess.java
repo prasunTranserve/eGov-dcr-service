@@ -250,7 +250,9 @@ public class MeanOfAccess extends FeatureProcess {
 			}
 		}
 
-		boolean status = provided.compareTo(expectedValue) >= 0 ? true : false;
+		boolean status = false;
+		if (provided != null)
+			status = provided.compareTo(expectedValue) >= 0 ? true : false;
 
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, SUBRULE_33_1);

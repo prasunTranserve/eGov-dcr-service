@@ -250,9 +250,10 @@ public class Coverage extends FeatureProcess {
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, RULE_38);
 		details.put(DESCRIPTION, "Coverage");
-		details.put(PERMISSIBLE, upperLimit.toString());
+		
 		details.put(PROVIDED, coverage.toString());
 		if (upperLimit.compareTo(BigDecimal.ZERO) > 0) {
+			details.put(PERMISSIBLE, upperLimit.toString());
 			if (coverage.doubleValue() <= upperLimit.doubleValue()) {
 				details.put(STATUS, Result.Accepted.getResultVal());
 			} else {
@@ -260,7 +261,8 @@ public class Coverage extends FeatureProcess {
 			}
 
 		} else {
-			details.put(STATUS, Result.Verify.getResultVal());
+			details.put(PERMISSIBLE,"-");
+			details.put(STATUS, Result.Accepted.getResultVal());
 		}
 
 		scrutinyDetail.getDetail().add(details);

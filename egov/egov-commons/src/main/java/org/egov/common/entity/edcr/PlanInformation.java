@@ -183,7 +183,7 @@ public class PlanInformation implements Serializable {
     
     private boolean isShelterFeeRequired;
     
-    private int totalNoOfDwellingUnits;
+    private BigDecimal totalNoOfDwellingUnits;
     
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
@@ -700,11 +700,11 @@ public class PlanInformation implements Serializable {
 		this.isShelterFeeRequired = isShelterFeeRequired;
 	}
 
-	public int getTotalNoOfDwellingUnits() {
+	public BigDecimal getTotalNoOfDwellingUnits() {
 		return totalNoOfDwellingUnits;
 	}
 
-	public void setTotalNoOfDwellingUnits(int totalNoOfDwellingUnits) {
+	public void setTotalNoOfDwellingUnits(BigDecimal totalNoOfDwellingUnits) {
 		this.totalNoOfDwellingUnits = totalNoOfDwellingUnits;
 	}
 	

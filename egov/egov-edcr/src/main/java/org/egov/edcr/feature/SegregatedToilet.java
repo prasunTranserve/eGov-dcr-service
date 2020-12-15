@@ -79,91 +79,91 @@ public class SegregatedToilet extends FeatureProcess {
     @Override
     public Plan process(Plan pl) {
 
-        ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-        scrutinyDetail.setKey("Common_Segregated Toilet");
-        scrutinyDetail.addColumnHeading(1, RULE_NO);
-        scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-        scrutinyDetail.addColumnHeading(3, REQUIRED);
-        scrutinyDetail.addColumnHeading(4, PROVIDED);
-        scrutinyDetail.addColumnHeading(5, STATUS);
-
-        Map<String, String> details = new HashMap<>();
-        details.put(RULE_NO, RULE_59_10);
-
-        BigDecimal minDimension = BigDecimal.ZERO;
-        BigDecimal maxHeightOfBuilding = BigDecimal.ZERO;
-        BigDecimal maxNumOfFloorsOfBuilding = BigDecimal.ZERO;
-
-        if (pl.getSegregatedToilet() != null && !pl.getSegregatedToilet().getDistancesToMainEntrance().isEmpty())
-            minDimension = pl.getSegregatedToilet().getDistancesToMainEntrance().stream().reduce(BigDecimal::min).get();
-
-        for (Block b : pl.getBlocks()) {
-            if (b.getBuilding().getBuildingHeight() != null) {
-                if (b.getBuilding() != null && b.getBuilding().getBuildingHeight().compareTo(maxHeightOfBuilding) > 0) {
-                    maxHeightOfBuilding = b.getBuilding().getBuildingHeight();
-                }
-                if (b.getBuilding().getFloorsAboveGround() != null
-                        && b.getBuilding().getFloorsAboveGround().compareTo(maxNumOfFloorsOfBuilding) > 0) {
-                    maxNumOfFloorsOfBuilding = b.getBuilding().getFloorsAboveGround();
-                }
-            }
-        }
-
-        if (pl.getVirtualBuilding() != null && (pl.getVirtualBuilding().getMostRestrictiveFarHelper() != null
-                && pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType() != null
-                && ((StringUtils
-                        .isNotBlank(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
-                && DxfFileConstants.A
-                        .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
-                && maxHeightOfBuilding.compareTo(new BigDecimal(15)) >= 0)
-                || ((DxfFileConstants.B
-                        .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
-                        || DxfFileConstants.A
-                                .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
-                        || DxfFileConstants.E
-                                .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode()))
-                        && pl.getVirtualBuilding().getTotalBuitUpArea() != null
-                        && pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(new BigDecimal(1000)) >= 0
-                        && maxNumOfFloorsOfBuilding.compareTo(new BigDecimal(2)) >= 0)
-                || (DxfFileConstants.C
-                        .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
-                        && pl.getVirtualBuilding().getTotalBuitUpArea() != null
-                        && pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(new BigDecimal(500)) >= 0)))) {
-
-            if (pl.getSegregatedToilet() != null && pl.getSegregatedToilet().getSegregatedToilets() != null
-                    && !pl.getSegregatedToilet().getSegregatedToilets().isEmpty()) {
-                details.put(DESCRIPTION, SEGREGATEDTOILET_DESCRIPTION);
-                details.put(REQUIRED, "1");
-                details.put(PROVIDED, String.valueOf(pl.getSegregatedToilet().getSegregatedToilets().size()));
-                details.put(STATUS, Result.Accepted.getResultVal());
-                scrutinyDetail.getDetail().add(details);
-                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-            } else {
-                details.put(DESCRIPTION, SEGREGATEDTOILET_DESCRIPTION);
-                details.put(REQUIRED, "1");
-                details.put(PROVIDED, "0");
-                details.put(STATUS, Result.Not_Accepted.getResultVal());
-                scrutinyDetail.getDetail().add(details);
-                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-            }
-
-            if (minDimension != null && minDimension.compareTo(new BigDecimal(200)) >= 0) {
-                details.put(DESCRIPTION, SEGREGATEDTOILET_DIMENSION_DESCRIPTION);
-                details.put(REQUIRED, ">= 200");
-                details.put(PROVIDED, minDimension.toString());
-                details.put(STATUS, Result.Accepted.getResultVal());
-                scrutinyDetail.getDetail().add(details);
-                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-            } else {
-                details.put(DESCRIPTION, SEGREGATEDTOILET_DIMENSION_DESCRIPTION);
-                details.put(REQUIRED, ">= 200");
-                details.put(PROVIDED, minDimension.toString());
-                details.put(STATUS, Result.Not_Accepted.getResultVal());
-                scrutinyDetail.getDetail().add(details);
-                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-            }
-
-        }
+//        ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+//        scrutinyDetail.setKey("Common_Segregated Toilet");
+//        scrutinyDetail.addColumnHeading(1, RULE_NO);
+//        scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+//        scrutinyDetail.addColumnHeading(3, REQUIRED);
+//        scrutinyDetail.addColumnHeading(4, PROVIDED);
+//        scrutinyDetail.addColumnHeading(5, STATUS);
+//
+//        Map<String, String> details = new HashMap<>();
+//        details.put(RULE_NO, RULE_59_10);
+//
+//        BigDecimal minDimension = BigDecimal.ZERO;
+//        BigDecimal maxHeightOfBuilding = BigDecimal.ZERO;
+//        BigDecimal maxNumOfFloorsOfBuilding = BigDecimal.ZERO;
+//
+//        if (pl.getSegregatedToilet() != null && !pl.getSegregatedToilet().getDistancesToMainEntrance().isEmpty())
+//            minDimension = pl.getSegregatedToilet().getDistancesToMainEntrance().stream().reduce(BigDecimal::min).get();
+//
+//        for (Block b : pl.getBlocks()) {
+//            if (b.getBuilding().getBuildingHeight() != null) {
+//                if (b.getBuilding() != null && b.getBuilding().getBuildingHeight().compareTo(maxHeightOfBuilding) > 0) {
+//                    maxHeightOfBuilding = b.getBuilding().getBuildingHeight();
+//                }
+//                if (b.getBuilding().getFloorsAboveGround() != null
+//                        && b.getBuilding().getFloorsAboveGround().compareTo(maxNumOfFloorsOfBuilding) > 0) {
+//                    maxNumOfFloorsOfBuilding = b.getBuilding().getFloorsAboveGround();
+//                }
+//            }
+//        }
+//
+//        if (pl.getVirtualBuilding() != null && (pl.getVirtualBuilding().getMostRestrictiveFarHelper() != null
+//                && pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType() != null
+//                && ((StringUtils
+//                        .isNotBlank(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
+//                && DxfFileConstants.A
+//                        .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
+//                && maxHeightOfBuilding.compareTo(new BigDecimal(15)) >= 0)
+//                || ((DxfFileConstants.B
+//                        .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
+//                        || DxfFileConstants.A
+//                                .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
+//                        || DxfFileConstants.E
+//                                .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode()))
+//                        && pl.getVirtualBuilding().getTotalBuitUpArea() != null
+//                        && pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(new BigDecimal(1000)) >= 0
+//                        && maxNumOfFloorsOfBuilding.compareTo(new BigDecimal(2)) >= 0)
+//                || (DxfFileConstants.C
+//                        .equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode())
+//                        && pl.getVirtualBuilding().getTotalBuitUpArea() != null
+//                        && pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(new BigDecimal(500)) >= 0)))) {
+//
+//            if (pl.getSegregatedToilet() != null && pl.getSegregatedToilet().getSegregatedToilets() != null
+//                    && !pl.getSegregatedToilet().getSegregatedToilets().isEmpty()) {
+//                details.put(DESCRIPTION, SEGREGATEDTOILET_DESCRIPTION);
+//                details.put(REQUIRED, "1");
+//                details.put(PROVIDED, String.valueOf(pl.getSegregatedToilet().getSegregatedToilets().size()));
+//                details.put(STATUS, Result.Accepted.getResultVal());
+//                scrutinyDetail.getDetail().add(details);
+//                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//            } else {
+//                details.put(DESCRIPTION, SEGREGATEDTOILET_DESCRIPTION);
+//                details.put(REQUIRED, "1");
+//                details.put(PROVIDED, "0");
+//                details.put(STATUS, Result.Not_Accepted.getResultVal());
+//                scrutinyDetail.getDetail().add(details);
+//                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//            }
+//
+//            if (minDimension != null && minDimension.compareTo(new BigDecimal(200)) >= 0) {
+//                details.put(DESCRIPTION, SEGREGATEDTOILET_DIMENSION_DESCRIPTION);
+//                details.put(REQUIRED, ">= 200");
+//                details.put(PROVIDED, minDimension.toString());
+//                details.put(STATUS, Result.Accepted.getResultVal());
+//                scrutinyDetail.getDetail().add(details);
+//                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//            } else {
+//                details.put(DESCRIPTION, SEGREGATEDTOILET_DIMENSION_DESCRIPTION);
+//                details.put(REQUIRED, ">= 200");
+//                details.put(PROVIDED, minDimension.toString());
+//                details.put(STATUS, Result.Not_Accepted.getResultVal());
+//                scrutinyDetail.getDetail().add(details);
+//                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//            }
+//
+//        }
 
         return pl;
     }

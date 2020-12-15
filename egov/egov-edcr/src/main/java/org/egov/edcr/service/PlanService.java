@@ -215,6 +215,14 @@ public class PlanService {
     	}catch (Exception e) {
 			pl.addError("PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT", "PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT is invalid in planinfo layer.");
 		}
+    	
+    	//TOTAL_NUMBER_OF_DWELLING_UNITS 
+    	try {
+			pl.getPlanInformation().setTotalNoOfDwellingUnits(pl.getPlanInfoProperties().get(DxfFileConstants.TOTAL_NUMBER_OF_DWELLING_UNITS)!=null?new BigDecimal(pl.getPlanInfoProperties().get(DxfFileConstants.TOTAL_NUMBER_OF_DWELLING_UNITS)):BigDecimal.ZERO);
+    	}catch (Exception e) {
+			//For NA
+    		pl.getPlanInformation().setTotalNoOfDwellingUnits(BigDecimal.ZERO);
+		}
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

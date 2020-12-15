@@ -82,69 +82,69 @@ public class Plantation extends FeatureProcess {
 
     @Override
     public Plan process(Plan pl) {
-        validate(pl);
-        scrutinyDetail = new ScrutinyDetail();
-        scrutinyDetail.setKey("Common_Plantation");
-        scrutinyDetail.addColumnHeading(1, RULE_NO);
-        scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-        scrutinyDetail.addColumnHeading(3, REQUIRED);
-        scrutinyDetail.addColumnHeading(4, PROVIDED);
-        scrutinyDetail.addColumnHeading(5, STATUS);
-        Map<String, String> details = new HashMap<>();
-        details.put(RULE_NO, RULE_32);
-        details.put(DESCRIPTION, PLANTATION_TREECOVER_DESCRIPTION);
-
-        BigDecimal totalArea = BigDecimal.ZERO;
-        BigDecimal plotArea = BigDecimal.ZERO;
-        BigDecimal plantationPer = BigDecimal.ZERO;
-        String type = "";
-        String subType = "";
-        if (pl.getPlantation() != null && pl.getPlantation().getPlantations() != null
-                && !pl.getPlantation().getPlantations().isEmpty()) {
-            for (Measurement m : pl.getPlantation().getPlantations()) {
-                totalArea = totalArea.add(m.getArea());
-            }
-
-            if (pl.getPlot() != null)
-                plotArea = pl.getPlot().getArea();
-
-            if (pl.getVirtualBuilding() != null && pl.getVirtualBuilding().getMostRestrictiveFarHelper() != null
-                    && pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype() != null) {
-                type = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode();
-                subType = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode();
-            }
-            if (totalArea.intValue() > 0 && plotArea != null && plotArea.intValue() > 0)
-                plantationPer = totalArea.divide(plotArea, DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
-            if (DxfFileConstants.A.equals(subType) || A_SA.equals(subType) || B.equals(type) || D.equals(type) || G.equals(type)) {
-                if (plantationPer.compareTo(new BigDecimal("0.10")) < 0) {
-                    details.put(REQUIRED, ">= 10%");
-                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
-                    details.put(STATUS, Result.Not_Accepted.getResultVal());
-                    scrutinyDetail.getDetail().add(details);
-                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-                } else {
-                    details.put(REQUIRED, ">= 10%");
-                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
-                    details.put(STATUS, Result.Accepted.getResultVal());
-                    scrutinyDetail.getDetail().add(details);
-                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-                }
-            } else {
-                if (plantationPer.compareTo(new BigDecimal("0.05")) < 0) {
-                    details.put(REQUIRED, ">= 5%");
-                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
-                    details.put(STATUS, Result.Not_Accepted.getResultVal());
-                    scrutinyDetail.getDetail().add(details);
-                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-                } else {
-                    details.put(REQUIRED, ">= 5%");
-                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
-                    details.put(STATUS, Result.Accepted.getResultVal());
-                    scrutinyDetail.getDetail().add(details);
-                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-                }
-            }
-        }
+//        validate(pl);
+//        scrutinyDetail = new ScrutinyDetail();
+//        scrutinyDetail.setKey("Common_Plantation");
+//        scrutinyDetail.addColumnHeading(1, RULE_NO);
+//        scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+//        scrutinyDetail.addColumnHeading(3, REQUIRED);
+//        scrutinyDetail.addColumnHeading(4, PROVIDED);
+//        scrutinyDetail.addColumnHeading(5, STATUS);
+//        Map<String, String> details = new HashMap<>();
+//        details.put(RULE_NO, RULE_32);
+//        details.put(DESCRIPTION, PLANTATION_TREECOVER_DESCRIPTION);
+//
+//        BigDecimal totalArea = BigDecimal.ZERO;
+//        BigDecimal plotArea = BigDecimal.ZERO;
+//        BigDecimal plantationPer = BigDecimal.ZERO;
+//        String type = "";
+//        String subType = "";
+//        if (pl.getPlantation() != null && pl.getPlantation().getPlantations() != null
+//                && !pl.getPlantation().getPlantations().isEmpty()) {
+//            for (Measurement m : pl.getPlantation().getPlantations()) {
+//                totalArea = totalArea.add(m.getArea());
+//            }
+//
+//            if (pl.getPlot() != null)
+//                plotArea = pl.getPlot().getArea();
+//
+//            if (pl.getVirtualBuilding() != null && pl.getVirtualBuilding().getMostRestrictiveFarHelper() != null
+//                    && pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype() != null) {
+//                type = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode();
+//                subType = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode();
+//            }
+//            if (totalArea.intValue() > 0 && plotArea != null && plotArea.intValue() > 0)
+//                plantationPer = totalArea.divide(plotArea, DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
+//            if (DxfFileConstants.A.equals(subType) || A_SA.equals(subType) || B.equals(type) || D.equals(type) || G.equals(type)) {
+//                if (plantationPer.compareTo(new BigDecimal("0.10")) < 0) {
+//                    details.put(REQUIRED, ">= 10%");
+//                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
+//                    details.put(STATUS, Result.Not_Accepted.getResultVal());
+//                    scrutinyDetail.getDetail().add(details);
+//                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//                } else {
+//                    details.put(REQUIRED, ">= 10%");
+//                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
+//                    details.put(STATUS, Result.Accepted.getResultVal());
+//                    scrutinyDetail.getDetail().add(details);
+//                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//                }
+//            } else {
+//                if (plantationPer.compareTo(new BigDecimal("0.05")) < 0) {
+//                    details.put(REQUIRED, ">= 5%");
+//                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
+//                    details.put(STATUS, Result.Not_Accepted.getResultVal());
+//                    scrutinyDetail.getDetail().add(details);
+//                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//                } else {
+//                    details.put(REQUIRED, ">= 5%");
+//                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
+//                    details.put(STATUS, Result.Accepted.getResultVal());
+//                    scrutinyDetail.getDetail().add(details);
+//                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//                }
+//            }
+//        }
         return pl;
     }
 

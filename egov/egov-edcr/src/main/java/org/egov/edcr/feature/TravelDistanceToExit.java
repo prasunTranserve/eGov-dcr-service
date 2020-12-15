@@ -125,7 +125,7 @@ public class TravelDistanceToExit extends FeatureProcess {
 			scrutinyDetail.addColumnHeading(2, REQUIRED);
 			scrutinyDetail.addColumnHeading(3, PROVIDED);
 			scrutinyDetail.addColumnHeading(4, STATUS);
-			scrutinyDetail.setSubHeading(SUBRULE_42_2_DESC);
+			//scrutinyDetail.setSubHeading(SUBRULE_42_2_DESC);
 
 			BigDecimal totalProvidedTravelDistance = pl.getTravelDistancesToExit().stream().reduce(BigDecimal.ZERO,
 					BigDecimal::add);

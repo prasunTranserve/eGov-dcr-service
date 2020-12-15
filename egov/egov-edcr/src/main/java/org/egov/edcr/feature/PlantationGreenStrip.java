@@ -77,70 +77,70 @@ public class PlantationGreenStrip extends FeatureProcess {
 
     @Override
     public Plan process(Plan pl) {
-        if (pl.getPlot() != null && pl.getPlot().getArea().compareTo(BigDecimal.valueOf(300)) > 0) {
-            for (Block block : pl.getBlocks()) {
-
-                ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-                scrutinyDetail.addColumnHeading(1, RULE_NO);
-                scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-                scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
-                scrutinyDetail.addColumnHeading(4, PROVIDED);
-                scrutinyDetail.addColumnHeading(5, STATUS);
-                scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Continuous Green Planting Strip");
-
-                boolean isWidthAccepted = false;
-                // boolean isHeightAccepted = false;
-                BigDecimal minWidth = BigDecimal.ZERO;
-                // BigDecimal minHeight = BigDecimal.ZERO;
-                List<BigDecimal> widths = block.getPlantationGreenStripes().stream()
-                        .map(greenStrip -> greenStrip.getWidth()).collect(Collectors.toList());
-                /*
-                 * List<BigDecimal> heights = block.getPlantationGreenStripes().stream() .map(greenStripe ->
-                 * greenStripe.getHeight()).collect(Collectors.toList());
-                 */
-                // List<BigDecimal> minimumDistances = new ArrayList<>();
-
-                if (widths.isEmpty()) {
-                    pl.addError("RULE_37_6", getLocaleMessage(DcrConstants.OBJECTNOTDEFINED,
-                            "Block " + block.getNumber() + " " + "Continuous Green Planting Strip"));
-                }
-                /*
-                 * for (SetBack setBack : block.getSetBacks()) { if (setBack.getRearYard() != null)
-                 * minimumDistances.add(setBack.getRearYard().getHeight()); if (setBack.getSideYard1() != null)
-                 * minimumDistances.add(setBack.getSideYard1().getHeight()); if (setBack.getSideYard2() != null)
-                 * minimumDistances.add(setBack.getSideYard2().getHeight()); }
-                 */
-
-                if (!widths.isEmpty()) {
-                    minWidth = widths.stream().reduce(BigDecimal::min).get();
-                    // minHeight = heights.stream().reduce(BigDecimal::min).get();
-                    // BigDecimal minLength = Collections.min(minimumDistances);
-
-                    if (minWidth.compareTo(BigDecimal.valueOf(0.6)) >= 0) {
-                        isWidthAccepted = true;
-
-                    }
-
-                    /*
-                     * if (minHeight.doubleValue()>=1d) { isHeightAccepted = true; }
-                     */
-
-                    /*
-                     * if (minHeight.doubleValue()>=minLength.doubleValue()) { isHeightAccepted = true; }
-                     */
-                    buildResult(pl, scrutinyDetail, isWidthAccepted, "Width of continuos plantation green strip",
-                            ">= 0.6",
-                            minWidth.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS, DcrConstants.ROUNDMODE_MEASUREMENTS)
-                                    .toString());
-                    /*
-                     * buildResult(pl, scrutinyDetail, isHeightAccepted, "length of continuos plantation green strip ",
-                     * "should be equal to rear or side yard",
-                     * minHeight.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,DcrConstants.ROUNDMODE_MEASUREMENTS).toString())
-                     * ;
-                     */
-                }
-            }
-        }
+//        if (pl.getPlot() != null && pl.getPlot().getArea().compareTo(BigDecimal.valueOf(300)) > 0) {
+//            for (Block block : pl.getBlocks()) {
+//
+//                ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+//                scrutinyDetail.addColumnHeading(1, RULE_NO);
+//                scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+//                scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
+//                scrutinyDetail.addColumnHeading(4, PROVIDED);
+//                scrutinyDetail.addColumnHeading(5, STATUS);
+//                scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Continuous Green Planting Strip");
+//
+//                boolean isWidthAccepted = false;
+//                // boolean isHeightAccepted = false;
+//                BigDecimal minWidth = BigDecimal.ZERO;
+//                // BigDecimal minHeight = BigDecimal.ZERO;
+//                List<BigDecimal> widths = block.getPlantationGreenStripes().stream()
+//                        .map(greenStrip -> greenStrip.getWidth()).collect(Collectors.toList());
+//                /*
+//                 * List<BigDecimal> heights = block.getPlantationGreenStripes().stream() .map(greenStripe ->
+//                 * greenStripe.getHeight()).collect(Collectors.toList());
+//                 */
+//                // List<BigDecimal> minimumDistances = new ArrayList<>();
+//
+//                if (widths.isEmpty()) {
+//                    pl.addError("RULE_37_6", getLocaleMessage(DcrConstants.OBJECTNOTDEFINED,
+//                            "Block " + block.getNumber() + " " + "Continuous Green Planting Strip"));
+//                }
+//                /*
+//                 * for (SetBack setBack : block.getSetBacks()) { if (setBack.getRearYard() != null)
+//                 * minimumDistances.add(setBack.getRearYard().getHeight()); if (setBack.getSideYard1() != null)
+//                 * minimumDistances.add(setBack.getSideYard1().getHeight()); if (setBack.getSideYard2() != null)
+//                 * minimumDistances.add(setBack.getSideYard2().getHeight()); }
+//                 */
+//
+//                if (!widths.isEmpty()) {
+//                    minWidth = widths.stream().reduce(BigDecimal::min).get();
+//                    // minHeight = heights.stream().reduce(BigDecimal::min).get();
+//                    // BigDecimal minLength = Collections.min(minimumDistances);
+//
+//                    if (minWidth.compareTo(BigDecimal.valueOf(0.6)) >= 0) {
+//                        isWidthAccepted = true;
+//
+//                    }
+//
+//                    /*
+//                     * if (minHeight.doubleValue()>=1d) { isHeightAccepted = true; }
+//                     */
+//
+//                    /*
+//                     * if (minHeight.doubleValue()>=minLength.doubleValue()) { isHeightAccepted = true; }
+//                     */
+//                    buildResult(pl, scrutinyDetail, isWidthAccepted, "Width of continuos plantation green strip",
+//                            ">= 0.6",
+//                            minWidth.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS, DcrConstants.ROUNDMODE_MEASUREMENTS)
+//                                    .toString());
+//                    /*
+//                     * buildResult(pl, scrutinyDetail, isHeightAccepted, "length of continuos plantation green strip ",
+//                     * "should be equal to rear or side yard",
+//                     * minHeight.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,DcrConstants.ROUNDMODE_MEASUREMENTS).toString())
+//                     * ;
+//                     */
+//                }
+//            }
+//        }
         return pl;
     }
 

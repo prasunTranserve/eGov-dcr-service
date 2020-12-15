@@ -585,7 +585,7 @@ public class Far extends FeatureProcess {
 //		if (mostRestrictiveOccupancyType != null && StringUtils.isNotBlank(typeOfArea) && roadWidth != null
 //				&& !processFarForSpecialOccupancy(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth,
 //						errorMsgs)) {
-		if (mostRestrictiveOccupancyType != null && StringUtils.isNotBlank(typeOfArea) && roadWidth != null) {
+		if (mostRestrictiveOccupancyType != null) {
 
 			processFar(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth, errorMsgs);
 //                        if ((mostRestrictiveOccupancyType.getType() != null
@@ -1218,9 +1218,7 @@ public class Far extends FeatureProcess {
 			isAccepted=true;
 		
 		String occupancyName = occupancyType.getType().getName();
-		if (errors.isEmpty() && StringUtils.isNotBlank(expectedResult)) {
-			buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
-		}
+		buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
 		
 	}
 
