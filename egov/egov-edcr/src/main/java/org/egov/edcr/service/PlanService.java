@@ -102,8 +102,9 @@ public class PlanService {
         plan.setMdmsMasterData(dcrApplication.getMdmsMasterData());
         plan.getErrors().clear();
         updateOdPlanInfo(plan);
+        plan.getPlanInformation().setServiceType(dcrApplication.getServiceType());
         plan = applyRules(plan, amd, cityDetails);
-
+        
         String comparisonDcrNumber = dcrApplication.getEdcrApplicationDetails().get(0).getComparisonDcrNumber();
         if (ApplicationType.PERMIT.getApplicationTypeVal()
                 .equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())
