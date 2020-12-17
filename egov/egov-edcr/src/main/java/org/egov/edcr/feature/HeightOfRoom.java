@@ -109,10 +109,7 @@ public class HeightOfRoom extends FeatureProcess {
             OccupancyTypeHelper mostRestrictiveOccupancy = pl.getVirtualBuilding() != null
                     ? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
                     : null;
-            if (mostRestrictiveOccupancy != null && mostRestrictiveOccupancy.getType() != null
-                    && (A.equalsIgnoreCase(mostRestrictiveOccupancy.getType().getCode()) ||
-                            (G.equalsIgnoreCase(mostRestrictiveOccupancy.getType().getCode())
-                                    || F.equalsIgnoreCase(mostRestrictiveOccupancy.getType().getCode())))) {
+            if (mostRestrictiveOccupancy != null && mostRestrictiveOccupancy.getType() != null) {
                 for (Block block : pl.getBlocks()) {
                     if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
                         scrutinyDetail = new ScrutinyDetail();
@@ -141,7 +138,10 @@ public class HeightOfRoom extends FeatureProcess {
                                 color = DxfFileConstants.COLOR_COMMERCIAL_ROOM;
                             else if(G.equalsIgnoreCase(mostRestrictiveOccupancy.getType().getCode()))
                                 color = DxfFileConstants.COLOR_INDUSTRIAL_ROOM;
-
+                            
+                            //test
+                            color = DxfFileConstants.COLOR_RESIDENTIAL_ROOM;
+                            
                             if (floor.getAcRooms() != null && floor.getAcRooms().size()>0) {
                                 List<BigDecimal> residentialAcRoomHeights = new ArrayList<>();
                                 

@@ -682,5 +682,6 @@ public class DxfFileConstants {
 	public static final String IS_THE_PROJECT_ADJACENT_TO_HIGHWAY_AND_HAVING_DIRECT_ACCESS_TO_IT="IS_THE_PROJECT_ADJACENT_TO_HIGHWAY_AND_HAVING_DIRECT_ACCESS_TO_IT";
 	public static final String IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION="IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION";
 	
-	
+	public static final String COLOR_STILT_FLOOR = "Stilt Floor";//38
+	public static final String COLOR_SERVICE_FLOOR = "Service Floor";//39
 }

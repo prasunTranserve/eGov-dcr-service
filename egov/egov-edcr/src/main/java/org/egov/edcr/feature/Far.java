@@ -169,25 +169,30 @@ public class Far extends FeatureProcess {
 			BigDecimal existingCarpetArea = BigDecimal.ZERO;
 			Building building = blk.getBuilding();
 			for (Floor flr : building.getFloors()) {
-				for (Occupancy occupancy : flr.getOccupancies()) {
-					validate2(pl, blk, flr, occupancy);
-					/*
-					 * occupancy.setCarpetArea(occupancy.getFloorArea().multiply
-					 * (BigDecimal.valueOf(0.80))); occupancy
-					 * .setExistingCarpetArea(occupancy.getExistingFloorArea().
-					 * multiply(BigDecimal.valueOf(0.80)));
-					 */
+				//set data for stilled floor and service floor
+				OdishaUtill.validateServiceFloor(pl, blk, flr);
+				OdishaUtill.validateStilledFloor(pl, blk, flr);
+				//if(!flr.getIsStiltFloor()) {
+					for (Occupancy occupancy : flr.getOccupancies()) {
+						validate2(pl, blk, flr, occupancy);
+						/*
+						 * occupancy.setCarpetArea(occupancy.getFloorArea().multiply
+						 * (BigDecimal.valueOf(0.80))); occupancy
+						 * .setExistingCarpetArea(occupancy.getExistingFloorArea().
+						 * multiply(BigDecimal.valueOf(0.80)));
+						 */
 
-					bltUpArea = bltUpArea.add(
-							occupancy.getBuiltUpArea() == null ? BigDecimal.valueOf(0) : occupancy.getBuiltUpArea());
-					existingBltUpArea = existingBltUpArea
-							.add(occupancy.getExistingBuiltUpArea() == null ? BigDecimal.valueOf(0)
-									: occupancy.getExistingBuiltUpArea());
-					flrArea = flrArea.add(occupancy.getFloorArea());
-					existingFlrArea = existingFlrArea.add(occupancy.getExistingFloorArea());
-					carpetArea = carpetArea.add(occupancy.getCarpetArea());
-					existingCarpetArea = existingCarpetArea.add(occupancy.getExistingCarpetArea());
-				}
+						bltUpArea = bltUpArea.add(
+								occupancy.getBuiltUpArea() == null ? BigDecimal.valueOf(0) : occupancy.getBuiltUpArea());
+						existingBltUpArea = existingBltUpArea
+								.add(occupancy.getExistingBuiltUpArea() == null ? BigDecimal.valueOf(0)
+										: occupancy.getExistingBuiltUpArea());
+						flrArea = flrArea.add(occupancy.getFloorArea());
+						existingFlrArea = existingFlrArea.add(occupancy.getExistingFloorArea());
+						carpetArea = carpetArea.add(occupancy.getCarpetArea());
+						existingCarpetArea = existingCarpetArea.add(occupancy.getExistingCarpetArea());
+					}
+			//	}
 			}
 			building.setTotalFloorArea(flrArea);
 			building.setTotalBuitUpArea(bltUpArea);
@@ -669,8 +674,13 @@ public class Far extends FeatureProcess {
 					getLocaleMessage(VALIDATION_NEGATIVE_EXISTING_BUILTUP_AREA, blk.getNumber(),
 							flr.getNumber().toString(), occupancyTypeHelper));
 		}
-		occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
-				.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()));
+		
+		if(flr.getIsStiltFloor())
+			occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
+				.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()).subtract(flr.getTotalStilledArea()==null?BigDecimal.ZERO:flr.getTotalStilledArea()));
+		else
+			occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
+					.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()));
 		if (occupancy.getFloorArea() != null && occupancy.getFloorArea().compareTo(BigDecimal.valueOf(0)) < 0) {
 			pl.addError(VALIDATION_NEGATIVE_FLOOR_AREA, getLocaleMessage(VALIDATION_NEGATIVE_FLOOR_AREA,
 					blk.getNumber(), flr.getNumber().toString(), occupancyTypeHelper));

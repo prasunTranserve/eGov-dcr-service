@@ -1,15 +1,20 @@
 package org.egov.edcr.od;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
+import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
+import org.egov.common.entity.edcr.Room;
 import org.egov.edcr.constants.DxfFileConstants;
 
 public class OdishaUtill {
-	
-	private static final BigDecimal MINIMUM_NUMBER_OF_OCCUPANTS_OR_USERS_FOR_ASSEMBLY_BUILDING=new BigDecimal("50");
-	
+
+	private static final BigDecimal MINIMUM_NUMBER_OF_OCCUPANTS_OR_USERS_FOR_ASSEMBLY_BUILDING = new BigDecimal("50");
+
 	public static boolean isAssemblyBuildingCriteria(Plan pl) {
 		boolean isAssemblyBuilding = false;
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
@@ -17,11 +22,12 @@ public class OdishaUtill {
 		if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL.equals(occupancyTypeHelper.getType().getCode())
 				|| DxfFileConstants.OC_COMMERCIAL.equals(occupancyTypeHelper.getType().getCode())
 				|| DxfFileConstants.OC_TRANSPORTATION.equals(occupancyTypeHelper.getType().getCode())) {
-			
-			BigDecimal providedNumberOfOccupantsOrUser=pl.getPlanInformation().getNumberOfOccupantsOrUsers();
-			
-			if(providedNumberOfOccupantsOrUser.compareTo(MINIMUM_NUMBER_OF_OCCUPANTS_OR_USERS_FOR_ASSEMBLY_BUILDING)>=0) {
-				
+
+			BigDecimal providedNumberOfOccupantsOrUser = pl.getPlanInformation().getNumberOfOccupantsOrUsers();
+
+			if (providedNumberOfOccupantsOrUser
+					.compareTo(MINIMUM_NUMBER_OF_OCCUPANTS_OR_USERS_FOR_ASSEMBLY_BUILDING) >= 0) {
+
 				if (DxfFileConstants.AUDITORIUM.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.BANQUET_HALL.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.CINEMA.equals(occupancyTypeHelper.getSubtype().getCode())
@@ -35,7 +41,8 @@ public class OdishaUtill {
 						|| DxfFileConstants.CULTURAL_COMPLEX.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.EXHIBITION_CENTER.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.GYMNASIA.equals(occupancyTypeHelper.getSubtype().getCode())
-						|| DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP.equals(occupancyTypeHelper.getSubtype().getCode())
+						|| DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP
+								.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.MULTIPLEX.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.MUSUEM.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.PLACE_OF_WORKSHIP.equals(occupancyTypeHelper.getSubtype().getCode())
@@ -55,19 +62,77 @@ public class OdishaUtill {
 						|| DxfFileConstants.BUS_TERMINAL.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.ISBT.equals(occupancyTypeHelper.getSubtype().getCode())
 						|| DxfFileConstants.RAILWAY_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
-						|| DxfFileConstants.TRUCK_TERMINAL.equals(occupancyTypeHelper.getSubtype().getCode())
-						) {
-					isAssemblyBuilding=true;
+						|| DxfFileConstants.TRUCK_TERMINAL.equals(occupancyTypeHelper.getSubtype().getCode())) {
+					isAssemblyBuilding = true;
 				}
 			}
 		}
 		pl.getPlanInformation().setAssemblyBuilding(isAssemblyBuilding);
 		return isAssemblyBuilding;
 	}
-	
+
 	public static BigDecimal getMaxBuildingHeight(Plan pl) {
-		BigDecimal buildingHeight=BigDecimal.ZERO;
-		buildingHeight=pl.getBlocks().stream().map(block->block.getBuilding().getBuildingHeight()).reduce(BigDecimal::max).get();
+		BigDecimal buildingHeight = BigDecimal.ZERO;
+		buildingHeight = pl.getBlocks().stream().map(block -> block.getBuilding().getBuildingHeight())
+				.reduce(BigDecimal::max).get();
 		return buildingHeight;
 	}
+
+	public static void validateServiceFloor(Plan pl, Block b, Floor f) {
+		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
+		boolean isServiceFloor = false;
+		String color = DxfFileConstants.COLOR_SERVICE_FLOOR;// 39
+		BigDecimal floorAbvGround = b.getBuilding().getFloorsAboveGround();
+
+		for (Room room : f.getRegularRooms()) {
+			for (Measurement measurement : room.getRooms()) {
+				if (heightOfRoomFeaturesColor.get(color) == measurement.getColorCode()) {
+					isServiceFloor = true;
+					break;
+				}
+			}
+			if (isServiceFloor) {
+				if (floorAbvGround.compareTo(new BigDecimal("4")) <= 0)
+					pl.addError("SERVICE_FLOOR", "Service Floor not allowed in less then 5 story building");
+				if (f.getNumber() <= 0)
+					pl.addError("SERVICE_FLOOR1", "Service Floor not allowed on floor 0 or besment");
+			}
+		}
+		f.setIsServiceFloor(isServiceFloor);
+
+	}
+
+	public static void validateStilledFloor(Plan pl, Block b, Floor f) {
+		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
+		boolean isStiltFloor = false;
+		String color = DxfFileConstants.COLOR_STILT_FLOOR;// 38
+		BigDecimal totalStilledArea=BigDecimal.ZERO;
+		BigDecimal flrHeight=BigDecimal.ZERO;
+		for (Room room : f.getRegularRooms()) {
+			for (Measurement measurement : room.getRooms()) {
+				if (heightOfRoomFeaturesColor.get(color) == measurement.getColorCode()) {
+					isStiltFloor = true;
+					totalStilledArea=totalStilledArea.add(measurement.getArea());
+					flrHeight=measurement.getHeight();
+				}
+			}
+			if (isStiltFloor && f.getNumber() < 0) {
+				pl.addError("STILT_FLOOR", "Stilt Floor can not be in besment.");
+			}
+		}
+
+		// deducted building height
+		if(isStiltFloor) {
+			if (b.getBuilding().getDeclaredBuildingHeight().compareTo(new BigDecimal("15"))<0 ) {
+				if(flrHeight.compareTo(new BigDecimal("2.4")) == 0)
+					b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(new BigDecimal("2.4")));;
+			}else {
+				b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(f.getHeight()));;
+			}
+		}
+
+		f.setIsStiltFloor(isStiltFloor);
+		f.setTotalStilledArea(totalStilledArea);
+	}
+
 }

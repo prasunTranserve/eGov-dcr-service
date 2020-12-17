@@ -99,6 +99,12 @@ public class Floor extends Measurement {
     
     private List<Measurement> constructedAreas = new ArrayList<>();
     
+    private Boolean isServiceFloor=false;
+    
+    private Boolean isStiltFloor=false;
+    
+    private BigDecimal totalStilledArea;
+    
     public List<FireStair> getFireStairs() {
         return fireStairs;
     }
@@ -579,5 +585,32 @@ public class Floor extends Measurement {
     public void setConstructedAreas(List<Measurement> constructedAreas) {
         this.constructedAreas = constructedAreas;
     }
+
+	
+    public Boolean getIsServiceFloor() {
+		return isServiceFloor;
+	}
+
+	public void setIsServiceFloor(Boolean isServiceFloor) {
+		this.isServiceFloor = isServiceFloor;
+	}
+
+	public Boolean getIsStiltFloor() {
+		return isStiltFloor;
+	}
+
+	public void setIsStiltFloor(Boolean isStiltFloor) {
+		this.isStiltFloor = isStiltFloor;
+	}
+
+	public BigDecimal getTotalStilledArea() {
+		return totalStilledArea;
+	}
+
+	public void setTotalStilledArea(BigDecimal totalStilledArea) {
+		this.totalStilledArea = totalStilledArea;
+	}
+
+
 
 }
