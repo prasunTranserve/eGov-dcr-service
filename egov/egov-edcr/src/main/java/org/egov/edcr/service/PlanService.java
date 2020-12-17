@@ -3,7 +3,7 @@ package org.egov.edcr.service;
 //import static org.egov.edcr.constants.DxfFileConstants.NA;
 //import static org.egov.edcr.constants.DxfFileConstants.YES;
 //import static org.egov.edcr.constants.DxfFileConstants.NO;
-import static org.egov.edcr.constants.DxfFileConstants.APPROVED_LAYOUT_DECLARATION;
+import static org.egov.edcr.constants.DxfFileConstants.*;
 import static org.egov.edcr.constants.DxfFileConstants.IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY;
 import static org.egov.edcr.constants.DxfFileConstants.NO;
 import static org.egov.edcr.constants.DxfFileConstants.YES;
@@ -190,19 +190,10 @@ public class PlanService {
 			pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS", "NUMBER_OF_OCCUPANTS_OR_USERS is invalid in planinfo layer.");
 		}
     	
-    	//APPROVED_LAYOUT_DECLARATION
-    	String approvedLayoutDeclaration=pl.getPlanInfoProperties().get(APPROVED_LAYOUT_DECLARATION);
-    	
-    	if(YES.equalsIgnoreCase(approvedLayoutDeclaration) || NO.equalsIgnoreCase(approvedLayoutDeclaration)) {
-    		pl.getPlanInformation().setApprovedLayoutDeclaration(approvedLayoutDeclaration);
-    	}else {
-    		pl.addError("APPROVED_LAYOUT_DECLARATION", "APPROVED_LAYOUT_DECLARATION is not defined in plan info.");
-    	}
-    	
     	//IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY
     	String buildingUnderHazardousOccupancyCategory=pl.getPlanInfoProperties().get(IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY);
     	
-    	if(YES.equalsIgnoreCase(approvedLayoutDeclaration) || NO.equalsIgnoreCase(approvedLayoutDeclaration)) {
+    	if(YES.equalsIgnoreCase(buildingUnderHazardousOccupancyCategory) || NO.equalsIgnoreCase(buildingUnderHazardousOccupancyCategory)) {
     		pl.getPlanInformation().setBuildingUnderHazardousOccupancyCategory(buildingUnderHazardousOccupancyCategory);
     	}else {
     		pl.addError("IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY", "IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY is not defined in plan info.");
@@ -224,6 +215,89 @@ public class PlanService {
 			//For NA
     		pl.getPlanInformation().setTotalNoOfDwellingUnits(BigDecimal.ZERO);
 		}
+    	
+    	//APPROVED_LAYOUT_DECLARATION
+    	String approvedLayoutDeclaration=pl.getPlanInfoProperties().get(APPROVED_LAYOUT_DECLARATION);
+    	
+    	if(YES.equalsIgnoreCase(approvedLayoutDeclaration) || NO.equalsIgnoreCase(approvedLayoutDeclaration)) {
+    		pl.getPlanInformation().setApprovedLayoutDeclaration(approvedLayoutDeclaration);
+    	}else {
+    		pl.addError("APPROVED_LAYOUT_DECLARATION", "APPROVED_LAYOUT_DECLARATION is not defined in plan info.");
+    	}
+    	
+    	
+    	//DOES_THE_PROJECT_REQUIRE_NOC_FROM_AAI_AS_PER_THE_COLOUR_CODED_ZONE_MAPS
+    	String nocFromAAI=pl.getPlanInfoProperties().get(DOES_THE_PROJECT_REQUIRE_NOC_FROM_AAI_AS_PER_THE_COLOUR_CODED_ZONE_MAPS);
+    	
+    	if(YES.equalsIgnoreCase(nocFromAAI) || NO.equalsIgnoreCase(nocFromAAI)) {
+    		pl.getPlanInformation().setNocFromAAI(nocFromAAI);
+    	}else {
+    		pl.addError("DOES_THE_PROJECT_REQUIRE_NOC_FROM_AAI_AS_PER_THE_COLOUR_CODED_ZONE_MAPS", "DOES_THE_PROJECT_REQUIRE_NOC_FROM_AAI_AS_PER_THE_COLOUR_CODED_ZONE_MAPS is not defined in plan info.");
+    	}
+    	
+    	
+    	//IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT
+    	String isProjectNearOfCentrallyProtectedMonument=pl.getPlanInfoProperties().get(IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT);
+    	
+    	if(YES.equalsIgnoreCase(isProjectNearOfCentrallyProtectedMonument) || NO.equalsIgnoreCase(isProjectNearOfCentrallyProtectedMonument)) {
+    		pl.getPlanInformation().setIsProjectNearOfCentrallyProtectedMonument(isProjectNearOfCentrallyProtectedMonument);
+    	}else {
+    		pl.addError("IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT", "IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT is not defined in plan info.");
+    	}
+    	
+    	//IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT
+    	String isProjectNearOfStateProtectedMonument=pl.getPlanInfoProperties().get(IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT);
+    	
+    	if(YES.equalsIgnoreCase(isProjectNearOfStateProtectedMonument) || NO.equalsIgnoreCase(isProjectNearOfStateProtectedMonument)) {
+    		pl.getPlanInformation().setIsProjectNearOfStateProtectedMonument(isProjectNearOfStateProtectedMonument);
+    	}else {
+    		pl.addError("IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT", "IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT is not defined in plan info.");
+    	}
+    	
+    	//IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_FROM_STRATEGIC_BUILDINGS
+    	String ProjectNearOfStrategicBuildings=pl.getPlanInfoProperties().get(IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_FROM_STRATEGIC_BUILDINGS);
+    	
+    	if(YES.equalsIgnoreCase(ProjectNearOfStrategicBuildings) || NO.equalsIgnoreCase(ProjectNearOfStrategicBuildings)) {
+    		pl.getPlanInformation().setProjectNearOfStrategicBuildings(ProjectNearOfStrategicBuildings);
+    	}else {
+    		pl.addError("IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_FROM_STRATEGIC_BUILDINGS", "IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_FROM_STRATEGIC_BUILDINGS is not defined in plan info.");
+    	}
+    	
+    	//IS_PROPOSED_CONSTRUCTION_NEXT_TO_FLOOD_EMBANKMENT_AND_DOES_APPLICANT_WANT_TO_HAVE_DIRECT_ACCESS_FROM_THE_EMBANKMENT_ROAD
+    	String isProposedConstructionNextToFloodEmbankment=pl.getPlanInfoProperties().get(IS_PROPOSED_CONSTRUCTION_NEXT_TO_FLOOD_EMBANKMENT_AND_DOES_APPLICANT_WANT_TO_HAVE_DIRECT_ACCESS_FROM_THE_EMBANKMENT_ROAD);
+    	
+    	if(YES.equalsIgnoreCase(isProposedConstructionNextToFloodEmbankment) || NO.equalsIgnoreCase(isProposedConstructionNextToFloodEmbankment)) {
+    		pl.getPlanInformation().setIsProposedConstructionNextToFloodEmbankment(isProposedConstructionNextToFloodEmbankment);
+    	}else {
+    		pl.addError("IS_PROPOSED_CONSTRUCTION_NEXT_TO_FLOOD_EMBANKMENT_AND_DOES_APPLICANT_WANT_TO_HAVE_DIRECT_ACCESS_FROM_THE_EMBANKMENT_ROAD", "IS_PROPOSED_CONSTRUCTION_NEXT_TO_FLOOD_EMBANKMENT_AND_DOES_APPLICANT_WANT_TO_HAVE_DIRECT_ACCESS_FROM_THE_EMBANKMENT_ROAD is not defined in plan info.");
+    	}
+    	
+    	//IS_KISAM_OF_LAND_RECORDED_AS_AGRICULTURE_IN_RECORD_OF_RIGHTS
+    	String isKisamOfLandRecordedAsAgricultureInRecordOfRights=pl.getPlanInfoProperties().get(IS_KISAM_OF_LAND_RECORDED_AS_AGRICULTURE_IN_RECORD_OF_RIGHTS);
+    	
+    	if(YES.equalsIgnoreCase(isKisamOfLandRecordedAsAgricultureInRecordOfRights) || NO.equalsIgnoreCase(isKisamOfLandRecordedAsAgricultureInRecordOfRights)) {
+    		pl.getPlanInformation().setIsKisamOfLandRecordedAsAgricultureInRecordOfRights(isKisamOfLandRecordedAsAgricultureInRecordOfRights);
+    	}else {
+    		pl.addError("IS_KISAM_OF_LAND_RECORDED_AS_AGRICULTURE_IN_RECORD_OF_RIGHTS", "IS_KISAM_OF_LAND_RECORDED_AS_AGRICULTURE_IN_RECORD_OF_RIGHTS is not defined in plan info.");
+    	}
+    	
+    	//IS_THE_PROJECT_ADJACENT_TO_HIGHWAY_AND_HAVING_DIRECT_ACCESS_TO_IT
+    	String isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt=pl.getPlanInfoProperties().get(IS_THE_PROJECT_ADJACENT_TO_HIGHWAY_AND_HAVING_DIRECT_ACCESS_TO_IT);
+    	
+    	if(YES.equalsIgnoreCase(isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt) || NO.equalsIgnoreCase(isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt)) {
+    		pl.getPlanInformation().setIsTheProjectAdjacentToHighwayAndHavingDirectAccessToIt(isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt);
+    	}else {
+    		pl.addError("IS_THE_PROJECT_ADJACENT_TO_HIGHWAY_AND_HAVING_DIRECT_ACCESS_TO_IT", "IS_THE_PROJECT_ADJACENT_TO_HIGHWAY_AND_HAVING_DIRECT_ACCESS_TO_IT is not defined in plan info.");
+    	}
+    	
+    	//IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION
+    	String isTheProjectCloseToTheCoastalRegion=pl.getPlanInfoProperties().get(IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION);
+    	
+    	if(YES.equalsIgnoreCase(isTheProjectCloseToTheCoastalRegion) || NO.equalsIgnoreCase(isTheProjectCloseToTheCoastalRegion)) {
+    		pl.getPlanInformation().setIsTheProjectCloseToTheCoastalRegion(isTheProjectCloseToTheCoastalRegion);
+    	}else {
+    		pl.addError("IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION", "IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION is not defined in plan info.");
+    	}
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

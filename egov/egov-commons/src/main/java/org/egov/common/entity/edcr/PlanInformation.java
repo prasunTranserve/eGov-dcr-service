@@ -185,6 +185,30 @@ public class PlanInformation implements Serializable {
     
     private BigDecimal totalNoOfDwellingUnits;
     
+    //DOES_THE_PROJECT_REQUIRE_NOC_FROM_AAI_AS_PER_THE_COLOUR_CODED_ZONE_MAPS
+    private String nocFromAAI;
+    
+    //IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT
+    private String isProjectNearOfCentrallyProtectedMonument;
+    
+    //IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT
+    private String isProjectNearOfStateProtectedMonument;
+    
+    //IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_FROM_STRATEGIC_BUILDINGS
+    private String ProjectNearOfStrategicBuildings;
+    
+    //IS_PROPOSED_CONSTRUCTION_NEXT_TO_FLOOD_EMBANKMENT_AND_DOES_APPLICANT_WANT_TO_HAVE_DIRECT_ACCESS_FROM_THE_EMBANKMENT_ROAD
+    private String isProposedConstructionNextToFloodEmbankment;
+    
+    //IS_KISAM_OF_LAND_RECORDED_AS_AGRICULTURE_IN_RECORD_OF_RIGHTS
+    private String isKisamOfLandRecordedAsAgricultureInRecordOfRights;
+    
+    //IS_THE_PROJECT_ADJACENT_TO_HIGHWAY_AND_HAVING_DIRECT_ACCESS_TO_IT
+    private String isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt;
+    
+    //IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION
+    private String isTheProjectCloseToTheCoastalRegion;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -706,6 +730,72 @@ public class PlanInformation implements Serializable {
 
 	public void setTotalNoOfDwellingUnits(BigDecimal totalNoOfDwellingUnits) {
 		this.totalNoOfDwellingUnits = totalNoOfDwellingUnits;
+	}
+
+	public String getNocFromAAI() {
+		return nocFromAAI;
+	}
+
+	public void setNocFromAAI(String nocFromAAI) {
+		this.nocFromAAI = nocFromAAI;
+	}
+
+	public String getIsProjectNearOfCentrallyProtectedMonument() {
+		return isProjectNearOfCentrallyProtectedMonument;
+	}
+
+	public void setIsProjectNearOfCentrallyProtectedMonument(String isProjectNearOfCentrallyProtectedMonument) {
+		this.isProjectNearOfCentrallyProtectedMonument = isProjectNearOfCentrallyProtectedMonument;
+	}
+
+	public String getIsProjectNearOfStateProtectedMonument() {
+		return isProjectNearOfStateProtectedMonument;
+	}
+
+	public void setIsProjectNearOfStateProtectedMonument(String isProjectNearOfStateProtectedMonument) {
+		this.isProjectNearOfStateProtectedMonument = isProjectNearOfStateProtectedMonument;
+	}
+
+	public String getProjectNearOfStrategicBuildings() {
+		return ProjectNearOfStrategicBuildings;
+	}
+
+	public void setProjectNearOfStrategicBuildings(String projectNearOfStrategicBuildings) {
+		ProjectNearOfStrategicBuildings = projectNearOfStrategicBuildings;
+	}
+
+	public String getIsProposedConstructionNextToFloodEmbankment() {
+		return isProposedConstructionNextToFloodEmbankment;
+	}
+
+	public void setIsProposedConstructionNextToFloodEmbankment(String isProposedConstructionNextToFloodEmbankment) {
+		this.isProposedConstructionNextToFloodEmbankment = isProposedConstructionNextToFloodEmbankment;
+	}
+
+	public String getIsKisamOfLandRecordedAsAgricultureInRecordOfRights() {
+		return isKisamOfLandRecordedAsAgricultureInRecordOfRights;
+	}
+
+	public void setIsKisamOfLandRecordedAsAgricultureInRecordOfRights(
+			String isKisamOfLandRecordedAsAgricultureInRecordOfRights) {
+		this.isKisamOfLandRecordedAsAgricultureInRecordOfRights = isKisamOfLandRecordedAsAgricultureInRecordOfRights;
+	}
+
+	public String getIsTheProjectAdjacentToHighwayAndHavingDirectAccessToIt() {
+		return isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt;
+	}
+
+	public void setIsTheProjectAdjacentToHighwayAndHavingDirectAccessToIt(
+			String isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt) {
+		this.isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt = isTheProjectAdjacentToHighwayAndHavingDirectAccessToIt;
+	}
+
+	public String getIsTheProjectCloseToTheCoastalRegion() {
+		return isTheProjectCloseToTheCoastalRegion;
+	}
+
+	public void setIsTheProjectCloseToTheCoastalRegion(String isTheProjectCloseToTheCoastalRegion) {
+		this.isTheProjectCloseToTheCoastalRegion = isTheProjectCloseToTheCoastalRegion;
 	}
 	
 	
