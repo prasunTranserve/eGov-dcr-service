@@ -83,7 +83,7 @@ public class MeanOfAccess extends FeatureProcess {
 	private static final String SUBRULE_57_5 = "57-5";
 	private static final String SUBRULE_58_3b = "58-3-b";
 	private static final String SUBRULE_59_4 = "59-4";
-	private static final String SUB_RULE_DESCRIPTION = "Minimum access width for plan for %s";
+	private static final String SUB_RULE_DESCRIPTION = "Minimum access width";
 	public static final String OCCUPANCY = "occupancy";
 	private static final String SUBRULE_33_1 = "33-1";
 	public static final BigDecimal VAL_300 = BigDecimal.valueOf(300);
@@ -113,7 +113,7 @@ public class MeanOfAccess extends FeatureProcess {
 		BigDecimal expectedValue = BigDecimal.ZERO;
 
 		boolean isAssemblyBuilding = OdishaUtill.isAssemblyBuildingCriteria(pl);
-		BigDecimal provided = pl.getPlanInformation().getAccessWidth();
+		BigDecimal provided = pl.getPlanInformation().getRoadWidth();
 
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 
@@ -258,7 +258,7 @@ public class MeanOfAccess extends FeatureProcess {
 		details.put(RULE_NO, SUBRULE_33_1);
 		details.put(DESCRIPTION, SUB_RULE_DESCRIPTION);
 		details.put(REQUIRED, expectedValue.toString());
-		details.put(PROVIDED, provided.toString());
+		details.put(PROVIDED, provided!=null?provided.toString():"");
 		details.put(STATUS, status ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
 		scrutinyDetail.getDetail().add(details);
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);

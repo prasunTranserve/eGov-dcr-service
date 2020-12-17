@@ -293,11 +293,11 @@ public class BlockDistancesService extends FeatureProcess {
 
 		if (valid1) {
 			setReportOutputDetails(pl, SUBRULE_37_1, String.format(SUB_RULE_DES, b.getNumber(), block.getNumber()),
-					StringUtils.EMPTY, MINIMUM_DISTANCE_BUILDING, actualDistance.toString() + DcrConstants.IN_METER,
+					StringUtils.EMPTY, minHeight.toString(), actualDistance.toString(),
 					Result.Accepted.getResultVal());
 		} else {
 			setReportOutputDetails(pl, SUBRULE_37_1, String.format(SUB_RULE_DES, b.getNumber(), block.getNumber()),
-					StringUtils.EMPTY, MINIMUM_DISTANCE_BUILDING, actualDistance.toString() + DcrConstants.IN_METER,
+					StringUtils.EMPTY, minHeight.toString(), actualDistance.toString(),
 					Result.Not_Accepted.getResultVal());
 		}
 

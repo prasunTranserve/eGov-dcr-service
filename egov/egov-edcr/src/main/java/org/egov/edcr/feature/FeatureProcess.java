@@ -68,6 +68,7 @@ public abstract class FeatureProcess {
 	public static final String REQUIRED = "Required";
 	public static final String PERMITTED = "Permitted";
 	public static final String PERMISSIBLE = "Permissible";
+	public static final String MAX_PERMISSIBLE = "Max Permissible";
 	public static final String DESCRIPTION = "Description";
 	public static final String RULE_NO = "Byelaw";
 	public static final String DISTANCE = "Distance";

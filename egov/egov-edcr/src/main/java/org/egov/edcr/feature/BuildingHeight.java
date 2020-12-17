@@ -113,11 +113,11 @@ public class BuildingHeight extends FeatureProcess {
 			exptectedDistance = getMaxBulHeight(plan);
 			actualDistance = block.getBuilding().getBuildingHeight();
 
-			String actualResult = actualDistance.toString() + "" + DcrConstants.IN_METER;
+			String actualResult = actualDistance.toString();
 			String expectedResult = "-";
 
 			if (exptectedDistance.compareTo(BigDecimal.ZERO) > 0)
-				expectedResult = exptectedDistance.toString() + "" + DcrConstants.IN_METER;
+				expectedResult = exptectedDistance.toString();
 			;
 
 			if (actualDistance.compareTo(exptectedDistance) >= 0) {

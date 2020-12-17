@@ -1566,7 +1566,7 @@ public class Far extends FeatureProcess {
 		// scrutinyDetail.addColumnHeading(3, AREA_TYPE);
 		// scrutinyDetail.addColumnHeading(4, ROAD_WIDTH);
 		scrutinyDetail.addColumnHeading(2, BASE_FAR);
-		scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
+		scrutinyDetail.addColumnHeading(3, MAX_PERMISSIBLE);
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
 		scrutinyDetail.setKey("Common_FAR");
@@ -1579,7 +1579,7 @@ public class Far extends FeatureProcess {
 		// details.put(AREA_TYPE, typeOfArea);
 		// details.put(ROAD_WIDTH, roadWidth.toString());
 		details.put(BASE_FAR, pl.getFarDetails().getBaseFar().toString());
-		details.put(PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString());
+		details.put(MAX_PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString());
 		details.put(PROVIDED, actualResult);
 		details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
 		// details.put(STATUS, Result.Verify.getResultVal());

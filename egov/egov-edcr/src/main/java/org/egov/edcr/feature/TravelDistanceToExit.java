@@ -87,23 +87,6 @@ public class TravelDistanceToExit extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-//        Boolean exemption = Boolean.FALSE;
-//        if (pl != null && pl.getVirtualBuilding() != null &&
-//                !pl.getVirtualBuilding().getOccupancyTypes().isEmpty() && !pl.getBlocks().isEmpty()) {
-//            boolean floorsAboveGroundLessThanOrEqualTo3ForAllBlks = true;
-//            for (Block block : pl.getBlocks()) {
-//                if (block.getBuilding() != null && block.getBuilding().getFloorsAboveGround() != null &&
-//                        block.getBuilding().getFloorsAboveGround().compareTo(BigDecimal.valueOf(3)) > 0) {
-//                    floorsAboveGroundLessThanOrEqualTo3ForAllBlks = false;
-//                    break;
-//                }
-//            }
-//            if ((pl.getVirtualBuilding().getResidentialBuilding().equals(Boolean.TRUE) &&
-//                    floorsAboveGroundLessThanOrEqualTo3ForAllBlks == true) || (ProcessHelper.isSmallPlot(pl))) {
-//                exemption = Boolean.TRUE;
-//            }
-//        }
-
 		BigDecimal requiredMaxTravelDistance = getRequiredTravelDistance(pl);
 
 		if (requiredMaxTravelDistance.compareTo(BigDecimal.ZERO) > 0) {
@@ -119,13 +102,6 @@ public class TravelDistanceToExit extends FeatureProcess {
 			}
 			String subRule = SUBRULE_42_2;
 			String subRuleDesc = SUBRULE_42_2_DESC;
-			scrutinyDetail = new ScrutinyDetail();
-			scrutinyDetail.setKey("Common_Travel Distance To Emergency Exits");
-			scrutinyDetail.addColumnHeading(1, RULE_NO);
-			scrutinyDetail.addColumnHeading(2, REQUIRED);
-			scrutinyDetail.addColumnHeading(3, PROVIDED);
-			scrutinyDetail.addColumnHeading(4, STATUS);
-			//scrutinyDetail.setSubHeading(SUBRULE_42_2_DESC);
 
 			BigDecimal totalProvidedTravelDistance = pl.getTravelDistancesToExit().stream().reduce(BigDecimal.ZERO,
 					BigDecimal::add);
@@ -135,11 +111,11 @@ public class TravelDistanceToExit extends FeatureProcess {
 			}
 
 			if (valid) {
-				setReportOutputDetails(pl, subRule, requiredMaxTravelDistance + DcrConstants.IN_METER,
-						totalProvidedTravelDistance + DcrConstants.IN_METER, Result.Accepted.getResultVal());
+				setReportOutputDetails(pl, subRule, requiredMaxTravelDistance.toString(),
+						totalProvidedTravelDistance.toString(), Result.Accepted.getResultVal());
 			} else {
-				setReportOutputDetails(pl, subRule, requiredMaxTravelDistance + DcrConstants.IN_METER,
-						totalProvidedTravelDistance + DcrConstants.IN_METER, Result.Not_Accepted.getResultVal());
+				setReportOutputDetails(pl, subRule, requiredMaxTravelDistance.toString(),
+						totalProvidedTravelDistance.toString(), Result.Not_Accepted.getResultVal());
 			}
 
 		}
@@ -178,6 +154,12 @@ public class TravelDistanceToExit extends FeatureProcess {
 	}
 
 	private void setReportOutputDetails(Plan pl, String ruleNo, String expected, String actual, String status) {
+		scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_Travel Distance To Emergency Exits");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, REQUIRED);
+		scrutinyDetail.addColumnHeading(3, PROVIDED);
+		scrutinyDetail.addColumnHeading(4, STATUS);
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, ruleNo);
 		details.put(REQUIRED, expected);

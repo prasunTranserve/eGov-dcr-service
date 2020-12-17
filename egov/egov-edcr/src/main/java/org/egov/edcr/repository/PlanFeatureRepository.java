@@ -120,6 +120,7 @@ import org.egov.edcr.feature.SupplyLineUtility;
 import org.egov.edcr.feature.SurrenderRoad;
 import org.egov.edcr.feature.TerraceUtilityService;
 import org.egov.edcr.feature.TravelDistanceToExit;
+import org.egov.edcr.feature.VehicleRamp;
 import org.egov.edcr.feature.Ventilation;
 import org.egov.edcr.feature.Verandah;
 import org.egov.edcr.feature.WasteDisposal;
@@ -361,6 +362,9 @@ public class PlanFeatureRepository {
         features.add(pf);
         
         pf = new PlanFeature(SupplyLineUtility.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(VehicleRamp.class);
         features.add(pf);
         
         return features;

@@ -312,6 +312,10 @@ public class Coverage extends FeatureProcess {
 	}
 
 	private BigDecimal getPermissibleGroundCoverage(Plan pl) {
+		
+		if(checkLowRiskBuildingCriteria(pl))
+			return BigDecimal.ZERO;
+		
 		BigDecimal maxPermissibleGroundCoverage = BigDecimal.ZERO;
 		switch (pl.getPlanInformation().getLandUseZone()) {
 		case OPEN_SPACE_USE_ZONE:
@@ -374,7 +378,7 @@ public class Coverage extends FeatureProcess {
 		return inPercentage;
 	}
 
-	private void checkLowRiskBuildingCriteria(Plan pl) {
+	private boolean checkLowRiskBuildingCriteria(Plan pl) {
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		boolean isLowRiskBuilding = false;
 		if (DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())) {
@@ -382,12 +386,13 @@ public class Coverage extends FeatureProcess {
 			if (pl.getPlot().getArea().compareTo(new BigDecimal("500")) <= 0
 					&& DxfFileConstants.YES.equalsIgnoreCase(pl.getPlanInformation().getApprovedLayoutDeclaration())) {
 				if (!checkIsBeasment(pl)
-						&& pl.getVirtualBuilding().getBuildingHeight().compareTo(new BigDecimal("10")) <= 0) {
+						&& OdishaUtill.getMaxBuildingHeight(pl).compareTo(new BigDecimal("10")) <= 0) {
 					isLowRiskBuilding = true;
 				}
 			}
 		}
 		pl.getPlanInformation().setLowRiskBuilding(isLowRiskBuilding);
+		return isLowRiskBuilding;
 	}
 
 	private boolean checkIsBeasment(Plan pl) {
