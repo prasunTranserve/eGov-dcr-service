@@ -661,7 +661,8 @@ public class PlanReportService {
         valuesMap.put("surrenderRoadArea", plan.getTotalSurrenderRoadArea());
         String imageURL = ReportUtil.getImageURL("/egi/resources/global/images/digit-logo-black.png");
         valuesMap.put("egovLogo", imageURL);
-        valuesMap.put("cityLogo", cityService.getCityLogoURLByCurrentTenant());
+      //  valuesMap.put("cityLogo", cityService.getCityLogoURLByCurrentTenant());
+        valuesMap.put("cityLogo", "https://digitaldesksujog051120.blob.core.windows.net/assets/Logos/Cuttack.jpg");
 
         if (clientSpecificSubReport) {
 
