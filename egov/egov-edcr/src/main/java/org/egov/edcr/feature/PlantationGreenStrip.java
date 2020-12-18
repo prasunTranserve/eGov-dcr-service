@@ -47,6 +47,13 @@
 
 package org.egov.edcr.feature;
 
+import static org.egov.edcr.constants.DxfFileConstants.A_SA;
+import static org.egov.edcr.constants.DxfFileConstants.B;
+import static org.egov.edcr.constants.DxfFileConstants.D;
+import static org.egov.edcr.constants.DxfFileConstants.G;
+import static org.egov.edcr.utility.DcrConstants.DECIMALDIGITS_MEASUREMENTS;
+import static org.egov.edcr.utility.DcrConstants.ROUNDMODE_MEASUREMENTS;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,106 +65,93 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.common.entity.edcr.SetBack;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.utility.DcrConstants;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PlantationGreenStrip extends FeatureProcess {
 
-    private static final String RULE_37_6 = "37-6";
+	private static final String RULE_32 = "32";
+	public static final String PLANTATION_TREECOVER_DESCRIPTION = "Plantation Area";
 
-    @Override
-    public Plan validate(Plan pl) {
-        return null;
-    }
+	@Override
+	public Plan validate(Plan pl) {
+		return null;
+	}
 
-    @Override
-    public Plan process(Plan pl) {
-//        if (pl.getPlot() != null && pl.getPlot().getArea().compareTo(BigDecimal.valueOf(300)) > 0) {
-//            for (Block block : pl.getBlocks()) {
-//
-//                ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-//                scrutinyDetail.addColumnHeading(1, RULE_NO);
-//                scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-//                scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
-//                scrutinyDetail.addColumnHeading(4, PROVIDED);
-//                scrutinyDetail.addColumnHeading(5, STATUS);
-//                scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Continuous Green Planting Strip");
-//
-//                boolean isWidthAccepted = false;
-//                // boolean isHeightAccepted = false;
-//                BigDecimal minWidth = BigDecimal.ZERO;
-//                // BigDecimal minHeight = BigDecimal.ZERO;
-//                List<BigDecimal> widths = block.getPlantationGreenStripes().stream()
-//                        .map(greenStrip -> greenStrip.getWidth()).collect(Collectors.toList());
-//                /*
-//                 * List<BigDecimal> heights = block.getPlantationGreenStripes().stream() .map(greenStripe ->
-//                 * greenStripe.getHeight()).collect(Collectors.toList());
-//                 */
-//                // List<BigDecimal> minimumDistances = new ArrayList<>();
-//
-//                if (widths.isEmpty()) {
-//                    pl.addError("RULE_37_6", getLocaleMessage(DcrConstants.OBJECTNOTDEFINED,
-//                            "Block " + block.getNumber() + " " + "Continuous Green Planting Strip"));
-//                }
-//                /*
-//                 * for (SetBack setBack : block.getSetBacks()) { if (setBack.getRearYard() != null)
-//                 * minimumDistances.add(setBack.getRearYard().getHeight()); if (setBack.getSideYard1() != null)
-//                 * minimumDistances.add(setBack.getSideYard1().getHeight()); if (setBack.getSideYard2() != null)
-//                 * minimumDistances.add(setBack.getSideYard2().getHeight()); }
-//                 */
-//
-//                if (!widths.isEmpty()) {
-//                    minWidth = widths.stream().reduce(BigDecimal::min).get();
-//                    // minHeight = heights.stream().reduce(BigDecimal::min).get();
-//                    // BigDecimal minLength = Collections.min(minimumDistances);
-//
-//                    if (minWidth.compareTo(BigDecimal.valueOf(0.6)) >= 0) {
-//                        isWidthAccepted = true;
-//
-//                    }
-//
-//                    /*
-//                     * if (minHeight.doubleValue()>=1d) { isHeightAccepted = true; }
-//                     */
-//
-//                    /*
-//                     * if (minHeight.doubleValue()>=minLength.doubleValue()) { isHeightAccepted = true; }
-//                     */
-//                    buildResult(pl, scrutinyDetail, isWidthAccepted, "Width of continuos plantation green strip",
-//                            ">= 0.6",
-//                            minWidth.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS, DcrConstants.ROUNDMODE_MEASUREMENTS)
-//                                    .toString());
-//                    /*
-//                     * buildResult(pl, scrutinyDetail, isHeightAccepted, "length of continuos plantation green strip ",
-//                     * "should be equal to rear or side yard",
-//                     * minHeight.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,DcrConstants.ROUNDMODE_MEASUREMENTS).toString())
-//                     * ;
-//                     */
-//                }
-//            }
-//        }
-        return pl;
-    }
+	@Override
+	public Plan process(Plan pl) {
 
-    private void buildResult(Plan pl, ScrutinyDetail scrutinyDetail, boolean valid, String description, String permited,
-            String provided) {
-        Map<String, String> details = new HashMap<>();
-        details.put(RULE_NO, RULE_37_6);
-        details.put(DESCRIPTION, description);
-        details.put(PERMISSIBLE, permited);
-        details.put(PROVIDED, provided);
-        details.put(STATUS, valid ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
-        scrutinyDetail.getDetail().add(details);
-        pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-    }
+		validate(pl);
+		scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_Plantation");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, RULE_32);
+		details.put(DESCRIPTION, PLANTATION_TREECOVER_DESCRIPTION);
 
-    @Override
-    public Map<String, Date> getAmendments() {
-        return new LinkedHashMap<>();
-    }
+		BigDecimal totalArea = BigDecimal.ZERO;
+		BigDecimal plotArea = BigDecimal.ZERO;
+		BigDecimal plantationPer = BigDecimal.ZERO;
+		String type = "";
+		String subType = "";
+
+		for(Block block:pl.getBlocks()) {
+			for (Measurement m :block.getPlantationGreenStripes()) {
+				totalArea = totalArea.add(m.getArea());
+			}
+		}
+
+		if (pl.getPlot() != null)
+			plotArea = pl.getPlot().getArea();
+
+		if (pl.getVirtualBuilding() != null && pl.getVirtualBuilding().getMostRestrictiveFarHelper() != null
+				&& pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype() != null) {
+			type = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode();
+			subType = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode();
+		}
+
+		if (totalArea.intValue() > 0 && plotArea != null && plotArea.intValue() > 0)
+			plantationPer = totalArea.divide(plotArea, DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
+		
+		BigDecimal required=BigDecimal.ZERO;
+		if(DxfFileConstants.OPEN_SPACE_USE_ZONE.equals(pl.getPlanInformation().getLandUseZone())) {
+			required=new BigDecimal("0.50");
+		}else {
+			if(DxfFileConstants.FARM_HOUSE.equals(subType)
+				|| DxfFileConstants.COUNTRY_HOMES.equals(subType)) {
+				required=new BigDecimal("0.65");
+			}
+		}
+		boolean isAcepted=false;
+		if(plantationPer.compareTo(new BigDecimal("0.10")) >= 0)
+			isAcepted=true;
+		
+		if(required.compareTo(BigDecimal.ZERO)>0)
+			details.put(REQUIRED, required.multiply(new BigDecimal(100)).toString() + "%");
+		else
+			details.put(REQUIRED, "-");
+		details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
+		details.put(STATUS, isAcepted?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	
+		return pl;
+
+	}
+
+	@Override
+	public Map<String, Date> getAmendments() {
+		return new LinkedHashMap<>();
+	}
 }

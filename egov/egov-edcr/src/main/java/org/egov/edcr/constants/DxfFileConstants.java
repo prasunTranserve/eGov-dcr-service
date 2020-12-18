@@ -684,4 +684,10 @@ public class DxfFileConstants {
 	
 	public static final String COLOR_STILT_FLOOR = "Stilt Floor";//38
 	public static final String COLOR_SERVICE_FLOOR = "Service Floor";//39
+	public static final String COLOR_MEP_ROOM="MEP Room";//30
+	public static final String COLOR_LAUNDRY_ROOM="Laundry Room";//31
+	public static final String COLOR_GENERATOR_ROOM="Generator Room";//36;
+	public static final String COLOR_LIFT_LOBBY="Lift Lobby";//32
+	public static final String COLOR_CCTV_ROOM="CCTV Room";//28
+	public static final String COLOR_SERVICE_ROOM="Service Room";//29
 }

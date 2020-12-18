@@ -47,8 +47,9 @@
 
 package org.egov.edcr.feature;
 
-import static org.egov.edcr.utility.DcrConstants.DECIMALDIGITS_MEASUREMENTS;
+import static org.egov.edcr.utility.DcrConstants.*;
 import static org.egov.edcr.utility.DcrConstants.ROUNDMODE_MEASUREMENTS;
+import static org.egov.edcr.constants.DxfFileConstants.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -189,62 +190,154 @@ public class AdditionalFeature extends FeatureProcess {
 		// validateBasement(pl, errors);
 		// validateGreenBuildingsAndSustainability(pl, errors);
 		// validateFireDeclaration(pl, errors);
-
+		validateStiltFloor(pl);
+		validateServiceFloor(pl);
 		return pl;
 	}
 
-	private void validateServiceFloor(Plan pl) {
-		OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding() != null
-				? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
-				: null;
-
+	private void validateStiltFloor(Plan pl) {
+		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
 		for (Block block : pl.getBlocks()) {
 			scrutinyDetail = new ScrutinyDetail();
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
 			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-			scrutinyDetail.addColumnHeading(3, REQUIRED);
-			scrutinyDetail.addColumnHeading(4, PROVIDED);
-			scrutinyDetail.addColumnHeading(5, STATUS);
-			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Room");
+			scrutinyDetail.addColumnHeading(3, FLOOR);
+			scrutinyDetail.addColumnHeading(4, REQUIRED);
+			scrutinyDetail.addColumnHeading(5, PROVIDED);
+			scrutinyDetail.addColumnHeading(6, STATUS);
+			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Stilt Floor");
 
 			for (Floor floor : block.getBuilding().getFloors()) {
-				if (isServiceFloor(pl, floor)) {
-					BigDecimal buildingHeight = OdishaUtill.getMaxBuildingHeight(pl);
+				if (floor.getIsStiltFloor()) {
 					BigDecimal expectedMinHeight = BigDecimal.ZERO;
 					boolean isHeightAccepted = true;
-					if (buildingHeight.compareTo(new BigDecimal("15")) < 0) {
-						expectedMinHeight = new BigDecimal("2.4");
-					}
+					expectedMinHeight = new BigDecimal("2.4");
 
 					if (expectedMinHeight.compareTo(BigDecimal.ZERO) > 0) {
-						if (floor.getHeight().compareTo(expectedMinHeight) >= 0)
+						if (floor.getStiltFloorHeight().compareTo(expectedMinHeight) >= 0)
 							isHeightAccepted = true;
 						else
 							isHeightAccepted = false;
 					}
-					
-					
 
+					// check Provisions in Stilt Floor other than Parking
+					BigDecimal maxAreaAllowed = floor.getTotalStiltArea().multiply(new BigDecimal("0.2"));
+					maxAreaAllowed = OdishaUtill.roundUp(maxAreaAllowed);
+					BigDecimal providedTotalArea = BigDecimal.ZERO;
+					boolean isAreaAcepted = false;
+					for (Room room : floor.getRegularRooms()) {
+						for (Measurement measurement : room.getRooms()) {
+							if (heightOfRoomFeaturesColor.get(COLOR_MEP_ROOM) == measurement.getColorCode()
+									|| heightOfRoomFeaturesColor.get(COLOR_LAUNDRY_ROOM) == measurement.getColorCode()
+									|| heightOfRoomFeaturesColor.get(COLOR_GENERATOR_ROOM) == measurement
+											.getColorCode()) {
+								providedTotalArea = providedTotalArea.add(measurement.getArea());
+							} else if (heightOfRoomFeaturesColor.get(COLOR_LIFT_LOBBY) == measurement.getColorCode()) {
+								// do nothing
+							} else {
+								if(heightOfRoomFeaturesColor.get(COLOR_STILT_FLOOR) != measurement.getColorCode())
+								pl.addError("Provisions in Stilt",
+										measurement.getName() + " not allowed in Stilt floor");
+							}
+						}
+					}
+					providedTotalArea = OdishaUtill.roundUp(providedTotalArea);
+					if (providedTotalArea.compareTo(maxAreaAllowed) <= 0)
+						isAreaAcepted = true;
+
+					// add report
+
+					Map<String, String> details = new HashMap<>();
+					details.put(RULE_NO, "50-s-4");
+					details.put(DESCRIPTION, "Stilled floor height");
+					details.put(FLOOR, floor.getNumber().toString());
+					details.put(REQUIRED, ">= " + expectedMinHeight);
+					details.put(PROVIDED, floor.getStiltFloorHeight().toString());
+					details.put(STATUS,
+							isHeightAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+
+					Map<String, String> details1 = new HashMap<>();
+					details1.put(RULE_NO, "50-s-5");
+					details1.put(DESCRIPTION, "Provisions in Stilt Floor other than Parking");
+					details1.put(FLOOR, floor.getNumber().toString());
+					details1.put(REQUIRED, "<= " + maxAreaAllowed);
+					details1.put(PROVIDED, providedTotalArea.toString());
+					details1.put(STATUS,
+							isAreaAcepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details1);
+
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
+
 			}
 
 		}
 
 	}
 
-	private boolean isServiceFloor(Plan pl, Floor f) {
+	private void validateServiceFloor(Plan pl) {
 		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
-		boolean flage = false;
-		String color = DxfFileConstants.COLOR_STILT_FLOOR;
-		for (Room room : f.getRegularRooms()) {
-			for (Measurement measurement : room.getRooms()) {
-				if (heightOfRoomFeaturesColor.get(color) == measurement.getColorCode()) {
-					flage = true;
+		for (Block block : pl.getBlocks()) {
+			scrutinyDetail = new ScrutinyDetail();
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, FLOOR);
+			scrutinyDetail.addColumnHeading(4, REQUIRED);
+			scrutinyDetail.addColumnHeading(5, PROVIDED);
+			scrutinyDetail.addColumnHeading(6, STATUS);
+			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Service Floor");
+
+			for (Floor floor : block.getBuilding().getFloors()) {
+				if (floor.getIsServiceFloor()) {
+					BigDecimal expectedMaxHeight = BigDecimal.ZERO;
+					boolean isHeightAccepted = false;
+					expectedMaxHeight = new BigDecimal("2.4");
+
+					if (floor.getServiceFloorHeight().compareTo(expectedMaxHeight) <= 0)
+						isHeightAccepted = true;
+					else
+						isHeightAccepted = false;
+
+					// check Provisions in Stilt Floor other than Parking
+					BigDecimal maxAreaAllowed = floor.getTotalStiltArea().multiply(new BigDecimal("0.2"));
+					maxAreaAllowed = OdishaUtill.roundUp(maxAreaAllowed);
+					BigDecimal providedTotalArea = BigDecimal.ZERO;
+					boolean isAreaAcepted = false;
+					for (Room room : floor.getRegularRooms()) {
+						for (Measurement measurement : room.getRooms()) {
+							if (heightOfRoomFeaturesColor.get(COLOR_MEP_ROOM) == measurement.getColorCode()
+									|| heightOfRoomFeaturesColor.get(COLOR_LAUNDRY_ROOM) == measurement.getColorCode()
+									|| heightOfRoomFeaturesColor.get(COLOR_CCTV_ROOM) == measurement.getColorCode()
+									|| heightOfRoomFeaturesColor.get(COLOR_SERVICE_ROOM) == measurement
+											.getColorCode()) {
+								providedTotalArea = providedTotalArea.add(measurement.getArea());
+							} else {
+								if(heightOfRoomFeaturesColor.get(COLOR_SERVICE_FLOOR) != measurement.getColorCode())
+									pl.addError("Provisions in service",
+											measurement.getName() + " not allowed in service floor");
+							}
+						}
+					}
+					// add report
+
+					Map<String, String> details = new HashMap<>();
+					details.put(RULE_NO, "50-s-4");
+					details.put(DESCRIPTION, "Service floor height");
+					details.put(FLOOR, floor.getNumber().toString());
+					details.put(REQUIRED, "<= " + expectedMaxHeight);
+					details.put(PROVIDED, floor.getServiceFloorHeight().toString());
+					details.put(STATUS,
+							isHeightAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
+
 			}
+
 		}
 
-		return flage;
 	}
 
 	private void validateFireDeclaration(Plan pl, HashMap<String, String> errors) {

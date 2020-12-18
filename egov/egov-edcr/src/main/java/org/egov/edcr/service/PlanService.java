@@ -100,7 +100,7 @@ public class PlanService {
         Plan plan = extractService.extract(dcrApplication.getSavedDxfFile(), amd, asOnDate,
                 featureService.getFeatures());
         plan.setMdmsMasterData(dcrApplication.getMdmsMasterData());
-        plan.getErrors().clear();
+        //plan.getErrors().clear();
         updateOdPlanInfo(plan);
         plan.getPlanInformation().setServiceType(dcrApplication.getServiceType());
         plan = applyRules(plan, amd, cityDetails);

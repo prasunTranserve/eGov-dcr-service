@@ -82,24 +82,44 @@ public class OdishaUtill {
 		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
 		boolean isServiceFloor = false;
 		String color = DxfFileConstants.COLOR_SERVICE_FLOOR;// 39
-		BigDecimal floorAbvGround = b.getBuilding().getFloorsAboveGround();
+		
+		
+		BigDecimal noOfFloorsAboveGround = BigDecimal.ZERO;
+		for (Floor floor : b.getBuilding().getFloors()) {
+			if (floor.getNumber() != null && floor.getNumber() >= 0) {
+				noOfFloorsAboveGround = noOfFloorsAboveGround.add(BigDecimal.valueOf(1));
+			}
+		}
+		
+		boolean hasTerrace = b.getBuilding().getFloors().stream()
+				.anyMatch(floor -> floor.getTerrace().equals(Boolean.TRUE));
 
+		noOfFloorsAboveGround = hasTerrace ? noOfFloorsAboveGround.subtract(BigDecimal.ONE)
+				: noOfFloorsAboveGround;
+		
+		BigDecimal totalArea=BigDecimal.ZERO;
+		BigDecimal height=BigDecimal.ZERO;
 		for (Room room : f.getRegularRooms()) {
 			for (Measurement measurement : room.getRooms()) {
 				if (heightOfRoomFeaturesColor.get(color) == measurement.getColorCode()) {
 					isServiceFloor = true;
+					totalArea=totalArea.add(measurement.getArea());
+					height=measurement.getHeight();
 					break;
 				}
 			}
 			if (isServiceFloor) {
-				if (floorAbvGround.compareTo(new BigDecimal("4")) <= 0)
+				if (noOfFloorsAboveGround.compareTo(new BigDecimal("4")) <= 0)
 					pl.addError("SERVICE_FLOOR", "Service Floor not allowed in less then 5 story building");
 				if (f.getNumber() <= 0)
 					pl.addError("SERVICE_FLOOR1", "Service Floor not allowed on floor 0 or besment");
 			}
 		}
 		f.setIsServiceFloor(isServiceFloor);
-
+		totalArea=roundUp(totalArea);
+		f.setTotalServiceArea(totalArea);
+		height=roundUp(height);
+		f.setServiceFloorHeight(height);
 	}
 
 	public static void validateStilledFloor(Plan pl, Block b, Floor f) {
@@ -120,8 +140,10 @@ public class OdishaUtill {
 				pl.addError("STILT_FLOOR", "Stilt Floor can not be in besment.");
 			}
 		}
-
-		// deducted building height
+		
+		
+		
+		// deducted building height need to test and verify
 		if(isStiltFloor) {
 			if (b.getBuilding().getDeclaredBuildingHeight().compareTo(new BigDecimal("15"))<0 ) {
 				if(flrHeight.compareTo(new BigDecimal("2.4")) == 0)
@@ -132,7 +154,15 @@ public class OdishaUtill {
 		}
 
 		f.setIsStiltFloor(isStiltFloor);
-		f.setTotalStilledArea(totalStilledArea);
+		totalStilledArea=roundUp(totalStilledArea);
+		f.setTotalStiltArea(totalStilledArea);
+		flrHeight=roundUp(flrHeight);
+		f.setStiltFloorHeight(flrHeight);
 	}
-
+	
+	public static BigDecimal roundUp(BigDecimal number) {
+		number=number.setScale(2, BigDecimal.ROUND_HALF_UP);
+		return number;
+	}
+	
 }

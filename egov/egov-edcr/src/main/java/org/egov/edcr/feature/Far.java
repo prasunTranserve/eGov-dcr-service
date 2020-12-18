@@ -169,30 +169,30 @@ public class Far extends FeatureProcess {
 			BigDecimal existingCarpetArea = BigDecimal.ZERO;
 			Building building = blk.getBuilding();
 			for (Floor flr : building.getFloors()) {
-				//set data for stilled floor and service floor
+				// set data for stilled floor and service floor
 				OdishaUtill.validateServiceFloor(pl, blk, flr);
 				OdishaUtill.validateStilledFloor(pl, blk, flr);
-				//if(!flr.getIsStiltFloor()) {
-					for (Occupancy occupancy : flr.getOccupancies()) {
-						validate2(pl, blk, flr, occupancy);
-						/*
-						 * occupancy.setCarpetArea(occupancy.getFloorArea().multiply
-						 * (BigDecimal.valueOf(0.80))); occupancy
-						 * .setExistingCarpetArea(occupancy.getExistingFloorArea().
-						 * multiply(BigDecimal.valueOf(0.80)));
-						 */
+				// if(!flr.getIsStiltFloor()) {
+				for (Occupancy occupancy : flr.getOccupancies()) {
+					validate2(pl, blk, flr, occupancy);
+					/*
+					 * occupancy.setCarpetArea(occupancy.getFloorArea().multiply
+					 * (BigDecimal.valueOf(0.80))); occupancy
+					 * .setExistingCarpetArea(occupancy.getExistingFloorArea().
+					 * multiply(BigDecimal.valueOf(0.80)));
+					 */
 
-						bltUpArea = bltUpArea.add(
-								occupancy.getBuiltUpArea() == null ? BigDecimal.valueOf(0) : occupancy.getBuiltUpArea());
-						existingBltUpArea = existingBltUpArea
-								.add(occupancy.getExistingBuiltUpArea() == null ? BigDecimal.valueOf(0)
-										: occupancy.getExistingBuiltUpArea());
-						flrArea = flrArea.add(occupancy.getFloorArea());
-						existingFlrArea = existingFlrArea.add(occupancy.getExistingFloorArea());
-						carpetArea = carpetArea.add(occupancy.getCarpetArea());
-						existingCarpetArea = existingCarpetArea.add(occupancy.getExistingCarpetArea());
-					}
-			//	}
+					bltUpArea = bltUpArea.add(
+							occupancy.getBuiltUpArea() == null ? BigDecimal.valueOf(0) : occupancy.getBuiltUpArea());
+					existingBltUpArea = existingBltUpArea
+							.add(occupancy.getExistingBuiltUpArea() == null ? BigDecimal.valueOf(0)
+									: occupancy.getExistingBuiltUpArea());
+					flrArea = flrArea.add(occupancy.getFloorArea());
+					existingFlrArea = existingFlrArea.add(occupancy.getExistingFloorArea());
+					carpetArea = carpetArea.add(occupancy.getCarpetArea());
+					existingCarpetArea = existingCarpetArea.add(occupancy.getExistingCarpetArea());
+				}
+				// }
 			}
 			building.setTotalFloorArea(flrArea);
 			building.setTotalBuitUpArea(bltUpArea);
@@ -674,10 +674,12 @@ public class Far extends FeatureProcess {
 					getLocaleMessage(VALIDATION_NEGATIVE_EXISTING_BUILTUP_AREA, blk.getNumber(),
 							flr.getNumber().toString(), occupancyTypeHelper));
 		}
-		
-		if(flr.getIsStiltFloor())
+
+		if (flr.getIsStiltFloor() || flr.getIsServiceFloor())
 			occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
-				.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()).subtract(flr.getTotalStilledArea()==null?BigDecimal.ZERO:flr.getTotalStilledArea()));
+					.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction())
+					.subtract(flr.getTotalStiltArea() == null ? BigDecimal.ZERO : flr.getTotalStiltArea())
+					.subtract(flr.getTotalServiceArea() == null ? BigDecimal.ZERO : flr.getTotalServiceArea()));
 		else
 			occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
 					.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()));
@@ -1219,17 +1221,18 @@ public class Far extends FeatureProcess {
 
 			validateBuilupArea(pl);
 		}
-		
-		//far validation
-		
-		if(pl.getFarDetails().getPermissableFar()>0) {
+
+		// far validation
+
+		if (pl.getFarDetails() != null && pl.getFarDetails().getPermissableFar() != null
+				&& pl.getFarDetails().getPermissableFar() > 0) {
 			isAccepted = far.compareTo(new BigDecimal(pl.getFarDetails().getPermissableFar())) <= 0;
-		}else
-			isAccepted=true;
-		
+		} else
+			isAccepted = true;
+
 		String occupancyName = occupancyType.getType().getName();
 		buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
-		
+
 	}
 
 	private void validateBuilupArea(Plan pl) {
@@ -1238,22 +1241,22 @@ public class Far extends FeatureProcess {
 
 		BigDecimal plotArea = pl.getPlot().getArea();
 
-		if(DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())) {
-			int multipler = plotArea.divide(new BigDecimal("10000"),1).intValue();
+		if (DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			int multipler = plotArea.divide(new BigDecimal("10000"), 1).intValue();
 			if (multipler < 0)
 				multipler = 1;
-			BigDecimal AllowedBuildUpArea=new BigDecimal("500").multiply(new BigDecimal(multipler));
-			if(totalBuildUpArea.compareTo(AllowedBuildUpArea)>0)
-				pl.addError("Far", "Max "+AllowedBuildUpArea+" SQM BuildUpArea is Allowed");
+			BigDecimal AllowedBuildUpArea = new BigDecimal("500").multiply(new BigDecimal(multipler));
+			if (totalBuildUpArea.compareTo(AllowedBuildUpArea) > 0)
+				pl.addError("Far", "Max " + AllowedBuildUpArea + " SQM BuildUpArea is Allowed");
 		}
-		
-		if(DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())) {
-			int multipler = plotArea.divide(new BigDecimal("2000"),1).intValue();
+
+		if (DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			int multipler = plotArea.divide(new BigDecimal("2000"), 1).intValue();
 			if (multipler < 0)
 				multipler = 1;
-			BigDecimal AllowedBuildUpArea=new BigDecimal("250").multiply(new BigDecimal(multipler));
-			if(totalBuildUpArea.compareTo(AllowedBuildUpArea)>0)
-				pl.addError("Far", "Max "+AllowedBuildUpArea+" SQM BuildUpArea is Allowed");
+			BigDecimal AllowedBuildUpArea = new BigDecimal("250").multiply(new BigDecimal(multipler));
+			if (totalBuildUpArea.compareTo(AllowedBuildUpArea) > 0)
+				pl.addError("Far", "Max " + AllowedBuildUpArea + " SQM BuildUpArea is Allowed");
 		}
 	}
 
@@ -1588,8 +1591,15 @@ public class Far extends FeatureProcess {
 		// details.put(OCCUPANCY, occupancyName);
 		// details.put(AREA_TYPE, typeOfArea);
 		// details.put(ROAD_WIDTH, roadWidth.toString());
-		details.put(BASE_FAR, pl.getFarDetails().getBaseFar().toString());
-		details.put(MAX_PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString());
+		if (pl.getFarDetails() != null && pl.getFarDetails().getBaseFar() != null)
+			details.put(BASE_FAR, pl.getFarDetails().getBaseFar().toString());
+		else
+			details.put(BASE_FAR, "-");
+		if (pl.getFarDetails() != null && pl.getFarDetails().getPermissableFar() != null)
+			details.put(MAX_PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString());
+		else
+			details.put(MAX_PERMISSIBLE, "-");
+
 		details.put(PROVIDED, actualResult);
 		details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
 		// details.put(STATUS, Result.Verify.getResultVal());

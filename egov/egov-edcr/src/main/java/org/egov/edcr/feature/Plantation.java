@@ -71,85 +71,116 @@ import org.springframework.stereotype.Service;
 @Service
 public class Plantation extends FeatureProcess {
 
-    private static final Logger LOGGER = Logger.getLogger(Plantation.class);
-    private static final String RULE_32 = "32";
-    public static final String PLANTATION_TREECOVER_DESCRIPTION = "Plantation tree cover";
+	// color code for arch
+	private static final int COLOR_TREE_CUT = 1;
+	private static final int COLOR_TREE_EXISTING = 2;
+	private static final int COLOR_TREE_PLANTED = 3;
 
-    @Override
-    public Plan validate(Plan pl) {
-        return null;
-    }
+	private static final Logger LOGGER = Logger.getLogger(Plantation.class);
+	private static final String RULE_32 = "32";
+	public static final String PLANTATION_TREECOVER_DESCRIPTION1 = "No of tree as per plot";
+	public static final String PLANTATION_TREECOVER_DESCRIPTION2 = "No of tree as per tree cut";
 
-    @Override
-    public Plan process(Plan pl) {
-//        validate(pl);
-//        scrutinyDetail = new ScrutinyDetail();
-//        scrutinyDetail.setKey("Common_Plantation");
-//        scrutinyDetail.addColumnHeading(1, RULE_NO);
-//        scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-//        scrutinyDetail.addColumnHeading(3, REQUIRED);
-//        scrutinyDetail.addColumnHeading(4, PROVIDED);
-//        scrutinyDetail.addColumnHeading(5, STATUS);
-//        Map<String, String> details = new HashMap<>();
-//        details.put(RULE_NO, RULE_32);
-//        details.put(DESCRIPTION, PLANTATION_TREECOVER_DESCRIPTION);
-//
-//        BigDecimal totalArea = BigDecimal.ZERO;
-//        BigDecimal plotArea = BigDecimal.ZERO;
-//        BigDecimal plantationPer = BigDecimal.ZERO;
-//        String type = "";
-//        String subType = "";
-//        if (pl.getPlantation() != null && pl.getPlantation().getPlantations() != null
-//                && !pl.getPlantation().getPlantations().isEmpty()) {
-//            for (Measurement m : pl.getPlantation().getPlantations()) {
-//                totalArea = totalArea.add(m.getArea());
-//            }
-//
-//            if (pl.getPlot() != null)
-//                plotArea = pl.getPlot().getArea();
-//
-//            if (pl.getVirtualBuilding() != null && pl.getVirtualBuilding().getMostRestrictiveFarHelper() != null
-//                    && pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype() != null) {
-//                type = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getCode();
-//                subType = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode();
-//            }
-//            if (totalArea.intValue() > 0 && plotArea != null && plotArea.intValue() > 0)
-//                plantationPer = totalArea.divide(plotArea, DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
-//            if (DxfFileConstants.A.equals(subType) || A_SA.equals(subType) || B.equals(type) || D.equals(type) || G.equals(type)) {
-//                if (plantationPer.compareTo(new BigDecimal("0.10")) < 0) {
-//                    details.put(REQUIRED, ">= 10%");
-//                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
-//                    details.put(STATUS, Result.Not_Accepted.getResultVal());
-//                    scrutinyDetail.getDetail().add(details);
-//                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-//                } else {
-//                    details.put(REQUIRED, ">= 10%");
-//                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
-//                    details.put(STATUS, Result.Accepted.getResultVal());
-//                    scrutinyDetail.getDetail().add(details);
-//                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-//                }
-//            } else {
-//                if (plantationPer.compareTo(new BigDecimal("0.05")) < 0) {
-//                    details.put(REQUIRED, ">= 5%");
-//                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
-//                    details.put(STATUS, Result.Not_Accepted.getResultVal());
-//                    scrutinyDetail.getDetail().add(details);
-//                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-//                } else {
-//                    details.put(REQUIRED, ">= 5%");
-//                    details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
-//                    details.put(STATUS, Result.Accepted.getResultVal());
-//                    scrutinyDetail.getDetail().add(details);
-//                    pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-//                }
-//            }
-//        }
-        return pl;
-    }
+	@Override
+	public Plan validate(Plan pl) {
+		return null;
+	}
 
-    @Override
-    public Map<String, Date> getAmendments() {
-        return new LinkedHashMap<>();
-    }
+	@Override
+	public Plan process(Plan pl) {
+		updatePlantationDetails(pl);
+		scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_Plantation Tree Cover");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+
+		int totalRequiredCountAsPerArea = 0;
+		int totalRequiredCountAsPerCut = 0;
+		int totalTreeOnSite = 0;
+
+		int cutTreeCount = 0;
+		int existingTreeCount = 0;
+		int plantedTreeCount = 0;
+
+		if (pl.getPlot().getArea().compareTo(new BigDecimal("115")) > 0) {
+			totalRequiredCountAsPerArea = pl.getPlot().getArea()
+					.divide(new BigDecimal("80"), DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS).intValue();
+
+		}
+
+		if (pl.getPlantation().getCutTreeCount() > 0) {
+			totalRequiredCountAsPerCut = pl.getPlantation().getCutTreeCount() * 3;
+		}
+
+		if (pl.getPlantation() != null) {
+			cutTreeCount = pl.getPlantation().getCutTreeCount();
+			existingTreeCount = pl.getPlantation().getExistingTreeCount();
+			plantedTreeCount = pl.getPlantation().getPlantedTreeCount();
+		}
+
+		totalTreeOnSite = existingTreeCount + plantedTreeCount;
+
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, RULE_32);
+		details.put(DESCRIPTION, PLANTATION_TREECOVER_DESCRIPTION1);
+		details.put(REQUIRED, "" + totalRequiredCountAsPerArea);
+		details.put(PROVIDED, "" + totalTreeOnSite);
+		details.put(STATUS, totalTreeOnSite >= totalRequiredCountAsPerArea ? Result.Accepted.getResultVal()
+				: Result.Not_Accepted.getResultVal());
+		scrutinyDetail.getDetail().add(details);
+		
+		
+		Map<String, String> details1 = new HashMap<>();
+		details1.put(RULE_NO, RULE_32);
+		details1.put(DESCRIPTION, PLANTATION_TREECOVER_DESCRIPTION2+" ( "+cutTreeCount+" )");
+		details1.put(REQUIRED, "" + totalRequiredCountAsPerCut);
+		details1.put(PROVIDED, "" + plantedTreeCount);
+		details1.put(STATUS, plantedTreeCount >= totalRequiredCountAsPerCut ? Result.Accepted.getResultVal()
+				: Result.Not_Accepted.getResultVal());
+		scrutinyDetail.getDetail().add(details1);
+		
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		return pl;
+	}
+
+	private void updatePlantationDetails(Plan pl) {
+		int cutTreeCount = 0;
+		int existingTreeCount = 0;
+		int plantedTreeCount = 0;
+
+		if (pl.getPlantation() != null) {
+			for (Measurement measurement : pl.getPlantation().getPlantations()) {
+				switch (measurement.getColorCode()) {
+				case COLOR_TREE_CUT:
+					cutTreeCount++;
+					break;
+				case COLOR_TREE_EXISTING:
+					existingTreeCount++;
+					break;
+				case COLOR_TREE_PLANTED:
+					plantedTreeCount++;
+					break;
+				}
+			}
+			pl.getPlantation().setCutTreeCount(cutTreeCount);
+			pl.getPlantation().setExistingTreeCount(existingTreeCount);
+			pl.getPlantation().setPlantedTreeCount(plantedTreeCount);
+		}
+
+	}
+
+	public static void main(String[] args) {
+		BigDecimal t = new BigDecimal("123");
+		System.out.println(t.divide(new BigDecimal("129"), DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS));
+		System.out.println(
+				t.divide(new BigDecimal("129"), DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS).intValue());
+	}
+
+	@Override
+	public Map<String, Date> getAmendments() {
+		return new LinkedHashMap<>();
+	}
 }
