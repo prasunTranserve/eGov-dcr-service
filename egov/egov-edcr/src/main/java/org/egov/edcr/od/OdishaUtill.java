@@ -23,7 +23,12 @@ public class OdishaUtill {
 				|| DxfFileConstants.OC_COMMERCIAL.equals(occupancyTypeHelper.getType().getCode())
 				|| DxfFileConstants.OC_TRANSPORTATION.equals(occupancyTypeHelper.getType().getCode())) {
 
-			BigDecimal providedNumberOfOccupantsOrUser = pl.getPlanInformation().getNumberOfOccupantsOrUsers();
+			//BigDecimal providedNumberOfOccupantsOrUser = pl.getPlanInformation().getNumberOfOccupantsOrUsers();
+			BigDecimal providedNumberOfOccupantsOrUser =BigDecimal.ZERO;
+			for(Block block:pl.getBlocks()) {
+				if(block.getNumberOfOccupantsOrUsersOrBedBlk()!=null)
+					providedNumberOfOccupantsOrUser=providedNumberOfOccupantsOrUser.add(block.getNumberOfOccupantsOrUsersOrBedBlk());
+			}
 
 			if (providedNumberOfOccupantsOrUser
 					.compareTo(MINIMUM_NUMBER_OF_OCCUPANTS_OR_USERS_FOR_ASSEMBLY_BUILDING) >= 0) {
