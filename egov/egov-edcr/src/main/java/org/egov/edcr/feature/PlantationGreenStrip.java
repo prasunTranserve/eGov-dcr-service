@@ -134,7 +134,7 @@ public class PlantationGreenStrip extends FeatureProcess {
 			}
 		}
 		boolean isAcepted=false;
-		if(plantationPer.compareTo(new BigDecimal("0.10")) >= 0)
+		if(plantationPer.compareTo(required) >= 0)
 			isAcepted=true;
 		
 		if(required.compareTo(BigDecimal.ZERO)>0)

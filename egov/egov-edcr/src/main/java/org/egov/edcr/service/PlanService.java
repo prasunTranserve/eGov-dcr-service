@@ -45,6 +45,7 @@ import org.egov.edcr.entity.EdcrApplication;
 import org.egov.edcr.entity.EdcrApplicationDetail;
 import org.egov.edcr.entity.OcComparisonDetail;
 import org.egov.edcr.feature.FeatureProcess;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.custom.CustomImplProvider;
 import org.egov.infra.filestore.entity.FileStoreMapper;
@@ -181,14 +182,8 @@ public class PlanService {
 
     public void updateOdPlanInfo(Plan pl) {
     	
-    	//NUMBER_OF_OCCUPANTS_OR_USERS 
-    	try {
-			pl.getPlanInformation().setNumberOfOccupantsOrUsers(pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS)!=null?new BigDecimal(pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS)):BigDecimal.ZERO);
-			if(pl.getPlanInformation().getNumberOfOccupantsOrUsers().compareTo(BigDecimal.ZERO)<=0)
-				pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS", "NUMBER_OF_OCCUPANTS_OR_USERS is not defined in plan info.");
-    	}catch (Exception e) {
-			pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS", "NUMBER_OF_OCCUPANTS_OR_USERS is invalid in planinfo layer.");
-		}
+    	//NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK_%s 
+    	OdishaUtill.setPlanInfoBlkWise(pl, DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK);
     	
     	//IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY
     	String buildingUnderHazardousOccupancyCategory=pl.getPlanInfoProperties().get(IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY);

@@ -165,4 +165,24 @@ public class OdishaUtill {
 		return number;
 	}
 	
+	
+	public static void setPlanInfoBlkWise(Plan pl,String key) {
+		
+		for(Block block:pl.getBlocks()) {
+			String value=pl.getPlanInfoProperties().get(key+"_"+block.getNumber());
+	    	try {
+	    		BigDecimal numValue=new BigDecimal(value);
+	    		block.setNumberOfOccupantsOrUsersOrBedBlk(numValue);
+				if(numValue.compareTo(BigDecimal.ZERO)<=0)
+					pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_"+block.getNumber(), "Number Of Occupants/Users/Bed is not defined in block "+block.getNumber());
+	    	}catch (Exception e) {
+				pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_"+block.getNumber(), "Number Of Occupants/Users/Bed is invalid in block "+block.getNumber());
+			}
+		}
+	}
 }
+
+
+
+
+

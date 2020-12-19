@@ -91,6 +91,7 @@ public class Block extends Measurement {
     private List<TerraceUtility> terraceUtilities;
     private FireTenderMovement fireTenderMovement;
     private List<Measurement> parapetWithColor = new ArrayList<>();
+    private BigDecimal numberOfOccupantsOrUsersOrBedBlk;
     
     @Override
     public String toString() {
@@ -393,5 +394,14 @@ public class Block extends Measurement {
     public void setParapetWithColor(List<Measurement> parapetWithColor) {
         this.parapetWithColor = parapetWithColor;
     }
+
+	public BigDecimal getNumberOfOccupantsOrUsersOrBedBlk() {
+		return numberOfOccupantsOrUsersOrBedBlk;
+	}
+
+	public void setNumberOfOccupantsOrUsersOrBedBlk(BigDecimal numberOfOccupantsOrUsersOrBedBlk) {
+		this.numberOfOccupantsOrUsersOrBedBlk = numberOfOccupantsOrUsersOrBedBlk;
+	}
+    
     
 }
