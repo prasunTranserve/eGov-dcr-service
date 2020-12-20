@@ -48,13 +48,17 @@
 package org.egov.edcr.feature;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
@@ -67,6 +71,10 @@ public class Parapet extends FeatureProcess {
 	private static final String RULE_41_V = "41-v";
 	public static final String PARAPET_DESCRIPTION = "Parapet";
 
+	private static final int COLOR_GENRAL_STAIR_CASE_RAILLING = 1;
+	private static final int COLOR_DARAMP_RAILLING = 2;
+	private static final int COLOR_PARAPET = 3;
+
 	@Override
 	public Plan validate(Plan pl) {
 
@@ -75,6 +83,14 @@ public class Parapet extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
+		prepareParapet(pl);
+		validateGenrailStairParapet(pl);
+		validateDaRamParapet(pl);
+		validateParapet(pl);
+		return pl;
+	}
+	
+	private void validateParapet(Plan pl) {
 
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Parapet");
@@ -83,7 +99,6 @@ public class Parapet extends FeatureProcess {
 		scrutinyDetail.addColumnHeading(3, REQUIRED);
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
-
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, RULE_41_V);
 		details.put(DESCRIPTION, PARAPET_DESCRIPTION);
@@ -91,20 +106,97 @@ public class Parapet extends FeatureProcess {
 		BigDecimal minHeight = BigDecimal.ZERO;
 
 		for (Block b : pl.getBlocks()) {
-			if (b.getParapets() != null && !b.getParapets().isEmpty()) {
-				minHeight = b.getParapets().stream().reduce(BigDecimal::min).get();
+			if (b.getGenralParapets() != null && !b.getGenralParapets().isEmpty()) {
+				minHeight = b.getGenralParapets().stream().reduce(BigDecimal::min).get();
 
-				if (minHeight.compareTo(new BigDecimal(1.2)) >= 0 && minHeight.compareTo(new BigDecimal(1.5)) <= 0) {
+				if (minHeight.compareTo(new BigDecimal(1)) >= 0) {
 
-					details.put(REQUIRED, "Height >= 1.2 and height <= 1.5");
-					details.put(PROVIDED, "Height >= " + minHeight + " and height <= " + minHeight);
+					details.put(REQUIRED, "Height >= 1");
+					details.put(PROVIDED, "Height >= " + minHeight);
 					details.put(STATUS, Result.Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
 				} else {
-					details.put(REQUIRED, "Height >= 1.2 and height <= 1.5");
-					details.put(PROVIDED, "Height >= " + minHeight + " and height <= " + minHeight);
+					details.put(REQUIRED, "Height >= 1");
+					details.put(PROVIDED, "Height >= " + minHeight);
+					details.put(STATUS, Result.Not_Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+				}
+			}
+		}
+	
+	}
+
+	private void validateDaRamParapet(Plan pl) {
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_DA Ramp Railing");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, RULE_41_V);
+		details.put(DESCRIPTION, PARAPET_DESCRIPTION);
+
+		BigDecimal minHeight = BigDecimal.ZERO;
+
+		for (Block b : pl.getBlocks()) {
+			if (b.getdARailingParapets() != null && !b.getdARailingParapets().isEmpty()) {
+				minHeight = b.getdARailingParapets().stream().reduce(BigDecimal::min).get();
+
+				if (minHeight.compareTo(new BigDecimal(0.8)) == 0) {
+
+					details.put(REQUIRED, "Height = 0.8");
+					details.put(PROVIDED, "Height = " + minHeight);
+					details.put(STATUS, Result.Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
+				} else {
+					details.put(REQUIRED, "Height = 0.8");
+					details.put(PROVIDED, "Height = " + minHeight);
+					details.put(STATUS, Result.Not_Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+				}
+			}
+		}
+	}
+
+	private void validateGenrailStairParapet(Plan pl) {
+		for (Block b : pl.getBlocks()) {
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "Genral Stair Railling");
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, REQUIRED);
+			scrutinyDetail.addColumnHeading(4, PROVIDED);
+			scrutinyDetail.addColumnHeading(5, STATUS);
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, RULE_41_V);
+			details.put(DESCRIPTION, PARAPET_DESCRIPTION);
+
+			BigDecimal minHeight = BigDecimal.ZERO;
+
+			if (isGenralStairPersent(b)) {
+				try {
+					minHeight = b.getGenralStairParapets().stream().reduce(BigDecimal::min).get();
+				} catch (Exception e) {
+				}
+
+				if (minHeight.compareTo(new BigDecimal(0.9)) >= 0) {
+					details.put(REQUIRED, "Height >= 0.9");
+					details.put(PROVIDED, "Height >= " + minHeight);
+					details.put(STATUS, Result.Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
+				} else {
+					details.put(REQUIRED, "Height >= 0.9");
+					details.put(PROVIDED, "Height >= " + minHeight);
 					details.put(STATUS, Result.Not_Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
@@ -112,7 +204,43 @@ public class Parapet extends FeatureProcess {
 			}
 		}
 
-		return pl;
+	}
+
+	private boolean isGenralStairPersent(Block block) {
+
+		for (Floor f : block.getBuilding().getFloors()) {
+			if (f.getGeneralStairs() != null && f.getGeneralStairs().size() > 0)
+				return true;
+		}
+
+		return false;
+	}
+
+	private void prepareParapet(Plan pl) {
+		List<BigDecimal> genralStairParapets = new ArrayList<BigDecimal>();
+		List<BigDecimal> dARailingParapets = new ArrayList<BigDecimal>();
+		List<BigDecimal> genralParapets = new ArrayList<BigDecimal>();
+		for (Block block : pl.getBlocks()) {
+			for (Measurement measurement : block.getParapetWithColor()) {
+				switch (measurement.getColorCode()) {
+				case COLOR_GENRAL_STAIR_CASE_RAILLING:
+					genralStairParapets.add(measurement.getHeight());
+					break;
+				case COLOR_DARAMP_RAILLING:
+					dARailingParapets.add(measurement.getHeight());
+					break;
+				case COLOR_PARAPET:
+					genralParapets.add(measurement.getHeight());
+					break;
+				}
+			}
+
+			block.setGenralStairParapets(genralStairParapets);
+			block.setdARailingParapets(dARailingParapets);
+			block.setGenralParapets(genralParapets);
+
+		}
+
 	}
 
 	@Override

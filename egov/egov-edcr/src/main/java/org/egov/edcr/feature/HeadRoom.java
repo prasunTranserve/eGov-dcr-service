@@ -55,9 +55,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.utility.Util;
 import org.springframework.stereotype.Service;
 
@@ -74,9 +77,10 @@ public class HeadRoom extends FeatureProcess {
 
     @Override
     public Plan process(Plan plan) {
+    	OccupancyTypeHelper occupancyTypeHelper=plan.getVirtualBuilding().getMostRestrictiveFarHelper();
+    	
         for (Block block : plan.getBlocks()) {
-            if (block.getBuilding() != null) {
-
+            if (block.getBuilding() != null && isGenralStairPersent(block)) {
                 ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
                 scrutinyDetail.addColumnHeading(1, RULE_NO);
                 scrutinyDetail.addColumnHeading(2, DESCRIPTION);
@@ -114,6 +118,46 @@ public class HeadRoom extends FeatureProcess {
         return plan;
     }
 
+//    private BigDecimal requiredHeadrHeight(Block block, OccupancyTypeHelper mostRestrictiveOccupancyType) {
+//		BigDecimal required = BigDecimal.ZERO;
+//		if (block.isAssemblyBuilding()) {
+//			required = new BigDecimal("");
+//		}
+//		if (DxfFileConstants.OC_RESIDENTIAL.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.19");
+//		} else if (DxfFileConstants.OC_COMMERCIAL.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.15");
+//		} else if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL
+//				.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.15");
+//		} else if (DxfFileConstants.OC_PUBLIC_UTILITY.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.15");
+//		} else if (DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.15");
+//		} else if (DxfFileConstants.OC_EDUCATION.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.15");
+//		} else if (DxfFileConstants.OC_TRANSPORTATION.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.15");
+//		} else if (DxfFileConstants.OC_AGRICULTURE.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.19");
+//		} else if (DxfFileConstants.OC_MIXED_USE.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+//			required = new BigDecimal("0.15");
+//		}
+//
+//		return required;
+//	}
+    
+    private boolean isGenralStairPersent(Block block) {
+
+		for (Floor f : block.getBuilding().getFloors()) {
+			if (f.getGeneralStairs() != null && f.getGeneralStairs().size() > 0)
+				return true;
+		}
+
+		return false;
+	}
+    
+    
     private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String expected, String actual,
             String status, ScrutinyDetail scrutinyDetail) {
         Map<String, String> details = new HashMap<>();

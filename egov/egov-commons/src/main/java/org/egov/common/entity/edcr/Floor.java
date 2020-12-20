@@ -110,6 +110,18 @@ public class Floor extends Measurement {
 	private BigDecimal totalServiceArea=BigDecimal.ZERO;
 
 	private BigDecimal ServiceFloorHeight=BigDecimal.ZERO;
+	
+	private List<FloorUnit> ewsUnit;
+
+	private List<FloorUnit> ligUnit;
+
+	private List<FloorUnit> mig1Unit;
+
+	private List<FloorUnit> mig2Unit;
+
+	private List<FloorUnit> othersUnit;
+
+	private List<FloorUnit> roomUnit;
 
 	public List<FireStair> getFireStairs() {
 		return fireStairs;
@@ -629,6 +641,54 @@ public class Floor extends Measurement {
 
 	public void setServiceFloorHeight(BigDecimal serviceFloorHeight) {
 		ServiceFloorHeight = serviceFloorHeight;
+	}
+
+	public List<FloorUnit> getEwsUnit() {
+		return ewsUnit;
+	}
+
+	public void setEwsUnit(List<FloorUnit> ewsUnit) {
+		this.ewsUnit = ewsUnit;
+	}
+
+	public List<FloorUnit> getLigUnit() {
+		return ligUnit;
+	}
+
+	public void setLigUnit(List<FloorUnit> ligUnit) {
+		this.ligUnit = ligUnit;
+	}
+
+	public List<FloorUnit> getMig1Unit() {
+		return mig1Unit;
+	}
+
+	public void setMig1Unit(List<FloorUnit> mig1Unit) {
+		this.mig1Unit = mig1Unit;
+	}
+
+	public List<FloorUnit> getMig2Unit() {
+		return mig2Unit;
+	}
+
+	public void setMig2Unit(List<FloorUnit> mig2Unit) {
+		this.mig2Unit = mig2Unit;
+	}
+
+	public List<FloorUnit> getOthersUnit() {
+		return othersUnit;
+	}
+
+	public void setOthersUnit(List<FloorUnit> othersUnit) {
+		this.othersUnit = othersUnit;
+	}
+
+	public List<FloorUnit> getRoomUnit() {
+		return roomUnit;
+	}
+
+	public void setRoomUnit(List<FloorUnit> roomUnit) {
+		this.roomUnit = roomUnit;
 	}
 
 	

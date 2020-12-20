@@ -74,6 +74,7 @@ import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -139,6 +140,9 @@ public class AdditionalFeature extends FeatureProcess {
 	public static final String GREEN_BUILDINGS_AND_SUSTAINABILITY = "Green buildings and sustainability provisions";
 	public static final String FIRE_PROTECTION_AND_FIRE_SAFETY_REQUIREMENTS_DESC = "Fire Protection And Fire Safety Requirements";
 
+	@Autowired
+	private DwellingUnits dwellingUnits;
+	
 	@Override
 	public Plan validate(Plan pl) {
 		HashMap<String, String> errors = new HashMap<>();
@@ -192,9 +196,10 @@ public class AdditionalFeature extends FeatureProcess {
 		// validateFireDeclaration(pl, errors);
 		validateStiltFloor(pl);
 		validateServiceFloor(pl);
+		dwellingUnits.process(pl);
 		return pl;
 	}
-
+	
 	private void validateStiltFloor(Plan pl) {
 		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
 		for (Block block : pl.getBlocks()) {

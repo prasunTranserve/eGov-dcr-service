@@ -102,7 +102,7 @@ public class ExitWidth extends FeatureProcess {
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		for (Block block : pl.getBlocks()) {
 
-			scrutinyDetail = new ScrutinyDetail();
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
 			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 			scrutinyDetail.addColumnHeading(3, FLOOR);
@@ -131,6 +131,7 @@ public class ExitWidth extends FeatureProcess {
 						}
 						if (exitWidthStair.size() >= countExcepted)
 							isExistCountAccepted = true;
+						
 						setReportOutputDetailsWithoutOccupancy(pl, SUBRULE_42_3, "Staricase exit width count", floor,
 								countExcepted == 0 ? "-" : countExcepted + "", exitWidthStair.size() + "",
 								isExistCountAccepted, scrutinyDetail);

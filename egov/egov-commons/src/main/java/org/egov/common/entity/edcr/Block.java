@@ -92,7 +92,10 @@ public class Block extends Measurement {
     private FireTenderMovement fireTenderMovement;
     private List<Measurement> parapetWithColor = new ArrayList<>();
     private BigDecimal numberOfOccupantsOrUsersOrBedBlk;
-    
+    private boolean assemblyBuilding;
+    private List<BigDecimal> genralStairParapets;
+    private List<BigDecimal> dARailingParapets;
+    private List<BigDecimal> genralParapets;
     @Override
     public String toString() {
         return "Block [building=" + building + ", name=" + name + ", number=" + number + ", setBacks=" + setBacks
@@ -401,6 +404,42 @@ public class Block extends Measurement {
 
 	public void setNumberOfOccupantsOrUsersOrBedBlk(BigDecimal numberOfOccupantsOrUsersOrBedBlk) {
 		this.numberOfOccupantsOrUsersOrBedBlk = numberOfOccupantsOrUsersOrBedBlk;
+	}
+
+	public boolean isAssemblyBuilding() {
+		return assemblyBuilding;
+	}
+
+	public void setAssemblyBuilding(boolean assemblyBuilding) {
+		this.assemblyBuilding = assemblyBuilding;
+	}
+
+	public List<BigDecimal> getGenralStairParapets() {
+		return genralStairParapets;
+	}
+
+	public void setGenralStairParapets(List<BigDecimal> genralStairParapets) {
+		this.genralStairParapets = genralStairParapets;
+	}
+
+	public List<BigDecimal> getdARailingParapets() {
+		return dARailingParapets;
+	}
+
+	public void setdARailingParapets(List<BigDecimal> dARailingParapets) {
+		this.dARailingParapets = dARailingParapets;
+	}
+
+	public List<BigDecimal> getGenralParapets() {
+		return genralParapets;
+	}
+
+	public void setGenralParapets(List<BigDecimal> genralParapets) {
+		this.genralParapets = genralParapets;
+	}
+
+	public List<DARamp> getDaRamps() {
+		return daRamps;
 	}
     
     
