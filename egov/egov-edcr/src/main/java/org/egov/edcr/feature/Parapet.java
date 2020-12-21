@@ -84,7 +84,7 @@ public class Parapet extends FeatureProcess {
 	@Override
 	public Plan process(Plan pl) {
 		prepareParapet(pl);
-		validateGenrailStairParapet(pl);
+		//validateGenrailStairParapet(pl);
 		validateDaRamParapet(pl);
 		validateParapet(pl);
 		return pl;

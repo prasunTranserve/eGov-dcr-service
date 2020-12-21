@@ -173,6 +173,8 @@ public class PlanInformation implements Serializable {
     
     private boolean lowRiskBuilding;
     
+    private String riskType;
+    
     //IS_THE_PLOT_PART_OF_THE_LAYOUT_APPROVED_BY_THE_AUTHORITY_OR_DEVELOPED_AND_ALLOTTED_BY_THE_GOVERNMENT_OR_STATUTORY_BODIES_OR_IS_A_FINAL_PLOT_IN_TOWN_PLANNING_SCHEMES_OR_DEVELOPMENT_SCHEMES
     private String approvedLayoutDeclaration=NA;
     
@@ -796,6 +798,14 @@ public class PlanInformation implements Serializable {
 
 	public void setIsTheProjectCloseToTheCoastalRegion(String isTheProjectCloseToTheCoastalRegion) {
 		this.isTheProjectCloseToTheCoastalRegion = isTheProjectCloseToTheCoastalRegion;
+	}
+
+	public String getRiskType() {
+		return riskType;
+	}
+
+	public void setRiskType(String riskType) {
+		this.riskType = riskType;
 	}
 	
 	

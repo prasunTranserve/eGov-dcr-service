@@ -200,7 +200,9 @@ public class Plan implements Serializable {
     private transient Boolean mainDcrPassed = false;
     
     private BigDecimal totalEWSArea;
-
+    
+   
+    
     public List<BigDecimal> getCanopyDistanceFromPlotBoundary() {
         return canopyDistanceFromPlotBoundary;
     }
