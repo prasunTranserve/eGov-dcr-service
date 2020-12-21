@@ -49,6 +49,8 @@ package org.egov.common.entity.edcr;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -210,6 +212,10 @@ public class PlanInformation implements Serializable {
     
     //IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION
     private String isTheProjectCloseToTheCoastalRegion;
+    
+    private List<String> requiredNOCs = new ArrayList<String>();
+    
+    private List<String> additionalDocuments =new ArrayList<String>();//2,4,7
     
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
@@ -807,7 +813,30 @@ public class PlanInformation implements Serializable {
 	public void setRiskType(String riskType) {
 		this.riskType = riskType;
 	}
-	
-	
+
+	public List<String> getRequiredNOCs() {
+		if(requiredNOCs.isEmpty()) {
+			requiredNOCs.add("AAI_NOC");
+			requiredNOCs.add("NMA_NOC");
+		}
+		return requiredNOCs;
+	}
+
+	public void setRequiredNOCs(List<String> requiredNOCs) {
+		this.requiredNOCs = requiredNOCs;
+	}
+
+	public List<String> getAdditionalDocuments() {
+		if(additionalDocuments.isEmpty()) {//2,4,7
+			additionalDocuments.add("DocTypes2");
+			additionalDocuments.add("DocTypes4");
+			additionalDocuments.add("DocTypes7");
+		}
+		return additionalDocuments;
+	}
+
+	public void setAdditionalDocuments(List<String> additionalDocuments) {
+		this.additionalDocuments = additionalDocuments;
+	}
     
 }
