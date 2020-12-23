@@ -16,7 +16,7 @@ public class NocAndDocumentsUtill {
 
 	public static void updateNoc(Plan pl) {
 
-		if (pl != null && pl.getPlanInformation() != null) {
+		if (pl == null || pl.getPlanInformation() == null) {
 			return;
 		}
 
@@ -225,7 +225,7 @@ public class NocAndDocumentsUtill {
 	}
 
 	public static void updateDocuments(Plan pl) {
-		if (pl != null && pl.getPlanInformation() != null) {
+		if (pl == null || pl.getPlanInformation() == null) {
 			return;
 		}
 
