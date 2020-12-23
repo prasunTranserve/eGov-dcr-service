@@ -45,6 +45,7 @@ import org.egov.edcr.entity.EdcrApplication;
 import org.egov.edcr.entity.EdcrApplicationDetail;
 import org.egov.edcr.entity.OcComparisonDetail;
 import org.egov.edcr.feature.FeatureProcess;
+import org.egov.edcr.od.NocAndDocumentsUtill;
 import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.custom.CustomImplProvider;
@@ -105,7 +106,11 @@ public class PlanService {
         updateOdPlanInfo(plan);
         plan.getPlanInformation().setServiceType(dcrApplication.getServiceType());
         plan = applyRules(plan, amd, cityDetails);
-        
+        //update Noc and documentList
+        if(plan!=null) {
+        	NocAndDocumentsUtill.updateNoc(plan);
+        	NocAndDocumentsUtill.updateDocuments(plan);
+        }
         String comparisonDcrNumber = dcrApplication.getEdcrApplicationDetails().get(0).getComparisonDcrNumber();
         if (ApplicationType.PERMIT.getApplicationTypeVal()
                 .equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())
@@ -293,6 +298,23 @@ public class PlanService {
     	}else {
     		pl.addError("IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION", "IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION is not defined in plan info.");
     	}
+    	
+    	//STAR_RATING_FOR_HOTEL_PROJECT
+    	String startRatingForHotel=pl.getPlanInfoProperties().get(DxfFileConstants.STAR_RATING_FOR_HOTEL_PROJECT);
+    	try {
+    		if(startRatingForHotel!=null && !DxfFileConstants.NA.equals(startRatingForHotel)) {
+    			pl.getPlanInformation().setStartRatingForHotel(Integer.parseInt(startRatingForHotel));
+    		}else {
+    			pl.getPlanInformation().setStartRatingForHotel(0);
+    		}
+    	}catch (Exception e) {
+    		pl.getPlanInformation().setStartRatingForHotel(0);
+		}
+    	
+    	//DOES_HOSPITAL_HAVE_CRITICAL_CARE_UNIT
+    	String doesHospitalHaveCriticalCareUnit=pl.getPlanInfoProperties().get(DOES_HOSPITAL_HAVE_CRITICAL_CARE_UNIT);
+    	pl.getPlanInformation().setDoesHospitalHaveCriticalCareUnit(doesHospitalHaveCriticalCareUnit==null?DxfFileConstants.NA:doesHospitalHaveCriticalCareUnit);
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

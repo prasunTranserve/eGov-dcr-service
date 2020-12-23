@@ -183,7 +183,7 @@ public class PlanInformation implements Serializable {
     private String buildingUnderHazardousOccupancyCategory=NA;
     
     //PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT = number
-    private BigDecimal benchmarkValuePerAcre;
+    private BigDecimal benchmarkValuePerAcre=BigDecimal.ZERO;
     
     private boolean isShelterFeeRequired;
     
@@ -216,6 +216,10 @@ public class PlanInformation implements Serializable {
     private List<String> requiredNOCs = new ArrayList<String>();
     
     private List<String> additionalDocuments =new ArrayList<String>();//2,4,7
+    
+    private int startRatingForHotel;
+    
+    private String doesHospitalHaveCriticalCareUnit;
     
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
@@ -815,10 +819,6 @@ public class PlanInformation implements Serializable {
 	}
 
 	public List<String> getRequiredNOCs() {
-		if(requiredNOCs.isEmpty()) {
-			requiredNOCs.add("AAI_NOC");
-			requiredNOCs.add("NMA_NOC");
-		}
 		return requiredNOCs;
 	}
 
@@ -827,16 +827,28 @@ public class PlanInformation implements Serializable {
 	}
 
 	public List<String> getAdditionalDocuments() {
-		if(additionalDocuments.isEmpty()) {//2,4,7
-			additionalDocuments.add("DocTypes2");
-			additionalDocuments.add("DocTypes4");
-			additionalDocuments.add("DocTypes7");
-		}
 		return additionalDocuments;
 	}
 
 	public void setAdditionalDocuments(List<String> additionalDocuments) {
 		this.additionalDocuments = additionalDocuments;
 	}
+
+	public int getStartRatingForHotel() {
+		return startRatingForHotel;
+	}
+
+	public void setStartRatingForHotel(int startRatingForHotel) {
+		this.startRatingForHotel = startRatingForHotel;
+	}
+
+	public String getDoesHospitalHaveCriticalCareUnit() {
+		return doesHospitalHaveCriticalCareUnit;
+	}
+
+	public void setDoesHospitalHaveCriticalCareUnit(String doesHospitalHaveCriticalCareUnit) {
+		this.doesHospitalHaveCriticalCareUnit = doesHospitalHaveCriticalCareUnit;
+	}
     
+	
 }

@@ -140,8 +140,12 @@ public class OdishaUtill {
 
 	public static BigDecimal getMaxBuildingHeight(Plan pl) {
 		BigDecimal buildingHeight = BigDecimal.ZERO;
-		buildingHeight = pl.getBlocks().stream().map(block -> block.getBuilding().getBuildingHeight())
-				.reduce(BigDecimal::max).get();
+		try {
+			buildingHeight = pl.getBlocks().stream().map(block -> block.getBuilding().getBuildingHeight())
+					.reduce(BigDecimal::max).get();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 		return buildingHeight;
 	}
 
@@ -234,18 +238,20 @@ public class OdishaUtill {
 	
 	
 	public static void setPlanInfoBlkWise(Plan pl,String key) {
-		
+		BigDecimal totalUserInPlan=BigDecimal.ZERO;
 		for(Block block:pl.getBlocks()) {
 			String value=pl.getPlanInfoProperties().get(key+"_"+block.getNumber());
 	    	try {
 	    		BigDecimal numValue=new BigDecimal(value);
 	    		block.setNumberOfOccupantsOrUsersOrBedBlk(numValue);
+	    		totalUserInPlan.add(numValue);
 				if(numValue.compareTo(BigDecimal.ZERO)<=0)
 					pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_"+block.getNumber(), "Number Of Occupants/Users/Bed is not defined in block "+block.getNumber());
 	    	}catch (Exception e) {
 				pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_"+block.getNumber(), "Number Of Occupants/Users/Bed is invalid in block "+block.getNumber());
 			}
 		}
+		pl.getPlanInformation().setNumberOfOccupantsOrUsers(totalUserInPlan);
 	}
 }
 
