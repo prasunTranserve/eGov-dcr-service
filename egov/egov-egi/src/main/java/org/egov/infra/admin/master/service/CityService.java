@@ -73,6 +73,7 @@ import org.egov.infra.notification.service.NotificationService;
 import org.egov.infra.utils.FileStoreUtils;
 import org.egov.infra.utils.TenantUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -105,6 +106,9 @@ public class CityService {
 
     @Autowired
     private FileStoreUtils fileStoreUtils;
+    
+//    @Value
+//    private String ulbLogoURI;
 
     @Autowired
     public CityService(final CityRepository cityRepository) {
@@ -219,4 +223,8 @@ public class CityService {
     private String cityLogoCacheKey() {
         return format(CITY_LOGO_CACHE_KEY, getTenantID());
     }
+    
+//    private String cityLogoUrlAsPerOdisha(String tenantID) {
+//    	
+//    }
 }

@@ -350,45 +350,49 @@ public class PlanService {
 		}
 
 		for (PlanFeature ruleClass : featureService.getFeatures()) {
-
-			FeatureProcess rule = null;
 			String str = ruleClass.getRuleClass().getSimpleName();
-			str = str.substring(0, 1).toLowerCase() + str.substring(1);
-			LOG.info("Looking for bean " + str);
-			// when amendments are not present
-			if (amd.getDetails().isEmpty() || index == -1)
-				rule = (FeatureProcess) specificRuleService.find(ruleClass.getRuleClass().getSimpleName());
-			// when amendments are present
-			else {
-				if (index >= 0) {
-					// find amendment specific beans
-					for (int i = index; i < length; i++) {
-						if (a[i].getChanges().keySet().contains(ruleClass.getRuleClass().getSimpleName())) {
-							String strNew = str + "_" + a[i].getDateOfBylawString();
-							rule = (FeatureProcess) specificRuleService.find(strNew);
-							if (rule != null)
-								break;
+			try {
+				FeatureProcess rule = null;
+				str = str.substring(0, 1).toLowerCase() + str.substring(1);
+				LOG.info("Looking for bean " + str);
+				// when amendments are not present
+				if (amd.getDetails().isEmpty() || index == -1)
+					rule = (FeatureProcess) specificRuleService.find(ruleClass.getRuleClass().getSimpleName());
+				// when amendments are present
+				else {
+					if (index >= 0) {
+						// find amendment specific beans
+						for (int i = index; i < length; i++) {
+							if (a[i].getChanges().keySet().contains(ruleClass.getRuleClass().getSimpleName())) {
+								String strNew = str + "_" + a[i].getDateOfBylawString();
+								rule = (FeatureProcess) specificRuleService.find(strNew);
+								if (rule != null)
+									break;
+							}
 						}
-					}
-					// when amendment specific beans not found
-					if (rule == null) {
-						rule = (FeatureProcess) specificRuleService.find(ruleClass.getRuleClass().getSimpleName());
+						// when amendment specific beans not found
+						if (rule == null) {
+							rule = (FeatureProcess) specificRuleService.find(ruleClass.getRuleClass().getSimpleName());
+						}
+
 					}
 
 				}
 
-			}
+				if (rule != null) {
+					LOG.info("Looking for bean resulted in " + rule.getClass().getSimpleName());
+					rule.process(plan);
+					LOG.info("Completed Process " + rule.getClass().getSimpleName() + "  " + new Date());
+				}
 
-			if (rule != null) {
-				LOG.info("Looking for bean resulted in " + rule.getClass().getSimpleName());
-				rule.process(plan);
-				LOG.info("Completed Process " + rule.getClass().getSimpleName() + "  " + new Date());
+				if (plan.getErrors().containsKey(DxfFileConstants.OCCUPANCY_ALLOWED_KEY)
+						|| plan.getErrors().containsKey("units not in meters")
+						|| plan.getErrors().containsKey(DxfFileConstants.OCCUPANCY_PO_NOT_ALLOWED_KEY))
+					return plan;
+			
+			}catch (Exception e) {
+				plan.addError("Error "+str, "Error occured while processing "+str+" !");
 			}
-
-			if (plan.getErrors().containsKey(DxfFileConstants.OCCUPANCY_ALLOWED_KEY)
-					|| plan.getErrors().containsKey("units not in meters")
-					|| plan.getErrors().containsKey(DxfFileConstants.OCCUPANCY_PO_NOT_ALLOWED_KEY))
-				return plan;
 		}
 		return plan;
 	}

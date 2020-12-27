@@ -180,8 +180,10 @@ public class RampService extends FeatureProcess {
 
     @Override
     public Plan process(Plan pl) {
-        validate(pl);
-        boolean valid;
+        //validate(pl);
+        boolean valid=true;
+        if(valid)
+        	return pl;
         if (pl != null && !pl.getBlocks().isEmpty()) {
             blk: for (Block block : pl.getBlocks()) {
                 scrutinyDetail = new ScrutinyDetail();

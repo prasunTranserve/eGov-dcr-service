@@ -73,8 +73,8 @@ public class ParkingDetails implements Serializable {
 	private List<Measurement> mechParking = new ArrayList<>();
 	private List<Measurement> twoWheelers = new ArrayList<>();
 	private List<Measurement> disabledPersons = new ArrayList<>();
-	private Integer validDAParkingSlots = 0;
-	private BigDecimal distFromDAToMainEntrance = BigDecimal.ZERO;
+	private Integer validDAParkingSlots = 0;//dim as 
+	private BigDecimal distFromDAToMainEntrance = BigDecimal.ZERO;// arrow with text 
 	private List<Measurement> special = new ArrayList<>();
 	private Integer validSpecialSlots = 0;
 	private List<Measurement> stilts = new ArrayList<>();

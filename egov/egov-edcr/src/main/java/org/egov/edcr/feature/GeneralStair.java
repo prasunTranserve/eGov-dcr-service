@@ -47,8 +47,15 @@ public class GeneralStair extends FeatureProcess {
 		for (Block block : plan.getBlocks()) {
 			int requiredGenralStairPerFloor = 1 + requiredGenralStairPerFloor(plan, block);
 			for (Floor floor : block.getBuilding().getFloors()) {
+				boolean flageForStair2=false;
+				
+				for(org.egov.common.entity.edcr.GeneralStair generalStair:floor.getGeneralStairs()) {
+					if(Integer.parseInt(generalStair.getNumber())==2)
+						flageForStair2=true;
+				}
+				
 				if (floor.getNumber() < 0) {
-					if (floor.getGeneralStairs() == null || floor.getGeneralStairs().size() < 2) {
+					if (floor.getGeneralStairs() == null || !flageForStair2) {
 						plan.addError("MINIMUM_TWO_STAIR_Required" + block.getNumber() + "f" + floor.getNumber(),
 								"Minimum two GenralStair are required in blook " + block.getNumber() + " Floor "
 										+ floor.getNumber() + " but provided " + floor.getGeneralStairs().size());
@@ -360,7 +367,7 @@ public class GeneralStair extends FeatureProcess {
 			}
 
 			if (generalStair.getFloorHeight().compareTo(BigDecimal.ZERO) > 0)
-				raiserHeightProvided = generalStair.getFloorHeight().divide(totalNoOfRaiser, BigDecimal.ROUND_HALF_UP);
+				raiserHeightProvided = generalStair.getFloorHeight().divide(totalNoOfRaiser, 2,BigDecimal.ROUND_HALF_UP);
 			else
 				pl.addError("STAIRCASE", " Floor Hight not defined Block " + block.getNumber() + " floor "
 						+ floor.getNumber() + " stair " + generalStair.getNumber());
@@ -429,7 +436,8 @@ public class GeneralStair extends FeatureProcess {
 				List<BigDecimal> flightLengths = flight.getLengthOfFlights();
 				List<BigDecimal> flightWidths = flight.getWidthOfFlights();
 				BigDecimal noOfRises = flight.getNoOfRises();
-				Boolean flightPolyLineClosed = flight.getFlightClosed();
+				//Boolean flightPolyLineClosed = flight.getFlightClosed();
+				Boolean flightPolyLineClosed = true; 
 
 				BigDecimal minTread = BigDecimal.ZERO;
 				BigDecimal minFlightWidth = BigDecimal.ZERO;
