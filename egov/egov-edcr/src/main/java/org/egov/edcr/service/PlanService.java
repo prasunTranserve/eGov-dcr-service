@@ -315,6 +315,12 @@ public class PlanService {
     	String doesHospitalHaveCriticalCareUnit=pl.getPlanInfoProperties().get(DOES_HOSPITAL_HAVE_CRITICAL_CARE_UNIT);
     	pl.getPlanInformation().setDoesHospitalHaveCriticalCareUnit(doesHospitalHaveCriticalCareUnit==null?DxfFileConstants.NA:doesHospitalHaveCriticalCareUnit);
     	
+    	//IS_SECURITY_DEPOSIT_REQUIRED
+    	
+    	if(DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(IS_SECURITY_DEPOSIT_REQUIRED)))
+    		pl.getPlanInformation().setSecurityDepositRequired(true);
+    	else
+    		pl.getPlanInformation().setSecurityDepositRequired(false);
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {
@@ -391,6 +397,7 @@ public class PlanService {
 					return plan;
 			
 			}catch (Exception e) {
+				e.printStackTrace();
 				plan.addError("Error "+str, "Error occured while processing "+str+" !");
 			}
 		}

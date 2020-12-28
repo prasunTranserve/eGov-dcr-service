@@ -75,6 +75,9 @@ public class SetBackService extends FeatureProcess {
 
     @Autowired
     private RearYardService rearYardService;
+    
+    @Autowired
+    private OdissaSetBackService odissaSetBackService;
 
     @Override
     public Plan validate(Plan pl) {
@@ -165,6 +168,7 @@ public class SetBackService extends FeatureProcess {
 //		if (widthOfPlot != null && widthOfPlot.compareTo(BigDecimal.ZERO) > 0) {
 //			sideYardService.processSideYard(pl);
 //		}
+    	odissaSetBackService.process(pl);
 
         return pl;
     }

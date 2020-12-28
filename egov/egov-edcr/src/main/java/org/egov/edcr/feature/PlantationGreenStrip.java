@@ -140,7 +140,7 @@ public class PlantationGreenStrip extends FeatureProcess {
 		if(required.compareTo(BigDecimal.ZERO)>0)
 			details.put(REQUIRED, required.multiply(new BigDecimal(100)).toString() + "%");
 		else
-			details.put(REQUIRED, "-");
+			details.put(REQUIRED, DxfFileConstants.NA);
 		details.put(PROVIDED, plantationPer.multiply(new BigDecimal(100)).toString() + "%");
 		details.put(STATUS, isAcepted?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
 		scrutinyDetail.getDetail().add(details);

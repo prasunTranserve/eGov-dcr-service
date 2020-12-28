@@ -114,7 +114,7 @@ public class BuildingHeight extends FeatureProcess {
 			actualDistance = block.getBuilding().getBuildingHeight();
 
 			String actualResult = actualDistance.toString();
-			String expectedResult = "-";
+			String expectedResult = DxfFileConstants.NA;
 
 			if (exptectedDistance.compareTo(BigDecimal.ZERO) > 0)
 				expectedResult = exptectedDistance.toString();

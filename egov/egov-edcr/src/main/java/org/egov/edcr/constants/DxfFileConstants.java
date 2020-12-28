@@ -683,6 +683,7 @@ public class DxfFileConstants {
 	public static final String IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION="IS_THE_PROJECT_CLOSE_TO_THE_COASTAL_REGION";
 	public static final String STAR_RATING_FOR_HOTEL_PROJECT="STAR_RATING_FOR_HOTEL_PROJECT";//NA 2,3
 	public static final String DOES_HOSPITAL_HAVE_CRITICAL_CARE_UNIT="DOES_HOSPITAL_HAVE_CRITICAL_CARE_UNIT";
+	public static final String IS_SECURITY_DEPOSIT_REQUIRED="IS_SECURITY_DEPOSIT_REQUIRED";
 	
 	public static final String COLOR_STILT_FLOOR = "Stilt Floor";//38
 	public static final String COLOR_SERVICE_FLOOR = "Service Floor";//39

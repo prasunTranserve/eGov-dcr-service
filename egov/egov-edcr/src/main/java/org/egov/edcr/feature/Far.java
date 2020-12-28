@@ -577,10 +577,12 @@ public class Far extends FeatureProcess {
 
 		pl.setTotalSurrenderRoadArea(surrenderRoadArea.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
 				DcrConstants.ROUNDMODE_MEASUREMENTS));
-		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea().add(surrenderRoadArea) : BigDecimal.ZERO;
-		if (plotArea.doubleValue() > 0)
-			providedFar = pl.getVirtualBuilding().getTotalFloorArea().divide(plotArea, DECIMALDIGITS_MEASUREMENTS,
-					ROUNDMODE_MEASUREMENTS);
+//		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea().add(surrenderRoadArea) : BigDecimal.ZERO;
+//		if (plotArea.doubleValue() > 0)
+//			providedFar = pl.getVirtualBuilding().getTotalFloorArea().divide(plotArea, DECIMALDIGITS_MEASUREMENTS,
+//					ROUNDMODE_MEASUREMENTS);
+		
+		providedFar=calculateFar(pl,surrenderRoadArea);
 
 		pl.setFarDetails(new FarDetails());
 		pl.getFarDetails().setProvidedFar(providedFar.doubleValue());
@@ -675,14 +677,16 @@ public class Far extends FeatureProcess {
 							flr.getNumber().toString(), occupancyTypeHelper));
 		}
 
-		if (flr.getIsStiltFloor() || flr.getIsServiceFloor())
-			occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
-					.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction())
-					.subtract(flr.getTotalStiltArea() == null ? BigDecimal.ZERO : flr.getTotalStiltArea())
-					.subtract(flr.getTotalServiceArea() == null ? BigDecimal.ZERO : flr.getTotalServiceArea()));
-		else
-			occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
-					.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()));
+		if(flr.getNumber()>=0) {
+			if (flr.getIsStiltFloor() || flr.getIsServiceFloor())
+				occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
+						.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction())
+						.subtract(flr.getTotalStiltArea() == null ? BigDecimal.ZERO : flr.getTotalStiltArea())
+						.subtract(flr.getTotalServiceArea() == null ? BigDecimal.ZERO : flr.getTotalServiceArea()));
+			else
+				occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
+						.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()));
+		}
 		if (occupancy.getFloorArea() != null && occupancy.getFloorArea().compareTo(BigDecimal.valueOf(0)) < 0) {
 			pl.addError(VALIDATION_NEGATIVE_FLOOR_AREA, getLocaleMessage(VALIDATION_NEGATIVE_FLOOR_AREA,
 					blk.getNumber(), flr.getNumber().toString(), occupancyTypeHelper));
@@ -1594,11 +1598,11 @@ public class Far extends FeatureProcess {
 		if (pl.getFarDetails() != null && pl.getFarDetails().getBaseFar() != null)
 			details.put(BASE_FAR, pl.getFarDetails().getBaseFar().toString());
 		else
-			details.put(BASE_FAR, "-");
+			details.put(BASE_FAR, DxfFileConstants.NA);
 		if (pl.getFarDetails() != null && pl.getFarDetails().getPermissableFar() != null)
 			details.put(MAX_PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString());
 		else
-			details.put(MAX_PERMISSIBLE, "-");
+			details.put(MAX_PERMISSIBLE, DxfFileConstants.NA);
 
 		details.put(PROVIDED, actualResult);
 		details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
@@ -1619,6 +1623,17 @@ public class Far extends FeatureProcess {
 		scrutinyDetail.setKey(key);
 		return scrutinyDetail;
 	}
+	
+	private BigDecimal calculateFar(Plan pl,BigDecimal surrenderRoadArea) {
+		BigDecimal providedFar=BigDecimal.ZERO;
+		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea().add(surrenderRoadArea) : BigDecimal.ZERO;
+		if (plotArea.doubleValue() > 0)
+			providedFar = pl.getVirtualBuilding().getTotalFloorArea().divide(plotArea, DECIMALDIGITS_MEASUREMENTS,
+					ROUNDMODE_MEASUREMENTS);
+		
+		return providedFar;
+	}
+	
 
 	@Override
 	public Map<String, Date> getAmendments() {

@@ -105,11 +105,11 @@ public class Plantation extends FeatureProcess {
 		int existingTreeCount = 0;
 		int plantedTreeCount = 0;
 
-//		if (pl.getPlot().getArea().compareTo(new BigDecimal("115")) > 0) {
-//			totalRequiredCountAsPerArea = pl.getPlot().getArea()
-//					.divide(new BigDecimal("80"), DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS).intValue();
-//
-//		}
+		if (pl.getPlot().getArea().compareTo(new BigDecimal("115")) > 0) {
+			totalRequiredCountAsPerArea = pl.getPlot().getArea()
+					.divide(new BigDecimal("80"), DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS).intValue();
+
+		}
 
 		if (pl.getPlantation().getCutTreeCount() > 0) {
 			totalRequiredCountAsPerCut = pl.getPlantation().getCutTreeCount() * 3;

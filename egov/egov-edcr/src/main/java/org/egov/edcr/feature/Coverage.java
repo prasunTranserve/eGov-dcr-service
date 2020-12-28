@@ -150,88 +150,13 @@ public class Coverage extends FeatureProcess {
 		}
 
 		BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
-//       if(roadWidth != null && roadWidth.compareTo(ROAD_WIDTH_TWELVE_POINTTWO) >= 0
-//				&& roadWidth.compareTo(ROAD_WIDTH_THIRTY_POINTFIVE) <= 0) {
-//        processCoverage(pl, StringUtils.EMPTY, totalCoverage, Forty);
-//       }
 
 		BigDecimal requiredCoverage = getPermissibleGroundCoverage(pl);
 		// if(requiredCoverage.compareTo(BigDecimal.ZERO)>0)
 		processCoverage(pl, StringUtils.EMPTY, totalCoverage, requiredCoverage);
-		/*
-		 * // for weighted coverage if (pl.getPlot().getArea().doubleValue() >= 5000) {
-		 * BigDecimal provideCoverage = BigDecimal.ZERO; BigDecimal weightedArea =
-		 * BigDecimal.ZERO; BigDecimal weightedCoverage = BigDecimal.ZERO; weightedArea
-		 * = weightedArea.setScale(DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
-		 * weightedCoverage = weightedCoverage.setScale(DECIMALDIGITS_MEASUREMENTS,
-		 * ROUNDMODE_MEASUREMENTS); provideCoverage =
-		 * provideCoverage.setScale(DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
-		 * 
-		 * for (Occupancy occ : pl.getOccupancies()) { BigDecimal occupancyWiseCoverage
-		 * = occ.getBuiltUpArea().multiply(getPermissibleCoverage(occ.getType()));
-		 * weightedArea = weightedArea.add(occupancyWiseCoverage);
-		 * 
-		 * } if (pl.getVirtualBuilding().getTotalBuitUpArea().doubleValue() > 0)
-		 * weightedCoverage =
-		 * weightedArea.divide(pl.getVirtualBuilding().getTotalBuitUpArea(),
-		 * DECIMALDIGITS, ROUNDMODE_MEASUREMENTS); if
-		 * (pl.getPlot().getArea().doubleValue() > 0) provideCoverage =
-		 * pl.getCoverageArea() .divide(pl.getPlot().getPlotBndryArea(), DECIMALDIGITS,
-		 * ROUNDMODE_MEASUREMENTS) .multiply(BigDecimal.valueOf(100)); //
-		 * provideCoverage.setScale(2); processCoverage(pl, "-",
-		 * provideCoverage.setScale(2, ROUNDMODE_MEASUREMENTS),
-		 * weightedCoverage.setScale(2, ROUNDMODE_MEASUREMENTS)); }
-		 */ /*
-			 * else { boolean exemption = ProcessHelper.isSmallPlot(pl); if (!exemption) {
-			 * OccupancyType mostRestrictiveOccupancy = getMostRestrictiveCoverage(
-			 * pl.getVirtualBuilding().getOccupancies()); if (mostRestrictiveOccupancy !=
-			 * null) { switch (mostRestrictiveOccupancy) { case OCCUPANCY_B1: case
-			 * OCCUPANCY_B2: case OCCUPANCY_B3: processCoverage(pl,
-			 * mostRestrictiveOccupancy.getOccupancyTypeVal(), totalCoverage, ThirtyFive);
-			 * break; case OCCUPANCY_D: case OCCUPANCY_D1: case OCCUPANCY_I2:
-			 * processCoverage(pl, mostRestrictiveOccupancy.getOccupancyTypeVal(),
-			 * totalCoverage, Forty); break; case OCCUPANCY_I1: processCoverage(pl,
-			 * mostRestrictiveOccupancy.getOccupancyTypeVal(), totalCoverage, FortyFive);
-			 * break;
-			 * 
-			 * case OCCUPANCY_C: processCoverage(pl,
-			 * mostRestrictiveOccupancy.getOccupancyTypeVal(), totalCoverage, Sixty); break;
-			 * 
-			 * case OCCUPANCY_A1: case OCCUPANCY_A4: case OCCUPANCY_A2: case OCCUPANCY_G1:
-			 * processCoverage(pl, mostRestrictiveOccupancy.getOccupancyTypeVal(),
-			 * totalCoverage, SixtyFive); break; case OCCUPANCY_E: case OCCUPANCY_F: case
-			 * OCCUPANCY_F4: processCoverage(pl,
-			 * mostRestrictiveOccupancy.getOccupancyTypeVal(), totalCoverage, Seventy);
-			 * break;
-			 * 
-			 * case OCCUPANCY_G2: processCoverage(pl,
-			 * mostRestrictiveOccupancy.getOccupancyTypeVal(), totalCoverage, SeventyFive);
-			 * break; case OCCUPANCY_H: processCoverage(pl,
-			 * mostRestrictiveOccupancy.getOccupancyTypeVal(), totalCoverage, Eighty);
-			 * break; default: break; } } } }
-			 */
 		return pl;
 	}
 
-	/*
-	 * private BigDecimal getPermissibleCoverage(OccupancyType type) { switch (type)
-	 * { case OCCUPANCY_B1: case OCCUPANCY_B2: case OCCUPANCY_B3: return ThirtyFive;
-	 * 
-	 * case OCCUPANCY_D: case OCCUPANCY_D1: case OCCUPANCY_I2: return Forty;
-	 * 
-	 * case OCCUPANCY_I1: return FortyFive;
-	 * 
-	 * case OCCUPANCY_C: return Sixty;
-	 * 
-	 * case OCCUPANCY_A1: case OCCUPANCY_A4: case OCCUPANCY_A2: case OCCUPANCY_G1:
-	 * return SixtyFive;
-	 * 
-	 * case OCCUPANCY_E: case OCCUPANCY_F: case OCCUPANCY_F4: return Seventy;
-	 * 
-	 * case OCCUPANCY_G2: return SeventyFive;
-	 * 
-	 * case OCCUPANCY_H: return Eighty; default: return BigDecimal.ZERO; } }
-	 */
 	private void processCoverage(Plan pl, String occupancy, BigDecimal coverage, BigDecimal upperLimit) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Coverage");
@@ -261,7 +186,7 @@ public class Coverage extends FeatureProcess {
 			}
 
 		} else {
-			details.put(PERMISSIBLE,"-");
+			details.put(PERMISSIBLE,DxfFileConstants.NA);
 			details.put(STATUS, Result.Accepted.getResultVal());
 		}
 

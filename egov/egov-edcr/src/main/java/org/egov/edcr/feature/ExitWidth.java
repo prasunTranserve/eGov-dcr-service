@@ -133,7 +133,7 @@ public class ExitWidth extends FeatureProcess {
 							isExistCountAccepted = true;
 						
 						setReportOutputDetailsWithoutOccupancy(pl, SUBRULE_42_3, "Staricase exit width count", floor,
-								countExcepted == 0 ? "-" : countExcepted + "", exitWidthStair.size() + "",
+								countExcepted == 0 ? DxfFileConstants.NA : countExcepted + "", exitWidthStair.size() + "",
 								isExistCountAccepted, scrutinyDetail);
 
 						if (exitWidthStair.size() > 0) {

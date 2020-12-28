@@ -2,6 +2,7 @@ package org.egov.edcr.od;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.egov.common.entity.edcr.Block;
@@ -14,10 +15,10 @@ import org.egov.edcr.constants.NOCConstants;
 
 public class NocAndDocumentsUtill {
 
-	public static void updateNoc(Plan pl) {
+	public static List<String> updateNoc(Plan pl) {
 
 		if (pl == null || pl.getPlanInformation() == null) {
-			return;
+			return Collections.emptyList();
 		}
 
 		List<String> list = new ArrayList<>();
@@ -198,6 +199,8 @@ public class NocAndDocumentsUtill {
 		}
 
 		pl.getPlanInformation().setRequiredNOCs(list);
+		
+		return list;
 
 	}
 

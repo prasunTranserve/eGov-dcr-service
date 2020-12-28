@@ -180,6 +180,7 @@ public class PlanInformation implements Serializable {
     //IS_THE_PLOT_PART_OF_THE_LAYOUT_APPROVED_BY_THE_AUTHORITY_OR_DEVELOPED_AND_ALLOTTED_BY_THE_GOVERNMENT_OR_STATUTORY_BODIES_OR_IS_A_FINAL_PLOT_IN_TOWN_PLANNING_SCHEMES_OR_DEVELOPMENT_SCHEMES
     private String approvedLayoutDeclaration=NA;
     
+    //IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY
     private String buildingUnderHazardousOccupancyCategory=NA;
     
     //PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT = number
@@ -220,6 +221,8 @@ public class PlanInformation implements Serializable {
     private int startRatingForHotel;
     
     private String doesHospitalHaveCriticalCareUnit;
+    
+    private boolean isSecurityDepositRequired;
     
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
@@ -848,6 +851,14 @@ public class PlanInformation implements Serializable {
 
 	public void setDoesHospitalHaveCriticalCareUnit(String doesHospitalHaveCriticalCareUnit) {
 		this.doesHospitalHaveCriticalCareUnit = doesHospitalHaveCriticalCareUnit;
+	}
+
+	public boolean isSecurityDepositRequired() {
+		return isSecurityDepositRequired;
+	}
+
+	public void setSecurityDepositRequired(boolean isSecurityDepositRequired) {
+		this.isSecurityDepositRequired = isSecurityDepositRequired;
 	}
     
 	
