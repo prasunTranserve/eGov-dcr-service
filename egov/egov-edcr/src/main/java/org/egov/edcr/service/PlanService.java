@@ -208,13 +208,13 @@ public class PlanService {
 			pl.addError("PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT", "PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT is invalid in planinfo layer.");
 		}
     	
-    	//TOTAL_NUMBER_OF_DWELLING_UNITS 
-    	try {
-			pl.getPlanInformation().setTotalNoOfDwellingUnits(pl.getPlanInfoProperties().get(DxfFileConstants.TOTAL_NUMBER_OF_DWELLING_UNITS)!=null?new BigDecimal(pl.getPlanInfoProperties().get(DxfFileConstants.TOTAL_NUMBER_OF_DWELLING_UNITS)):BigDecimal.ZERO);
-    	}catch (Exception e) {
-			//For NA
-    		pl.getPlanInformation().setTotalNoOfDwellingUnits(BigDecimal.ZERO);
-		}
+//    	//TOTAL_NUMBER_OF_DWELLING_UNITS 
+//    	try {
+//			pl.getPlanInformation().setTotalNoOfDwellingUnits(pl.getPlanInfoProperties().get(DxfFileConstants.TOTAL_NUMBER_OF_DWELLING_UNITS)!=null?new BigDecimal(pl.getPlanInfoProperties().get(DxfFileConstants.TOTAL_NUMBER_OF_DWELLING_UNITS)):BigDecimal.ZERO);
+//    	}catch (Exception e) {
+//			//For NA
+//    		pl.getPlanInformation().setTotalNoOfDwellingUnits(BigDecimal.ZERO);
+//		}
     	
     	//APPROVED_LAYOUT_DECLARATION
     	String approvedLayoutDeclaration=pl.getPlanInfoProperties().get(APPROVED_LAYOUT_DECLARATION);
@@ -321,6 +321,21 @@ public class PlanService {
     		pl.getPlanInformation().setSecurityDepositRequired(true);
     	else
     		pl.getPlanInformation().setSecurityDepositRequired(false);
+    	
+    	//DISTANCE_OF_DA_PARKING_SPACE_FROM_BUILDING_ENTRANCE
+    	try {
+    		pl.getParkingDetails().setDistFromDAToMainEntrance(new BigDecimal(pl.getPlanInfoProperties().get(DISTANCE_OF_DA_PARKING_SPACE_FROM_BUILDING_ENTRANCE)));
+    	}catch (Exception e) {
+    		pl.getParkingDetails().setDistFromDAToMainEntrance(BigDecimal.ZERO);
+		}
+    	
+    	//TOTAL_PARKING_AREA_IF_PROJECT_HAS_OFF_SITE_PARKING_PROVISION_WITHIN_300_METERS_FROM_PROJECT_SITE
+    	try {
+    		pl.getPlanInformation().setOffSiteParkingprovisionsArea(new BigDecimal(pl.getPlanInfoProperties().get(TOTAL_PARKING_AREA_IF_PROJECT_HAS_OFF_SITE_PARKING_PROVISION_WITHIN_300_METERS_FROM_PROJECT_SITE)));
+    	}catch (Exception e) {
+    		pl.getPlanInformation().setOffSiteParkingprovisionsArea(BigDecimal.ZERO);
+		}
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

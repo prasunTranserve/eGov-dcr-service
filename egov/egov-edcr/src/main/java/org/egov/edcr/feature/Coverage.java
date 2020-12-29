@@ -108,6 +108,7 @@ public class Coverage extends FeatureProcess {
 	@Override
 	public Plan process(Plan pl) {
 		validate(pl);
+		init(pl);
 		BigDecimal totalCoverage = BigDecimal.ZERO;
 		BigDecimal totalCoverageArea = BigDecimal.ZERO;
 
@@ -301,6 +302,10 @@ public class Coverage extends FeatureProcess {
 		}
 		inPercentage = totalPublicOpenSace.divide(pl.getPlot().getArea()).multiply(new BigDecimal("100"));
 		return inPercentage;
+	}
+	
+	private static void init(Plan pl) {
+		OdishaUtill.updateDUnitInPlan(pl);
 	}
 
 	private boolean checkLowRiskBuildingCriteria(Plan pl) {

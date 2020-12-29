@@ -1,10 +1,13 @@
 package org.egov.edcr.od;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.FloorUnit;
 import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
@@ -14,6 +17,12 @@ import org.egov.edcr.constants.DxfFileConstants;
 public class OdishaUtill {
 
 	private static final BigDecimal MINIMUM_NUMBER_OF_OCCUPANTS_OR_USERS_FOR_ASSEMBLY_BUILDING = new BigDecimal("50");
+	private static final int COLOR_EWS=1;
+	private static final int COLOR_LIG=2;
+	private static final int COLOR_MIG1=3;
+	private static final int COLOR_MIG2=4;
+	private static final int COLOR_OTHER=5;
+	private static final int COLOR_ROOM=6;
 
 	public static boolean isAssemblyBuildingCriteria(Plan pl) {
 		boolean isAssemblyBuilding = false;
@@ -253,9 +262,55 @@ public class OdishaUtill {
 		}
 		pl.getPlanInformation().setNumberOfOccupantsOrUsers(totalUserInPlan);
 	}
+	
+	
+	public static void updateDUnitInPlan(Plan pl) {
+		long totalDU=0;
+		for(Block block:pl.getBlocks()) {
+			for(Floor floor:block.getBuilding().getFloors()) {
+				List<FloorUnit> ews=new ArrayList<>();
+				List<FloorUnit> lig=new ArrayList<>();
+				List<FloorUnit> mig1=new ArrayList<>();
+				List<FloorUnit> mig2=new ArrayList<>();
+				List<FloorUnit> other=new ArrayList<>();
+				List<FloorUnit> room=new ArrayList<>();
+				for(FloorUnit floorUnit:floor.getUnits()) {
+					switch (floorUnit.getColorCode()) {
+					case COLOR_EWS:
+						ews.add(floorUnit);
+						totalDU++;
+						break;
+					case COLOR_LIG:
+						lig.add(floorUnit);
+						totalDU++;
+						break;
+					case COLOR_MIG1:
+						mig1.add(floorUnit);
+						totalDU++;
+						break;
+					case COLOR_MIG2:
+						mig2.add(floorUnit);
+						totalDU++;
+						break;
+					case COLOR_OTHER:
+						other.add(floorUnit);
+						totalDU++;
+						break;
+					case COLOR_ROOM:
+						room.add(floorUnit);
+						totalDU++;
+						break;
+					}
+				}
+				floor.setEwsUnit(ews);
+				floor.setLigUnit(lig);
+				floor.setMig1Unit(mig1);
+				floor.setMig2Unit(mig2);
+				floor.setOthersUnit(other);
+				floor.setRoomUnit(room);
+				
+			}
+		}
+		pl.getPlanInformation().setTotalNoOfDwellingUnits(totalDU);
+	}
 }
-
-
-
-
-

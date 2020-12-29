@@ -48,46 +48,46 @@
 package org.egov.common.entity.edcr;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
-/**
- * 
- * @author venki
- *
- */
-public class FarDetails implements Serializable {
+public class OdishaParkingHelper implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3163474996957171493L;
-	
-	private Double permissableFar;
-	private Double providedFar;
-	private Double baseFar;
+    private static final long serialVersionUID = 580L;
+   
+    public BigDecimal eWSOrLigParkingProvided=BigDecimal.ZERO;
+    public BigDecimal mIGParkingProvided=BigDecimal.ZERO;
+    public BigDecimal visitorParkingProvided=BigDecimal.ZERO;
+    public BigDecimal stiltParkingProvided=BigDecimal.ZERO;
+    public BigDecimal basementParkingProvided=BigDecimal.ZERO;
+    public BigDecimal openParkingProvided=BigDecimal.ZERO;
+    public BigDecimal daPARKINGProvided=BigDecimal.ZERO;
+    public BigDecimal daPARKINGWidthProvided=BigDecimal.ZERO;
+    public int daPARKINGCountProvided=0;
+    public BigDecimal twoWheelerParkingProvided=BigDecimal.ZERO;
+    public BigDecimal bicycleParkingProvided=BigDecimal.ZERO;
+    public BigDecimal roofTopParkingProvided=BigDecimal.ZERO;
+    public BigDecimal staffParkingProvided=BigDecimal.ZERO;
+    public BigDecimal totalParkingProvided=BigDecimal.ZERO;
+    public BigDecimal distFromDAToMainEntranceProvided=BigDecimal.ZERO;
+    public BigDecimal offSiteParkingprovisionsProvided=BigDecimal.ZERO;
+    
+    
+    public BigDecimal eWSOrLigParkingRequired=BigDecimal.ZERO;
+    public BigDecimal mIGParkingRequired=BigDecimal.ZERO;
+    public BigDecimal visitorParkingRequired=BigDecimal.ZERO;
+    public BigDecimal stiltParkingRequired=BigDecimal.ZERO;
+    public BigDecimal basementParkingRequired=BigDecimal.ZERO;
+    public BigDecimal openParkingRequired=BigDecimal.ZERO;
+    public BigDecimal daPARKINGRequired=BigDecimal.ZERO;
+    public BigDecimal daPARKINGWidthRequired=BigDecimal.ZERO;
+    public int daPARKINGCountRequired=0;
+    public BigDecimal twoWheelerParkingRequired=BigDecimal.ZERO;
+    public BigDecimal bicycleParkingRequired=BigDecimal.ZERO;
+    public BigDecimal roofTopParkingRequired=BigDecimal.ZERO;
+    public BigDecimal staffParkingRequired=BigDecimal.ZERO;
+    public BigDecimal totalParkingRequired=BigDecimal.ZERO;
+    public BigDecimal distFromDAToMainEntranceRequired=BigDecimal.ZERO;
+    public BigDecimal offSiteParkingprovisionsRequired=BigDecimal.ZERO;
 
-	public Double getPermissableFar() {
-		return permissableFar;
-	}
-
-	public void setPermissableFar(Double permissableFar) {
-		this.permissableFar = permissableFar;
-	}
-
-	public Double getProvidedFar() {
-		return providedFar;
-	}
-
-	public void setProvidedFar(Double providedFar) {
-		this.providedFar = providedFar;
-	}
-
-	public Double getBaseFar() {
-		return baseFar;
-	}
-
-	public void setBaseFar(Double baseFar) {
-		this.baseFar = baseFar;
-	}
-
-	
+    
 }

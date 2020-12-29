@@ -18,17 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class DwellingUnits extends FeatureProcess {
 	
-	private static final int COLOR_EWS=1;
-	private static final int COLOR_LIG=2;
-	private static final int COLOR_MIG1=3;
-	private static final int COLOR_MIG2=4;
-	private static final int COLOR_OTHER=5;
-	private static final int COLOR_ROOM=6;
-	
-
 	@Override
 	public Plan process(Plan pl) {
-		updateDUnitInPlan(pl);
 		
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 
@@ -84,45 +75,7 @@ public class DwellingUnits extends FeatureProcess {
 		return pl;
 	}
 	
-	private void updateDUnitInPlan(Plan pl) {
-		for(Block block:pl.getBlocks()) {
-			for(Floor floor:block.getBuilding().getFloors()) {
-				List<FloorUnit> ews=new ArrayList<>();
-				List<FloorUnit> lig=new ArrayList<>();
-				List<FloorUnit> mig1=new ArrayList<>();
-				List<FloorUnit> mig2=new ArrayList<>();
-				List<FloorUnit> other=new ArrayList<>();
-				List<FloorUnit> room=new ArrayList<>();
-				for(FloorUnit floorUnit:floor.getUnits()) {
-					switch (floorUnit.getColorCode()) {
-					case COLOR_EWS:
-						ews.add(floorUnit);
-						break;
-					case COLOR_LIG:
-						lig.add(floorUnit);
-						break;
-					case COLOR_MIG1:
-						mig1.add(floorUnit);
-						break;
-					case COLOR_MIG2:
-						mig2.add(floorUnit);
-						break;
-					case COLOR_OTHER:
-						other.add(floorUnit);
-						break;
-					case COLOR_ROOM:
-						room.add(floorUnit);
-					}
-				}
-				floor.setEwsUnit(ews);
-				floor.setLigUnit(lig);
-				floor.setMig1Unit(mig1);
-				floor.setMig2Unit(mig2);
-				floor.setOthersUnit(other);
-				floor.setRoomUnit(room);
-			}
-		}
-	}
+	
 
 	@Override
 	public Map<String, Date> getAmendments() {

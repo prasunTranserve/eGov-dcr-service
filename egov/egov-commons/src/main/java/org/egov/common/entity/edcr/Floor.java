@@ -99,7 +99,7 @@ public class Floor extends Measurement {
 
 	private List<Measurement> constructedAreas = new ArrayList<>();
 
-	private Boolean isStiltFloor = false;
+	private boolean isStiltFloor = false;
 
 	private BigDecimal totalStiltArea=BigDecimal.ZERO;
 
@@ -595,11 +595,11 @@ public class Floor extends Measurement {
 		this.constructedAreas = constructedAreas;
 	}
 
-	public Boolean getIsStiltFloor() {
+	public boolean getIsStiltFloor() {
 		return isStiltFloor;
 	}
 
-	public void setIsStiltFloor(Boolean isStiltFloor) {
+	public void setIsStiltFloor(boolean isStiltFloor) {
 		this.isStiltFloor = isStiltFloor;
 	}
 

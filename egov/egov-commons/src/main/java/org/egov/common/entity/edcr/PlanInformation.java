@@ -188,7 +188,7 @@ public class PlanInformation implements Serializable {
     
     private boolean isShelterFeeRequired;
     
-    private BigDecimal totalNoOfDwellingUnits;
+    private long totalNoOfDwellingUnits;
     
     //DOES_THE_PROJECT_REQUIRE_NOC_FROM_AAI_AS_PER_THE_COLOUR_CODED_ZONE_MAPS
     private String nocFromAAI;
@@ -223,6 +223,8 @@ public class PlanInformation implements Serializable {
     private String doesHospitalHaveCriticalCareUnit;
     
     private boolean isSecurityDepositRequired;
+    
+    private BigDecimal offSiteParkingprovisionsArea=BigDecimal.ZERO;
     
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
@@ -739,11 +741,11 @@ public class PlanInformation implements Serializable {
 		this.isShelterFeeRequired = isShelterFeeRequired;
 	}
 
-	public BigDecimal getTotalNoOfDwellingUnits() {
+	public long getTotalNoOfDwellingUnits() {
 		return totalNoOfDwellingUnits;
 	}
 
-	public void setTotalNoOfDwellingUnits(BigDecimal totalNoOfDwellingUnits) {
+	public void setTotalNoOfDwellingUnits(long totalNoOfDwellingUnits) {
 		this.totalNoOfDwellingUnits = totalNoOfDwellingUnits;
 	}
 
@@ -859,6 +861,14 @@ public class PlanInformation implements Serializable {
 
 	public void setSecurityDepositRequired(boolean isSecurityDepositRequired) {
 		this.isSecurityDepositRequired = isSecurityDepositRequired;
+	}
+
+	public BigDecimal getOffSiteParkingprovisionsArea() {
+		return offSiteParkingprovisionsArea;
+	}
+
+	public void setOffSiteParkingprovisionsArea(BigDecimal offSiteParkingprovisionsArea) {
+		this.offSiteParkingprovisionsArea = offSiteParkingprovisionsArea;
 	}
     
 	
