@@ -503,10 +503,10 @@ public class OdissaSetBackService extends FeatureProcess {
 	private void validateMinFrontSetBack(SetBackData data, ScrutinyDetail scrutinyDetail) {
 		if (data.minFrontProvided.compareTo(data.minFrontExpected) >= 0)
 			setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
-					data.minFrontProvided.toString(), Result.Accepted.toString(), scrutinyDetail);
+					data.minFrontProvided.toString(), Result.Accepted, scrutinyDetail);
 		else
 			setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
-					data.minFrontProvided.toString(), Result.Not_Accepted.toString(), scrutinyDetail);
+					data.minFrontProvided.toString(), Result.Not_Accepted, scrutinyDetail);
 
 	}
 
@@ -517,10 +517,10 @@ public class OdissaSetBackService extends FeatureProcess {
 
 		if (data.minRearProvided.compareTo(data.minRearExpected) >= 0)
 			setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected, data.minRearProvided.toString(),
-					Result.Accepted.toString(), scrutinyDetail);
+					Result.Accepted, scrutinyDetail);
 		else
 			setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected, data.minRearProvided.toString(),
-					Result.Not_Accepted.toString(), scrutinyDetail);
+					Result.Not_Accepted, scrutinyDetail);
 
 	}
 
@@ -530,10 +530,10 @@ public class OdissaSetBackService extends FeatureProcess {
 			expected = data.minSide1Expected.toString();
 		if (data.minSide1Provided.compareTo(data.minSide1Expected) >= 0)
 			setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected, data.minSide1Provided.toString(),
-					Result.Accepted.toString(), scrutinyDetail);
+					Result.Accepted, scrutinyDetail);
 		else
 			setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected, data.minSide1Provided.toString(),
-					Result.Not_Accepted.toString(), scrutinyDetail);
+					Result.Not_Accepted, scrutinyDetail);
 
 	}
 
@@ -543,10 +543,10 @@ public class OdissaSetBackService extends FeatureProcess {
 			expected = data.minSide2Expected.toString();
 		if (data.minSide2Provided.compareTo(data.minSide2Expected) >= 0)
 			setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected, data.minSide2Provided.toString(),
-					Result.Accepted.toString(), scrutinyDetail);
+					Result.Accepted, scrutinyDetail);
 		else
 			setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected, data.minSide2Provided.toString(),
-					Result.Not_Accepted.toString(), scrutinyDetail);
+					Result.Not_Accepted, scrutinyDetail);
 
 	}
 
@@ -556,10 +556,10 @@ public class OdissaSetBackService extends FeatureProcess {
 			expected = data.totalCumulativeFrontAndRearExpected.toString();
 		if (data.totalCumulativeFrontAndRearProvided.compareTo(data.totalCumulativeFrontAndRearExpected) >= 0)
 			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
-					data.totalCumulativeFrontAndRearProvided.toString(), Result.Accepted.toString(), scrutinyDetail);
+					data.totalCumulativeFrontAndRearProvided.toString(), Result.Accepted, scrutinyDetail);
 		else
 			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
-					data.totalCumulativeFrontAndRearProvided.toString(), Result.Not_Accepted.toString(),
+					data.totalCumulativeFrontAndRearProvided.toString(), Result.Not_Accepted,
 					scrutinyDetail);
 
 	}
@@ -570,22 +570,22 @@ public class OdissaSetBackService extends FeatureProcess {
 			expected = data.totalCumulativeSideExpected.toString();
 		if (data.totalCumulativeSideProvided.compareTo(data.totalCumulativeSideExpected) >= 0)
 			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
-					data.totalCumulativeSideProvided.toString(), Result.Accepted.toString(), scrutinyDetail);
+					data.totalCumulativeSideProvided.toString(), Result.Accepted, scrutinyDetail);
 		else
 			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
-					data.totalCumulativeSideProvided.toString(), Result.Not_Accepted.toString(), scrutinyDetail);
+					data.totalCumulativeSideProvided.toString(), Result.Not_Accepted, scrutinyDetail);
 
 	}
 
 	private void setReport(String ruleNo, String description, String level, String expected, String provided,
-			String result, ScrutinyDetail scrutinyDetail) {
+			Result result, ScrutinyDetail scrutinyDetail) {
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, ruleNo);
 		details.put(DESCRIPTION, description);
 		// details.put(LEVEL, level);
 		details.put(PERMISSIBLE, expected);
 		details.put(PROVIDED, provided);
-		details.put(STATUS, result);
+		details.put(STATUS, result.getResultVal());
 		scrutinyDetail.getDetail().add(details);
 	}
 
