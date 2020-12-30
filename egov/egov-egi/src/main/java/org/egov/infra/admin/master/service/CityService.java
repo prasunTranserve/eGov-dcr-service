@@ -225,8 +225,8 @@ public class CityService {
 		return format(CITY_LOGO_CACHE_KEY, getTenantID());
 	}
 
-	@Value("${ulb.logo.active}")
-	private boolean ulbLogoActive;
+//	@Value("${ulb.logo.active}")
+//	private boolean ulbLogoActive;
 
 	@Value("${ulb.logo.uri}")
 	private String ulbLogoURI;
@@ -236,12 +236,12 @@ public class CityService {
 		String code = "Cuttack";
 		if (tenantId.contains(".")) {
 			code = tenantId.replace("od.", "");
-		}else {
-			code=tenantId;
+		} else {
+			code = tenantId;
 		}
-		if (ulbLogoActive) {
-			uri = uri.replace("ULB", code);
-		}
+
+		uri = uri.replace("ULB", code);
+
 		return uri;
 	}
 }
