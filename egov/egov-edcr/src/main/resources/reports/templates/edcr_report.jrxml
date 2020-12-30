@@ -942,7 +942,7 @@
 					<font size="10"/>
 					<paragraph leftIndent="3"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Is the project located within  200 meters distance of the Centrally Protected Monument ?"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Is the project located within  300 meters distance of the Centrally Protected Monument ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="371" y="435" width="177" height="30" uuid="148c27fd-a793-4703-930b-7adfcd5bb119"/>
@@ -987,7 +987,7 @@
 					<font size="10"/>
 					<paragraph leftIndent="3"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Is the project located within 200 meters distance of the State Protected Monument ?"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Is the project located within 300 meters distance of the State Protected Monument ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="371" y="465" width="177" height="30" uuid="66850446-2663-4002-a8b3-9f2c0bcdf981"/>
