@@ -142,6 +142,10 @@ public class Far extends FeatureProcess {
 		}
 		return pl;
 	}
+	
+	private void updatePlan(Plan pl) {
+		
+	}
 
 	@Override
 	public Plan process(Plan pl) {
@@ -658,12 +662,16 @@ public class Far extends FeatureProcess {
 
 	private void validate2(Plan pl, Block blk, Floor flr, Occupancy occupancy) {
 		String occupancyTypeHelper = StringUtils.EMPTY;
+		String occupancySubTypeHelperCode= StringUtils.EMPTY;
 		if (occupancy.getTypeHelper() != null) {
 			if (occupancy.getTypeHelper().getType() != null) {
 				occupancyTypeHelper = occupancy.getTypeHelper().getType().getName();
 			} else if (occupancy.getTypeHelper().getSubtype() != null) {
 				occupancyTypeHelper = occupancy.getTypeHelper().getSubtype().getName();
 			}
+			
+			if(occupancy.getTypeHelper().getSubtype() != null)
+				occupancySubTypeHelperCode=occupancy.getTypeHelper().getSubtype().getCode();
 		}
 
 		if (occupancy.getBuiltUpArea() != null && occupancy.getBuiltUpArea().compareTo(BigDecimal.valueOf(0)) < 0) {
@@ -677,7 +685,7 @@ public class Far extends FeatureProcess {
 							flr.getNumber().toString(), occupancyTypeHelper));
 		}
 
-		if(flr.getNumber()>=0) {
+		if(flr.getNumber()>=0 && !DxfFileConstants.EWS.equals(occupancySubTypeHelperCode)) {
 			if (flr.getIsStiltFloor() || flr.getIsServiceFloor())
 				occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
 						.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction())
