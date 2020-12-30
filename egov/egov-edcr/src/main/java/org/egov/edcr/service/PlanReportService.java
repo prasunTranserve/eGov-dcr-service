@@ -663,7 +663,8 @@ public class PlanReportService {
         String imageURL = ReportUtil.getImageURL("/egi/resources/global/images/digit-logo-black.png");
         valuesMap.put("egovLogo", imageURL);
       //  valuesMap.put("cityLogo", cityService.getCityLogoURLByCurrentTenant());
-        valuesMap.put("cityLogo", "https://digitaldesksujog051120.blob.core.windows.net/assets/Logos/Cuttack.jpg");
+      //  valuesMap.put("cityLogo", "https://digitaldesksujog051120.blob.core.windows.net/assets/Logos/Cuttack.jpg");
+        valuesMap.put("cityLogo", cityService.getCityLogoURLNew(dcrApplication.getThirdPartyUserTenant()));
 
         if (clientSpecificSubReport) {
 
