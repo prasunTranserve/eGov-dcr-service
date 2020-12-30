@@ -77,55 +77,55 @@ public class FireTenderMovement extends FeatureProcess {
 
     @Override
     public Plan process(Plan plan) {
-        HashMap<String, String> errors = new HashMap<>();
-
-        for (Block block : plan.getBlocks()) {
-
-            ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-            scrutinyDetail.addColumnHeading(1, RULE_NO);
-            scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-            scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
-            scrutinyDetail.addColumnHeading(4, PROVIDED);
-            scrutinyDetail.addColumnHeading(5, STATUS);
-            scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Fire Tender Movement");
-
-            if (block.getBuilding() != null
-                    && block.getBuilding().getBuildingHeight().setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
-                            DcrConstants.ROUNDMODE_MEASUREMENTS).compareTo(FIFTEEN) > 0) {
-                org.egov.common.entity.edcr.FireTenderMovement fireTenderMovement = block.getFireTenderMovement();
-                if (fireTenderMovement != null) {
-                    List<BigDecimal> widths = fireTenderMovement.getFireTenderMovements().stream()
-                            .map(fireTenderMovmnt -> fireTenderMovmnt.getWidth()).collect(Collectors.toList());
-                    BigDecimal minWidth = widths.stream().reduce(BigDecimal::min).get();
-                    BigDecimal providedWidth = minWidth.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
-                            DcrConstants.ROUNDMODE_MEASUREMENTS);
-                    Boolean isAccepted = providedWidth.compareTo(THREE_POINTSIXSIX) >= 0;
-
-                    Map<String, String> details = new HashMap<>();
-                    details.put(RULE_NO, RULE_36_3);
-                    details.put(DESCRIPTION, "Width of fire tender movement");
-                    details.put(PERMISSIBLE, ">= " + THREE_POINTSIXSIX.toString());
-                    details.put(PROVIDED, providedWidth.toString());
-                    details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
-                    scrutinyDetail.getDetail().add(details);
-                    plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-
-                    if (!fireTenderMovement.getErrors().isEmpty()) {
-                        StringBuffer yardNames = new StringBuffer();
-
-                        for (String yardName : fireTenderMovement.getErrors()) {
-                            yardNames = yardNames.append(yardName).append(", ");
-                        }
-                        errors.put("FTM_SETBACK", "Fire tender movement for block " + block.getNumber() + " is not inside "
-                                + yardNames.toString().substring(0, yardNames.length() - 2) + ".");
-                        plan.addErrors(errors);
-                    }
-                } else {
-                    errors.put("BLK_FTM_" + block.getNumber(), "Fire tender movement not defined for Block " + block.getNumber());
-                    plan.addErrors(errors);
-                }
-            }
-        }
+//        HashMap<String, String> errors = new HashMap<>();
+//
+//        for (Block block : plan.getBlocks()) {
+//
+//            ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+//            scrutinyDetail.addColumnHeading(1, RULE_NO);
+//            scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+//            scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
+//            scrutinyDetail.addColumnHeading(4, PROVIDED);
+//            scrutinyDetail.addColumnHeading(5, STATUS);
+//            scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Fire Tender Movement");
+//
+//            if (block.getBuilding() != null
+//                    && block.getBuilding().getBuildingHeight().setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+//                            DcrConstants.ROUNDMODE_MEASUREMENTS).compareTo(FIFTEEN) > 0) {
+//                org.egov.common.entity.edcr.FireTenderMovement fireTenderMovement = block.getFireTenderMovement();
+//                if (fireTenderMovement != null) {
+//                    List<BigDecimal> widths = fireTenderMovement.getFireTenderMovements().stream()
+//                            .map(fireTenderMovmnt -> fireTenderMovmnt.getWidth()).collect(Collectors.toList());
+//                    BigDecimal minWidth = widths.stream().reduce(BigDecimal::min).get();
+//                    BigDecimal providedWidth = minWidth.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+//                            DcrConstants.ROUNDMODE_MEASUREMENTS);
+//                    Boolean isAccepted = providedWidth.compareTo(THREE_POINTSIXSIX) >= 0;
+//
+//                    Map<String, String> details = new HashMap<>();
+//                    details.put(RULE_NO, RULE_36_3);
+//                    details.put(DESCRIPTION, "Width of fire tender movement");
+//                    details.put(PERMISSIBLE, ">= " + THREE_POINTSIXSIX.toString());
+//                    details.put(PROVIDED, providedWidth.toString());
+//                    details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+//                    scrutinyDetail.getDetail().add(details);
+//                    plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//
+//                    if (!fireTenderMovement.getErrors().isEmpty()) {
+//                        StringBuffer yardNames = new StringBuffer();
+//
+//                        for (String yardName : fireTenderMovement.getErrors()) {
+//                            yardNames = yardNames.append(yardName).append(", ");
+//                        }
+//                        errors.put("FTM_SETBACK", "Fire tender movement for block " + block.getNumber() + " is not inside "
+//                                + yardNames.toString().substring(0, yardNames.length() - 2) + ".");
+//                        plan.addErrors(errors);
+//                    }
+//                } else {
+//                    errors.put("BLK_FTM_" + block.getNumber(), "Fire tender movement not defined for Block " + block.getNumber());
+//                    plan.addErrors(errors);
+//                }
+//            }
+//        }
 
         return plan;
     }

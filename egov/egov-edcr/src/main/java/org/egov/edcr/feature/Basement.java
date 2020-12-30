@@ -228,7 +228,7 @@ public class Basement extends FeatureProcess {
 								minRequired = new BigDecimal("0.9");
 							}
 
-							if (minLength.compareTo(minRequired) >= 0 && minLength.compareTo(maxRequired) < 0) {
+							if (minLength.compareTo(minRequired) >= 0 && minLength.compareTo(maxRequired) <= 0) {
 								details = new HashMap<>();
 								details.put(RULE_NO, RULE_46_6C);
 								details.put(DESCRIPTION, BASEMENT_DESCRIPTION_TWO);
