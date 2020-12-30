@@ -45,7 +45,9 @@ public class GeneralStair extends FeatureProcess {
 	public Plan validate(Plan plan) {
 		OccupancyTypeHelper occupancyTypeHelper = plan.getVirtualBuilding().getMostRestrictiveFarHelper();
 		for (Block block : plan.getBlocks()) {
-			int requiredGenralStairPerFloor = 1 + requiredGenralStairPerFloor(plan, block);
+			int requiredGenralStairPerFloor =requiredGenralStairPerFloor(plan, block);
+			if(block.getBuilding().getFloors().size()>1)
+				requiredGenralStairPerFloor = 1 +requiredGenralStairPerFloor;
 			for (Floor floor : block.getBuilding().getFloors()) {
 				boolean flageForStair2=false;
 				

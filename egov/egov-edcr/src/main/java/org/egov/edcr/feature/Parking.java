@@ -725,7 +725,7 @@ public class Parking extends FeatureProcess {
 		String required = DxfFileConstants.NA;
 		if (helper.staffParkingRequired.compareTo(BigDecimal.ZERO) > 0)
 			required = helper.staffParkingRequired.toString();
-		if (helper.staffParkingProvided.compareTo(helper.staffParkingRequired) >= 0)
+		if (helper.staffParkingProvided.compareTo(helper.staffParkingRequired) <= 0)
 			setReport(SUB_RULE_40, STAFF_PARKING_DESC, required, helper.staffParkingProvided.toString(),
 					Result.Accepted, scrutinyDetail);
 		else
