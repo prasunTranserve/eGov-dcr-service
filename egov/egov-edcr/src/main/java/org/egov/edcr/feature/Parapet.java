@@ -84,7 +84,7 @@ public class Parapet extends FeatureProcess {
 	@Override
 	public Plan process(Plan pl) {
 		prepareParapet(pl);
-		//validateGenrailStairParapet(pl);
+		validateGenrailStairParapet(pl);
 		validateDaRamParapet(pl);
 		validateParapet(pl);
 		return pl;
@@ -109,7 +109,7 @@ public class Parapet extends FeatureProcess {
 			if (b.getGenralParapets() != null && !b.getGenralParapets().isEmpty()) {
 				minHeight = b.getGenralParapets().stream().reduce(BigDecimal::min).get();
 
-				if (minHeight.compareTo(new BigDecimal(1)) >= 0) {
+				if (minHeight.compareTo(new BigDecimal("1")) >= 0) {
 
 					details.put(REQUIRED, "Height >= 1");
 					details.put(PROVIDED, "Height >= " + minHeight);
@@ -139,7 +139,7 @@ public class Parapet extends FeatureProcess {
 		scrutinyDetail.addColumnHeading(5, STATUS);
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, RULE_41_V);
-		details.put(DESCRIPTION, PARAPET_DESCRIPTION);
+		details.put(DESCRIPTION, "DA Ramp Railing");
 
 		BigDecimal minHeight = BigDecimal.ZERO;
 
@@ -147,7 +147,7 @@ public class Parapet extends FeatureProcess {
 			if (b.getdARailingParapets() != null && !b.getdARailingParapets().isEmpty()) {
 				minHeight = b.getdARailingParapets().stream().reduce(BigDecimal::min).get();
 
-				if (minHeight.compareTo(new BigDecimal(0.8)) == 0) {
+				if (minHeight.compareTo(new BigDecimal("0.8")) == 0) {
 
 					details.put(REQUIRED, "Height = 0.8");
 					details.put(PROVIDED, "Height = " + minHeight);
@@ -177,7 +177,7 @@ public class Parapet extends FeatureProcess {
 			scrutinyDetail.addColumnHeading(5, STATUS);
 			Map<String, String> details = new HashMap<>();
 			details.put(RULE_NO, RULE_41_V);
-			details.put(DESCRIPTION, PARAPET_DESCRIPTION);
+			details.put(DESCRIPTION, "Genral Stair Railling");
 
 			BigDecimal minHeight = BigDecimal.ZERO;
 
@@ -187,7 +187,7 @@ public class Parapet extends FeatureProcess {
 				} catch (Exception e) {
 				}
 
-				if (minHeight.compareTo(new BigDecimal(0.9)) >= 0) {
+				if (minHeight.compareTo(new BigDecimal("0.9")) >= 0) {
 					details.put(REQUIRED, "Height >= 0.9");
 					details.put(PROVIDED, "Height >= " + minHeight);
 					details.put(STATUS, Result.Accepted.getResultVal());
