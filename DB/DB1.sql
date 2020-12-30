@@ -23,3 +23,6 @@ INSERT INTO generic.egdcr_sub_feature_colorcode (id,feature,subfeature,colorcode
 INSERT INTO generic.egdcr_sub_feature_colorcode (id,feature,subfeature,colorcode,ordernumber) VALUES
 	 (64,'HeightOfRoom','Service Room',29,7);
 	
+
+-- Passage layername changed
+update state.egdcr_layername  set value = 'PASSAGE_DOUBLELOADED' where "key" ='LAYER_NAME_PASSAGE_STAIR'

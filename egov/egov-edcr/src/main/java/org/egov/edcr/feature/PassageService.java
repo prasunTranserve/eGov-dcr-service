@@ -55,10 +55,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
-import org.egov.edcr.utility.Util;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.springframework.stereotype.Service;
 
 
@@ -67,8 +68,9 @@ public class PassageService extends FeatureProcess {
 		private static final String RULE41 = "41";
 		private static final String RULE39_6 = "39(6)";
 		private static final String PASSAGE_STAIR_MINIMUM_WIDTH = "1.2";
-		private static final String RULE39_6_DESCRIPTION = "The minimum passage giving access to stair";
-		private static final String RULE_41_DESCRIPTION = "The minimum width of corridors/ verandhas";
+		private static final String RULE39_6_DESCRIPTION = "The minimum width of Passage";
+		private static final String RULE_41_DESCRIPTION = "The minimum width of Passage";
+		private static final String RULE_42_DESCRIPTION = "The minimum height of Passage";
 		
 	@Override
 	public Plan validate(Plan plan) {
@@ -77,6 +79,7 @@ public class PassageService extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan plan) {
+		OccupancyTypeHelper typeHelper=plan.getVirtualBuilding().getMostRestrictiveFarHelper();
 		for (Block block : plan.getBlocks()) {
 			if (block.getBuilding() != null) {
 
@@ -85,54 +88,90 @@ public class PassageService extends FeatureProcess {
 				scrutinyDetail.addColumnHeading(2, REQUIRED);
 				scrutinyDetail.addColumnHeading(3, PROVIDED);
 				scrutinyDetail.addColumnHeading(4, STATUS);
-				scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Passage");
+				scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Minimum Passage Width");
 
 				ScrutinyDetail scrutinyDetail1 = new ScrutinyDetail();
 				scrutinyDetail1.addColumnHeading(1, RULE_NO);
 				scrutinyDetail1.addColumnHeading(2, REQUIRED);
 				scrutinyDetail1.addColumnHeading(3, PROVIDED);
 				scrutinyDetail1.addColumnHeading(4, STATUS);
-				scrutinyDetail1.setKey("Block_" + block.getNumber() + "_" + "Passage Stair");
+				scrutinyDetail1.setKey("Block_" + block.getNumber() + "_" + "Minimum Passage Width (Double Loaded)");
+				
+				
+				ScrutinyDetail scrutinyDetail2 = new ScrutinyDetail();
+				scrutinyDetail2.addColumnHeading(1, RULE_NO);
+				scrutinyDetail2.addColumnHeading(2, REQUIRED);
+				scrutinyDetail2.addColumnHeading(3, PROVIDED);
+				scrutinyDetail2.addColumnHeading(4, STATUS);
+				scrutinyDetail2.setKey("Block_" + block.getNumber() + "_" + "Minimum Passage Height");
 
 				org.egov.common.entity.edcr.Passage passage = block.getBuilding().getPassage();
 
 				if (passage != null) {
 
-					List<BigDecimal> passagePolylines = passage.getPassageDimensions();
-					List<BigDecimal> passageStairPolylines = passage.getPassageStairDimensions();
+					
+					List<BigDecimal> passageWidths=passage.getPassageDimensions();
 
-					if (passagePolylines != null && passagePolylines.size() > 0) {
+					if (passageWidths != null && passageWidths.size() > 0) {
 
 						BigDecimal minPassagePolyLine = 
-						passagePolylines.stream().reduce(BigDecimal::min).get();
+								passageWidths.stream().reduce(BigDecimal::min).get();
 
-						BigDecimal minWidth = Util.roundOffTwoDecimal(minPassagePolyLine);
+						BigDecimal minWidth =minPassagePolyLine;
+						BigDecimal expectedWidth=BigDecimal.ZERO;
+						if(DxfFileConstants.OC_RESIDENTIAL.equals(typeHelper.getType().getCode()))
+							expectedWidth=new BigDecimal("1");
+						else
+							expectedWidth=new BigDecimal("1.5");
 						
-						if (minWidth.compareTo(BigDecimal.ONE) >= 0) {
-							setReportOutputDetails(plan, RULE41, RULE_41_DESCRIPTION,
-									String.valueOf(1), String.valueOf(minWidth), Result.Accepted.getResultVal(),
+						if (minWidth.compareTo(expectedWidth) >= 0) {
+							setReportOutputDetails(plan, RULE39_6, RULE_41_DESCRIPTION,
+									expectedWidth.toString(), minWidth.toString(), Result.Accepted.getResultVal(),
 									scrutinyDetail);
 						} else {
-							setReportOutputDetails(plan, RULE41, RULE_41_DESCRIPTION,
-									String.valueOf(1), String.valueOf(minWidth), Result.Not_Accepted.getResultVal(),
+							setReportOutputDetails(plan, RULE39_6, RULE_41_DESCRIPTION,
+									expectedWidth.toString(), minWidth.toString(), Result.Not_Accepted.getResultVal(),
 									scrutinyDetail);
 						}
 					}
+					
+					List<BigDecimal> passageDoubleLoadedWidth=passage.getPassageStairDimensions();
 
-					if (passageStairPolylines != null && passageStairPolylines.size() > 0) {
+					if (passageDoubleLoadedWidth != null && passageDoubleLoadedWidth.size() > 0) {
 
-						BigDecimal minPassageStairPolyLine = passageStairPolylines.stream().reduce(BigDecimal::min).get();;
+						BigDecimal minPassageStairPolyLine = passageDoubleLoadedWidth.stream().reduce(BigDecimal::min).get();
 
-						BigDecimal minWidth = Util.roundOffTwoDecimal(minPassageStairPolyLine);
+						BigDecimal minWidth =minPassageStairPolyLine;
+						BigDecimal expectedMinWidth=new BigDecimal("1.8");
 						
-						if (minWidth.compareTo(Util.roundOffTwoDecimal(BigDecimal.valueOf(1.2))) >= 0) {
+						if (minWidth.compareTo(expectedMinWidth) >= 0) {
 							setReportOutputDetails(plan, RULE39_6, RULE39_6_DESCRIPTION,
-									PASSAGE_STAIR_MINIMUM_WIDTH, String.valueOf(minWidth), Result.Accepted.getResultVal(),
+									expectedMinWidth.toString(), minWidth.toString(), Result.Accepted.getResultVal(),
 									scrutinyDetail1);
 						} else {
 							setReportOutputDetails(plan, RULE39_6, RULE39_6_DESCRIPTION,
-									PASSAGE_STAIR_MINIMUM_WIDTH, String.valueOf(minWidth), Result.Not_Accepted.getResultVal(),
+									expectedMinWidth.toString(), minWidth.toString(), Result.Not_Accepted.getResultVal(),
 									scrutinyDetail1);
+						}
+					}
+					
+					List<BigDecimal> passageHeights=passage.getPassageHeight();
+					if (passageHeights != null && passageHeights.size() > 0) {
+
+						BigDecimal minPassageHegightPolyLine = passageHeights.stream().reduce(BigDecimal::min).get();
+
+						BigDecimal minHeight =minPassageHegightPolyLine;
+						BigDecimal expectedMinHeight=new BigDecimal("2.4");
+						
+						
+						if (minHeight.compareTo(expectedMinHeight) >= 0) {
+							setReportOutputDetails(plan, RULE39_6, RULE_42_DESCRIPTION,
+									expectedMinHeight.toString(), minHeight.toString(), Result.Accepted.getResultVal(),
+									scrutinyDetail2);
+						} else {
+							setReportOutputDetails(plan, RULE39_6, RULE_42_DESCRIPTION,
+									expectedMinHeight.toString(), minHeight.toString(), Result.Not_Accepted.getResultVal(),
+									scrutinyDetail2);
 						}
 					}
 
