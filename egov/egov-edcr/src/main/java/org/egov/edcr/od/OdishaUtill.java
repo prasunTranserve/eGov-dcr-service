@@ -12,6 +12,7 @@ import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Room;
+import org.egov.common.entity.edcr.RoomHeight;
 import org.egov.edcr.constants.DxfFileConstants;
 
 public class OdishaUtill {
@@ -213,9 +214,15 @@ public class OdishaUtill {
 				if (heightOfRoomFeaturesColor.get(color) == measurement.getColorCode()) {
 					isStiltFloor = true;
 					totalStilledArea=totalStilledArea.add(measurement.getArea());
-					flrHeight=measurement.getHeight();
 				}
 			}
+			for(RoomHeight roomHeight:room.getHeights()) {
+				if(heightOfRoomFeaturesColor.get(color) == roomHeight.getColorCode()) {
+					if(flrHeight.compareTo(roomHeight.getHeight())<0)
+						flrHeight=roomHeight.getHeight();
+				}
+			}
+			
 			if (isStiltFloor && f.getNumber() < 0) {
 				pl.addError("STILT_FLOOR", "Stilt Floor can not be in besment.");
 			}
@@ -229,7 +236,7 @@ public class OdishaUtill {
 				if(flrHeight.compareTo(new BigDecimal("2.4")) == 0)
 					b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(new BigDecimal("2.4")));;
 			}else {
-				b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(f.getHeight()));;
+				b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(f.getHeight()));
 			}
 		}
 
@@ -238,6 +245,18 @@ public class OdishaUtill {
 		f.setTotalStiltArea(totalStilledArea);
 		flrHeight=roundUp(flrHeight);
 		f.setStiltFloorHeight(flrHeight);
+	}
+	
+	public static void validateHeightOfTheCeilingOfUpperBasementDeduction(Plan pl,Block b,Floor f) {
+		if (f != null && f.getNumber() == -1) {
+			BigDecimal maxLength=BigDecimal.ZERO;
+			try {
+				maxLength = f.getHeightOfTheCeilingOfUpperBasement().stream().reduce(BigDecimal::max).get();
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
+			b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(maxLength));;
+		}
 	}
 	
 	public static BigDecimal roundUp(BigDecimal number) {

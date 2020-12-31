@@ -57,6 +57,8 @@ public class DcrReportBlockDetail {
     private BigDecimal coverageArea;
 
     private BigDecimal buildingHeight;
+    
+    private BigDecimal declaredBuildingHeight;
 
     private List<DcrReportFloorDetail> dcrReportFloorDetails;
 
@@ -101,5 +103,16 @@ public class DcrReportBlockDetail {
     public void setConstructedArea(BigDecimal constructedArea) {
         this.constructedArea = constructedArea;
     }
+
+	public BigDecimal getDeclaredBuildingHeight() {
+		return declaredBuildingHeight;
+	}
+
+	public void setDeclaredBuildingHeight(BigDecimal declaredBuildingHeight) {
+		this.declaredBuildingHeight = declaredBuildingHeight;
+	}
+    
+	
+    
     
 }

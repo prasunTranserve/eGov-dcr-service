@@ -112,13 +112,14 @@ public class BuildingHeight extends FeatureProcess {
 
 			exptectedDistance = getMaxBulHeight(plan);
 			actualDistance = block.getBuilding().getBuildingHeight();
-
+			actualDistance=actualDistance.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,DcrConstants.ROUNDMODE_MEASUREMENTS);
+			
 			String actualResult = actualDistance.toString();
 			String expectedResult = DxfFileConstants.NA;
 
 			if (exptectedDistance.compareTo(BigDecimal.ZERO) > 0)
 				expectedResult = exptectedDistance.toString();
-			;
+			
 
 			if (actualDistance.compareTo(exptectedDistance) >= 0) {
 				Map<String, String> details = new HashMap<>();

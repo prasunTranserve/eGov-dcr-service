@@ -218,43 +218,67 @@ public class Parking extends FeatureProcess {
 			}
 		}
 
-		helper.visitorParkingProvided = pl.getParkingDetails().getVisitors().stream().map(Measurement::getArea)
-				.reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, BigDecimal.ROUND_HALF_UP);
-		// totalParking=totalParking.add(helper.visitorParkingProvided);
+		try {
+			helper.visitorParkingProvided = pl.getParkingDetails().getVisitors().stream().map(Measurement::getArea)
+					.reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, BigDecimal.ROUND_HALF_UP);
+			// totalParking=totalParking.add(helper.visitorParkingProvided);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 
-		helper.openParkingProvided = pl.getParkingDetails().getOpenCars().stream().map(Measurement::getArea)
-				.reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, BigDecimal.ROUND_HALF_UP);
-		totalParking = totalParking.add(helper.openParkingProvided);
+		try {
+			helper.openParkingProvided = pl.getParkingDetails().getOpenCars().stream().map(Measurement::getArea)
+					.reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, BigDecimal.ROUND_HALF_UP);
+			totalParking = totalParking.add(helper.openParkingProvided);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 
 		BigDecimal coverParkingArea = BigDecimal.ZERO;
 		for (Block block : pl.getBlocks()) {
 			for (Floor floor : block.getBuilding().getFloors()) {
-				coverParkingArea = coverParkingArea.add(floor.getParking().getCoverCars().stream()
-						.map(Measurement::getArea).reduce(BigDecimal.ZERO, BigDecimal::add));
-				helper.basementParkingProvided = helper.basementParkingProvided.add(floor.getParking().getBasementCars()
-						.stream().map(Measurement::getArea).reduce(BigDecimal.ZERO, BigDecimal::add))
-						.setScale(2, BigDecimal.ROUND_HALF_UP);
+				try {
+					coverParkingArea = coverParkingArea.add(floor.getParking().getCoverCars().stream()
+							.map(Measurement::getArea).reduce(BigDecimal.ZERO, BigDecimal::add));
+					helper.basementParkingProvided = helper.basementParkingProvided.add(floor.getParking().getBasementCars()
+							.stream().map(Measurement::getArea).reduce(BigDecimal.ZERO, BigDecimal::add))
+							.setScale(2, BigDecimal.ROUND_HALF_UP);
+				}catch (Exception e) {
+					// TODO: handle exception
+				}
 			}
 		}
 		totalParking = totalParking.add(helper.basementParkingProvided);
 
 		validateDAPArking(pl, pl.getParkingDetails());
 		
-		helper.daPARKINGProvided = pl.getParkingDetails().getDisabledPersons().stream().map(Measurement::getArea)
-				.reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, BigDecimal.ROUND_HALF_UP);
-		// totalParking=totalParking.add(helper.daPARKINGProvided);
+		try {
+			helper.daPARKINGProvided = pl.getParkingDetails().getDisabledPersons().stream().map(Measurement::getArea)
+					.reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, BigDecimal.ROUND_HALF_UP);
+			// totalParking=totalParking.add(helper.daPARKINGProvided);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 
-		helper.daPARKINGWidthProvided = pl.getParkingDetails().getDisabledPersons().stream().map(Measurement::getWidth)
-				.reduce(BigDecimal::min).get().setScale(2, BigDecimal.ROUND_HALF_UP);
+		try {
+			helper.daPARKINGWidthProvided = pl.getParkingDetails().getDisabledPersons().stream().map(Measurement::getWidth)
+					.reduce(BigDecimal::min).get().setScale(2, BigDecimal.ROUND_HALF_UP);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 		
-		helper.daPARKINGCountProvided=pl.getParkingDetails().getDisabledPersons().size();
-		
-		totalParking = totalParking.setScale(2, BigDecimal.ROUND_HALF_UP);
-		helper.totalParkingProvided = totalParking;
+		try {
+			helper.daPARKINGCountProvided=pl.getParkingDetails().getDisabledPersons().size();
+			
+			totalParking = totalParking.setScale(2, BigDecimal.ROUND_HALF_UP);
+			helper.totalParkingProvided = totalParking;
 
-		
-		helper.distFromDAToMainEntranceProvided = details.getDistFromDAToMainEntrance();
-		helper.offSiteParkingprovisionsProvided = pl.getPlanInformation().getOffSiteParkingprovisionsArea();
+			
+			helper.distFromDAToMainEntranceProvided = details.getDistFromDAToMainEntrance();
+			helper.offSiteParkingprovisionsProvided = pl.getPlanInformation().getOffSiteParkingprovisionsArea();
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 		
 		return helper;
 	}

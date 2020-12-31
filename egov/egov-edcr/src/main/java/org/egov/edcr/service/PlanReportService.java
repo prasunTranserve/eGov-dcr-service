@@ -304,20 +304,27 @@ public class PlanReportService {
 
                     StringBuilder text = new StringBuilder();
 
-                    String coveredAreaText = "1. Covered Area is " + (dcrReportBlockDetail.getCoverageArea() != null
+                    String coveredAreaText = "1. Covered area : " + (dcrReportBlockDetail.getCoverageArea() != null
                             ? dcrReportBlockDetail.getCoverageArea().setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
                                     DcrConstants.ROUNDMODE_MEASUREMENTS)
                             : BigDecimal.ZERO) + " m²";
 
-                    String blgHgtText = "2. Height of building is " + (dcrReportBlockDetail.getBuildingHeight() != null
-                            ? dcrReportBlockDetail.getBuildingHeight().setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+                    String blgHgtText = "2. Height of building before deduction : " + (dcrReportBlockDetail.getDeclaredBuildingHeight() != null
+                            ? dcrReportBlockDetail.getDeclaredBuildingHeight().setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
                                     DcrConstants.ROUNDMODE_MEASUREMENTS)
                             : BigDecimal.ZERO) + " m";
 
                     text = text.append(coveredAreaText).append("\\n").append(blgHgtText);
+                    //Building height before deduction
+                    String blgHgtAfterText = "3. Height of building after deduction : " + (dcrReportBlockDetail.getBuildingHeight() != null
+                            ? dcrReportBlockDetail.getBuildingHeight().setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+                                    DcrConstants.ROUNDMODE_MEASUREMENTS)
+                            : BigDecimal.ZERO) + " m";
+
+                    text = text.append("\\n").append(blgHgtAfterText);
 
                     if (dcrReportBlockDetail.getConstructedArea().compareTo(BigDecimal.ZERO) > 0) {
-                        String constructedAreaText = "3. Already constructed area is "
+                        String constructedAreaText = "4. Already constructed area is "
                                 + (dcrReportBlockDetail.getConstructedArea() != null ? dcrReportBlockDetail
                                         .getConstructedArea().setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
                                                 DcrConstants.ROUNDMODE_MEASUREMENTS)
@@ -1021,6 +1028,7 @@ public class PlanReportService {
                     dcrReportBlockDetail.setBlockNo(block.getNumber());
                     dcrReportBlockDetail.setCoverageArea(building.getCoverageArea());
                     dcrReportBlockDetail.setBuildingHeight(building.getBuildingHeight());
+                    dcrReportBlockDetail.setDeclaredBuildingHeight(building.getDeclaredBuildingHeight());
                     dcrReportBlockDetail.setConstructedArea(building.getTotalConstructedArea());
                     List<Floor> floors = building.getFloors();
 

@@ -208,11 +208,12 @@ public class VehicleRamp extends FeatureProcess {
 
 									}
 
-								} else {
-									errors.put("Vehicle Ramp", "Either ramp or mechanical lift is required");
-									pl.addErrors(errors);
-
-								}
+								} 
+//								else {
+//									errors.put("Vehicle Ramp", "Either ramp or mechanical lift is required");
+//									pl.addErrors(errors);
+//
+//								}
 							}
 						}
 					}

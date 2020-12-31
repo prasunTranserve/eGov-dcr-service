@@ -176,6 +176,7 @@ public class Far extends FeatureProcess {
 				// set data for stilled floor and service floor
 				OdishaUtill.validateServiceFloor(pl, blk, flr);
 				OdishaUtill.validateStilledFloor(pl, blk, flr);
+				OdishaUtill.validateHeightOfTheCeilingOfUpperBasementDeduction(pl, blk, flr);
 				// if(!flr.getIsStiltFloor()) {
 				for (Occupancy occupancy : flr.getOccupancies()) {
 					validate2(pl, blk, flr, occupancy);

@@ -140,11 +140,7 @@ public class RampService extends FeatureProcess {
                             pl.addErrors(errors);
                         }
                     } else if(isDaRampMandatory){
-                        errors.put(String.format("DA Ramp", block.getNumber()),
-                                edcrMessageSource.getMessage(DcrConstants.OBJECTNOTDEFINED,
-                                        new String[] { String.format("DA Ramp",
-                                                block.getNumber()) },
-                                        LocaleContextHolder.getLocale()));
+                        errors.put(String.format("DA Ramp", block.getNumber()),"DA Ramp not defined in block "+block.getNumber());
                         pl.addErrors(errors);
                         break;
                     }

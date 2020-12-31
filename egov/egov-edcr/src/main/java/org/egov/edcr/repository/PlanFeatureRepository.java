@@ -93,6 +93,7 @@ import org.egov.edcr.feature.OverHangs;
 import org.egov.edcr.feature.OverheadElectricalLineService;
 import org.egov.edcr.feature.Parapet;
 import org.egov.edcr.feature.Parking;
+import org.egov.edcr.feature.PassageService;
 import org.egov.edcr.feature.PetrolFillingStation;
 import org.egov.edcr.feature.PlanInfoFeature;
 import org.egov.edcr.feature.Plantation;
@@ -365,6 +366,9 @@ public class PlanFeatureRepository {
         features.add(pf);
         
         pf = new PlanFeature(VehicleRamp.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(PassageService.class);
         features.add(pf);
         
         return features;

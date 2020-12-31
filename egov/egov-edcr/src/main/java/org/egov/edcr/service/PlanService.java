@@ -243,7 +243,7 @@ public class PlanService {
     	if(YES.equalsIgnoreCase(isProjectNearOfCentrallyProtectedMonument) || NO.equalsIgnoreCase(isProjectNearOfCentrallyProtectedMonument)) {
     		pl.getPlanInformation().setIsProjectNearOfCentrallyProtectedMonument(isProjectNearOfCentrallyProtectedMonument);
     	}else {
-    		pl.addError("IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT", "IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT is not defined in plan info.");
+    		pl.addError("IS_THE_PROJECT_LOCATED_WITHIN_300_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT", "IS_THE_PROJECT_LOCATED_WITHIN_300_METERS_DISTANCE_OF_THE_CENTRALLY_PROTECTED_MONUMENT is not defined in plan info.");
     	}
     	
     	//IS_THE_PROJECT_LOCATED_WITHIN_300_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT
@@ -252,7 +252,7 @@ public class PlanService {
     	if(YES.equalsIgnoreCase(isProjectNearOfStateProtectedMonument) || NO.equalsIgnoreCase(isProjectNearOfStateProtectedMonument)) {
     		pl.getPlanInformation().setIsProjectNearOfStateProtectedMonument(isProjectNearOfStateProtectedMonument);
     	}else {
-    		pl.addError("IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT", "IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT is not defined in plan info.");
+    		pl.addError("IS_THE_PROJECT_LOCATED_WITHIN_300_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT", "IS_THE_PROJECT_LOCATED_WITHIN_300_METERS_DISTANCE_OF_THE_STATE_PROTECTED_MONUMENT is not defined in plan info.");
     	}
     	
     	//IS_THE_PROJECT_LOCATED_WITHIN_200_METERS_FROM_STRATEGIC_BUILDINGS
