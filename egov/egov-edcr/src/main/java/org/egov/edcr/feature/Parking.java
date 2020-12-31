@@ -145,10 +145,10 @@ public class Parking extends FeatureProcess {
 	private static final String STILT_PARKING_DESC = "Stilt Parking";
 	private static final String BASEMENT_PARKING_DESC = "Basement Parking";
 	private static final String OPEN_PARKING_DESC = "Open Parking";
-	private static final String DA_PARKING_AREA_DESC = "DA Parking Area";
-	private static final String DA_PARKING_WIDTH_DESC = "DA Parking width";
-	private static final String DA_PARKING_COUNT_DESC = "DA Parking count";
-	private static final String DA_PARKING_MIN_DISTANCE_DESC = "Minimum distance from building entrance";
+	private static final String DA_PARKING_AREA_DESC = "Special Parking Area";
+	private static final String DA_PARKING_WIDTH_DESC = "Special Parking width";
+	private static final String DA_PARKING_COUNT_DESC = "Special Parking count";
+	private static final String DA_PARKING_MAX_DISTANCE_DESC = "Maximum distance from building entrance";
 	private static final String TWO_WHEELER_PARKING_DESC = "Two Wheeler Parking";
 	private static final String BICYCLE_PARKING_DESC = "Bicycle Parking";
 	private static final String ROOF_TOP_PARKING_DESC = "Roof top parking";
@@ -619,7 +619,7 @@ public class Parking extends FeatureProcess {
 
 	private void genralParking(Plan pl, OdishaParkingHelper helper) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_Genral Parking");
+		scrutinyDetail.setKey("Common_General Parking");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 		scrutinyDetail.addColumnHeading(3, REQUIRED);
@@ -670,7 +670,7 @@ public class Parking extends FeatureProcess {
 
 	private void validateDAParking(Plan pl, OdishaParkingHelper helper) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_DA Parking");
+		scrutinyDetail.setKey("Common_Special Parking");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 		scrutinyDetail.addColumnHeading(3, REQUIRED);
@@ -858,10 +858,10 @@ public class Parking extends FeatureProcess {
 		if (helper.distFromDAToMainEntranceRequired.compareTo(BigDecimal.ZERO) > 0)
 			required = helper.distFromDAToMainEntranceRequired.toString();
 		if (helper.distFromDAToMainEntranceProvided.compareTo(helper.distFromDAToMainEntranceRequired) <= 0)
-			setReport(SUB_RULE_40, DA_PARKING_MIN_DISTANCE_DESC, required,
+			setReport(SUB_RULE_40, DA_PARKING_MAX_DISTANCE_DESC, required,
 					helper.distFromDAToMainEntranceProvided.toString(), Result.Accepted, scrutinyDetail);
 		else
-			setReport(SUB_RULE_40, DA_PARKING_MIN_DISTANCE_DESC, required,
+			setReport(SUB_RULE_40, DA_PARKING_MAX_DISTANCE_DESC, required,
 					helper.distFromDAToMainEntranceProvided.toString(), Result.Not_Accepted, scrutinyDetail);
 	}
 

@@ -169,7 +169,7 @@ public class Parapet extends FeatureProcess {
 	private void validateGenrailStairParapet(Plan pl) {
 		for (Block b : pl.getBlocks()) {
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "Genral Stair Railling");
+			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "General Stair Railling");
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
 			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 			scrutinyDetail.addColumnHeading(3, REQUIRED);
@@ -177,7 +177,7 @@ public class Parapet extends FeatureProcess {
 			scrutinyDetail.addColumnHeading(5, STATUS);
 			Map<String, String> details = new HashMap<>();
 			details.put(RULE_NO, RULE_41_V);
-			details.put(DESCRIPTION, "Genral Stair Railling");
+			details.put(DESCRIPTION, "General Stair Railling");
 
 			BigDecimal minHeight = BigDecimal.ZERO;
 

@@ -59,7 +59,7 @@ public class GeneralStair extends FeatureProcess {
 				if (floor.getNumber() < 0) {
 					if (floor.getGeneralStairs() == null || !flageForStair2) {
 						plan.addError("MINIMUM_TWO_STAIR_Required" + block.getNumber() + "f" + floor.getNumber(),
-								"Minimum two GenralStair are required in blook " + block.getNumber() + " Floor "
+								"Minimum two GeneralStair are required in blook " + block.getNumber() + ""
 										+ floor.getNumber() + " but provided " + floor.getGeneralStairs().size());
 					}
 				} else {
@@ -67,8 +67,8 @@ public class GeneralStair extends FeatureProcess {
 						if (floor.getGeneralStairs() == null
 								|| floor.getGeneralStairs().size() < requiredGenralStairPerFloor) {
 							plan.addError("MINIMUM_STAIR_Required" + block.getNumber() + "f" + floor.getNumber(),
-									"Minimum " + requiredGenralStairPerFloor + " GenralStair are required in blook "
-											+ block.getNumber() + " Floor " + floor.getNumber() + " but provided "
+									"Minimum " + requiredGenralStairPerFloor + " GeneralStair are required in blook "
+											+ block.getNumber() + "" + floor.getNumber() + " but provided "
 											+ floor.getGeneralStairs().size());
 						}
 					}
@@ -247,10 +247,10 @@ public class GeneralStair extends FeatureProcess {
 										} else {
 											errors.put(
 													"General Stair landing not defined in block " + block.getNumber()
-															+ " floor " + floor.getNumber() + " stair "
+															+ "" + floor.getNumber() + " stair "
 															+ generalStair.getNumber(),
 													"General Stair landing not defined in block " + block.getNumber()
-															+ " floor " + floor.getNumber() + " stair "
+															+ "" + floor.getNumber() + " stair "
 															+ generalStair.getNumber());
 											plan.addErrors(errors);
 										}
@@ -258,7 +258,7 @@ public class GeneralStair extends FeatureProcess {
 									}
 								}
 							} else if (!isStairOptional(plan, block, floor)) {
-								stairAbsent.add("Block " + block.getNumber() + " floor " + floor.getNumber());
+								stairAbsent.add("Block " + block.getNumber() + "" + floor.getNumber());
 							}
 
 						}
@@ -319,7 +319,7 @@ public class GeneralStair extends FeatureProcess {
 					}
 					String value = typicalFloorValues.get("typicalFloors") != null
 							? (String) typicalFloorValues.get("typicalFloors")
-							: " floor " + floor.getNumber();
+							: "" + floor.getNumber();
 
 					if (valid) {
 						setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
@@ -334,9 +334,9 @@ public class GeneralStair extends FeatureProcess {
 					}
 				}
 			} else {
-				errors.put("General Stair landing width not defined in block " + block.getNumber() + " floor "
+				errors.put("General Stair landing width not defined in block " + block.getNumber() + ""
 						+ floor.getNumber() + " stair " + generalStair.getNumber() + " Landing " + landing.getNumber(),
-						"General Stair landing width not defined in block " + block.getNumber() + " floor "
+						"General Stair landing width not defined in block " + block.getNumber() + ""
 								+ floor.getNumber() + " stair " + generalStair.getNumber() + " Landing "
 								+ landing.getNumber());
 				plan.addErrors(errors);
@@ -358,7 +358,7 @@ public class GeneralStair extends FeatureProcess {
 			BigDecimal raiserHeightProvided = BigDecimal.ZERO;
 
 			if (totalNoOfRaiser.compareTo(BigDecimal.ZERO) <= 0) {
-				pl.addError("STAIRCASE", " Raiser not defined Block " + block.getNumber() + " floor "
+				pl.addError("STAIRCASE", " Raiser not defined Block " + block.getNumber() + ""
 						+ floor.getNumber() + " stair " + generalStair.getNumber());
 				return;
 			}
@@ -371,7 +371,7 @@ public class GeneralStair extends FeatureProcess {
 			if (generalStair.getFloorHeight().compareTo(BigDecimal.ZERO) > 0)
 				raiserHeightProvided = generalStair.getFloorHeight().divide(totalNoOfRaiser, 2,BigDecimal.ROUND_HALF_UP);
 			else
-				pl.addError("STAIRCASE", " Floor Hight not defined Block " + block.getNumber() + " floor "
+				pl.addError("STAIRCASE", " Floor Hight not defined Block " + block.getNumber() + ""
 						+ floor.getNumber() + " stair " + generalStair.getNumber());
 			BigDecimal raiserHeightexpected = requiredRaiserHeight(block, occupancyTypeHelper);
 
@@ -532,7 +532,7 @@ public class GeneralStair extends FeatureProcess {
 			}
 			String value = typicalFloorValues.get("typicalFloors") != null
 					? (String) typicalFloorValues.get("typicalFloors")
-					: " floor " + floor.getNumber();
+					: "" + floor.getNumber();
 
 			if (valid) {
 				setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
@@ -637,7 +637,7 @@ public class GeneralStair extends FeatureProcess {
 
 					String value = typicalFloorValues.get("typicalFloors") != null
 							? (String) typicalFloorValues.get("typicalFloors")
-							: " floor " + floor.getNumber();
+							: "" + floor.getNumber();
 					if (valid) {
 						setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
 								String.format(TREAD_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
@@ -706,7 +706,7 @@ public class GeneralStair extends FeatureProcess {
 
 			String value = typicalFloorValues.get("typicalFloors") != null
 					? (String) typicalFloorValues.get("typicalFloors")
-					: " floor " + floor.getNumber();
+					: "" + floor.getNumber();
 			if (valid) {
 				setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
 						String.format(NO_OF_RISER_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
