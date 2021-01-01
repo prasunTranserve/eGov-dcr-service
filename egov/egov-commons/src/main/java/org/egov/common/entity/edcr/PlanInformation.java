@@ -186,7 +186,7 @@ public class PlanInformation implements Serializable {
     //PER_ACRE_BENCHMARK_VALUE_OF_LAND_NEEDED_IF_PROJECT_IS_HAVING_PURCHASABLE_FAR_COMPONENT = number
     private BigDecimal benchmarkValuePerAcre=BigDecimal.ZERO;
     
-    private boolean isShelterFeeRequired;
+    private boolean shelterFeeRequired;
     
     private long totalNoOfDwellingUnits;
     
@@ -733,12 +733,13 @@ public class PlanInformation implements Serializable {
 		this.benchmarkValuePerAcre = benchmarkValuePerAcre;
 	}
 
+
 	public boolean isShelterFeeRequired() {
-		return isShelterFeeRequired;
+		return shelterFeeRequired;
 	}
 
-	public void setShelterFeeRequired(boolean isShelterFeeRequired) {
-		this.isShelterFeeRequired = isShelterFeeRequired;
+	public void setShelterFeeRequired(boolean shelterFeeRequired) {
+		this.shelterFeeRequired = shelterFeeRequired;
 	}
 
 	public long getTotalNoOfDwellingUnits() {

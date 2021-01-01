@@ -695,6 +695,10 @@ public class Far extends FeatureProcess {
 			else
 				occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
 						.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction()));
+		}else if(DxfFileConstants.EWS.equals(occupancySubTypeHelperCode)){
+			BigDecimal ewsArea=pl.getTotalEWSAreaInPlot();
+			ewsArea=ewsArea.add(occupancy.getBuiltUpArea());
+			pl.setTotalEWSAreaInPlot(ewsArea);
 		}
 		if (occupancy.getFloorArea() != null && occupancy.getFloorArea().compareTo(BigDecimal.valueOf(0)) < 0) {
 			pl.addError(VALIDATION_NEGATIVE_FLOOR_AREA, getLocaleMessage(VALIDATION_NEGATIVE_FLOOR_AREA,
