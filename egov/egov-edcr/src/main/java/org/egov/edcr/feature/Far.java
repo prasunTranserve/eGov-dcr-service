@@ -1652,7 +1652,7 @@ public class Far extends FeatureProcess {
 		BigDecimal providedFar=BigDecimal.ZERO;
 		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea().add(surrenderRoadArea) : BigDecimal.ZERO;
 		if (plotArea.doubleValue() > 0)
-			providedFar = pl.getVirtualBuilding().getTotalFloorArea().divide(plotArea, 1,
+			providedFar = pl.getVirtualBuilding().getTotalFloorArea().divide(plotArea, 3,
 					ROUNDMODE_MEASUREMENTS);
 		
 		return providedFar;
