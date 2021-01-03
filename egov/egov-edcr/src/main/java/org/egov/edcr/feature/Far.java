@@ -627,7 +627,7 @@ public class Far extends FeatureProcess {
 		ProcessPrintHelper.print(pl);
 		return pl;
 	}
-
+	
 	private void decideNocIsRequired(Plan pl) {
 		Boolean isHighRise = false;
 		for (Block b : pl.getBlocks()) {
@@ -1249,7 +1249,18 @@ public class Far extends FeatureProcess {
 
 		String occupancyName = occupancyType.getType().getName();
 		buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
+		checkFarBanchMarkValue(pl);
+	}
+	
 
+	private void checkFarBanchMarkValue(Plan pl) {
+		FarDetails farDetails=pl.getFarDetails();
+		
+		if(farDetails!=null && farDetails.getBaseFar()>0) {
+			if(farDetails.getProvidedFar()>farDetails.getBaseFar() && pl.getPlanInformation().getBenchmarkValuePerAcre().compareTo(BigDecimal.ZERO)<=0)
+				pl.addError("benchmarkValuePerAcre", "PER_ACRE_BENCHMARK_VALUE_OF_LAND Should be greater than zero.");
+		}
+		
 	}
 
 	private void validateBuilupArea(Plan pl) {

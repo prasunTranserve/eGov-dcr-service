@@ -177,6 +177,8 @@ public class PlanInformation implements Serializable {
     
     private String riskType;
     
+    private String riskTypeDes;
+    
     //IS_THE_PLOT_PART_OF_THE_LAYOUT_APPROVED_BY_THE_AUTHORITY_OR_DEVELOPED_AND_ALLOTTED_BY_THE_GOVERNMENT_OR_STATUTORY_BODIES_OR_IS_A_FINAL_PLOT_IN_TOWN_PLANNING_SCHEMES_OR_DEVELOPMENT_SCHEMES
     private String approvedLayoutDeclaration=NA;
     
@@ -871,6 +873,15 @@ public class PlanInformation implements Serializable {
 	public void setOffSiteParkingprovisionsArea(BigDecimal offSiteParkingprovisionsArea) {
 		this.offSiteParkingprovisionsArea = offSiteParkingprovisionsArea;
 	}
+
+	public String getRiskTypeDes() {
+		return riskTypeDes;
+	}
+
+	public void setRiskTypeDes(String riskTypeDes) {
+		this.riskTypeDes = riskTypeDes;
+	}
     
+	
 	
 }

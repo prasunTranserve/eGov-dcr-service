@@ -339,6 +339,14 @@ public class PlanService {
     		pl.getPlanInformation().setOffSiteParkingprovisionsArea(BigDecimal.ZERO);
 		}
     	
+    	//ARCHITECT_OR_TECHNICAL_PERSON_NAME
+    	String licensee=pl.getPlanInfoProperties().get(ARCHITECT_OR_TECHNICAL_PERSON_NAME);
+    	if(licensee!=null && !licensee.isEmpty() && licensee.trim().length()>0 && !DxfFileConstants.YES.equals(licensee) && !DxfFileConstants.NO.equals(licensee) && !DxfFileConstants.NO.equals(licensee)) {
+    		pl.setArchitectInformation(licensee);
+    	}else {
+    		pl.addError("licensee", "ARCHITECT_OR_TECHNICAL_PERSON_NAME is mandatory in plan info.");
+    	}
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

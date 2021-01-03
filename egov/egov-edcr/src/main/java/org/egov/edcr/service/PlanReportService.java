@@ -646,7 +646,7 @@ public class PlanReportService {
         final Map<String, Object> valuesMap = new HashMap<>();
         valuesMap.put("ulbName", ApplicationThreadLocals.getMunicipalityName());
         valuesMap.put("applicantName", dcrApplication.getApplicantName());
-        valuesMap.put("licensee", dcrApplication.getArchitectInformation());
+        valuesMap.put("licensee", plan.getArchitectInformation());
         valuesMap.put("applicationNumber", applicationNumber);
         valuesMap.put("applicationDate", applicationDate);
         valuesMap.put("errors", plan.getErrors());

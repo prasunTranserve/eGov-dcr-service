@@ -619,26 +619,36 @@ public class Parking extends FeatureProcess {
 
 	private void genralParking(Plan pl, OdishaParkingHelper helper) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_General Parking");
+		scrutinyDetail.setKey("Common_Parking Type");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 		scrutinyDetail.addColumnHeading(3, REQUIRED);
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
+		
+		ScrutinyDetail scrutinyDetail1 = new ScrutinyDetail();
+		scrutinyDetail1.setKey("Common_Parking Provision");
+		scrutinyDetail1.addColumnHeading(1, RULE_NO);
+		scrutinyDetail1.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail1.addColumnHeading(3, REQUIRED);
+		scrutinyDetail1.addColumnHeading(4, PROVIDED);
+		scrutinyDetail1.addColumnHeading(5, STATUS);
 
 		validateTotalParking(helper, scrutinyDetail);
 		validateOpenParking(helper, scrutinyDetail);
 		validateBasementParking(helper, scrutinyDetail);
 		validateStilledParking(helper, scrutinyDetail);
 		validateRoofTopParking(helper, scrutinyDetail);
-		validateStaffParking(helper, scrutinyDetail);
-		validateVisitorParking(helper, scrutinyDetail);
-		validateTwoWheelers(helper, scrutinyDetail);
-		validateBicycleParking(helper, scrutinyDetail);
-		validateEWSAndLiGParking(helper, scrutinyDetail);
-		validateMIGParking(helper, scrutinyDetail);
+		
+		validateStaffParking(helper, scrutinyDetail1);
+		validateVisitorParking(helper, scrutinyDetail1);
+		validateTwoWheelers(helper, scrutinyDetail1);
+		validateBicycleParking(helper, scrutinyDetail1);
+		validateEWSAndLiGParking(helper, scrutinyDetail1);
+		validateMIGParking(helper, scrutinyDetail1);
 
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail1);
 
 	}
 

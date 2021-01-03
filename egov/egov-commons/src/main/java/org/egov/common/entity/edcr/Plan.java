@@ -215,6 +215,8 @@ public class Plan implements Serializable {
 	private BigDecimal totalEWSAreaInPlot = BigDecimal.ZERO;
 
 	private BigDecimal totalEWSFeeEffectiveArea = BigDecimal.ZERO;
+	
+	private String architectInformation;
 
 	public List<BigDecimal> getCanopyDistanceFromPlotBoundary() {
 		return canopyDistanceFromPlotBoundary;
@@ -595,6 +597,7 @@ public class Plan implements Serializable {
 	}
 
 	public void setPlanInfoProperties(Map<String, String> planInfoProperties) {
+		planInfoProperties.putAll(initPlanInfo());
 		this.planInfoProperties = planInfoProperties;
 	}
 
@@ -662,5 +665,19 @@ public class Plan implements Serializable {
 		this.totalEWSFeeEffectiveArea = totalEWSFeeEffectiveArea;
 	}
 
+	public String getArchitectInformation() {
+		return architectInformation;
+	}
+
+	public void setArchitectInformation(String architectInformation) {
+		this.architectInformation = architectInformation;
+	}
+
+	private HashMap<String, String> initPlanInfo() {
+		HashMap<String, String> planInfo = new HashMap<String, String>();
+
+		planInfo.put("AREA_TYPE", "NEW");
+		return planInfo;
+	}
 	
 }

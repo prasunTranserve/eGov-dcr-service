@@ -387,7 +387,7 @@
 					<font size="8"/>
 					<paragraph leftIndent="3"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{planInformation}.getTypeOfArea()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{planInformation}.getRiskTypeDes()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="28" y="330" width="114" height="21" uuid="10f0b035-0fa1-470b-9b21-2a84161cdc18"/>
@@ -402,7 +402,7 @@
 					<font size="8"/>
 					<paragraph leftIndent="3"/>
 				</textElement>
-				<textFieldExpression><![CDATA["AREA TYPE"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["RISK TYPE"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="12" y="330" width="16" height="21" uuid="6aa97529-5f46-4fcf-bfd5-27cc1edbd803"/>
@@ -852,7 +852,7 @@
 					<font size="8"/>
 					<paragraph leftIndent="3"/>
 				</textElement>
-				<textFieldExpression><![CDATA["TECHNICAL PERSON LICENSEE NAME"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["ARCHITECT / TECHNICAL PERSON NAME"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="12" y="186" width="16" height="21" uuid="d12adcfd-088c-420f-8ded-a567ef05e071"/>

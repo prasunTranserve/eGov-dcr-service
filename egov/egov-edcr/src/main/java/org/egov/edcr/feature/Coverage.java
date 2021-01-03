@@ -325,8 +325,10 @@ public class Coverage extends FeatureProcess {
 		
 		if(isLowRiskBuilding) {
 			pl.getPlanInformation().setRiskType(DxfFileConstants.LOW);
+			pl.getPlanInformation().setRiskTypeDes(DxfFileConstants.LOW);
 		}else {
 			pl.getPlanInformation().setRiskType(DxfFileConstants.HIGH);
+			pl.getPlanInformation().setRiskTypeDes(DxfFileConstants.OTHER_THAN_LOW);
 		}
 		
 		return isLowRiskBuilding;
