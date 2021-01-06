@@ -702,4 +702,13 @@ public class DxfFileConstants {
 	public static final String HIGH="HIGH";
 	public static final String OTHER_THAN_LOW="OTHER THAN LOW";
 	
+	
+	public static final String SOLOR_WATER_HEATING_IN_LTR="SOLOR_WATER_HEATING_IN_LTR";
+	public static final Object NUMBER_OF_STUDENTS = "NUMBER_OF_STUDENTS";
+	public static final Object NUMBER_OF_BEDS = "NUMBER_OF_BEDS";
+	public static final String WASTE_WATER_QUANTITY="WASTE_WATER_QUANTITY";
+
+	
+
+	
 }
