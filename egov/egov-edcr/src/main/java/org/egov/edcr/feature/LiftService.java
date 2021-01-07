@@ -48,11 +48,14 @@
 package org.egov.edcr.feature;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
@@ -136,66 +139,83 @@ public class LiftService extends FeatureProcess {
 						if (DxfFileConstants.A_P.equals(mostRestrictiveFarHelper.getSubtype().getCode())
 								|| DxfFileConstants.A_S.equals(mostRestrictiveFarHelper.getSubtype().getCode())
 								|| DxfFileConstants.A_R.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
-							expectedLiftCount = calculateExpectedLiftCount(block, expectedLiftCount);
+							expectedLiftCount = calculateExpectedLiftCountForResidentialOccupancy(block,
+									expectedLiftCount);
 
 						} else if (DxfFileConstants.A_AB.equals(mostRestrictiveFarHelper.getSubtype().getCode())
 								|| DxfFileConstants.A_HP.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
 							if (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("10")) > 0) {
-								expectedLiftCount = calculateExpectedLiftCount(block, expectedLiftCount);
+								expectedLiftCount = calculateExpectedLiftCountForResidentialOccupancy(block,
+										expectedLiftCount);
 
 							}
 
 						} else if (DxfFileConstants.A_WCR.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
-							expectedLiftCount = calculateExpectedLiftCount(block, expectedLiftCount);
+							expectedLiftCount = calculateExpectedLiftCountForResidentialOccupancy(block,
+									expectedLiftCount);
 
 						} else if (DxfFileConstants.A_SA.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
 							if (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("10")) > 0) {
-								expectedLiftCount = calculateExpectedLiftCount(block, expectedLiftCount);
+								expectedLiftCount = calculateExpectedLiftCountForResidentialOccupancy(block,
+										expectedLiftCount);
 
 							}
 
 						} else if (DxfFileConstants.A_DH.equals(mostRestrictiveFarHelper.getSubtype().getCode())
 								|| DxfFileConstants.A_D.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
-							expectedLiftCount = calculateExpectedLiftCount(block, expectedLiftCount);
+							expectedLiftCount = calculateExpectedLiftCountForResidentialOccupancy(block,
+									expectedLiftCount);
 
 						} else if (DxfFileConstants.A_E.equals(mostRestrictiveFarHelper.getSubtype().getCode())
 								|| DxfFileConstants.A_LIH.equals(mostRestrictiveFarHelper.getSubtype().getCode())
 								|| DxfFileConstants.A_MIH.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
 							if (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("10")) > 0) {
-								expectedLiftCount = calculateExpectedLiftCount(block, expectedLiftCount);
+								expectedLiftCount = calculateExpectedLiftCountForResidentialOccupancy(block,
+										expectedLiftCount);
 
 							}
 
 						} else if (DxfFileConstants.A_H.equals(mostRestrictiveFarHelper.getSubtype().getCode())
 								|| DxfFileConstants.A_SH.equals(mostRestrictiveFarHelper.getSubtype().getCode())
 								|| DxfFileConstants.A_SQ.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
-							expectedLiftCount = calculateExpectedLiftCount(block, expectedLiftCount);
+							expectedLiftCount = calculateExpectedLiftCountForResidentialOccupancy(block,
+									expectedLiftCount);
 
 						}
 
 					} else if (null != mostRestrictiveFarHelper
 							&& DxfFileConstants.B.equals(mostRestrictiveFarHelper.getType().getCode())) {
 						if (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("10")) > 0) {
-							
+							expectedLiftCount = calculateExpectedLiftCountForOtherOccupancy(block, expectedLiftCount);
+
 						}
 
 					} else if (null != mostRestrictiveFarHelper
 							&& DxfFileConstants.C.equals(mostRestrictiveFarHelper.getType().getCode())) {
+						if (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("10")) > 0) {
+							expectedLiftCount = calculateExpectedLiftCountForOtherOccupancy(block, expectedLiftCount);
+
+						}
 
 					} else if (null != mostRestrictiveFarHelper
 							&& DxfFileConstants.D.equals(mostRestrictiveFarHelper.getType().getCode())) {
+						expectedLiftCount = calculateExpectedLiftCountForOtherOccupancy(block, expectedLiftCount);
 
 					} else if (null != mostRestrictiveFarHelper
 							&& DxfFileConstants.E.equals(mostRestrictiveFarHelper.getType().getCode())) {
+						expectedLiftCount = calculateExpectedLiftCountForOtherOccupancy(block, expectedLiftCount);
 
 					} else if (null != mostRestrictiveFarHelper
 							&& DxfFileConstants.F.equals(mostRestrictiveFarHelper.getType().getCode())) {
+						expectedLiftCount = calculateExpectedLiftCountForOtherOccupancy(block, expectedLiftCount);
 
 					} else if (null != mostRestrictiveFarHelper
 							&& DxfFileConstants.G.equals(mostRestrictiveFarHelper.getType().getCode())) {
+						expectedLiftCount = calculateExpectedLiftCountForOtherOccupancy(block, expectedLiftCount);
 
 					} else if (null != mostRestrictiveFarHelper
 							&& DxfFileConstants.H.equals(mostRestrictiveFarHelper.getType().getCode())) {
+						expectedLiftCount = calculateExpectedLiftCountForOtherOccupancy(block, expectedLiftCount);
 
 					}
 
@@ -220,7 +240,30 @@ public class LiftService extends FeatureProcess {
 		return plan;
 	}
 
-	private BigDecimal calculateExpectedLiftCount(Block block, BigDecimal expectedLiftCount) {
+	private BigDecimal calculateExpectedLiftCountForOtherOccupancy(Block block, BigDecimal expectedLiftCount) {
+		if (!block.getBuilding().getFloors().isEmpty()) {
+			BigDecimal expectedLiftCountPerFloor = BigDecimal.ZERO;
+			Set<BigDecimal> liftCountSet = new HashSet<BigDecimal>();
+			for (Floor floor : block.getBuilding().getFloors()) {
+				if (floor.getNumber() > 2) {
+					expectedLiftCountPerFloor = floor.getArea().divide(new BigDecimal("1000")).setScale(0,
+							BigDecimal.ROUND_UP);
+					liftCountSet.add(expectedLiftCountPerFloor);
+
+				}
+
+			}
+			expectedLiftCount = Collections.max(liftCountSet);
+			if ((expectedLiftCount.compareTo(new BigDecimal("2")) < 0)
+					&& (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("21")) > 0)) {
+				expectedLiftCount = new BigDecimal("2");
+			}
+
+		}
+		return expectedLiftCount;
+	}
+
+	private BigDecimal calculateExpectedLiftCountForResidentialOccupancy(Block block, BigDecimal expectedLiftCount) {
 		if (!block.getBuilding().getFloors().isEmpty()) {
 			int totalNumberOfUnits = 0;
 			for (Floor floor : block.getBuilding().getFloors()) {
@@ -231,10 +274,10 @@ public class LiftService extends FeatureProcess {
 				}
 
 			}
-			expectedLiftCount = BigDecimal.valueOf(totalNumberOfUnits)
-					.divide(new BigDecimal("20")).setScale(0, BigDecimal.ROUND_UP);
-			if ((expectedLiftCount.compareTo(new BigDecimal("2")) < 0) && (block.getBuilding()
-					.getBuildingHeight().compareTo(new BigDecimal("21")) > 0)) {
+			expectedLiftCount = BigDecimal.valueOf(totalNumberOfUnits).divide(new BigDecimal("20")).setScale(0,
+					BigDecimal.ROUND_UP);
+			if ((expectedLiftCount.compareTo(new BigDecimal("2")) < 0)
+					&& (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("21")) > 0)) {
 				expectedLiftCount = new BigDecimal("2");
 			}
 
