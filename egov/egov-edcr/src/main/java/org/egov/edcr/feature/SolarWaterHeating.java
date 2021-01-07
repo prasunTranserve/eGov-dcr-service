@@ -344,7 +344,7 @@ public class SolarWaterHeating extends FeatureProcess {
 			} else if (DxfFileConstants.C_L.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Lab
 				expectedTankCapacity = new BigDecimal(100);
 
-			} else if (DxfFileConstants.A.equals(mostRestrictiveFarHelper.getType().getCode())) {
+			} else if (DxfFileConstants.F.equals(mostRestrictiveFarHelper.getType().getCode())) {
 				if (DxfFileConstants.F_RTC.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Research and
 																										// Training
 																										// Center
@@ -379,8 +379,9 @@ public class SolarWaterHeating extends FeatureProcess {
 						}
 
 					}
-					expectedTankCapacity = new BigDecimal(totalNumberOfUnits)
-							.multiply(new BigDecimal(100).setScale(0, BigDecimal.ROUND_HALF_UP));
+					expectedTankCapacity = expectedTankCapacity
+							.add(new BigDecimal(totalNumberOfUnits).multiply(new BigDecimal(100)))
+							.setScale(0, BigDecimal.ROUND_HALF_UP);
 				}
 
 			}
