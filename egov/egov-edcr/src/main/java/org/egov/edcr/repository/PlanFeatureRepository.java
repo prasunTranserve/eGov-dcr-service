@@ -67,6 +67,7 @@ import org.egov.edcr.feature.ConstructedArea;
 import org.egov.edcr.feature.Coverage;
 import org.egov.edcr.feature.DepthCuttingService;
 import org.egov.edcr.feature.DistanceToRoad;
+import org.egov.edcr.feature.DoorWays;
 import org.egov.edcr.feature.DrinageService;
 import org.egov.edcr.feature.ExitWidth;
 import org.egov.edcr.feature.Far;
@@ -79,6 +80,7 @@ import org.egov.edcr.feature.GovtBuildingDistance;
 import org.egov.edcr.feature.GuardRoom;
 import org.egov.edcr.feature.HeadRoom;
 import org.egov.edcr.feature.HeightOfRoom;
+import org.egov.edcr.feature.Helipad;
 import org.egov.edcr.feature.InteriorOpenSpaceService;
 import org.egov.edcr.feature.Kitchen;
 import org.egov.edcr.feature.LandUse;
@@ -369,6 +371,12 @@ public class PlanFeatureRepository {
         features.add(pf);
         
         pf = new PlanFeature(PassageService.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(Helipad.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(DoorWays.class);
         features.add(pf);
         
         return features;
