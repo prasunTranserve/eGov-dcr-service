@@ -55,40 +55,37 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.egov.common.entity.edcr.LiquidWasteTreatementPlant;
+import org.egov.common.entity.edcr.Measurement;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.common.entity.edcr.SupplyLine;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class WaterTreatmentPlant extends FeatureProcess {
-	private static final String SUB_RULE_53_5_DESCRIPTION = "Liquid waste management treatment plant ";
+	private static final String SUB_RULE_53_5_DESCRIPTION = "Water Treatment Plant";
 	private static final String SUB_RULE_53_5 = "53-5";
 	private static final BigDecimal TEN_THOUSAND = BigDecimal.valueOf(10000);
+	private static final int COLOR_WATER_TREATMENT_PLANT=1;
 
 	@Override
 	public Plan validate(Plan pl) {
-		HashMap<String, String> errors = new HashMap<>();
-		if (pl != null && pl.getUtility() != null) { // liquid waste treatment plant defined or not
-			if (pl.getUtility().getLiquidWasteTreatementPlant().isEmpty()) {
-				errors.put(SUB_RULE_53_5_DESCRIPTION, edcrMessageSource.getMessage(OBJECTNOTDEFINED,
-						new String[] { SUB_RULE_53_5_DESCRIPTION }, LocaleContextHolder.getLocale()));
-				pl.addErrors(errors);
-
-			}
-
-		}
-
+		
 		return pl;
 	}
 
 	@Override
 	public Plan process(Plan pl) {
-		validate(pl);
+	
 		scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
@@ -96,27 +93,77 @@ public class WaterTreatmentPlant extends FeatureProcess {
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
 		scrutinyDetail.setKey("Common_Water Treatment Plant");
-		processLiquidWasteTreatment(pl);
+		processWaterTreatmentPlant(pl);
 		return pl;
 	}
 
-	private void processLiquidWasteTreatment(Plan pl) {
-		BigDecimal wasteWaterQuantity = BigDecimal.ZERO;
-		wasteWaterQuantity = new BigDecimal(
-				(String) pl.getPlanInfoProperties().get(DxfFileConstants.WASTE_WATER_QUANTITY));
-		if (wasteWaterQuantity.compareTo(TEN_THOUSAND) >= 0) {
-			if (!pl.getUtility().getLiquidWasteTreatementPlant().isEmpty()) {
-				setReportOutputDetailsWithoutOccupancy(pl, SUB_RULE_53_5, SUB_RULE_53_5_DESCRIPTION, "",
-						OBJECTDEFINED_DESC, Result.Accepted.getResultVal());
-				return;
+	private void processWaterTreatmentPlant(Plan pl) {
+		String subRule = SUB_RULE_53_5;
+		String subRuleDesc = SUB_RULE_53_5_DESCRIPTION;
+		BigDecimal expectedTankCapacity = BigDecimal.ZERO;
+		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea() : BigDecimal.ZERO;
+		OccupancyTypeHelper mostRestrictiveFarHelper = pl.getVirtualBuilding() != null
+				? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
+				: null;
+		boolean isWaterTreatmentPlantRequired=false;
+		
+		List<LiquidWasteTreatementPlant> liquidWasteTreatementPlants=getLiquidWasteTreatementPlantByColorCode(pl.getUtility().getLiquidWasteTreatementPlant(), COLOR_WATER_TREATMENT_PLANT);
+		
+		if (plotArea.compareTo(new BigDecimal("115")) >0 && (DxfFileConstants.OC_COMMERCIAL.equals(mostRestrictiveFarHelper.getType().getCode())
+				|| DxfFileConstants.OC_PUBLIC_UTILITY.equals(mostRestrictiveFarHelper.getType().getCode())
+				|| DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(mostRestrictiveFarHelper.getType().getCode())
+				|| DxfFileConstants.OC_EDUCATION.equals(mostRestrictiveFarHelper.getType().getCode())
+				|| DxfFileConstants.OC_TRANSPORTATION.equals(mostRestrictiveFarHelper.getType().getCode())
+				|| DxfFileConstants.OC_MIXED_USE.equals(mostRestrictiveFarHelper.getType().getCode())
+				)) {
+			isWaterTreatmentPlantRequired=true;
+		}
+		
+		//Rain Water Harvesting
+		
+		if (!isWaterTreatmentPlantRequired) {
+
+			if (liquidWasteTreatementPlants != null && liquidWasteTreatementPlants.size()>0) {
+				setReportOutputDetails(pl, subRule, subRuleDesc, DxfFileConstants.OPTIONAL,
+						DxfFileConstants.PROVIDED,
+						Result.Verify.getResultVal());
 			} else {
-				setReportOutputDetailsWithoutOccupancy(pl, SUB_RULE_53_5, SUB_RULE_53_5_DESCRIPTION, "",
-						OBJECTNOTDEFINED_DESC, Result.Not_Accepted.getResultVal());
-				return;
+				setReportOutputDetails(pl, subRule, subRuleDesc, DxfFileConstants.OPTIONAL, "Not Defined in the plan",
+						Result.Verify.getResultVal());
 			}
 
+		} else  if(isWaterTreatmentPlantRequired){
+			if ((liquidWasteTreatementPlants!=null)&&(liquidWasteTreatementPlants.size() > 0))
+				setReportOutputDetails(pl, subRule, subRuleDesc, "Mandatory",
+						DxfFileConstants.PROVIDED,
+						Result.Verify.getResultVal());
+			else
+				setReportOutputDetails(pl, subRule, subRuleDesc, "Mandatory", "Not Defined in the plan",
+						Result.Not_Accepted.getResultVal());
 		}
+		
 
+	}
+
+	private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String expected, String actual,
+			String status) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, ruleNo);
+		details.put(DESCRIPTION, ruleDesc);
+		details.put(REQUIRED, expected);
+		details.put(PROVIDED, actual);
+		details.put(STATUS, status);
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
+
+	private List<LiquidWasteTreatementPlant> getLiquidWasteTreatementPlantByColorCode(
+			List<LiquidWasteTreatementPlant> wasteTreatementPlants, int colorCode) {
+
+		List<LiquidWasteTreatementPlant> liquidWasteTreatementPlants = wasteTreatementPlants.stream()
+				.filter(measurement -> measurement.getColorCode() == colorCode).collect(Collectors.toList());
+
+		return liquidWasteTreatementPlants;
 	}
 
 	private void setReportOutputDetailsWithoutOccupancy(Plan pl, String ruleNo, String ruleDesc, String expected,

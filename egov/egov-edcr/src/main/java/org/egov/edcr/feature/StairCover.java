@@ -58,6 +58,8 @@ import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.kabeja.dxf.DXFConstants;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -80,8 +82,8 @@ public class StairCover extends FeatureProcess {
 		scrutinyDetail.setKey("Common_Mumty");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-		scrutinyDetail.addColumnHeading(3, VERIFIED);
-		scrutinyDetail.addColumnHeading(4, ACTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
 
 		Map<String, String> details = new HashMap<>();
@@ -96,16 +98,16 @@ public class StairCover extends FeatureProcess {
 
 				if (minHeight.compareTo(new BigDecimal(3)) <= 0) {
 					details.put(DESCRIPTION, STAIRCOVER_DESCRIPTION);
-					details.put(VERIFIED, "Verified whether stair cover height is <= 3 meters");
-					details.put(ACTION, "Not included stair cover height(" + minHeight + ") to building height");
+					details.put(REQUIRED, DxfFileConstants.NA);
+					details.put(PROVIDED,  minHeight.toString() );
 					details.put(STATUS, Result.Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				} else {
 					details.put(DESCRIPTION, STAIRCOVER_DESCRIPTION);
-					details.put(VERIFIED, "Verified whether stair cover height is <= 3 meters");
-					details.put(ACTION, "Included stair cover height(" + minHeight + ") to building height");
-					details.put(STATUS, Result.Verify.getResultVal());
+					details.put(REQUIRED, DxfFileConstants.NA);
+					details.put(PROVIDED,  minHeight.toString() );
+					details.put(STATUS, Result.Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}

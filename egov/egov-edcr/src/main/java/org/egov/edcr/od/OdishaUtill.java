@@ -332,4 +332,21 @@ public class OdishaUtill {
 		}
 		pl.getPlanInformation().setTotalNoOfDwellingUnits(totalDU);
 	}
+	
+	public static BigDecimal getTotalRoofArea(Plan pl) {
+    	BigDecimal totalArea=BigDecimal.ZERO;
+    	
+    	for(Block block:pl.getBlocks()) {
+    		for(Floor floor:block.getBuilding().getFloors()) {
+    			try {
+    				BigDecimal area=floor.getRoofAreas().stream().map(roofArea -> roofArea.getArea()).reduce(BigDecimal::add).get();
+        			totalArea=totalArea.add(area);
+    			}catch(Exception exception) {
+    				
+    			}
+    		}
+    	}
+    	
+    	return totalArea;
+    }
 }

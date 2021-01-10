@@ -26,3 +26,16 @@ INSERT INTO generic.egdcr_sub_feature_colorcode (id,feature,subfeature,colorcode
 
 -- Passage layername changed
 update state.egdcr_layername  set value = 'PASSAGE_DOUBLELOADED' where "key" ='LAYER_NAME_PASSAGE_STAIR';
+
+
+--SITE_COMPONENTS
+update state.egdcr_layername  set value = 'SITE_COMPONENTS' where "key" ='LAYER_NAME_SUPPLY_LINE' and value ='UTILITY_SUPPLY_LINE';
+
+update state.egdcr_layername  set value = 'WATER_TREATMENT_PLANT' where "key" ='LAYER_NAME_INSITU_WASTE_TREATMENT_PLANT' and value ='INSITU_WASTE_TREATMENT_PLANT';
+
+
+INSERT INTO generic.egdcr_sub_feature_colorcode (id,feature,subfeature,colorcode,ordernumber) VALUES
+	 (65,'HeightOfRoom','Habitable Room (Naturally Ventilated)',1,7);	
+	
+INSERT INTO generic.egdcr_sub_feature_colorcode (id,feature,subfeature,colorcode,ordernumber) VALUES
+	 (66,'HeightOfRoom','Habitable Room (Mechanically Ventilated)',2,7);

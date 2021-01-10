@@ -69,7 +69,9 @@ public class OverheadElectricalLineService extends FeatureProcess {
     private static final String SUB_RULE_31 = "31";
 
     private static final BigDecimal VERTICAL_DISTANCE_11000 = BigDecimal.valueOf(2.5);
-    private static final BigDecimal VERTICAL_DISTANCE_33000 = BigDecimal.valueOf(3.7);
+    private static final BigDecimal VERTICAL_DISTANCE_ABOVE_11000 = BigDecimal.valueOf(3.7);
+     private static final BigDecimal VERTICAL_DISTANCE_33000 = BigDecimal.valueOf(3.7);
+    
     private static final BigDecimal HORIZONTAL_DISTANCE_33000 = BigDecimal.valueOf(2);
     private static final BigDecimal HORIZONTAL_DISTANCE_11000 = BigDecimal.valueOf(1.2);
 
@@ -106,85 +108,85 @@ public class OverheadElectricalLineService extends FeatureProcess {
    
     @Override
     public Plan process(Plan pl) {
-//        validate(pl);
-//        scrutinyDetail = new ScrutinyDetail();
-//        scrutinyDetail.setKey("Common_OverHead Electric Line");
-//        scrutinyDetail.addColumnHeading(1, RULE_NO);
-//        scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-//        scrutinyDetail.addColumnHeading(3, REQUIRED);
-//        scrutinyDetail.addColumnHeading(4, PROVIDED);
-//        scrutinyDetail.addColumnHeading(6, VOLTAGE);
-//        scrutinyDetail.addColumnHeading(7, REMARKS);
-//        scrutinyDetail.addColumnHeading(8, STATUS);
-//
-//        for (ElectricLine electricalLine : pl.getElectricLine()) {
-//            if (electricalLine.getPresentInDxf())
-//                if (electricalLine.getVoltage() != null
-//                        && electricalLine.getVoltage().compareTo(BigDecimal.ZERO) > 0
-//                        && (electricalLine.getHorizontalDistance() != null
-//                        || electricalLine.getVerticalDistance() != null)) {
-//                    boolean horizontalDistancePassed = false;
-//                    if (electricalLine.getHorizontalDistance() != null) {
-//                        String expectedResult = "";
-//                        String actualResult = electricalLine.getHorizontalDistance().toString() + DcrConstants.IN_METER;
-//                        if (electricalLine.getVoltage().compareTo(BigDecimal.valueOf(VOLTAGE_11000)) < 0) {
-//                            expectedResult = HORIZONTAL_DISTANCE_11000.toString() + DcrConstants.IN_METER;
-//                            if (electricalLine.getHorizontalDistance().compareTo(HORIZONTAL_DISTANCE_11000) >= 0)
-//                                horizontalDistancePassed = true;
-//
-//                        } else if (electricalLine.getVoltage().compareTo(BigDecimal.valueOf(VOLTAGE_11000)) >= 0
-//                                && electricalLine.getVoltage().compareTo(BigDecimal.valueOf(VOLTAGE_33000)) <= 0) {
-//                            expectedResult = HORIZONTAL_DISTANCE_33000.toString() + DcrConstants.IN_METER;
-//                            if (electricalLine.getHorizontalDistance().compareTo(HORIZONTAL_DISTANCE_33000) >= 0)
-//                                horizontalDistancePassed = true;
-//                        } else if (electricalLine.getVoltage().compareTo(BigDecimal.valueOf(VOLTAGE_33000)) > 0) {
-//                            Double totalHorizontalOHE = HORIZONTAL_DISTANCE_33000.doubleValue() + 0.3 *
-//                                    Math.ceil(
-//                                            electricalLine.getVoltage().subtract(BigDecimal.valueOf(VOLTAGE_33000))
-//                                                    .divide(BigDecimal.valueOf(VOLTAGE_33000), 2, RoundingMode.HALF_UP)
-//                                                    .doubleValue());
-//                            expectedResult = totalHorizontalOHE + DcrConstants.IN_METER;
-//                            if (electricalLine.getHorizontalDistance()
-//                                    .compareTo(BigDecimal.valueOf(totalHorizontalOHE)) >= 0) {
-//                                horizontalDistancePassed = true;
-//                            }
-//                        }
-//                        if (horizontalDistancePassed) {
-//                            setReportOutputDetails(pl, SUB_RULE_31, DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE +
-//                                            electricalLine.getNumber(), expectedResult,
-//                                    actualResult, Result.Accepted.getResultVal(), "", electricalLine.getVoltage().toString() + DcrConstants.IN_KV);
-//                        } else {
-//                            boolean verticalDistancePassed = processVerticalDistance(electricalLine, pl, "", "");
-//                            if (verticalDistancePassed) {
-//                                setReportOutputDetails(pl, SUB_RULE_31, DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE +
-//                                                electricalLine.getNumber(), expectedResult,
-//                                        actualResult, Result.Verify.getResultVal(), String.format(DcrConstants.HORIZONTAL_ELINE_DISTANCE_NOC, electricalLine.getNumber()),electricalLine.getVoltage().toString() + DcrConstants.IN_KV);
-//                            } else {
-//                                setReportOutputDetails(pl, SUB_RULE_31, DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE +
-//                                                electricalLine.getNumber(), expectedResult,
-//                                        actualResult, Result.Not_Accepted.getResultVal(), "", electricalLine.getVoltage().toString() + DcrConstants.IN_KV);
-//                            }
-//
-//                            // NOC required for horizontal, if horizontal distance condition failed and vertical distance passed.
-//                            if (verticalDistancePassed) {
-//                                HashMap<String, String> noc = new HashMap<>();
-//                                noc.put(DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE + electricalLine.getNumber(),
-//                                        DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE_NOC);
-//                                pl.addNocs(noc);
-//                            }
-//                        }
-//
-//                    } else if (electricalLine.getHorizontalDistance() == null && electricalLine.getVerticalDistance() != null) {
-//                        boolean verticalDistancePassed = processVerticalDistance(electricalLine, pl, String.format(DcrConstants.HORIZONTAL_ELINE_DISTANCE_NOC_HLINE_NOT_DEFINED, electricalLine.getNumber()), "");
-//                        if (verticalDistancePassed) {
-//                            HashMap<String, String> noc = new HashMap<>();
-//                            noc.put(DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE + electricalLine.getNumber()
-//                                    , DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE_NOC);
-//                            pl.addNocs(noc);
-//                        }
-//                    }
-//                }
-//        }
+        validate(pl);
+        scrutinyDetail = new ScrutinyDetail();
+        scrutinyDetail.setKey("Common_OverHead Electric Line");
+        scrutinyDetail.addColumnHeading(1, RULE_NO);
+        scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+        scrutinyDetail.addColumnHeading(3, REQUIRED);
+        scrutinyDetail.addColumnHeading(4, PROVIDED);
+        scrutinyDetail.addColumnHeading(6, VOLTAGE);
+        scrutinyDetail.addColumnHeading(7, REMARKS);
+        scrutinyDetail.addColumnHeading(8, STATUS);
+
+        for (ElectricLine electricalLine : pl.getElectricLine()) {
+            if (electricalLine.getPresentInDxf())
+                if (electricalLine.getVoltage() != null
+                        && electricalLine.getVoltage().compareTo(BigDecimal.ZERO) > 0
+                        && (electricalLine.getHorizontalDistance() != null
+                        || electricalLine.getVerticalDistance() != null)) {
+                    boolean horizontalDistancePassed = false;
+                    if (electricalLine.getHorizontalDistance() != null) {
+                        String expectedResult = "";
+                        String actualResult = electricalLine.getHorizontalDistance().toString() + DcrConstants.IN_METER;
+                        if (electricalLine.getVoltage().compareTo(BigDecimal.valueOf(VOLTAGE_11000)) < 0) {
+                            expectedResult = HORIZONTAL_DISTANCE_11000.toString() + DcrConstants.IN_METER;
+                            if (electricalLine.getHorizontalDistance().compareTo(HORIZONTAL_DISTANCE_11000) >= 0)
+                                horizontalDistancePassed = true;
+
+                        } else if (electricalLine.getVoltage().compareTo(BigDecimal.valueOf(VOLTAGE_11000)) >= 0
+                                && electricalLine.getVoltage().compareTo(BigDecimal.valueOf(VOLTAGE_33000)) <= 0) {
+                            expectedResult = HORIZONTAL_DISTANCE_33000.toString() + DcrConstants.IN_METER;
+                            if (electricalLine.getHorizontalDistance().compareTo(HORIZONTAL_DISTANCE_33000) >= 0)
+                                horizontalDistancePassed = true;
+                        } else if (electricalLine.getVoltage().compareTo(BigDecimal.valueOf(VOLTAGE_33000)) > 0) {
+                            Double totalHorizontalOHE = HORIZONTAL_DISTANCE_33000.doubleValue() + 0.3 *
+                                    Math.ceil(
+                                            electricalLine.getVoltage().subtract(BigDecimal.valueOf(VOLTAGE_33000))
+                                                    .divide(BigDecimal.valueOf(VOLTAGE_33000), 2, RoundingMode.HALF_UP)
+                                                    .doubleValue());
+                            expectedResult = totalHorizontalOHE + DcrConstants.IN_METER;
+                            if (electricalLine.getHorizontalDistance()
+                                    .compareTo(BigDecimal.valueOf(totalHorizontalOHE)) >= 0) {
+                                horizontalDistancePassed = true;
+                            }
+                        }
+                        if (horizontalDistancePassed) {
+                            setReportOutputDetails(pl, SUB_RULE_31, DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE +
+                                            electricalLine.getNumber(), expectedResult,
+                                    actualResult, Result.Accepted.getResultVal(), "", electricalLine.getVoltage().toString() + DcrConstants.IN_KV);
+                        } else {
+                            boolean verticalDistancePassed = processVerticalDistance(electricalLine, pl, "", "");
+                            if (verticalDistancePassed) {
+                                setReportOutputDetails(pl, SUB_RULE_31, DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE +
+                                                electricalLine.getNumber(), expectedResult,
+                                        actualResult, Result.Verify.getResultVal(), String.format(DcrConstants.HORIZONTAL_ELINE_DISTANCE_NOC, electricalLine.getNumber()),electricalLine.getVoltage().toString() + DcrConstants.IN_KV);
+                            } else {
+                                setReportOutputDetails(pl, SUB_RULE_31, DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE +
+                                                electricalLine.getNumber(), expectedResult,
+                                        actualResult, Result.Not_Accepted.getResultVal(), "", electricalLine.getVoltage().toString() + DcrConstants.IN_KV);
+                            }
+
+                            // NOC required for horizontal, if horizontal distance condition failed and vertical distance passed.
+                            if (verticalDistancePassed) {
+                                HashMap<String, String> noc = new HashMap<>();
+                                noc.put(DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE + electricalLine.getNumber(),
+                                        DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE_NOC);
+                                pl.addNocs(noc);
+                            }
+                        }
+
+                    } else if (electricalLine.getHorizontalDistance() == null && electricalLine.getVerticalDistance() != null) {
+                        boolean verticalDistancePassed = processVerticalDistance(electricalLine, pl, String.format(DcrConstants.HORIZONTAL_ELINE_DISTANCE_NOC_HLINE_NOT_DEFINED, electricalLine.getNumber()), "");
+                        if (verticalDistancePassed) {
+                            HashMap<String, String> noc = new HashMap<>();
+                            noc.put(DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE + electricalLine.getNumber()
+                                    , DcrConstants.HORIZONTAL_ELECTRICLINE_DISTANCE_NOC);
+                            pl.addNocs(noc);
+                        }
+                    }
+                }
+        }
         return pl;
     }
 

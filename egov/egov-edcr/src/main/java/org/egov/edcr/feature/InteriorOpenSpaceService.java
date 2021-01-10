@@ -84,15 +84,16 @@ public class InteriorOpenSpaceService extends FeatureProcess {
 			scrutinyDetail.setKey("Common_Interior Open Space");
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
 			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-			scrutinyDetail.addColumnHeading(3, REQUIRED);
-			scrutinyDetail.addColumnHeading(4, PROVIDED);
-			scrutinyDetail.addColumnHeading(5, STATUS);
+			scrutinyDetail.addColumnHeading(3, FLOOR);
+			scrutinyDetail.addColumnHeading(4, REQUIRED);
+			scrutinyDetail.addColumnHeading(5, PROVIDED);
+			scrutinyDetail.addColumnHeading(6, STATUS);
 
 			if (b.getBuilding() != null && b.getBuilding().getFloors() != null
 					&& !b.getBuilding().getFloors().isEmpty()) {
 				for (Floor f : b.getBuilding().getFloors()) {
-					processVentilationShaft(pl, scrutinyDetail, f);
-					processInteriorCourtYard(pl, scrutinyDetail, f);
+					//processVentilationShaft(pl, scrutinyDetail, f);
+					processInteriorCourtYard(pl, scrutinyDetail,b, f,isInteriorOpenSpaceRequired(pl, b));//15meter
 				}
 			}
 
@@ -100,7 +101,7 @@ public class InteriorOpenSpaceService extends FeatureProcess {
 		return pl;
 	}
 
-	private void processInteriorCourtYard(Plan pl, ScrutinyDetail scrutinyDetail, Floor f) {
+	private void processInteriorCourtYard(Plan pl, ScrutinyDetail scrutinyDetail,Block block, Floor f,boolean isRequired) {
 		if (f.getInteriorOpenSpace() != null && f.getInteriorOpenSpace().getInnerCourtYard() != null
 				&& f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements() != null
 				&& !f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements().isEmpty()) {
@@ -109,22 +110,23 @@ public class InteriorOpenSpaceService extends FeatureProcess {
 					.stream().map(Measurement::getArea).reduce(BigDecimal::min).get();
 			BigDecimal minInteriorCourtYardWidth = f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements()
 					.stream().map(Measurement::getWidth).reduce(BigDecimal::min).get();
+			
 
 			if (minInteriorCourtYardArea.compareTo(BigDecimal.ZERO) > 0) {
 				Map<String, String> details = new HashMap<>();
 				details.put(RULE_NO, RULE_43);
 				details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
-
+				details.put(FLOOR, f.getNumber().toString());
 				if (minInteriorCourtYardArea.compareTo(BigDecimal.valueOf(9)) >= 0) {
 					details.put(REQUIRED, "Minimum area 9.0 Sq. M  ");
-					details.put(PROVIDED, "Area " + minInteriorCourtYardArea + " at floor " + f.getNumber());
+					details.put(PROVIDED, "Area " + minInteriorCourtYardArea );
 					details.put(STATUS, Result.Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
 				} else {
 					details.put(REQUIRED, "Minimum area 9.0 Sq. M  ");
-					details.put(PROVIDED, "Area " + minInteriorCourtYardArea + " at floor " + f.getNumber());
+					details.put(PROVIDED, "Area " + minInteriorCourtYardArea);
 					details.put(STATUS, Result.Not_Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
@@ -134,22 +136,33 @@ public class InteriorOpenSpaceService extends FeatureProcess {
 				Map<String, String> details = new HashMap<>();
 				details.put(RULE_NO, RULE_43A);
 				details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
-				if (minInteriorCourtYardWidth.compareTo(BigDecimal.valueOf(3)) >= 0) {
-					details.put(REQUIRED, "Minimum width 3.0 M ");
-					details.put(PROVIDED, "Area  " + minInteriorCourtYardWidth + " at floor " + f.getNumber());
+				details.put(FLOOR, f.getNumber().toString());
+				if (minInteriorCourtYardWidth.compareTo(BigDecimal.valueOf(2)) >= 0) {
+					details.put(REQUIRED, "Minimum width 2.0 M ");
+					details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
 					details.put(STATUS, Result.Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
 				} else {
-					details.put(REQUIRED, "Minimum width 3.0 M ");
-					details.put(PROVIDED, "Area  " + minInteriorCourtYardWidth + " at floor " + f.getNumber());
+					details.put(REQUIRED, "Minimum width 2.0 M ");
+					details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
 					details.put(STATUS, Result.Not_Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
 			}
 		}
+	}
+	
+	private boolean isInteriorOpenSpaceRequired(Plan pl,Block block) {
+		boolean flage=false;
+		  for(Floor f:block.getBuilding().getFloors()) {
+			  if(f.getInteriorOpenSpace()!=null && f.getInteriorOpenSpace().getInnerCourtYard()!=null && f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements().size()>0) {
+				  flage=true;
+			  }
+		  }
+		return flage;
 	}
 
 	private void processVentilationShaft(Plan pl, ScrutinyDetail scrutinyDetail, Floor f) {

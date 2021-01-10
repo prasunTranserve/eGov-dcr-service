@@ -47,28 +47,160 @@
 
 package org.egov.edcr.feature;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.Measurement;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
+import org.egov.common.entity.edcr.Result;
+import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.common.entity.edcr.SupplyLine;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
+import org.python.core.exceptions;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SupplyLineUtility extends FeatureProcess {
+	private static final String RULE_51 = "51";
+	private static final String RULE_51_DESCRIPTION = "Recharging pits";
+	private static final int COLOR_CODE_RECHARGING_PITS = 1;
 
-    @Override
-    public Plan validate(Plan pl) {
-        return pl;
-    }
+	@Override
+	public Plan validate(Plan pl) {
+		return pl;
+	}
 
-    @Override
-    public Plan process(Plan pl) {
-        return pl;
-    }
+	@Override
+	public Plan process(Plan pl) {
 
-    @Override
-    public Map<String, Date> getAmendments() {
-        return new LinkedHashMap<>();
-    }
+		processRechargingPits(pl);
+
+		return pl;
+	}
+
+	private void processRechargingPits(Plan pl) {
+
+		HashMap<String, String> errors = new HashMap<>();
+
+		scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+		scrutinyDetail.setKey("Common_Recharging pits");
+		String subRule = RULE_51;
+		String subRuleDesc = RULE_51_DESCRIPTION;
+		BigDecimal expectedTankCapacity = BigDecimal.ZERO;
+		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea() : BigDecimal.ZERO;
+
+		boolean isRechargingPitsRequired = false;
+		if (plotArea.compareTo(new BigDecimal("300")) >= 0) {
+			isRechargingPitsRequired = true;
+		}
+
+		SupplyLine supplyLine = getSupplyLineByColorCode(pl.getUtility().getSupplyLine(), COLOR_CODE_RECHARGING_PITS);
+		int count = supplyLine.getSupplyLines().size();
+
+		// total volum
+		BigDecimal totalVol = BigDecimal.ZERO;
+		BigDecimal height = BigDecimal.ZERO;
+		BigDecimal totalRequiredVol = new BigDecimal("6");
+		if (supplyLine.getDistances() != null)
+			height = supplyLine.getDistances().get(COLOR_CODE_RECHARGING_PITS).size() > 0
+					? supplyLine.getDistances().get(COLOR_CODE_RECHARGING_PITS).get(0)
+					: BigDecimal.ZERO;
+		for (Measurement measurement : supplyLine.getSupplyLines()) {
+			totalVol = totalVol.add(measurement.getArea().multiply(height));
+		}
+		totalVol = totalVol.setScale(2, BigDecimal.ROUND_HALF_UP);
+
+		BigDecimal totalRoofArea = OdishaUtill.getTotalRoofArea(pl);
+		int multiplicand = 0;
+
+		if (totalRoofArea.remainder(new BigDecimal("100")).compareTo(BigDecimal.ZERO) == 0)
+			multiplicand = totalRoofArea.divide(new BigDecimal("100")).intValue();
+		else
+			multiplicand = totalRoofArea.divide(new BigDecimal("100")).intValue() + 1;
+
+		totalRequiredVol = totalRequiredVol.multiply(new BigDecimal(multiplicand + ""));
+
+		if (!isRechargingPitsRequired) {
+
+			if (supplyLine.getSupplyLines() != null && supplyLine.getSupplyLines().size() > 0) {
+				setReportOutputDetails(pl, subRule, "Recharging pits Count", DxfFileConstants.OPTIONAL,
+						supplyLine.getSupplyLines().size() + "", Result.Accepted.getResultVal());
+			} else {
+				setReportOutputDetails(pl, subRule, "Recharging pits Count", DxfFileConstants.OPTIONAL,
+						"Not Defined in the plan", Result.Accepted.getResultVal());
+			}
+
+			setReportOutputDetails(pl, subRule, "Dimension of recharging pits", DxfFileConstants.OPTIONAL,
+					totalVol + " cubic meters", Result.Accepted.getResultVal());
+
+		} else if (isRechargingPitsRequired) {
+			if ((supplyLine.getSupplyLines() != null && supplyLine.getSupplyLines().size() > 0)
+					&& (supplyLine.getSupplyLines() != null && supplyLine.getSupplyLines().size() > 0))
+				setReportOutputDetails(pl, subRule, "Recharging pits Count", "Mandatory",
+						supplyLine.getSupplyLines().size() + "", Result.Accepted.getResultVal());
+			else
+				setReportOutputDetails(pl, subRule, "Recharging pits Count", "Mandatory",
+						supplyLine.getSupplyLines().size() + "", Result.Not_Accepted.getResultVal());
+
+			if (totalVol.compareTo(totalRequiredVol) >= 0)
+				setReportOutputDetails(pl, subRule, "Dimension of recharging pits", totalRequiredVol + " cubic meters",
+						totalVol + " cubic meters", Result.Accepted.getResultVal());
+			else
+				setReportOutputDetails(pl, subRule, "Dimension of recharging pits", totalRequiredVol + " cubic meters",
+						totalVol + " cubic meters", Result.Not_Accepted.getResultVal());
+		}
+
+	}
+
+	private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String expected, String actual,
+			String status) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, ruleNo);
+		details.put(DESCRIPTION, ruleDesc);
+		details.put(REQUIRED, expected);
+		details.put(PROVIDED, actual);
+		details.put(STATUS, status);
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
+
+	private SupplyLine getSupplyLineByColorCode(SupplyLine supplyLine, int colorCode) {
+		SupplyLine supplyLine2 = new SupplyLine();
+		List<Measurement> supplyLines = new ArrayList<Measurement>();
+		if (supplyLine != null && supplyLine.getSupplyLines() != null)
+			supplyLines = supplyLine.getSupplyLines().stream()
+					.filter(measurement -> measurement.getColorCode() == colorCode).collect(Collectors.toList());
+		supplyLine2.setSupplyLines(supplyLines);
+
+		List<BigDecimal> distances = new ArrayList<>();
+		if (supplyLine != null && supplyLine.getDistances() != null)
+			distances = supplyLine.getDistances().get(colorCode);
+
+		Map<Integer, List<BigDecimal>> map = new HashMap<>();
+		map.put(colorCode, distances);
+		supplyLine2.setDistances(map);
+
+		return supplyLine2;
+	}
+
+	@Override
+	public Map<String, Date> getAmendments() {
+		return new LinkedHashMap<>();
+	}
 }

@@ -708,7 +708,10 @@ public class DxfFileConstants {
 	public static final Object NUMBER_OF_BEDS = "NUMBER_OF_BEDS";
 	public static final String WASTE_WATER_QUANTITY="WASTE_WATER_QUANTITY";
 
+	public static final String OPTIONAL="OPTIONAL";
+	public static final String PROVIDED="Provided";
 	
-
+	public static final String COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED = "Habitable Room (Naturally Ventilated)";//1
+	public static final String COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED = "Habitable Room (Mechanically Ventilated)";//2
 	
 }
