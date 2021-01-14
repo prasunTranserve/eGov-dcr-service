@@ -99,7 +99,8 @@ public class LocalDiskFileStoreService implements FileStoreService {
 
     @Override
     public FileStoreMapper store(File file, String fileName, String mimeType, String moduleName, boolean deleteFile) {
-        try {
+    	long start=System.currentTimeMillis();
+    	try {
             FileStoreMapper fileMapper = new FileStoreMapper(randomUUID().toString(),
                     defaultString(fileName, file.getName()));
             Path newFilePath = this.createNewFilePath(fileMapper, moduleName);
@@ -111,11 +112,17 @@ public class LocalDiskFileStoreService implements FileStoreService {
         } catch (IOException e) {
             throw new ApplicationRuntimeException(String.format("Error occurred while storing files at %s/%s/%s",
                     this.fileStoreBaseDir, getCityCode(), moduleName), e);
-        }
+        }finally {
+        	long end=System.currentTimeMillis();
+        	long execution = end - start;
+        	LOG.info("Total time taken by filestore service : "+execution+" for file "+fileName+" mime type "+mimeType);
+		}
+    	
     }
 
     @Override
     public FileStoreMapper store(InputStream fileStream, String fileName, String mimeType, String moduleName, boolean closeStream) {
+    	long start=System.currentTimeMillis();
         try {
             FileStoreMapper fileMapper = new FileStoreMapper(randomUUID().toString(), fileName);
             Path newFilePath = this.createNewFilePath(fileMapper, moduleName);
@@ -127,7 +134,11 @@ public class LocalDiskFileStoreService implements FileStoreService {
         } catch (IOException e) {
             throw new ApplicationRuntimeException(String.format("Error occurred while storing files at %s/%s/%s",
                     this.fileStoreBaseDir, getCityCode(), moduleName), e);
-        }
+        }finally {
+        	long end=System.currentTimeMillis();
+        	long execution = end - start;
+        	LOG.info("Total time taken by filestore service : "+execution+" for file "+fileName+" mime type "+mimeType);
+		}
     }
 
     @Override

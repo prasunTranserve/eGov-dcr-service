@@ -99,14 +99,21 @@ public class PlanService {
 
         AmendmentService repo = (AmendmentService) specificRuleService.find("amendmentService");
         Amendment amd = repo.getAmendments();
-
+        long start=System.currentTimeMillis();
         Plan plan = extractService.extract(dcrApplication.getSavedDxfFile(), amd, asOnDate,
                 featureService.getFeatures());
+        long end=System.currentTimeMillis();
+        long execution = end - start;
+        LOG.info("Total time taken to extract plan : "+execution);
         plan.setMdmsMasterData(dcrApplication.getMdmsMasterData());
         //plan.getErrors().clear();
         updateOdPlanInfo(plan);
         plan.getPlanInformation().setServiceType(dcrApplication.getServiceType());
+        start=System.currentTimeMillis();
         plan = applyRules(plan, amd, cityDetails);
+        end=System.currentTimeMillis();
+        execution = end - start;
+        LOG.info("Total time taken to complete scrutiny : "+execution);
         //update Noc and documentList
         if(plan!=null) {
         	NocAndDocumentsUtill.updateNoc(plan);
@@ -120,7 +127,11 @@ public class PlanService {
                         .equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())
                         && StringUtils.isBlank(comparisonDcrNumber))) {
             InputStream reportStream = generateReport(plan, amd, dcrApplication);
+            start=System.currentTimeMillis();
             saveOutputReport(dcrApplication, reportStream, plan);
+            end=System.currentTimeMillis();
+            execution = end - start;
+            LOG.info("Total time taken to persist scrutiny report in temp storage : "+execution);
         } else if (ApplicationType.OCCUPANCY_CERTIFICATE.getApplicationTypeVal()
                 .equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())
                 && StringUtils.isNotBlank(comparisonDcrNumber)) {
@@ -134,9 +145,16 @@ public class PlanService {
                     edcrApplicationDetail);
 
             dcrApplication.setDeviationStatus(processCombinedStatus.getStatus());
-
+            start=System.currentTimeMillis();
             InputStream reportStream = generateReport(plan, amd, dcrApplication);
+            end=System.currentTimeMillis();
+            execution = end - start;
+            LOG.info("Total time taken to genrate pdf report :"+execution);
+            start=System.currentTimeMillis();
             saveOutputReport(dcrApplication, reportStream, plan);
+            end=System.currentTimeMillis();
+            execution = end - start;
+            LOG.info("Total time taken to persist scrutiny report in temp storage : "+execution);
             final List<InputStream> pdfs = new ArrayList<>();
             Path path = fileStoreService.fetchAsPath(
                     dcrApplication.getEdcrApplicationDetails().get(0).getReportOutputId().getFileStoreId(),

@@ -181,6 +181,7 @@ public class RestEdcrApplicationController {
     @ResponseBody
     public ResponseEntity<?> scrutinize(@RequestBody MultipartFile planFile,
             @RequestParam String edcrRequest) {
+    	long start=System.currentTimeMillis();
         EdcrDetail edcrDetail = new EdcrDetail();
         EdcrRequest edcr = new EdcrRequest();
         try {
@@ -239,6 +240,9 @@ public class RestEdcrApplicationController {
                     HttpStatus.BAD_REQUEST);
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
+        long end=System.currentTimeMillis();
+        long execution = end - start;
+        LOGGER.info("Total time taken to complete scrutiny : "+execution);
         return getSuccessResponse(Arrays.asList(edcrDetail), edcr.getRequestInfo());
     }
 
