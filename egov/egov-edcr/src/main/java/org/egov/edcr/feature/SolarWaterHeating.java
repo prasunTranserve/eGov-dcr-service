@@ -225,6 +225,10 @@ public class SolarWaterHeating extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
+		
+		boolean flage=true;
+		if(flage)
+			return pl;
 		validate(pl);
 
 		scrutinyDetail = new ScrutinyDetail();

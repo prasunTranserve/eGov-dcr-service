@@ -28,6 +28,10 @@ public class GateService extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan plan) {
+		
+		boolean flage=true;
+		if(flage)
+			return plan;
 
 		scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Gate Service");

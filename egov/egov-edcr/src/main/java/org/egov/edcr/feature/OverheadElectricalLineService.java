@@ -84,30 +84,33 @@ public class OverheadElectricalLineService extends FeatureProcess {
 
     @Override
     public Plan validate(Plan pl) {
-        HashMap<String, String> errors = new HashMap<>();
-        for (ElectricLine electricalLine : pl.getElectricLine()) {
-            if (electricalLine.getPresentInDxf()) {
-                if (electricalLine.getVoltage() == null) {
-                    errors.put(DcrConstants.VOLTAGE,
-                            edcrMessageSource.getMessage(DcrConstants.OBJECTNOTDEFINED,
-                                    new String[]{DcrConstants.VOLTAGE}, LocaleContextHolder.getLocale()));
-                    pl.addErrors(errors);
-                }
-                if (electricalLine.getVoltage() != null && (electricalLine.getHorizontalDistance() == null
-                        && electricalLine.getVerticalDistance() == null)) {
-                    errors.put(DcrConstants.ELECTRICLINE_DISTANCE,
-                            edcrMessageSource.getMessage(DcrConstants.OBJECTNOTDEFINED,
-                                    new String[]{DcrConstants.ELECTRICLINE_DISTANCE}, LocaleContextHolder.getLocale()));
-                    pl.addErrors(errors);
-                }
-            }
-        }
+//        HashMap<String, String> errors = new HashMap<>();
+//        for (ElectricLine electricalLine : pl.getElectricLine()) {
+//            if (electricalLine.getPresentInDxf()) {
+//                if (electricalLine.getVoltage() == null) {
+//                    errors.put(DcrConstants.VOLTAGE,
+//                            edcrMessageSource.getMessage(DcrConstants.OBJECTNOTDEFINED,
+//                                    new String[]{DcrConstants.VOLTAGE}, LocaleContextHolder.getLocale()));
+//                    pl.addErrors(errors);
+//                }
+//                if (electricalLine.getVoltage() != null && (electricalLine.getHorizontalDistance() == null
+//                        && electricalLine.getVerticalDistance() == null)) {
+//                    errors.put(DcrConstants.ELECTRICLINE_DISTANCE,
+//                            edcrMessageSource.getMessage(DcrConstants.OBJECTNOTDEFINED,
+//                                    new String[]{DcrConstants.ELECTRICLINE_DISTANCE}, LocaleContextHolder.getLocale()));
+//                    pl.addErrors(errors);
+//                }
+//            }
+//        }
         return pl;
     }
 
    
     @Override
     public Plan process(Plan pl) {
+    	boolean flage=true;
+		if(flage)
+			return pl;
         validate(pl);
         scrutinyDetail = new ScrutinyDetail();
         scrutinyDetail.setKey("Common_OverHead Electric Line");

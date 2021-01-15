@@ -105,6 +105,9 @@ public class LiftService extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan plan) {
+		boolean flage=true;
+		if(flage)
+			return plan;
 		// validate(plan);
 		if (plan != null && !plan.getBlocks().isEmpty()) {
 			for (Block block : plan.getBlocks()) {
