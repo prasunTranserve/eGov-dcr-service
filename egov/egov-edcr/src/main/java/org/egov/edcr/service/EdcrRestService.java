@@ -96,6 +96,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -151,6 +152,9 @@ public class EdcrRestService {
     
     @Autowired
     private EdcrApplicationDetailService applicationDetailService;
+    
+    @Value("${download.url.support.flage}")
+    private boolean downloadUrlSupportFlage;
     
     public Session getCurrentSession() {
         return entityManager.unwrap(Session.class);
@@ -681,8 +685,12 @@ public class EdcrRestService {
     }
 
     public String getFileDownloadUrl(final String fileStoreId, final String tenantId) {
-        return String.format(FILE_DOWNLOAD_URL, ApplicationThreadLocals.getDomainURL()) + fileStoreId + "?tenantId="
-                + tenantId;
+       String dUrl=String.format(FILE_DOWNLOAD_URL, ApplicationThreadLocals.getDomainURL()) + fileStoreId + "?tenantId="
+               + tenantId;
+       if(downloadUrlSupportFlage) {
+    	   dUrl=dUrl.replace("http:", "https:");
+       }
+    	return dUrl;
     }
 
 }
