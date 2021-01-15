@@ -31,7 +31,9 @@ public class DoorWays extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-
+		boolean flage=true;
+		if(flage)
+			return pl;
 		scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Doorways");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
