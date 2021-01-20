@@ -45,6 +45,7 @@ import org.egov.edcr.entity.EdcrApplication;
 import org.egov.edcr.entity.EdcrApplicationDetail;
 import org.egov.edcr.entity.OcComparisonDetail;
 import org.egov.edcr.feature.FeatureProcess;
+import org.egov.edcr.od.DataPreparation;
 import org.egov.edcr.od.FeeCalculationUtill;
 import org.egov.edcr.od.NocAndDocumentsUtill;
 import org.egov.edcr.od.OdishaUtill;
@@ -119,6 +120,7 @@ public class PlanService {
         	NocAndDocumentsUtill.updateNoc(plan);
         	NocAndDocumentsUtill.updateDocuments(plan);
         	FeeCalculationUtill.checkShelterFeePrevalidation(plan);
+        	DataPreparation.updatePlanDetails(plan);
         }
         String comparisonDcrNumber = dcrApplication.getEdcrApplicationDetails().get(0).getComparisonDcrNumber();
         if (ApplicationType.PERMIT.getApplicationTypeVal()

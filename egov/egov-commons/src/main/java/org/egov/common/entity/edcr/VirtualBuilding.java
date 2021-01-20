@@ -56,6 +56,7 @@ import java.util.Set;
 public class VirtualBuilding implements Serializable {
     private static final long serialVersionUID = 7L;
     private BigDecimal buildingHeight;
+    private BigDecimal declaredBuildingHeight;
     private EnumSet<OccupancyType> occupancies = EnumSet.noneOf(OccupancyType.class);
     private Set<OccupancyTypeHelper> occupancyTypes = new HashSet<>();
     private BigDecimal totalBuitUpArea;
@@ -217,5 +218,14 @@ public class VirtualBuilding implements Serializable {
     public void setTotalConstructedArea(BigDecimal totalConstructedArea) {
         this.totalConstructedArea = totalConstructedArea;
     }
+
+	public BigDecimal getDeclaredBuildingHeight() {
+		return declaredBuildingHeight;
+	}
+
+	public void setDeclaredBuildingHeight(BigDecimal declaredBuildingHeight) {
+		this.declaredBuildingHeight = declaredBuildingHeight;
+	}
+    
     
 }
