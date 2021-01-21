@@ -69,7 +69,7 @@ public class Parapet extends FeatureProcess {
 
 	private static final Logger LOG = Logger.getLogger(Parapet.class);
 	private static final String RULE_41_V = "41-v";
-	public static final String PARAPET_DESCRIPTION = "Parapet";
+	public static final String PARAPET_DESCRIPTION = "Parapet Height";
 
 	private static final int COLOR_GENRAL_STAIR_CASE_RAILLING = 1;
 	private static final int COLOR_DARAMP_RAILLING = 2;
@@ -130,20 +130,21 @@ public class Parapet extends FeatureProcess {
 	}
 
 	private void validateDaRamParapet(Plan pl) {
-		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_DA Ramp Railing");
-		scrutinyDetail.addColumnHeading(1, RULE_NO);
-		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-		scrutinyDetail.addColumnHeading(3, REQUIRED);
-		scrutinyDetail.addColumnHeading(4, PROVIDED);
-		scrutinyDetail.addColumnHeading(5, STATUS);
-		Map<String, String> details = new HashMap<>();
-		details.put(RULE_NO, RULE_41_V);
-		details.put(DESCRIPTION, "DA Ramp Railing");
-
-		BigDecimal minHeight = BigDecimal.ZERO;
 
 		for (Block b : pl.getBlocks()) {
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			//scrutinyDetail.setKey("Common_DA Ramp Railing");
+			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "DA Ramp Railing Height");
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, REQUIRED);
+			scrutinyDetail.addColumnHeading(4, PROVIDED);
+			scrutinyDetail.addColumnHeading(5, STATUS);
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, RULE_41_V);
+			details.put(DESCRIPTION, "DA Ramp Railing");
+
+			BigDecimal minHeight = BigDecimal.ZERO;
 			if (b.getdARailingParapets() != null && !b.getdARailingParapets().isEmpty()) {
 				minHeight = b.getdARailingParapets().stream().reduce(BigDecimal::min).get();
 

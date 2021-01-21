@@ -155,28 +155,34 @@ public class VehicleRamp extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-//		validate(pl);
-//		if (pl != null && !pl.getBlocks().isEmpty()) {
-//			for (Block block : pl.getBlocks()) {
-//				ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-//				scrutinyDetail.addColumnHeading(1, RULE_NO);
-//				scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-//				scrutinyDetail.addColumnHeading(3, FLOOR);
-//				scrutinyDetail.addColumnHeading(4, REQUIRED);
-//				scrutinyDetail.addColumnHeading(5, PROVIDED);
-//				scrutinyDetail.addColumnHeading(6, STATUS);
-//				scrutinyDetail.setKey("Vehicle Ramp");
-//				scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Vehicle Ramp");
-//
-//				if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
-//					for (Floor floor : block.getBuilding().getFloors()) {
-//						//VehicleRampData rampData=getVehicleRampDataFromFloor(floor.getVehicleRamps())
-//						System.out.println("floor "+floor.getNumber()+" ramp"+floor.getVehicleRamps());
-//					}
-//				}
-//
-//			}
-//		}
+		validate(pl);
+		if (pl != null && !pl.getBlocks().isEmpty()) {
+			for (Block block : pl.getBlocks()) {
+				ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+				scrutinyDetail.addColumnHeading(1, RULE_NO);
+				scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+				scrutinyDetail.addColumnHeading(3, FLOOR);
+				scrutinyDetail.addColumnHeading(4, REQUIRED);
+				scrutinyDetail.addColumnHeading(5, PROVIDED);
+				scrutinyDetail.addColumnHeading(6, STATUS);
+				scrutinyDetail.setKey("Vehicle Ramp");
+				scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Vehicle Ramp");
+
+				if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
+					for (Floor floor : block.getBuilding().getFloors()) {
+						for(org.egov.common.entity.edcr.VehicleRamp ramp:floor.getVehicleRamps()) {
+							VehicleRampData vehicleRampData=getVehicleRampDataFromFloor(ramp);
+							System.out.println("floor "+floor.getNumber()+" ramp"+floor.getVehicleRamps());
+							validateRampCount(vehicleRampData, floor, scrutinyDetail);
+							validateRampSlop(vehicleRampData, floor, scrutinyDetail);
+							validateRampWidth(vehicleRampData, floor, scrutinyDetail);
+							validateRampLength(vehicleRampData, floor, scrutinyDetail);
+						}
+					}
+				}
+
+			}
+		}
 
 		return pl;
 	}

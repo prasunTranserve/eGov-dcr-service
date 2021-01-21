@@ -67,7 +67,7 @@ public class StairCover extends FeatureProcess {
 
 	private static final Logger LOG = Logger.getLogger(StairCover.class);
 	private static final String RULE_44_C = "44-c";
-	public static final String STAIRCOVER_DESCRIPTION = "Mumty";
+	public static final String STAIRCOVER_DESCRIPTION = "Mumty Height";
 
 	@Override
 	public Plan validate(Plan pl) {
@@ -78,20 +78,22 @@ public class StairCover extends FeatureProcess {
 	@Override
 	public Plan process(Plan pl) {
 
-		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_Mumty");
-		scrutinyDetail.addColumnHeading(1, RULE_NO);
-		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-		scrutinyDetail.addColumnHeading(3, REQUIRED);
-		scrutinyDetail.addColumnHeading(4, PROVIDED);
-		scrutinyDetail.addColumnHeading(5, STATUS);
-
-		Map<String, String> details = new HashMap<>();
-		details.put(RULE_NO, RULE_44_C);
+		
 
 		BigDecimal minHeight = BigDecimal.ZERO;
 
 		for (Block b : pl.getBlocks()) {
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			//scrutinyDetail.setKey("Common_Mumty");
+			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "Mumty");
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, REQUIRED);
+			scrutinyDetail.addColumnHeading(4, PROVIDED);
+			scrutinyDetail.addColumnHeading(5, STATUS);
+
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, RULE_44_C);
 			minHeight = BigDecimal.ZERO;
 			if (b.getStairCovers() != null && !b.getStairCovers().isEmpty()) {
 				minHeight = b.getStairCovers().stream().reduce(BigDecimal::min).get();

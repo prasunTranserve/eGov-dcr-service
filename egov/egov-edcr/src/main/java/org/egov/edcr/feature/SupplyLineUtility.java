@@ -135,6 +135,11 @@ public class SupplyLineUtility extends FeatureProcess {
 			multiplicand = totalRoofArea.divide(new BigDecimal("100")).intValue() + 1;
 
 		totalRequiredVol = totalRequiredVol.multiply(new BigDecimal(multiplicand + ""));
+		
+		if(supplyLine.getSupplyLines()!=null & supplyLine.getSupplyLines().size()>0) {
+			if(totalRoofArea.compareTo(BigDecimal.ZERO)<=0)
+				pl.addError("totalRoofArea", "Roof Area layer not provided in plan.");
+		}
 
 		if (!isRechargingPitsRequired) {
 
