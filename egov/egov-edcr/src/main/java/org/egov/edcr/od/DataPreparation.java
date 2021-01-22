@@ -78,12 +78,15 @@ public class DataPreparation {
 
 	private static void updateBusinessService(Plan pl) {
 
-		Double buildingHeight = pl.getVirtualBuilding().getBuildingHeight().doubleValue();
-		Double plotArea = pl.getPlot().getArea().doubleValue();
-		boolean isSpecialBuilding = DxfFileConstants.YES.equals(pl.getPlanInformation().getSpecialBuilding()) ? true
-				: false;
-
-		setBusinessService(pl, buildingHeight, plotArea, isSpecialBuilding);
+		try {
+			Double buildingHeight = pl.getVirtualBuilding().getBuildingHeight().doubleValue();
+			Double plotArea = pl.getPlot().getArea().doubleValue();
+			boolean isSpecialBuilding = DxfFileConstants.YES.equals(pl.getPlanInformation().getSpecialBuilding()) ? true
+					: false;
+			setBusinessService(pl, buildingHeight, plotArea, isSpecialBuilding);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		if (pl.getPlanInformation().getBusinessService() == null
 				|| pl.getPlanInformation().getBusinessService().trim().isEmpty())
