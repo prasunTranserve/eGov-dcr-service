@@ -98,20 +98,23 @@ public class DataPreparation {
 	private static void setBusinessService(Plan pl, Double buildingHeight, Double plotArea, boolean isSpecialBuilding) {
 		if (null != buildingHeight && null != plotArea) {
 			if (!isSpecialBuilding) {
-				if ((buildingHeight < 10) && (plotArea < 500)) {
+				if ((buildingHeight <= 10) || (plotArea <= 500)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PA_MODULE_CODE);
-				} else if ((buildingHeight > 10 && buildingHeight < 15) && (plotArea > 500 && plotArea < 4047)) {
+				}
+				if ((buildingHeight > 10 && buildingHeight <= 15) || (plotArea > 500 && plotArea <= 4047)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PO_MODULE_CODE);
-				} else if ((buildingHeight > 15 && buildingHeight < 30) && (plotArea > 4047 && plotArea < 10000)) {
+				}
+				if ((buildingHeight > 15 && buildingHeight <= 30) || (plotArea > 4047 && plotArea <= 10000)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PM_MODULE_CODE);
-				} else if ((buildingHeight > 30) && (plotArea > 10000)) {
+				}
+				if ((buildingHeight > 30) || (plotArea > 10000)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_DP_BP_MODULE_CODE);
 				}
 
 			} else {
-				if (buildingHeight < 15) {
+				if (buildingHeight <= 15) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PO_MODULE_CODE);
-				} else if (buildingHeight > 15 && buildingHeight < 30) {
+				} else if (buildingHeight > 15 && buildingHeight <= 30) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PM_MODULE_CODE);
 				} else if (buildingHeight > 30) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_DP_BP_MODULE_CODE);
