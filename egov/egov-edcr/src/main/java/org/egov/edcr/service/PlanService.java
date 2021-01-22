@@ -367,6 +367,14 @@ public class PlanService {
     		pl.addError("licensee", "ARCHITECT_OR_TECHNICAL_PERSON_NAME is mandatory in plan info.");
     	}
     	
+    	//IS_BUILDING_CENTRALLY_AIR_CONDITIONED
+    	String buildingCentrallyAirConditioned=pl.getPlanInfoProperties().get(IS_BUILDING_CENTRALLY_AIR_CONDITIONED);
+    	if(YES.equals(buildingCentrallyAirConditioned) || NO.equals(buildingCentrallyAirConditioned)) {
+    		pl.getPlanInformation().setBuildingCentrallyAirConditioned(buildingCentrallyAirConditioned);
+    	}else {
+    		pl.addError("buildingCentrallyAirConditioned", "IS_BUILDING_CENTRALLY_AIR_CONDITIONED is mandatory in plan info.");
+    	}
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

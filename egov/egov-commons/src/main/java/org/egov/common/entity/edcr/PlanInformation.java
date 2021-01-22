@@ -228,6 +228,10 @@ public class PlanInformation implements Serializable {
     
     private BigDecimal offSiteParkingprovisionsArea=BigDecimal.ZERO;
     
+    private boolean specialBuilding;
+    
+    private String buildingCentrallyAirConditioned;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -881,7 +885,22 @@ public class PlanInformation implements Serializable {
 	public void setRiskTypeDes(String riskTypeDes) {
 		this.riskTypeDes = riskTypeDes;
 	}
+
+	public boolean isSpecialBuilding() {
+		return specialBuilding;
+	}
+
+	public void setSpecialBuilding(boolean specialBuilding) {
+		this.specialBuilding = specialBuilding;
+	}
+
+	public String getBuildingCentrallyAirConditioned() {
+		return buildingCentrallyAirConditioned;
+	}
+
+	public void setBuildingCentrallyAirConditioned(String buildingCentrallyAirConditioned) {
+		this.buildingCentrallyAirConditioned = buildingCentrallyAirConditioned;
+	}
     
-	
 	
 }
