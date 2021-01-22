@@ -89,8 +89,10 @@ public class DataPreparation {
 		}
 
 		if (pl.getPlanInformation().getBusinessService() == null
-				|| pl.getPlanInformation().getBusinessService().trim().isEmpty())
+				|| pl.getPlanInformation().getBusinessService().trim().isEmpty()) {
 			pl.addError("BusinessService", "Not able to find BusinessService Type.");
+
+		}
 	}
 
 	private static void setBusinessService(Plan pl, Double buildingHeight, Double plotArea, boolean isSpecialBuilding) {
