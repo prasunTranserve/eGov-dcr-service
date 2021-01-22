@@ -52,7 +52,7 @@ public class DataPreparation {
 
 		boolean isBuildingCentrallyAirConditioned = false;
 		if (DxfFileConstants.YES.equals(pl.getPlanInformation().getBuildingCentrallyAirConditioned())) {
-			if (pl.getVirtualBuilding().getTotalExistingBuiltUpArea().compareTo(new BigDecimal("500")) > 0)
+			if (pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(new BigDecimal("500")) > 0)
 				isBuildingCentrallyAirConditioned = true;
 		}
 
@@ -71,7 +71,7 @@ public class DataPreparation {
 		if(isAssemblyBuilding || isHazardousBuildings || isBuildingCentrallyAirConditioned || isSplOccupancy || isMixedOccupancies)
 			specialBuilding=true;
 		
-		pl.getPlanInformation().setSpecialBuilding(specialBuilding);
+		pl.getPlanInformation().setSpecialBuilding(specialBuilding?DxfFileConstants.YES:DxfFileConstants.NO);
 	}
 
 }

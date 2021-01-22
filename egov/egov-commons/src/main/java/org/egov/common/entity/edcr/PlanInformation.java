@@ -228,7 +228,7 @@ public class PlanInformation implements Serializable {
     
     private BigDecimal offSiteParkingprovisionsArea=BigDecimal.ZERO;
     
-    private boolean specialBuilding;
+    private String specialBuilding;
     
     private String buildingCentrallyAirConditioned;
     
@@ -886,11 +886,12 @@ public class PlanInformation implements Serializable {
 		this.riskTypeDes = riskTypeDes;
 	}
 
-	public boolean isSpecialBuilding() {
+
+	public String getSpecialBuilding() {
 		return specialBuilding;
 	}
 
-	public void setSpecialBuilding(boolean specialBuilding) {
+	public void setSpecialBuilding(String specialBuilding) {
 		this.specialBuilding = specialBuilding;
 	}
 
