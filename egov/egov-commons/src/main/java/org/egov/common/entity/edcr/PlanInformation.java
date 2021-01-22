@@ -232,6 +232,8 @@ public class PlanInformation implements Serializable {
     
     private String buildingCentrallyAirConditioned;
     
+    private String businessService = "BPA1"; 
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -901,6 +903,14 @@ public class PlanInformation implements Serializable {
 
 	public void setBuildingCentrallyAirConditioned(String buildingCentrallyAirConditioned) {
 		this.buildingCentrallyAirConditioned = buildingCentrallyAirConditioned;
+	}
+
+	public String getBusinessService() {
+		return businessService;
+	}
+
+	public void setBusinessService(String businessService) {
+		this.businessService = businessService;
 	}
     
 	
