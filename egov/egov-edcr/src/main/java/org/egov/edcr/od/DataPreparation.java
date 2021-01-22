@@ -12,6 +12,7 @@ public class DataPreparation {
 	public static void updatePlanDetails(Plan pl) {
 		updateVirtualBuildingHeight(pl);
 		updateSpecialBuilding(pl);
+		updateBusinessService(pl);
 
 	}
 
@@ -66,12 +67,54 @@ public class DataPreparation {
 				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyTypeHelper.getSubtype().getCode()))
 			isSplOccupancy = true;
 
-		boolean isMixedOccupancies=false;//need to add condition
-		
-		if(isAssemblyBuilding || isHazardousBuildings || isBuildingCentrallyAirConditioned || isSplOccupancy || isMixedOccupancies)
-			specialBuilding=true;
-		
-		pl.getPlanInformation().setSpecialBuilding(specialBuilding?DxfFileConstants.YES:DxfFileConstants.NO);
+		boolean isMixedOccupancies = false;// need to add condition
+
+		if (isAssemblyBuilding || isHazardousBuildings || isBuildingCentrallyAirConditioned || isSplOccupancy
+				|| isMixedOccupancies)
+			specialBuilding = true;
+
+		pl.getPlanInformation().setSpecialBuilding(specialBuilding ? DxfFileConstants.YES : DxfFileConstants.NO);
 	}
 
+	private static void updateBusinessService(Plan pl) {
+
+		Double buildingHeight = pl.getVirtualBuilding().getBuildingHeight().doubleValue();
+		Double plotArea = pl.getPlot().getArea().doubleValue();
+		boolean isSpecialBuilding = DxfFileConstants.YES.equals(pl.getPlanInformation().getSpecialBuilding()) ? true
+				: false;
+
+		setBusinessService(pl, buildingHeight, plotArea, isSpecialBuilding);
+
+		if (pl.getPlanInformation().getBusinessService() == null
+				|| pl.getPlanInformation().getBusinessService().trim().isEmpty())
+			pl.addError("BusinessService", "Not able to find BusinessService Type.");
+	}
+
+	private static void setBusinessService(Plan pl, Double buildingHeight, Double plotArea, boolean isSpecialBuilding) {
+		if (null != buildingHeight && null != plotArea) {
+			if (!isSpecialBuilding) {
+				if ((buildingHeight < 10) && (plotArea < 500)) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PA_MODULE_CODE);
+				} else if ((buildingHeight > 10 && buildingHeight < 15) && (plotArea > 500 && plotArea < 4047)) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PO_MODULE_CODE);
+				} else if ((buildingHeight > 15 && buildingHeight < 30) && (plotArea > 4047 && plotArea < 10000)) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PM_MODULE_CODE);
+				} else if ((buildingHeight > 30) && (plotArea > 10000)) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_DP_BP_MODULE_CODE);
+				}
+
+			} else {
+				if (buildingHeight < 15) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PO_MODULE_CODE);
+				} else if (buildingHeight > 15 && buildingHeight < 30) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PM_MODULE_CODE);
+				} else if (buildingHeight > 30) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_DP_BP_MODULE_CODE);
+				}
+
+			}
+
+		}
+
+	}
 }

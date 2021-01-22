@@ -715,4 +715,10 @@ public class DxfFileConstants {
 	public static final String COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED = "Habitable Room (Naturally Ventilated)";//1
 	public static final String COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED = "Habitable Room (Mechanically Ventilated)";//2
 	
+	
+	public static final String BPA_PA_MODULE_CODE = "BPA1";
+	public static final String BPA_PO_MODULE_CODE = "BPA2";
+	public static final String BPA_PM_MODULE_CODE = "BPA3";
+	public static final String BPA_DP_BP_MODULE_CODE = "BPA4";
+	
 }

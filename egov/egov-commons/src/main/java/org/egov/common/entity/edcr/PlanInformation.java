@@ -232,7 +232,7 @@ public class PlanInformation implements Serializable {
     
     private String buildingCentrallyAirConditioned;
     
-    private String businessService = "BPA1"; 
+    private String businessService; 
     
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
