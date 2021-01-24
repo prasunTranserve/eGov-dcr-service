@@ -51,9 +51,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
@@ -65,6 +67,7 @@ import org.egov.common.entity.edcr.Room;
 import org.egov.common.entity.edcr.RoomHeight;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.service.ProcessHelper;
 import org.springframework.stereotype.Service;
 
@@ -89,7 +92,6 @@ public class HeightOfRoom extends FeatureProcess {
 	public static final BigDecimal MINIMUM_WIDTH_2_1 = BigDecimal.valueOf(2.1);
 	private static final String ROOM_HEIGHT_NOTDEFINED = "Room height is not defined in layer ";
 	private static final String LAYER_ROOM_HEIGHT = "BLK_%s_FLR_%s_%s";
-	
 
 	@Override
 	public Plan validate(Plan pl) {
@@ -202,8 +204,8 @@ public class HeightOfRoom extends FeatureProcess {
 												room.getArea(), valid, typicalFloorValues);
 
 										subRuleDesc = SUBRULE_41_II_B_TOTAL_WIDTH;
-										buildResult(pl, floor, roomNumber,minWidth,
-												subRule, subRuleDesc, room.getWidth(), valid, typicalFloorValues);
+										buildResult(pl, floor, roomNumber, minWidth, subRule, subRuleDesc,
+												room.getWidth(), valid, typicalFloorValues);
 
 										subRuleDesc = SUBRULE_41_II_A_REGULAR_DESC;
 										buildResult(pl, floor, roomNumber, minimumHeight, subRule, subRuleDesc,
@@ -217,8 +219,9 @@ public class HeightOfRoom extends FeatureProcess {
 
 						}
 					}
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
-				pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
 			}
 		}
 		return pl;
@@ -237,19 +240,34 @@ public class HeightOfRoom extends FeatureProcess {
 		return spcRoom;
 	}
 
-	private List<Room> getRegularRoom(Plan pl,List<Room> rooms) {
-		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
-		List<Room> spcRoom = new ArrayList<Room>();
-		if (rooms != null) {
-			for (Room room : rooms) {
-				if (room.getRooms() != null && !room.getRooms().isEmpty() && room.getRooms().size() >= 1) {
-					Measurement r = room.getRooms().get(0);
-					if (heightOfRoomFeaturesColor.get(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED) == r.getColorCode() || heightOfRoomFeaturesColor.get(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED) == r.getColorCode()) {
-						spcRoom.add(room);
-					}
-				}
-			}
-		}
+	private List<Room> getRegularRoom(Plan pl, List<Room> rooms) {
+//		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
+//		List<Room> spcRoom = new ArrayList<Room>();
+//		if (rooms != null) {
+//			for (Room room : rooms) {
+//				Room room2=new Room();
+//				room2.setNumber(room.getNumber());
+//				room2.setClosed(room.getClosed());
+//				List<Measurement> measurements = new ArrayList<>();
+//				if (room.getRooms() != null && !room.getRooms().isEmpty() && room.getRooms().size() >= 1) {
+//					//Measurement r = room.getRooms().get(0);
+//					for(Measurement r:room.getRooms()) {
+//						if (heightOfRoomFeaturesColor.get(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED) == r
+//								.getColorCode()
+//								|| heightOfRoomFeaturesColor
+//										.get(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED) == r
+//												.getColorCode()) {
+//							measurements.add(r);
+//						}
+//					}
+//				}
+//				spcRoom.add(room2);
+//			}
+//		}
+		Set<String> allowedRooms=new HashSet();
+		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED);
+		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED);
+		List<Room> spcRoom=OdishaUtill.getRegularRoom(pl, rooms, allowedRooms);
 		return spcRoom;
 	}
 
@@ -258,9 +276,9 @@ public class HeightOfRoom extends FeatureProcess {
 		OccupancyTypeHelper occupancyTypeHelper = plan.getVirtualBuilding().getMostRestrictiveFarHelper() != null
 				? plan.getVirtualBuilding().getMostRestrictiveFarHelper()
 				: null;
-		if(DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode()))
-			flage=true;
-				
+		if (DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode()))
+			flage = true;
+
 		return flage;
 	}
 
@@ -272,18 +290,18 @@ public class HeightOfRoom extends FeatureProcess {
 			String value = typicalFloorValues.get("typicalFloors") != null
 					? (String) typicalFloorValues.get("typicalFloors")
 					: " floor " + floor.getNumber();
-
+			
+			actual=actual.setScale(2, BigDecimal.ROUND_HALF_UP);
+					
 			if (actual.compareTo(expected) >= 0) {
 				valid = true;
 			}
 			if (valid) {
-				setReportOutputDetails(pl, subRule, subRuleDesc, value, roomNumber,
-						expected.toString(),actual.toString(),
-						Result.Accepted.getResultVal());
+				setReportOutputDetails(pl, subRule, subRuleDesc, value, roomNumber, expected.toString(),
+						actual.toString(), Result.Accepted.getResultVal());
 			} else {
-				setReportOutputDetails(pl, subRule, subRuleDesc, value, roomNumber,
-						expected.toString(),actual.toString(),
-						Result.Not_Accepted.getResultVal());
+				setReportOutputDetails(pl, subRule, subRuleDesc, value, roomNumber, expected.toString(),
+						actual.toString(), Result.Not_Accepted.getResultVal());
 			}
 		}
 	}
@@ -293,6 +311,8 @@ public class HeightOfRoom extends FeatureProcess {
 		if (!(Boolean) typicalFloorValues.get("isTypicalRepititiveFloor")
 				&& expected.compareTo(BigDecimal.valueOf(0)) > 0 && subRule != null && subRuleDesc != null) {
 
+			actual=actual.setScale(2, BigDecimal.ROUND_HALF_UP);
+			
 			if (actual.compareTo(expected) >= 0) {
 				valid = true;
 			}
@@ -300,18 +320,15 @@ public class HeightOfRoom extends FeatureProcess {
 					? (String) typicalFloorValues.get("typicalFloors")
 					: " floor " + floor.getNumber();
 			if (valid) {
-				setReportOutputDetails(pl, subRule, subRuleDesc, value, room,
-						expected.toString(),actual.toString(),
+				setReportOutputDetails(pl, subRule, subRuleDesc, value, room, expected.toString(), actual.toString(),
 						Result.Accepted.getResultVal());
 			} else {
-				setReportOutputDetails(pl, subRule, subRuleDesc, value, room,
-						expected.toString(),actual.toString(),
+				setReportOutputDetails(pl, subRule, subRuleDesc, value, room, expected.toString(), actual.toString(),
 						Result.Not_Accepted.getResultVal());
 			}
 		}
 	}
 
-	
 	private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String floor, int room,
 			String expected, String actual, String status) {
 		Map<String, String> details = new HashMap<>();

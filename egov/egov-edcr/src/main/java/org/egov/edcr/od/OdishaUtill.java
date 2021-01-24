@@ -4,11 +4,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.FloorUnit;
 import org.egov.common.entity.edcr.Measurement;
+import org.egov.common.entity.edcr.MeasurementWithHeight;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Room;
@@ -18,12 +20,12 @@ import org.egov.edcr.constants.DxfFileConstants;
 public class OdishaUtill {
 
 	private static final BigDecimal MINIMUM_NUMBER_OF_OCCUPANTS_OR_USERS_FOR_ASSEMBLY_BUILDING = new BigDecimal("50");
-	private static final int COLOR_EWS=1;
-	private static final int COLOR_LIG=2;
-	private static final int COLOR_MIG1=3;
-	private static final int COLOR_MIG2=4;
-	private static final int COLOR_OTHER=5;
-	private static final int COLOR_ROOM=6;
+	private static final int COLOR_EWS = 1;
+	private static final int COLOR_LIG = 2;
+	private static final int COLOR_MIG1 = 3;
+	private static final int COLOR_MIG2 = 4;
+	private static final int COLOR_OTHER = 5;
+	private static final int COLOR_ROOM = 6;
 
 	public static boolean isAssemblyBuildingCriteria(Plan pl) {
 		boolean isAssemblyBuilding = false;
@@ -33,13 +35,15 @@ public class OdishaUtill {
 				|| DxfFileConstants.OC_COMMERCIAL.equals(occupancyTypeHelper.getType().getCode())
 				|| DxfFileConstants.OC_TRANSPORTATION.equals(occupancyTypeHelper.getType().getCode())) {
 
-			//BigDecimal providedNumberOfOccupantsOrUser = pl.getPlanInformation().getNumberOfOccupantsOrUsers();
-			BigDecimal providedNumberOfOccupantsOrUser =BigDecimal.ZERO;
-			for(Block block:pl.getBlocks()) {
-				if(block.getNumberOfOccupantsOrUsersOrBedBlk()!=null) {
+			// BigDecimal providedNumberOfOccupantsOrUser =
+			// pl.getPlanInformation().getNumberOfOccupantsOrUsers();
+			BigDecimal providedNumberOfOccupantsOrUser = BigDecimal.ZERO;
+			for (Block block : pl.getBlocks()) {
+				if (block.getNumberOfOccupantsOrUsersOrBedBlk() != null) {
 					isAssemblyBuildingCriteria(pl, block);
-					providedNumberOfOccupantsOrUser=providedNumberOfOccupantsOrUser.add(block.getNumberOfOccupantsOrUsersOrBedBlk());
-					
+					providedNumberOfOccupantsOrUser = providedNumberOfOccupantsOrUser
+							.add(block.getNumberOfOccupantsOrUsersOrBedBlk());
+
 				}
 			}
 
@@ -89,7 +93,7 @@ public class OdishaUtill {
 		return isAssemblyBuilding;
 	}
 
-	public static boolean isAssemblyBuildingCriteria(Plan pl,Block block) {
+	public static boolean isAssemblyBuildingCriteria(Plan pl, Block block) {
 		boolean isAssemblyBuilding = false;
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 
@@ -97,10 +101,12 @@ public class OdishaUtill {
 				|| DxfFileConstants.OC_COMMERCIAL.equals(occupancyTypeHelper.getType().getCode())
 				|| DxfFileConstants.OC_TRANSPORTATION.equals(occupancyTypeHelper.getType().getCode())) {
 
-			//BigDecimal providedNumberOfOccupantsOrUser = pl.getPlanInformation().getNumberOfOccupantsOrUsers();
-			BigDecimal providedNumberOfOccupantsOrUser =BigDecimal.ZERO;
-				if(block.getNumberOfOccupantsOrUsersOrBedBlk()!=null)
-					providedNumberOfOccupantsOrUser=providedNumberOfOccupantsOrUser.add(block.getNumberOfOccupantsOrUsersOrBedBlk());
+			// BigDecimal providedNumberOfOccupantsOrUser =
+			// pl.getPlanInformation().getNumberOfOccupantsOrUsers();
+			BigDecimal providedNumberOfOccupantsOrUser = BigDecimal.ZERO;
+			if (block.getNumberOfOccupantsOrUsersOrBedBlk() != null)
+				providedNumberOfOccupantsOrUser = providedNumberOfOccupantsOrUser
+						.add(block.getNumberOfOccupantsOrUsersOrBedBlk());
 
 			if (providedNumberOfOccupantsOrUser
 					.compareTo(MINIMUM_NUMBER_OF_OCCUPANTS_OR_USERS_FOR_ASSEMBLY_BUILDING) >= 0) {
@@ -153,7 +159,7 @@ public class OdishaUtill {
 		try {
 			buildingHeight = pl.getBlocks().stream().map(block -> block.getBuilding().getBuildingHeight())
 					.reduce(BigDecimal::max).get();
-		}catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return buildingHeight;
@@ -163,29 +169,27 @@ public class OdishaUtill {
 		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
 		boolean isServiceFloor = false;
 		String color = DxfFileConstants.COLOR_SERVICE_FLOOR;// 39
-		
-		
+
 		BigDecimal noOfFloorsAboveGround = BigDecimal.ZERO;
 		for (Floor floor : b.getBuilding().getFloors()) {
 			if (floor.getNumber() != null && floor.getNumber() >= 0) {
 				noOfFloorsAboveGround = noOfFloorsAboveGround.add(BigDecimal.valueOf(1));
 			}
 		}
-		
+
 		boolean hasTerrace = b.getBuilding().getFloors().stream()
 				.anyMatch(floor -> floor.getTerrace().equals(Boolean.TRUE));
 
-		noOfFloorsAboveGround = hasTerrace ? noOfFloorsAboveGround.subtract(BigDecimal.ONE)
-				: noOfFloorsAboveGround;
-		
-		BigDecimal totalArea=BigDecimal.ZERO;
-		BigDecimal height=BigDecimal.ZERO;
+		noOfFloorsAboveGround = hasTerrace ? noOfFloorsAboveGround.subtract(BigDecimal.ONE) : noOfFloorsAboveGround;
+
+		BigDecimal totalArea = BigDecimal.ZERO;
+		BigDecimal height = BigDecimal.ZERO;
 		for (Room room : f.getRegularRooms()) {
 			for (Measurement measurement : room.getRooms()) {
 				if (heightOfRoomFeaturesColor.get(color) == measurement.getColorCode()) {
 					isServiceFloor = true;
-					totalArea=totalArea.add(measurement.getArea());
-					height=measurement.getHeight();
+					totalArea = totalArea.add(measurement.getArea());
+					height = measurement.getHeight();
 					break;
 				}
 			}
@@ -197,9 +201,9 @@ public class OdishaUtill {
 			}
 		}
 		f.setIsServiceFloor(isServiceFloor);
-		totalArea=roundUp(totalArea);
+		totalArea = roundUp(totalArea);
 		f.setTotalServiceArea(totalArea);
-		height=roundUp(height);
+		height = roundUp(height);
 		f.setServiceFloorHeight(height);
 	}
 
@@ -207,93 +211,94 @@ public class OdishaUtill {
 		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
 		boolean isStiltFloor = false;
 		String color = DxfFileConstants.COLOR_STILT_FLOOR;// 38
-		BigDecimal totalStilledArea=BigDecimal.ZERO;
-		BigDecimal flrHeight=BigDecimal.ZERO;
+		BigDecimal totalStilledArea = BigDecimal.ZERO;
+		BigDecimal flrHeight = BigDecimal.ZERO;
 		for (Room room : f.getRegularRooms()) {
 			for (Measurement measurement : room.getRooms()) {
 				if (heightOfRoomFeaturesColor.get(color) == measurement.getColorCode()) {
 					isStiltFloor = true;
-					totalStilledArea=totalStilledArea.add(measurement.getArea());
+					totalStilledArea = totalStilledArea.add(measurement.getArea());
 				}
 			}
-			for(RoomHeight roomHeight:room.getHeights()) {
-				if(heightOfRoomFeaturesColor.get(color) == roomHeight.getColorCode()) {
-					if(flrHeight.compareTo(roomHeight.getHeight())<0)
-						flrHeight=roomHeight.getHeight();
+			for (RoomHeight roomHeight : room.getHeights()) {
+				if (heightOfRoomFeaturesColor.get(color) == roomHeight.getColorCode()) {
+					if (flrHeight.compareTo(roomHeight.getHeight()) < 0)
+						flrHeight = roomHeight.getHeight();
 				}
 			}
-			
+
 			if (isStiltFloor && f.getNumber() < 0) {
 				pl.addError("STILT_FLOOR", "Stilt Floor can not be in besment.");
 			}
 		}
-		
-		
-		
+
 		// deducted building height need to test and verify
-		if(isStiltFloor) {
-			if (b.getBuilding().getDeclaredBuildingHeight().compareTo(new BigDecimal("15"))<0 ) {
-				if(flrHeight.compareTo(new BigDecimal("2.4")) == 0)
-					b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(new BigDecimal("2.4")));;
-			}else {
+		if (isStiltFloor) {
+			if (b.getBuilding().getDeclaredBuildingHeight().compareTo(new BigDecimal("15")) < 0) {
+				if (flrHeight.compareTo(new BigDecimal("2.4")) == 0)
+					b.getBuilding()
+							.setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(new BigDecimal("2.4")));
+				;
+			} else {
 				b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(f.getHeight()));
 			}
 		}
 
 		f.setIsStiltFloor(isStiltFloor);
-		totalStilledArea=roundUp(totalStilledArea);
+		totalStilledArea = roundUp(totalStilledArea);
 		f.setTotalStiltArea(totalStilledArea);
-		flrHeight=roundUp(flrHeight);
+		flrHeight = roundUp(flrHeight);
 		f.setStiltFloorHeight(flrHeight);
 	}
-	
-	public static void validateHeightOfTheCeilingOfUpperBasementDeduction(Plan pl,Block b,Floor f) {
+
+	public static void validateHeightOfTheCeilingOfUpperBasementDeduction(Plan pl, Block b, Floor f) {
 		if (f != null && f.getNumber() == -1) {
-			BigDecimal maxLength=BigDecimal.ZERO;
+			BigDecimal maxLength = BigDecimal.ZERO;
 			try {
 				maxLength = f.getHeightOfTheCeilingOfUpperBasement().stream().reduce(BigDecimal::max).get();
-			}catch (Exception e) {
+			} catch (Exception e) {
 				// TODO: handle exception
 			}
-			b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(maxLength));;
+			b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(maxLength));
+			;
 		}
 	}
-	
+
 	public static BigDecimal roundUp(BigDecimal number) {
-		number=number.setScale(2, BigDecimal.ROUND_HALF_UP);
+		number = number.setScale(2, BigDecimal.ROUND_HALF_UP);
 		return number;
 	}
-	
-	
-	public static void setPlanInfoBlkWise(Plan pl,String key) {
-		BigDecimal totalUserInPlan=BigDecimal.ZERO;
-		for(Block block:pl.getBlocks()) {
-			String value=pl.getPlanInfoProperties().get(key+"_"+block.getNumber());
-	    	try {
-	    		BigDecimal numValue=new BigDecimal(value);
-	    		block.setNumberOfOccupantsOrUsersOrBedBlk(numValue);
-	    		totalUserInPlan.add(numValue);
-				if(numValue.compareTo(BigDecimal.ZERO)<=0)
-					pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_"+block.getNumber(), "Number Of Occupants/Users/Bed is not defined in block "+block.getNumber());
-	    	}catch (Exception e) {
-				pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_"+block.getNumber(), "Number Of Occupants/Users/Bed is invalid in block "+block.getNumber());
+
+	public static void setPlanInfoBlkWise(Plan pl, String key) {
+		BigDecimal totalUserInPlan = BigDecimal.ZERO;
+		for (Block block : pl.getBlocks()) {
+			String value = pl.getPlanInfoProperties().get(key + "_" + block.getNumber());
+			try {
+				BigDecimal numValue = new BigDecimal(value);
+				block.setNumberOfOccupantsOrUsersOrBedBlk(numValue);
+				totalUserInPlan.add(numValue);
+				if (numValue.compareTo(BigDecimal.ZERO) <= 0)
+					pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_" + block.getNumber(),
+							"Number Of Occupants/Users/Bed is not defined in block " + block.getNumber());
+			} catch (Exception e) {
+				pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_" + block.getNumber(),
+						"Number Of Occupants/Users/Bed is invalid in block " + block.getNumber());
 			}
 		}
 		pl.getPlanInformation().setNumberOfOccupantsOrUsers(totalUserInPlan);
 	}
-	
-	
+
 	public static void updateDUnitInPlan(Plan pl) {
-		long totalDU=0;
-		for(Block block:pl.getBlocks()) {
-			for(Floor floor:block.getBuilding().getFloors()) {
-				List<FloorUnit> ews=new ArrayList<>();
-				List<FloorUnit> lig=new ArrayList<>();
-				List<FloorUnit> mig1=new ArrayList<>();
-				List<FloorUnit> mig2=new ArrayList<>();
-				List<FloorUnit> other=new ArrayList<>();
-				List<FloorUnit> room=new ArrayList<>();
-				for(FloorUnit floorUnit:floor.getUnits()) {
+		long totalDU = 0;
+		for (Block block : pl.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				List<FloorUnit> ews = new ArrayList<>();
+				List<FloorUnit> lig = new ArrayList<>();
+				List<FloorUnit> mig1 = new ArrayList<>();
+				List<FloorUnit> mig2 = new ArrayList<>();
+				List<FloorUnit> other = new ArrayList<>();
+				List<FloorUnit> room = new ArrayList<>();
+				for (FloorUnit floorUnit : floor.getUnits()) {
 					switch (floorUnit.getColorCode()) {
 					case COLOR_EWS:
 						ews.add(floorUnit);
@@ -327,26 +332,85 @@ public class OdishaUtill {
 				floor.setMig2Unit(mig2);
 				floor.setOthersUnit(other);
 				floor.setRoomUnit(room);
-				
+
 			}
 		}
 		pl.getPlanInformation().setTotalNoOfDwellingUnits(totalDU);
 	}
-	
+
 	public static BigDecimal getTotalRoofArea(Plan pl) {
-    	BigDecimal totalArea=BigDecimal.ZERO;
-    	
-    	for(Block block:pl.getBlocks()) {
-    		for(Floor floor:block.getBuilding().getFloors()) {
-    			try {
-    				BigDecimal area=floor.getRoofAreas().stream().map(roofArea -> roofArea.getArea()).reduce(BigDecimal::add).get();
-        			totalArea=totalArea.add(area);
-    			}catch(Exception exception) {
-    				
-    			}
-    		}
-    	}
-    	
-    	return totalArea;
-    }
+		BigDecimal totalArea = BigDecimal.ZERO;
+
+//		for (Block block : pl.getBlocks()) {
+//			for (Floor floor : block.getBuilding().getFloors()) {
+//				try {
+//					BigDecimal area = floor.getRoofAreas().stream().map(roofArea -> roofArea.getArea())
+//							.reduce(BigDecimal::add).get();
+//					totalArea = totalArea.add(area);
+//				} catch (Exception exception) {
+//
+//				}
+//			}
+//		}
+		
+		for (Block block : pl.getBlocks()) {
+			List<Floor> floors=block.getBuilding().getFloors();
+			if(floors!=null && !floors.isEmpty()) {
+				Floor lastFloor=floors.get(floors.size()-1);
+				BigDecimal area=BigDecimal.ZERO;
+				try {
+					area=lastFloor.getRoofAreas().stream().map(roofArea -> roofArea.getArea()).reduce(BigDecimal::add).get();
+				}catch (Exception e) {
+					// TODO: handle exception
+				}
+				if(area==null || area.compareTo(BigDecimal.ZERO)<=0) {
+					pl.addError("RoofArea", "RoofArea is not defined in block "+block.getNumber());
+				}
+				totalArea = totalArea.add(area);
+			}
+				
+		}
+
+		return totalArea;
+	}
+
+	public static List<Room> getRegularRoom(Plan pl, List<Room> rooms, Set<String> allowedRooms) {
+		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
+		List<Integer> allowedRoomColorCode = new ArrayList<>();
+		for (String allowedRoom : allowedRooms) {
+			allowedRoomColorCode.add(heightOfRoomFeaturesColor.get(allowedRoom));
+		}
+		List<Room> spcRoom = new ArrayList<Room>();
+		if (rooms != null) {
+			for (Room room : rooms) {
+				List<Measurement> measurements = new ArrayList<>();
+				List<RoomHeight> heightOfRooms = new ArrayList<>();
+				if (room.getRooms() != null && !room.getRooms().isEmpty() && room.getRooms().size() >= 1) {
+					for (Measurement r : room.getRooms()) {
+						if (allowedRoomColorCode.contains(r.getColorCode())) {
+							measurements.add(r);
+						}
+					}
+					for (RoomHeight roomHeight : room.getHeights()) {
+						if (allowedRoomColorCode.contains(roomHeight.getColorCode())) {
+							RoomHeight height = new RoomHeight();
+							height.setColorCode(roomHeight.getColorCode());
+							height.setHeight(roomHeight.getHeight());
+							heightOfRooms.add(height);
+						}
+					}
+					//lightAndVentilation
+					Room room2 = new Room();
+					room2.setNumber(room.getNumber());
+					room2.setHeights(heightOfRooms);
+					room2.setClosed(room.getClosed());
+					room2.setRooms(measurements);
+					room2.setLightAndVentilation(room.getLightAndVentilation());
+					spcRoom.add(room2);
+				}
+
+			}
+		}
+		return spcRoom;
+	}
 }

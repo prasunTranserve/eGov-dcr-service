@@ -86,31 +86,30 @@ public class Parapet extends FeatureProcess {
 		prepareParapet(pl);
 		validateGenrailStairParapet(pl);
 		validateDaRamParapet(pl);
+		validateDaRamParapetCount(pl);
 		validateParapet(pl);
 		return pl;
 	}
-	
+
 	private void validateParapet(Plan pl) {
 
-		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_Parapet");
-		scrutinyDetail.addColumnHeading(1, RULE_NO);
-		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-		scrutinyDetail.addColumnHeading(3, REQUIRED);
-		scrutinyDetail.addColumnHeading(4, PROVIDED);
-		scrutinyDetail.addColumnHeading(5, STATUS);
-		Map<String, String> details = new HashMap<>();
-		details.put(RULE_NO, RULE_41_V);
-		details.put(DESCRIPTION, PARAPET_DESCRIPTION);
-
-		BigDecimal minHeight = BigDecimal.ZERO;
-
 		for (Block b : pl.getBlocks()) {
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			//scrutinyDetail.setKey("Common_Parapet");
+			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "Parapet");
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, REQUIRED);
+			scrutinyDetail.addColumnHeading(4, PROVIDED);
+			scrutinyDetail.addColumnHeading(5, STATUS);
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, RULE_41_V);
+			details.put(DESCRIPTION, PARAPET_DESCRIPTION);
+
+			BigDecimal minHeight = BigDecimal.ZERO;
 			if (b.getGenralParapets() != null && !b.getGenralParapets().isEmpty()) {
 				minHeight = b.getGenralParapets().stream().reduce(BigDecimal::min).get();
-
 				if (minHeight.compareTo(new BigDecimal("1")) >= 0) {
-
 					details.put(REQUIRED, "Height >= 1");
 					details.put(PROVIDED, "Height >= " + minHeight);
 					details.put(STATUS, Result.Accepted.getResultVal());
@@ -126,14 +125,14 @@ public class Parapet extends FeatureProcess {
 				}
 			}
 		}
-	
+
 	}
 
 	private void validateDaRamParapet(Plan pl) {
 
 		for (Block b : pl.getBlocks()) {
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-			//scrutinyDetail.setKey("Common_DA Ramp Railing");
+			// scrutinyDetail.setKey("Common_DA Ramp Railing");
 			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "DA Ramp Railing Height");
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
 			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
@@ -159,6 +158,44 @@ public class Parapet extends FeatureProcess {
 				} else {
 					details.put(REQUIRED, "Height = 0.8");
 					details.put(PROVIDED, "Height = " + minHeight);
+					details.put(STATUS, Result.Not_Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+				}
+			}
+		}
+	}
+
+	private void validateDaRamParapetCount(Plan pl) {
+
+		for (Block b : pl.getBlocks()) {
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			// scrutinyDetail.setKey("Common_DA Ramp Railing");
+			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "DA Ramp Railing Count");
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, REQUIRED);
+			scrutinyDetail.addColumnHeading(4, PROVIDED);
+			scrutinyDetail.addColumnHeading(5, STATUS);
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, RULE_41_V);
+			details.put(DESCRIPTION, "DA Ramp Railing");
+			int count = 0;
+			int requiredCount=0;
+			if (b.getdARailingParapets() != null && !b.getdARailingParapets().isEmpty()) {
+				count = b.getdARailingParapets().size();
+				requiredCount=b.getDARamps()!=null?b.getDARamps().size()*2:0;
+				if (count == requiredCount) {
+
+					details.put(REQUIRED, ""+requiredCount);
+					details.put(PROVIDED, "" + count);
+					details.put(STATUS, Result.Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
+				} else {
+					details.put(REQUIRED, ""+requiredCount);
+					details.put(PROVIDED, "" + count);
 					details.put(STATUS, Result.Not_Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);

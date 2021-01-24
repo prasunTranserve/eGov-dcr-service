@@ -375,6 +375,14 @@ public class PlanService {
     		pl.addError("buildingCentrallyAirConditioned", "IS_BUILDING_CENTRALLY_AIR_CONDITIONED is mandatory in plan info.");
     	}
     	
+    	//DOES_PROJECT_HAVE_MORE_THAN_10000_LITRES_OF_WASTE_WATER_DISCHARGE_PER_DAY
+    	String wasteWaterDischargePerDay=pl.getPlanInfoProperties().get(DOES_PROJECT_HAVE_MORE_THAN_10000_LITRES_OF_WASTE_WATER_DISCHARGE_PER_DAY);
+    	if(YES.equals(wasteWaterDischargePerDay) || NO.equals(wasteWaterDischargePerDay)) {
+    		pl.getPlanInformation().setWasteWaterDischargePerDay(wasteWaterDischargePerDay);
+    	}else {
+    		pl.addError("wasteWaterDischargePerDay", "DOES_PROJECT_HAVE_MORE_THAN_10000_LITRES_OF_WASTE_WATER_DISCHARGE_PER_DAY is mandatory in plan info.");
+    	}
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

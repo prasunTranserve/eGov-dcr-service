@@ -72,6 +72,7 @@ public class PlanInformation implements Serializable {
     private String ownerName;
     //Temporary field used to auto populate occupancy detail.
     private String occupancy;
+    private String subOccupancy;
     //Temporary field used for service type.
     private String serviceType;
     //Temporary field used to show amenities used in application.
@@ -233,6 +234,10 @@ public class PlanInformation implements Serializable {
     private String buildingCentrallyAirConditioned;
     
     private String businessService; 
+    
+    private String wasteWaterDischargePerDay;
+    
+    private String floorInfo;
     
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
@@ -912,6 +917,31 @@ public class PlanInformation implements Serializable {
 	public void setBusinessService(String businessService) {
 		this.businessService = businessService;
 	}
+
+	public String getSubOccupancy() {
+		return subOccupancy;
+	}
+
+	public void setSubOccupancy(String subOccupancy) {
+		this.subOccupancy = subOccupancy;
+	}
+
+	public String getWasteWaterDischargePerDay() {
+		return wasteWaterDischargePerDay;
+	}
+
+	public void setWasteWaterDischargePerDay(String wasteWaterDischargePerDay) {
+		this.wasteWaterDischargePerDay = wasteWaterDischargePerDay;
+	}
+
+	public String getFloorInfo() {
+		return floorInfo;
+	}
+
+	public void setFloorInfo(String floorInfo) {
+		this.floorInfo = floorInfo;
+	}
     
+	
 	
 }

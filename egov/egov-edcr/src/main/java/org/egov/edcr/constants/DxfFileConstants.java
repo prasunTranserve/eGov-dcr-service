@@ -689,15 +689,7 @@ public class DxfFileConstants {
 	public static final String HAS_PROJECT_PROVIDED_MIN_10_PER_BUA_FOR_EWS_WITHIN_5_KM_FROM_PROJECT_SITE="HAS_PROJECT_PROVIDED_MIN_10%_BUA_FOR_EWS_WITHIN_5_KM_FROM_PROJECT_SITE";
 	public static final String ARCHITECT_OR_TECHNICAL_PERSON_NAME="ARCHITECT_OR_TECHNICAL_PERSON_NAME";
 	public static final String IS_BUILDING_CENTRALLY_AIR_CONDITIONED="IS_BUILDING_CENTRALLY_AIR_CONDITIONED";
-	
-	public static final String COLOR_STILT_FLOOR = "Stilt Floor";//38
-	public static final String COLOR_SERVICE_FLOOR = "Service Floor";//39
-	public static final String COLOR_MEP_ROOM="MEP Room";//30
-	public static final String COLOR_LAUNDRY_ROOM="Laundry Room";//31
-	public static final String COLOR_GENERATOR_ROOM="Generator Room";//36;
-	public static final String COLOR_LIFT_LOBBY="Lift Lobby";//32
-	public static final String COLOR_CCTV_ROOM="CCTV Room";//28
-	public static final String COLOR_SERVICE_ROOM="Service Room";//29
+	public static final String DOES_PROJECT_HAVE_MORE_THAN_10000_LITRES_OF_WASTE_WATER_DISCHARGE_PER_DAY="DOES_PROJECT_HAVE_MORE_THAN_10000_LITRES_OF_WASTE_WATER_DISCHARGE_PER_DAY";
 	
 	public static final String LOW="LOW";
 	public static final String HIGH="HIGH";
@@ -710,11 +702,29 @@ public class DxfFileConstants {
 	public static final String WASTE_WATER_QUANTITY="WASTE_WATER_QUANTITY";
 
 	public static final String OPTIONAL="OPTIONAL";
+	public static final String MANDATORY="MANDATORY";
 	public static final String PROVIDED="Provided";
 	
-	public static final String COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED = "Habitable Room (Naturally Ventilated)";//1
-	public static final String COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED = "Habitable Room (Mechanically Ventilated)";//2
+	public static final String COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED = "Habitable Room (Naturally Ventilated)";//1 - db
+	public static final String COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED = "Habitable Room (Mechanically Ventilated)";//2 - db
 	
+	public static final String COLOR_STUDY_ROOM="Study Room";//3
+	public static final String COLOR_LIBRARY_ROOM="Library Room";//4
+	public static final String COLOR_GAME_ROOM="Game Room";//5
+	public static final String COLOR_STORE_ROOM="Store Room";//6
+	public static final String COLOR_GUARD_ROOM="Guard Room";//33
+	public static final String COLOR_ELECTRIC_CABIN_ROOM="Electric Cabin";//34
+	public static final String COLOR_SUB_STATION_ROOM="Sub-Station";//35
+	public static final String COLOR_GYM_ROOM="Gym Room";//7
+
+	public static final String COLOR_CCTV_ROOM="CCTV Room";//28 - db
+	public static final String COLOR_SERVICE_ROOM="Service Room";//29 - db
+	public static final String COLOR_MEP_ROOM="MEP Room";//30 - db
+	public static final String COLOR_LIFT_LOBBY="Lift Lobby";//32 - db
+	public static final String COLOR_STILT_FLOOR = "Stilt Floor";//38 - db
+	public static final String COLOR_SERVICE_FLOOR = "Service Floor";//39 - db
+	public static final String COLOR_LAUNDRY_ROOM="Laundry Room";//31 - db
+	public static final String COLOR_GENERATOR_ROOM="Generator Room";//36 - db
 	
 	public static final String BPA_PA_MODULE_CODE = "BPA1";
 	public static final String BPA_PO_MODULE_CODE = "BPA2";

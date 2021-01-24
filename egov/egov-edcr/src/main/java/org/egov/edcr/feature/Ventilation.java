@@ -53,9 +53,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
@@ -68,6 +70,7 @@ import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.Room;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -88,7 +91,8 @@ public class Ventilation extends FeatureProcess {
 
 		for (Block b : pl.getBlocks()) {
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-			scrutinyDetail.setKey("Common_Ventilation");
+			//scrutinyDetail.setKey("Common_Ventilation");
+			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "Light and Ventilation");
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
 			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 			scrutinyDetail.addColumnHeading(3, REQUIRED);
@@ -99,8 +103,8 @@ public class Ventilation extends FeatureProcess {
 					? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
 					: null;
 
-			if (b.getBuilding() != null
-					&& b.getBuilding().getFloors() != null && !b.getBuilding().getFloors().isEmpty()) {
+			if (b.getBuilding() != null && b.getBuilding().getFloors() != null
+					&& !b.getBuilding().getFloors().isEmpty()) {
 
 				for (Floor f : b.getBuilding().getFloors()) {
 					int roomNumber = 1;
@@ -108,53 +112,40 @@ public class Ventilation extends FeatureProcess {
 
 						Map<String, String> details = new HashMap<>();
 						details.put(RULE_NO, RULE_43);
-						details.put(DESCRIPTION, LIGHT_VENTILATION_DESCRIPTION + " blook " + b.getNumber() + " floor "
+						details.put(DESCRIPTION, "Blook " + b.getNumber() + " Floor "
 								+ f.getNumber() + " Room " + room.getNumber());
 
-						if (room.getLightAndVentilation() != null && room.getLightAndVentilation().getMeasurements() != null
+						if (room.getLightAndVentilation() != null
+								&& room.getLightAndVentilation().getMeasurements() != null
 								&& !room.getLightAndVentilation().getMeasurements().isEmpty()) {
 
 							BigDecimal totalVentilationArea = room.getLightAndVentilation().getMeasurements().stream()
 									.map(Measurement::getArea).reduce(BigDecimal.ZERO, BigDecimal::add);
-//							BigDecimal totalCarpetArea = f.getOccupancies().stream().map(Occupancy::getCarpetArea)
-//									.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-							BigDecimal totalRoomArea = room.getRooms().size()>0?room.getRooms().get(0).getArea():BigDecimal.ZERO;
+							BigDecimal totalRoomArea = room.getRooms().size() > 0 ? room.getRooms().get(0).getArea()
+									: BigDecimal.ZERO;
 							BigDecimal expectedArea = BigDecimal.ZERO;
-//							if (f.getNumber() < 0)
-//								expectedArea = totalRoomArea.divide(BigDecimal.valueOf(20)).setScale(2,
-//										BigDecimal.ROUND_HALF_UP);
-//							else
-								expectedArea = totalRoomArea.multiply(new BigDecimal("0.15")).setScale(2,
-										BigDecimal.ROUND_HALF_UP);
-							totalVentilationArea = totalVentilationArea.setScale(2,BigDecimal.ROUND_HALF_UP);
-
-							
-//							if (f.getNumber() < 0)
-//								details.put(REQUIRED, "Minimum 1/20th of the habitable area ( "+expectedArea+" )");
-//							else
-								details.put(REQUIRED, "Minimum 15% of the habitable area ( "+expectedArea+" )");
+							expectedArea = totalRoomArea.multiply(new BigDecimal("0.15")).setScale(2,
+									BigDecimal.ROUND_HALF_UP);
+							totalVentilationArea = totalVentilationArea.setScale(2, BigDecimal.ROUND_HALF_UP);
+							details.put(REQUIRED, "Minimum 15% of the habitable area ( " + expectedArea + " )");
 							if (totalVentilationArea.compareTo(BigDecimal.ZERO) > 0) {
 								if (totalVentilationArea.compareTo(expectedArea) >= 0) {
-									details.put(PROVIDED, "Ventilation area "
-											+totalVentilationArea);
+									details.put(PROVIDED, "Ventilation area " + totalVentilationArea);
 									details.put(STATUS, Result.Accepted.getResultVal());
 									scrutinyDetail.getDetail().add(details);
-									pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+								//	pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
 								} else {
-									details.put(PROVIDED, "Ventilation area "
-											+ totalVentilationArea);
+									details.put(PROVIDED, "Ventilation area " + totalVentilationArea);
 									details.put(STATUS, Result.Not_Accepted.getResultVal());
 									scrutinyDetail.getDetail().add(details);
-									pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+								//	pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 								}
 							}
-						}
-						else {
-							Map<String, String> map=new HashMap<String, String>();
-							map.put("Ventilation", "Light & Ventilation not defined in block "+b.getNumber()+" floor "+f.getNumber()+" room "+roomNumber);
-							pl.setErrors(map);
+						} else {
+							pl.addError("Ventilation", "Light & Ventilation not defined in block " + b.getNumber()
+									+ " floor " + f.getNumber() + " room " + roomNumber);
 						}
 						roomNumber++;
 
@@ -162,31 +153,38 @@ public class Ventilation extends FeatureProcess {
 
 				}
 			}
-
+			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		}
 
 		return pl;
 	}
-
 
 	@Override
 	public Map<String, Date> getAmendments() {
 		return new LinkedHashMap<>();
 	}
 
-	private List<Room> getRegularRoom(Plan pl,List<Room> rooms) {
-		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
-		List<Room> spcRoom = new ArrayList<Room>();
-		if (rooms != null) {
-			for (Room room : rooms) {
-				if (room.getRooms() != null && !room.getRooms().isEmpty() && room.getRooms().size() >= 1) {
-					Measurement r = room.getRooms().get(0);
-					if (heightOfRoomFeaturesColor.get(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED) == r.getColorCode()) {
-						spcRoom.add(room);
-					}
-				}
-			}
-		}
+	private List<Room> getRegularRoom(Plan pl, List<Room> rooms) {
+//		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
+//		List<Room> spcRoom = new ArrayList<Room>();
+//		if (rooms != null) {
+//			for (Room room : rooms) {
+//				if (room.getRooms() != null && !room.getRooms().isEmpty() && room.getRooms().size() >= 1) {
+//				//	Measurement r = room.getRooms().get(0);
+//					for(Measurement r:room.getRooms()) {
+//						if (heightOfRoomFeaturesColor.get(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED) == r
+//								.getColorCode()) {
+//							spcRoom.add(room);
+//						}
+//					}
+//				}
+//			}
+//		}
+		
+		Set<String> allowedRooms=new HashSet();
+		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED);
+		List<Room> spcRoom=OdishaUtill.getRegularRoom(pl, rooms, allowedRooms);
+		
 		return spcRoom;
 	}
 

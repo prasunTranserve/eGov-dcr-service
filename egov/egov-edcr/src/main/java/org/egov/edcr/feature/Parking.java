@@ -158,7 +158,7 @@ public class Parking extends FeatureProcess {
 	private static final int COLOR_LAYER_SPECIAL_PARKING_EWS_OR_LIG_PARKING = 1;
 	private static final int COLOR_LAYER_SPECIAL_PARKING_MIG_PARKING = 2;
 	private static final int COLOR_LAYER_SPECIAL_PARKING_STILT_PARKING = 3;
-	private static final int COLOR_LAYER_SPECIAL_PARKING_ROOF_TOP_PARKING = 4;
+	public static final int COLOR_LAYER_SPECIAL_PARKING_ROOF_TOP_PARKING = 4;
 	private static final int COLOR_LAYER_SPECIAL_PARKING_STAFF_PARKING = 5;
 
 	private static final int COLOR_LAYER_TWO_WHEELER_PARKING_TWO_WHEELER_PARKING = 1;

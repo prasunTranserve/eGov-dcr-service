@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
+import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
 
 public class DataPreparation {
@@ -13,7 +14,7 @@ public class DataPreparation {
 		updateVirtualBuildingHeight(pl);
 		updateSpecialBuilding(pl);
 		updateBusinessService(pl);
-
+		updateSubOccupancy(pl);
 	}
 
 	private static void updateVirtualBuildingHeight(Plan pl) {
@@ -121,8 +122,13 @@ public class DataPreparation {
 				}
 
 			}
-
 		}
-
 	}
+	
+	private static void updateSubOccupancy(Plan pl) {
+		OccupancyTypeHelper occupancyTypeHelper=pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		if(occupancyTypeHelper!=null && occupancyTypeHelper.getSubtype()!=null)
+			pl.getPlanInformation().setSubOccupancy(occupancyTypeHelper.getSubtype().getName());
+	}
+	
 }

@@ -76,6 +76,7 @@ public class WaterTreatmentPlant extends FeatureProcess {
 	private static final String SUB_RULE_53_5 = "53-5";
 	private static final BigDecimal TEN_THOUSAND = BigDecimal.valueOf(10000);
 	private static final int COLOR_WATER_TREATMENT_PLANT=1;
+	private static final int COLOR_WASTE_WATER_RECYCLING_AND_REUSE=2;
 
 	@Override
 	public Plan validate(Plan pl) {
@@ -86,18 +87,30 @@ public class WaterTreatmentPlant extends FeatureProcess {
 	@Override
 	public Plan process(Plan pl) {
 	
-		scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.addColumnHeading(1, RULE_NO);
-		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-		scrutinyDetail.addColumnHeading(3, REQUIRED);
-		scrutinyDetail.addColumnHeading(4, PROVIDED);
-		scrutinyDetail.addColumnHeading(5, STATUS);
-		scrutinyDetail.setKey("Common_Water Treatment Plant");
-		processWaterTreatmentPlant(pl);
+//		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+//		scrutinyDetail.addColumnHeading(1, RULE_NO);
+//		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+//		scrutinyDetail.addColumnHeading(3, REQUIRED);
+//		scrutinyDetail.addColumnHeading(4, PROVIDED);
+//		scrutinyDetail.addColumnHeading(5, STATUS);
+//		scrutinyDetail.setKey("Common_Water Treatment Plant");
+//		processWaterTreatmentPlant(pl,scrutinyDetail);
+//		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		
+		ScrutinyDetail scrutinyDetail1 = new ScrutinyDetail();
+		scrutinyDetail1.addColumnHeading(1, RULE_NO);
+		scrutinyDetail1.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail1.addColumnHeading(3, REQUIRED);
+		scrutinyDetail1.addColumnHeading(4, PROVIDED);
+		scrutinyDetail1.addColumnHeading(5, STATUS);
+		scrutinyDetail1.setKey("Common_Waste Water Recycling And Reuse");
+		processWasteWaterRecyclingAndReus(pl, scrutinyDetail1);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail1);
+		
 		return pl;
 	}
 
-	private void processWaterTreatmentPlant(Plan pl) {
+	private void processWaterTreatmentPlant(Plan pl,ScrutinyDetail scrutinyDetail) {
 		String subRule = SUB_RULE_53_5;
 		String subRuleDesc = SUB_RULE_53_5_DESCRIPTION;
 		BigDecimal expectedTankCapacity = BigDecimal.ZERO;
@@ -124,28 +137,65 @@ public class WaterTreatmentPlant extends FeatureProcess {
 		if (!isWaterTreatmentPlantRequired) {
 
 			if (liquidWasteTreatementPlants != null && liquidWasteTreatementPlants.size()>0) {
-				setReportOutputDetails(pl, subRule, subRuleDesc, DxfFileConstants.OPTIONAL,
+				setReportOutputDetails(scrutinyDetail, subRule, subRuleDesc, DxfFileConstants.OPTIONAL,
 						DxfFileConstants.PROVIDED,
 						Result.Verify.getResultVal());
 			} else {
-				setReportOutputDetails(pl, subRule, subRuleDesc, DxfFileConstants.OPTIONAL, "Not Defined in the plan",
+				setReportOutputDetails(scrutinyDetail, subRule, subRuleDesc, DxfFileConstants.OPTIONAL, "Not Defined in the plan",
 						Result.Verify.getResultVal());
 			}
 
 		} else  if(isWaterTreatmentPlantRequired){
 			if ((liquidWasteTreatementPlants!=null)&&(liquidWasteTreatementPlants.size() > 0))
-				setReportOutputDetails(pl, subRule, subRuleDesc, "Mandatory",
+				setReportOutputDetails(scrutinyDetail, subRule, subRuleDesc, "Mandatory",
 						DxfFileConstants.PROVIDED,
 						Result.Verify.getResultVal());
 			else
-				setReportOutputDetails(pl, subRule, subRuleDesc, "Mandatory", "Not Defined in the plan",
+				setReportOutputDetails(scrutinyDetail, subRule, subRuleDesc, "Mandatory", "Not Defined in the plan",
 						Result.Not_Accepted.getResultVal());
 		}
 		
 
 	}
 
-	private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String expected, String actual,
+	private void processWasteWaterRecyclingAndReus(Plan pl,ScrutinyDetail scrutinyDetail) {
+		String subRule = SUB_RULE_53_5;
+		String subRuleDesc = "Waste water recycling system for horticultural purposes";
+		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea() : BigDecimal.ZERO;
+	
+		boolean isWasteWaterRecyclingAndReusRequired=false;
+		
+		List<LiquidWasteTreatementPlant> liquidWasteTreatementPlants=getLiquidWasteTreatementPlantByColorCode(pl.getUtility().getLiquidWasteTreatementPlant(), COLOR_WASTE_WATER_RECYCLING_AND_REUSE);
+		
+		if (plotArea.compareTo(new BigDecimal("500")) >0 && DxfFileConstants.YES.equals(pl.getPlanInformation().getWasteWaterDischargePerDay())) {
+			isWasteWaterRecyclingAndReusRequired=true;
+		}
+		
+		if (!isWasteWaterRecyclingAndReusRequired) {
+
+			if (liquidWasteTreatementPlants != null && liquidWasteTreatementPlants.size()>0) {
+				setReportOutputDetails(scrutinyDetail, subRule, subRuleDesc, DxfFileConstants.OPTIONAL,
+						DxfFileConstants.PROVIDED,
+						Result.Accepted.getResultVal());
+			} else {
+				setReportOutputDetails(scrutinyDetail, subRule, subRuleDesc, DxfFileConstants.OPTIONAL, "Not Defined in the plan",
+						Result.Accepted.getResultVal());
+			}
+
+		} else  if(isWasteWaterRecyclingAndReusRequired){
+			if ((liquidWasteTreatementPlants!=null)&&(liquidWasteTreatementPlants.size() > 0))
+				setReportOutputDetails(scrutinyDetail, subRule, subRuleDesc, DxfFileConstants.MANDATORY,
+						DxfFileConstants.PROVIDED,
+						Result.Accepted.getResultVal());
+			else
+				setReportOutputDetails(scrutinyDetail, subRule, subRuleDesc, DxfFileConstants.MANDATORY, "Not Defined in the plan",
+						Result.Not_Accepted.getResultVal());
+		}
+		
+
+	}
+	
+	private void setReportOutputDetails(ScrutinyDetail scrutinyDetail, String ruleNo, String ruleDesc, String expected, String actual,
 			String status) {
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, ruleNo);
@@ -154,7 +204,7 @@ public class WaterTreatmentPlant extends FeatureProcess {
 		details.put(PROVIDED, actual);
 		details.put(STATUS, status);
 		scrutinyDetail.getDetail().add(details);
-		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		//pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 	}
 
 	private List<LiquidWasteTreatementPlant> getLiquidWasteTreatementPlantByColorCode(

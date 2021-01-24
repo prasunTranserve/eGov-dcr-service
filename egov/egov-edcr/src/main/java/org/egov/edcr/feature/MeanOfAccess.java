@@ -250,18 +250,30 @@ public class MeanOfAccess extends FeatureProcess {
 			}
 		}
 
-		boolean status = false;
-		if (provided != null)
-			status = provided.compareTo(expectedValue) >= 0 ? true : false;
+		if (expectedValue.compareTo(new BigDecimal("6")) == 0) {//No need to validate
 
-		Map<String, String> details = new HashMap<>();
-		details.put(RULE_NO, SUBRULE_33_1);
-		details.put(DESCRIPTION, SUB_RULE_DESCRIPTION);
-		details.put(REQUIRED, expectedValue.toString());
-		details.put(PROVIDED, provided!=null?provided.toString():"");
-		details.put(STATUS, status ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
-		scrutinyDetail.getDetail().add(details);
-		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, SUBRULE_33_1);
+			details.put(DESCRIPTION, SUB_RULE_DESCRIPTION);
+			details.put(REQUIRED, expectedValue.toString());
+			details.put(PROVIDED, provided != null ? provided.toString() : "");
+			details.put(STATUS, Result.Verify.getResultVal());
+			scrutinyDetail.getDetail().add(details);
+			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		} else {
+			boolean status = false;
+			if (provided != null)
+				status = provided.compareTo(expectedValue) >= 0 ? true : false;
+
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, SUBRULE_33_1);
+			details.put(DESCRIPTION, SUB_RULE_DESCRIPTION);
+			details.put(REQUIRED, expectedValue.toString());
+			details.put(PROVIDED, provided != null ? provided.toString() : "");
+			details.put(STATUS, status ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+			scrutinyDetail.getDetail().add(details);
+			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		}
 
 		return pl;
 

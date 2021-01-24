@@ -52,6 +52,7 @@ import static org.egov.edcr.utility.DcrConstants.ROUNDMODE_MEASUREMENTS;
 import static org.egov.edcr.constants.DxfFileConstants.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -60,6 +61,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
+import org.egov.common.entity.bpa.Occupancy;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Measurement;
@@ -142,7 +144,7 @@ public class AdditionalFeature extends FeatureProcess {
 
 	@Autowired
 	private DwellingUnits dwellingUnits;
-	
+
 	@Override
 	public Plan validate(Plan pl) {
 		HashMap<String, String> errors = new HashMap<>();
@@ -197,9 +199,84 @@ public class AdditionalFeature extends FeatureProcess {
 		validateStiltFloor(pl);
 		validateServiceFloor(pl);
 		dwellingUnits.process(pl);
+		noOfFloors(pl);
 		return pl;
 	}
-	
+
+	private void noOfFloors(Plan pl) {
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_No of Floors");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, BLOCK);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		List<String> floorInfo = new ArrayList<>();
+		for (Block block : pl.getBlocks()) {
+			String noOfFloor=getNoOfFloor(block);
+			floorInfo.add(noOfFloor);
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, "12B");
+			details.put(DESCRIPTION, "Floors Info");
+			details.put(BLOCK, block.getNumber());
+			details.put(PROVIDED, noOfFloor);
+			scrutinyDetail.getDetail().add(details);
+		}
+		pl.getPlanInformation().setFloorInfo(floorInfo.toString());
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
+
+	private String getNoOfFloor(Block block) {
+		StringBuilder noOfFloor = new StringBuilder();
+		int B = 0, G = 0, S = 0, F = 0;
+		
+		for(Floor floor:block.getBuilding().getFloors()) {
+			if(floor.getNumber()<0 && !floor.getIsStiltFloor())
+				B++;
+			else if(floor.getNumber()==0 && !floor.getIsStiltFloor())
+				G++;
+			else if(floor.getNumber()>0 && !floor.getIsStiltFloor())
+				F++;
+			else if(floor.getIsStiltFloor())
+				S++;
+		}
+		
+		if(B>0) {
+			if(B>1) {
+				noOfFloor.append(B+"B");
+			}else {
+				noOfFloor.append("B");
+			}
+		}
+		
+		if(G>0) {
+			if(noOfFloor.length()==0) {
+				noOfFloor.append("G");
+			}else {
+				noOfFloor.append("+G");
+			}
+		}
+		
+		if(S>0) {
+			if(noOfFloor.length()==0) {
+				noOfFloor.append("S");
+			}else if(S>1){
+				noOfFloor.append("+"+S+"S");
+			}else {
+				noOfFloor.append("+S");
+			}
+		}
+		
+		if(F>0) {
+			if(noOfFloor.length()==0) {
+				noOfFloor.append(""+F);
+			}else {
+				noOfFloor.append("+"+F+"");
+			}
+		}
+		
+		return noOfFloor.toString();
+	}
+
 	private void validateStiltFloor(Plan pl) {
 		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
 		for (Block block : pl.getBlocks()) {
@@ -211,6 +288,8 @@ public class AdditionalFeature extends FeatureProcess {
 			scrutinyDetail.addColumnHeading(5, PROVIDED);
 			scrutinyDetail.addColumnHeading(6, STATUS);
 			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Stilt Floor");
+
+			OccupancyTypeHelper typeHelper = pl.getVirtualBuilding().getMostRestrictiveCoverageHelper();
 
 			for (Floor floor : block.getBuilding().getFloors()) {
 				if (floor.getIsStiltFloor()) {
@@ -240,9 +319,20 @@ public class AdditionalFeature extends FeatureProcess {
 							} else if (heightOfRoomFeaturesColor.get(COLOR_LIFT_LOBBY) == measurement.getColorCode()) {
 								// do nothing
 							} else {
-								if(heightOfRoomFeaturesColor.get(COLOR_STILT_FLOOR) != measurement.getColorCode())
-								pl.addError("Provisions in Stilt",
-										measurement.getName() + " not allowed in Stilt floor");
+								if (heightOfRoomFeaturesColor.get(COLOR_STILT_FLOOR) != measurement.getColorCode()) {
+									boolean isHabitableRoomAllowedInStilledFloor = isHabitableRoomAllowedInStilledFloor(
+											pl, block, floor, heightOfRoomFeaturesColor);
+									if ((heightOfRoomFeaturesColor.get(
+											COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED) == measurement.getColorCode()
+											|| heightOfRoomFeaturesColor
+													.get(COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED) == measurement
+															.getColorCode())
+											&& isHabitableRoomAllowedInStilledFloor) {
+										providedTotalArea = providedTotalArea.add(measurement.getArea());
+									} else {
+										pl.addError("Provisions in Stilt","Prohibited Room is present in Stilt floor");
+									}
+								}
 							}
 						}
 					}
@@ -279,6 +369,34 @@ public class AdditionalFeature extends FeatureProcess {
 
 		}
 
+	}
+
+	private boolean isHabitableRoomAllowedInStilledFloor(Plan pl, Block block, Floor floor,
+			Map<String, Integer> heightOfRoomFeaturesColor) {
+		boolean isHabitableRoomAllowedInStilledFloor = false;
+		OccupancyTypeHelper typeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+
+		if (DxfFileConstants.EWS.equals(typeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LOW_INCOME_HOUSING.equals(typeHelper.getSubtype().getCode())) {
+			isHabitableRoomAllowedInStilledFloor = true;
+		} else {
+			for (org.egov.common.entity.edcr.Occupancy occupancy : floor.getOccupancies()) {
+				if (occupancy != null && occupancy.getTypeHelper() != null
+						&& occupancy.getTypeHelper().getSubtype() != null
+						&& (DxfFileConstants.EWS.equals(occupancy.getTypeHelper().getSubtype().getCode())
+								|| DxfFileConstants.LOW_INCOME_HOUSING
+										.equals(occupancy.getTypeHelper().getSubtype().getCode()))) {
+					isHabitableRoomAllowedInStilledFloor = true;
+					break;
+				}
+			}
+
+			// check du
+			if (floor.getEwsUnit().size() > 0 || floor.getLigUnit().size() > 0)
+				isHabitableRoomAllowedInStilledFloor = true;
+		}
+
+		return isHabitableRoomAllowedInStilledFloor;
 	}
 
 	private void validateServiceFloor(Plan pl) {
@@ -318,9 +436,8 @@ public class AdditionalFeature extends FeatureProcess {
 											.getColorCode()) {
 								providedTotalArea = providedTotalArea.add(measurement.getArea());
 							} else {
-								if(heightOfRoomFeaturesColor.get(COLOR_SERVICE_FLOOR) != measurement.getColorCode())
-									pl.addError("Provisions in service",
-											measurement.getName() + " not allowed in service floor");
+								if (heightOfRoomFeaturesColor.get(COLOR_SERVICE_FLOOR) != measurement.getColorCode())
+									pl.addError("Provisions in service","Prohibited Room is present in service floor");
 							}
 						}
 					}

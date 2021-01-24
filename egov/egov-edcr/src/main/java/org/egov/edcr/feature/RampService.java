@@ -253,10 +253,10 @@ public class RampService extends FeatureProcess {
                             	isDARampDefined = true;
                             }
                             if (isDARampDefined) {
-                                setReportOutputDetails(pl, SUBRULE_50_C_4_B, SUBRULE_50_C_4_B_SLOPE_MAN_DESC, "",
+                                setReportOutputDetails(pl, SUBRULE_50_C_4_B, SUBRULE_50_C_4_B_SLOPE_MAN_DESC, isDaRampMandatory?DxfFileConstants.MANDATORY:DxfFileConstants.OPTIONAL,
                                         DcrConstants.OBJECTDEFINED_DESC, Result.Accepted.getResultVal(), scrutinyDetail);
                             } else if(isDaRampMandatory){
-                                setReportOutputDetails(pl, SUBRULE_50_C_4_B, SUBRULE_50_C_4_B_SLOPE_MAN_DESC, "",
+                                setReportOutputDetails(pl, SUBRULE_50_C_4_B, SUBRULE_50_C_4_B_SLOPE_MAN_DESC, isDaRampMandatory?DxfFileConstants.MANDATORY:DxfFileConstants.OPTIONAL,
                                         DcrConstants.OBJECTNOTDEFINED_DESC, Result.Not_Accepted.getResultVal(),
                                         scrutinyDetail);
                             }
