@@ -383,6 +383,14 @@ public class PlanService {
     		pl.addError("wasteWaterDischargePerDay", "DOES_PROJECT_HAVE_MORE_THAN_10000_LITRES_OF_WASTE_WATER_DISCHARGE_PER_DAY is mandatory in plan info.");
     	}
     	
+    	//IS_LAND_REGULARIZED
+    	String isLandRegularized=pl.getPlanInfoProperties().get(IS_LAND_REGULARIZED);
+    	if(YES.equals(isLandRegularized) || NO.equals(isLandRegularized)) {
+    		pl.getPlanInformation().setIsLandRegularized(isLandRegularized);
+    	}else {
+    		pl.addError("isLandRegularized", "IS_LAND_REGULARIZED is mandatory in plan info.");
+    	}
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

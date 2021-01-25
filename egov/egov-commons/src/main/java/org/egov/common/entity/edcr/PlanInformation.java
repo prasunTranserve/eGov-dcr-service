@@ -239,6 +239,8 @@ public class PlanInformation implements Serializable {
     
     private String floorInfo;
     
+    private String isLandRegularized;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -940,6 +942,14 @@ public class PlanInformation implements Serializable {
 
 	public void setFloorInfo(String floorInfo) {
 		this.floorInfo = floorInfo;
+	}
+
+	public String getIsLandRegularized() {
+		return isLandRegularized;
+	}
+
+	public void setIsLandRegularized(String isLandRegularized) {
+		this.isLandRegularized = isLandRegularized;
 	}
     
 	

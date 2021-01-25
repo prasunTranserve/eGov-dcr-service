@@ -96,6 +96,7 @@ public class Block extends Measurement {
     private List<BigDecimal> genralStairParapets;
     private List<BigDecimal> dARailingParapets;
     private List<BigDecimal> genralParapets;
+    private List<BigDecimal> specialLiftHandrails;
     @Override
     public String toString() {
         return "Block [building=" + building + ", name=" + name + ", number=" + number + ", setBacks=" + setBacks
@@ -441,6 +442,16 @@ public class Block extends Measurement {
 	public List<DARamp> getDaRamps() {
 		return daRamps;
 	}
+
+	public List<BigDecimal> getSpecialLiftHandrails() {
+		return specialLiftHandrails;
+	}
+
+	public void setSpecialLiftHandrails(List<BigDecimal> specialLiftHandrails) {
+		this.specialLiftHandrails = specialLiftHandrails;
+	}
+
+	
     
     
 }
