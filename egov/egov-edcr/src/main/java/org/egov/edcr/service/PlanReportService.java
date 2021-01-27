@@ -874,7 +874,7 @@ public class PlanReportService {
 			if (finalReportStatus)
 				for (String cmnFeature : common) {
 					for (Map<String, String> commonStatus : allMap.get(cmnFeature).getDetail()) {
-						if (commonStatus.get(STATUS).equalsIgnoreCase(Result.Not_Accepted.getResultVal())) {
+						if (commonStatus.get(STATUS)!=null && commonStatus.get(STATUS).equalsIgnoreCase(Result.Not_Accepted.getResultVal())) {
 							finalReportStatus = false;
 						}
 					}
