@@ -241,6 +241,8 @@ public class PlanInformation implements Serializable {
     
     private String isLandRegularized;
     
+    private BigDecimal totalParking;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -950,6 +952,14 @@ public class PlanInformation implements Serializable {
 
 	public void setIsLandRegularized(String isLandRegularized) {
 		this.isLandRegularized = isLandRegularized;
+	}
+
+	public BigDecimal getTotalParking() {
+		return totalParking;
+	}
+
+	public void setTotalParking(BigDecimal totalParking) {
+		this.totalParking = totalParking;
 	}
     
 	

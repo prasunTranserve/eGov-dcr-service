@@ -280,6 +280,9 @@ public class Parking extends FeatureProcess {
 			// TODO: handle exception
 		}
 		
+		//update planInformation of permit order
+		pl.getPlanInformation().setTotalParking(helper.totalParkingProvided);
+		
 		return helper;
 	}
 
