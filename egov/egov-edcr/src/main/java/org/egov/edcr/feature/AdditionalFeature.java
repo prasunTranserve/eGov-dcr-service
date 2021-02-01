@@ -64,6 +64,7 @@ import org.apache.log4j.Logger;
 import org.egov.common.entity.bpa.Occupancy;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.FloorUnit;
 import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
@@ -200,7 +201,61 @@ public class AdditionalFeature extends FeatureProcess {
 		validateServiceFloor(pl);
 		dwellingUnits.process(pl);
 		noOfFloors(pl);
+		validateOwnersSocietyOffice(pl);
 		return pl;
+	}
+
+	private void validateOwnersSocietyOffice(Plan pl) {
+		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_Owner’s society office");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+
+		long totalDU = pl.getPlanInformation().getTotalNoOfDwellingUnits();
+		BigDecimal ownersSocietyOfficeArea = BigDecimal.ZERO;
+		boolean isMandatory = false;
+		boolean status = false;
+		for (Block block : pl.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				for (FloorUnit floorUnit : floor.getOwnersSocietyOffice()) {
+					ownersSocietyOfficeArea = ownersSocietyOfficeArea.add(floorUnit.getArea()).setScale(2,
+							BigDecimal.ROUND_HALF_UP);
+				}
+			}
+		}
+
+		if (DxfFileConstants.APARTMENT_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HOUSING_PROJECT.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.STUDIO_APARTMENTS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.EWS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LOW_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			isMandatory = true;
+		}
+
+		BigDecimal requiredArea = new BigDecimal("12");
+		if (requiredArea.compareTo(new BigDecimal(totalDU)) < 0) {
+			requiredArea = new BigDecimal(totalDU);
+		}
+		if (!isMandatory)
+			requiredArea = BigDecimal.ZERO;
+
+		if (ownersSocietyOfficeArea.compareTo(requiredArea) >= 0)
+			status = true;
+
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, "12B");
+		details.put(DESCRIPTION, "Total Area");
+		details.put(REQUIRED, requiredArea.toString());
+		details.put(PROVIDED, ownersSocietyOfficeArea.toString());
+		details.put(STATUS, status ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+		scrutinyDetail.getDetail().add(details);
+
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 	}
 
 	private void noOfFloors(Plan pl) {
@@ -212,7 +267,7 @@ public class AdditionalFeature extends FeatureProcess {
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		List<String> floorInfo = new ArrayList<>();
 		for (Block block : pl.getBlocks()) {
-			String noOfFloor=getNoOfFloor(block);
+			String noOfFloor = getNoOfFloor(block);
 			floorInfo.add(noOfFloor);
 			Map<String, String> details = new HashMap<>();
 			details.put(RULE_NO, "12B");
@@ -228,52 +283,52 @@ public class AdditionalFeature extends FeatureProcess {
 	private String getNoOfFloor(Block block) {
 		StringBuilder noOfFloor = new StringBuilder();
 		int B = 0, G = 0, S = 0, F = 0;
-		
-		for(Floor floor:block.getBuilding().getFloors()) {
-			if(floor.getNumber()<0 && !floor.getIsStiltFloor())
+
+		for (Floor floor : block.getBuilding().getFloors()) {
+			if (floor.getNumber() < 0 && !floor.getIsStiltFloor())
 				B++;
-			else if(floor.getNumber()==0 && !floor.getIsStiltFloor())
+			else if (floor.getNumber() == 0 && !floor.getIsStiltFloor())
 				G++;
-			else if(floor.getNumber()>0 && !floor.getIsStiltFloor())
+			else if (floor.getNumber() > 0 && !floor.getIsStiltFloor())
 				F++;
-			else if(floor.getIsStiltFloor())
+			else if (floor.getIsStiltFloor())
 				S++;
 		}
-		
-		if(B>0) {
-			if(B>1) {
-				noOfFloor.append(B+"B");
-			}else {
+
+		if (B > 0) {
+			if (B > 1) {
+				noOfFloor.append(B + "B");
+			} else {
 				noOfFloor.append("B");
 			}
 		}
-		
-		if(G>0) {
-			if(noOfFloor.length()==0) {
+
+		if (G > 0) {
+			if (noOfFloor.length() == 0) {
 				noOfFloor.append("G");
-			}else {
+			} else {
 				noOfFloor.append("+G");
 			}
 		}
-		
-		if(S>0) {
-			if(noOfFloor.length()==0) {
+
+		if (S > 0) {
+			if (noOfFloor.length() == 0) {
 				noOfFloor.append("S");
-			}else if(S>1){
-				noOfFloor.append("+"+S+"S");
-			}else {
+			} else if (S > 1) {
+				noOfFloor.append("+" + S + "S");
+			} else {
 				noOfFloor.append("+S");
 			}
 		}
-		
-		if(F>0) {
-			if(noOfFloor.length()==0) {
-				noOfFloor.append(""+F);
-			}else {
-				noOfFloor.append("+"+F+"");
+
+		if (F > 0) {
+			if (noOfFloor.length() == 0) {
+				noOfFloor.append("" + F);
+			} else {
+				noOfFloor.append("+" + F + "");
 			}
 		}
-		
+
 		return noOfFloor.toString();
 	}
 
@@ -330,7 +385,7 @@ public class AdditionalFeature extends FeatureProcess {
 											&& isHabitableRoomAllowedInStilledFloor) {
 										providedTotalArea = providedTotalArea.add(measurement.getArea());
 									} else {
-										pl.addError("Provisions in Stilt","Prohibited Room is present in Stilt floor");
+										pl.addError("Provisions in Stilt", "Prohibited Room is present in Stilt floor");
 									}
 								}
 							}
@@ -437,7 +492,7 @@ public class AdditionalFeature extends FeatureProcess {
 								providedTotalArea = providedTotalArea.add(measurement.getArea());
 							} else {
 								if (heightOfRoomFeaturesColor.get(COLOR_SERVICE_FLOOR) != measurement.getColorCode())
-									pl.addError("Provisions in service","Prohibited Room is present in service floor");
+									pl.addError("Provisions in service", "Prohibited Room is present in service floor");
 							}
 						}
 					}

@@ -11,11 +11,14 @@ import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.FloorUnit;
 import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.MeasurementWithHeight;
+import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
+import org.egov.common.entity.edcr.ParkingDetails;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Room;
 import org.egov.common.entity.edcr.RoomHeight;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.feature.Parking;
 
 public class OdishaUtill {
 
@@ -26,6 +29,7 @@ public class OdishaUtill {
 	private static final int COLOR_MIG2 = 4;
 	private static final int COLOR_OTHER = 5;
 	private static final int COLOR_ROOM = 6;
+	private static final int COLOR_OWNERS_SOCIETY_OFFICE = 8;
 
 	public static boolean isAssemblyBuildingCriteria(Plan pl) {
 		boolean isAssemblyBuilding = false;
@@ -298,6 +302,7 @@ public class OdishaUtill {
 				List<FloorUnit> mig2 = new ArrayList<>();
 				List<FloorUnit> other = new ArrayList<>();
 				List<FloorUnit> room = new ArrayList<>();
+				List<FloorUnit> ownersSocietyOffice = new ArrayList<>();
 				for (FloorUnit floorUnit : floor.getUnits()) {
 					switch (floorUnit.getColorCode()) {
 					case COLOR_EWS:
@@ -324,6 +329,9 @@ public class OdishaUtill {
 						room.add(floorUnit);
 						totalDU++;
 						break;
+					case COLOR_OWNERS_SOCIETY_OFFICE:
+						ownersSocietyOffice.add(floorUnit);
+						break;
 					}
 				}
 				floor.setEwsUnit(ews);
@@ -332,7 +340,7 @@ public class OdishaUtill {
 				floor.setMig2Unit(mig2);
 				floor.setOthersUnit(other);
 				floor.setRoomUnit(room);
-
+				floor.setOwnersSocietyOffice(ownersSocietyOffice);
 			}
 		}
 		pl.getPlanInformation().setTotalNoOfDwellingUnits(totalDU);
@@ -352,23 +360,24 @@ public class OdishaUtill {
 //				}
 //			}
 //		}
-		
+
 		for (Block block : pl.getBlocks()) {
-			List<Floor> floors=block.getBuilding().getFloors();
-			if(floors!=null && !floors.isEmpty()) {
-				Floor lastFloor=floors.get(floors.size()-1);
-				BigDecimal area=BigDecimal.ZERO;
+			List<Floor> floors = block.getBuilding().getFloors();
+			if (floors != null && !floors.isEmpty()) {
+				Floor lastFloor = floors.get(floors.size() - 1);
+				BigDecimal area = BigDecimal.ZERO;
 				try {
-					area=lastFloor.getRoofAreas().stream().map(roofArea -> roofArea.getArea()).reduce(BigDecimal::add).get();
-				}catch (Exception e) {
+					area = lastFloor.getRoofAreas().stream().map(roofArea -> roofArea.getArea()).reduce(BigDecimal::add)
+							.get();
+				} catch (Exception e) {
 					// TODO: handle exception
 				}
-				if(area==null || area.compareTo(BigDecimal.ZERO)<=0) {
-					pl.addError("RoofArea", "RoofArea is not defined in block "+block.getNumber());
+				if (area == null || area.compareTo(BigDecimal.ZERO) <= 0) {
+					pl.addError("RoofArea", "RoofArea is not defined in block " + block.getNumber());
 				}
 				totalArea = totalArea.add(area);
 			}
-				
+
 		}
 
 		return totalArea;
@@ -399,7 +408,7 @@ public class OdishaUtill {
 							heightOfRooms.add(height);
 						}
 					}
-					//lightAndVentilation
+					// lightAndVentilation
 					Room room2 = new Room();
 					room2.setNumber(room.getNumber());
 					room2.setHeights(heightOfRooms);
@@ -412,5 +421,54 @@ public class OdishaUtill {
 			}
 		}
 		return spcRoom;
+	}
+
+	public static BigDecimal getRoofTopParking(Plan pl) {
+		ParkingDetails details = pl.getParkingDetails();
+		BigDecimal totalParking = BigDecimal.ZERO;
+		if (details.getSpecial() != null && !details.getSpecial().isEmpty()) {
+			for (Measurement measurement : details.getSpecial()) {
+				switch (measurement.getColorCode()) {
+				case Parking.COLOR_LAYER_SPECIAL_PARKING_ROOF_TOP_PARKING:
+					totalParking = totalParking.add(measurement.getArea()).setScale(2, BigDecimal.ROUND_HALF_UP);
+					break;
+				}
+			}
+		}
+		return totalParking;
+	}
+
+	public static BigDecimal getOpenParking(Plan pl) {
+		BigDecimal openParking = BigDecimal.ZERO;
+		try {
+			openParking = pl.getParkingDetails().getOpenCars().stream().map(Measurement::getArea)
+					.reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, BigDecimal.ROUND_HALF_UP);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return openParking;
+	}
+
+	public static boolean isEWSOrLIGBlock(Plan pl, Block block) {
+		boolean flage = false;
+		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+
+		if (DxfFileConstants.EWS.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.LOW_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			return true;
+		} else {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				for (Occupancy occupancy : floor.getOccupancies()) {
+					OccupancyTypeHelper helper = occupancy.getTypeHelper();
+					if (helper != null && helper.getSubtype() != null
+							&& (DxfFileConstants.EWS.equals(helper.getSubtype().getCode())
+									|| DxfFileConstants.LOW_INCOME_HOUSING.equals(helper.getSubtype().getCode()))) {
+						return true;
+					}
+
+				}
+			}
+		}
+		return flage;
 	}
 }

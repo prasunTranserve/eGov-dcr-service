@@ -122,6 +122,8 @@ public class Floor extends Measurement {
 	private List<FloorUnit> othersUnit;
 
 	private List<FloorUnit> roomUnit;
+	
+	private List<FloorUnit> ownersSocietyOffice;
 
 	public List<FireStair> getFireStairs() {
 		return fireStairs;
@@ -691,5 +693,14 @@ public class Floor extends Measurement {
 		this.roomUnit = roomUnit;
 	}
 
+	public List<FloorUnit> getOwnersSocietyOffice() {
+		return ownersSocietyOffice;
+	}
+
+	public void setOwnersSocietyOffice(List<FloorUnit> ownersSocietyOffice) {
+		this.ownersSocietyOffice = ownersSocietyOffice;
+	}
+
+	
 	
 }
