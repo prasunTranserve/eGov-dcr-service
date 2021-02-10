@@ -44,6 +44,7 @@ import org.egov.common.entity.edcr.VirtualBuildingReport;
 import org.egov.edcr.autonumber.DcrApplicationNumberGenerator;
 import org.egov.edcr.autonumber.OCPlanScrutinyNumberGenerator;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.UlbNameConstants;
 import org.egov.edcr.entity.ApplicationType;
 import org.egov.edcr.entity.EdcrApplication;
 import org.egov.edcr.entity.EdcrApplicationDetail;
@@ -651,9 +652,10 @@ public class PlanReportService {
 		}
 
 		final Map<String, Object> valuesMap = new HashMap<>();
-		String ulbName = ApplicationThreadLocals.getMunicipalityName();
-		if (ulbName == null || ulbName.trim().isEmpty())
-			ulbName = "Odisha Administration";
+//		String ulbName = ApplicationThreadLocals.getMunicipalityName();
+		String ulbName = null;
+//		if (ulbName == null || ulbName.trim().isEmpty())
+		ulbName = UlbNameConstants.ulbName(plan.getThirdPartyUserTenantld()) + " Administration";
 		valuesMap.put("ulbName", ulbName);
 		valuesMap.put("applicantName", dcrApplication.getApplicantName());
 		valuesMap.put("licensee", plan.getArchitectInformation());
@@ -874,7 +876,8 @@ public class PlanReportService {
 			if (finalReportStatus)
 				for (String cmnFeature : common) {
 					for (Map<String, String> commonStatus : allMap.get(cmnFeature).getDetail()) {
-						if (commonStatus.get(STATUS)!=null && commonStatus.get(STATUS).equalsIgnoreCase(Result.Not_Accepted.getResultVal())) {
+						if (commonStatus.get(STATUS) != null
+								&& commonStatus.get(STATUS).equalsIgnoreCase(Result.Not_Accepted.getResultVal())) {
 							finalReportStatus = false;
 						}
 					}

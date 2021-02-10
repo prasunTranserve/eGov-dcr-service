@@ -84,7 +84,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9" isBold="true" isUnderline="true"/>
 				</textElement>
-				<text><![CDATA[PLAN DOCUMENT SCRUTINY REPORT]]></text>
+				<text><![CDATA[EPBSR SCRUTINY REPORT]]></text>
 			</staticText>
 			<image scaleImage="RetainShape" hAlign="Center" isUsingCache="true" onErrorType="Blank">
 				<reportElement mode="Transparent" x="410" y="3" width="138" height="56" uuid="9575ccfe-2f3c-480c-bea6-2bc196c44f6f"/>

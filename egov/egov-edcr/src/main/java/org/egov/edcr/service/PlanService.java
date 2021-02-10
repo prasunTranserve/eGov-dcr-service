@@ -107,6 +107,7 @@ public class PlanService {
         long execution = end - start;
         LOG.info("Total time taken to extract plan : "+execution);
         plan.setMdmsMasterData(dcrApplication.getMdmsMasterData());
+        plan.setThirdPartyUserTenantld(dcrApplication.getThirdPartyUserTenant());
         //plan.getErrors().clear();
         updateOdPlanInfo(plan);
         plan.getPlanInformation().setServiceType(dcrApplication.getServiceType());

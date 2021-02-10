@@ -78,7 +78,7 @@ public class Plan implements Serializable {
 	 * success then value is true.
 	 */
 	Map<String, String> planInfoProperties = new HashMap<>();
-
+	private String thirdPartyUserTenantld;
 	private Boolean edcrPassed = false;
 	// Submission date of plan scrutiny.
 	private Date applicationDate;
@@ -679,5 +679,15 @@ public class Plan implements Serializable {
 		planInfo.put("AREA_TYPE", "NEW");
 		return planInfo;
 	}
+
+	public String getThirdPartyUserTenantld() {
+		return thirdPartyUserTenantld;
+	}
+
+	public void setThirdPartyUserTenantld(String thirdPartyUserTenantld) {
+		this.thirdPartyUserTenantld = thirdPartyUserTenantld;
+	}
+	
+	
 	
 }
