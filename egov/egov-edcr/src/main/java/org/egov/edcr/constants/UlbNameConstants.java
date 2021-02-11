@@ -6,7 +6,7 @@ import java.util.Map;
 public class UlbNameConstants {
 	private static final Map<String,String> map = new HashMap<String,String>();
 	static {
-		map.put("od.cuttack","Cuttack");
+		map.put("od.cuttack","Cuttack Municipal Corporation");
 		map.put("ob.banki","Banki");
 		map.put("od.jatni","Jatni");
 		map.put("od.angul","Angul");
@@ -39,7 +39,7 @@ public class UlbNameConstants {
 	}
 	
 	public static String ulbName(String tanantId ) {
-		String name="Odisha";
+		String name="Odisha Administration";
 		if(map.get(tanantId)!=null)
 			name=map.get(tanantId);
 		return name;

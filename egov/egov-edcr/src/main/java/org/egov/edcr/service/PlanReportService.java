@@ -655,7 +655,7 @@ public class PlanReportService {
 //		String ulbName = ApplicationThreadLocals.getMunicipalityName();
 		String ulbName = null;
 //		if (ulbName == null || ulbName.trim().isEmpty())
-		ulbName = UlbNameConstants.ulbName(plan.getThirdPartyUserTenantld()) + " Administration";
+		ulbName = UlbNameConstants.ulbName(plan.getThirdPartyUserTenantld());
 		valuesMap.put("ulbName", ulbName);
 		valuesMap.put("applicantName", dcrApplication.getApplicantName());
 		valuesMap.put("licensee", plan.getArchitectInformation());
