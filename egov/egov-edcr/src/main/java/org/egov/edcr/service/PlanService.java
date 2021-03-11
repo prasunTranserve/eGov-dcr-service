@@ -392,6 +392,14 @@ public class PlanService {
     		pl.addError("isLandRegularized", "IS_LAND_REGULARIZED is mandatory in plan info.");
     	}
     	
+    	//IS_DRIVEWAY_PROVIDING_ACCESS_TO_REAR_SIDE_OR_ANY_OTHER_SIDE_OTHER_THAN_FRONT_OF_THE_BUILDING
+    	String isDrivewayForRearSide=pl.getPlanInfoProperties().get(IS_LAND_REGULARIZED);
+    	if(YES.equals(isDrivewayForRearSide) || NO.equals(isDrivewayForRearSide)) {
+    			//NA
+    	}else {
+    		pl.addError("isDrivewayForRearSide", "IS_DRIVEWAY_PROVIDING_ACCESS_TO_REAR_SIDE_OR_ANY_OTHER_SIDE_OTHER_THAN_FRONT_OF_THE_BUILDING is mandatory in plan info.");
+    	}
+    	
     	//TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W
     	String totalConnectedLoadOfTheProposedProjectInW=pl.getPlanInfoProperties().get(TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W);
     	try {

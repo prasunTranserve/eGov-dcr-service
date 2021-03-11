@@ -57,59 +57,63 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.utility.DcrConstants;
+import org.python.antlr.base.boolop;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FireTenderMovement extends FeatureProcess {
-    private static final Logger LOG = Logger.getLogger(FireTenderMovement.class);
-    private static final BigDecimal FIFTEEN = BigDecimal.valueOf(15);
-    private static final BigDecimal THREE_POINTSIXSIX = BigDecimal.valueOf(3.66);
-    private static final String RULE_36_3 = "36-3";
+	private static final Logger LOG = Logger.getLogger(FireTenderMovement.class);
+	private static final BigDecimal FIFTEEN = BigDecimal.valueOf(15);
+	private static final BigDecimal THREE_POINTSIXSIX = BigDecimal.valueOf(3.66);
+	private static final String RULE_36_3 = "36-3";
 
-    @Override
-    public Plan validate(Plan plan) {
-        return plan;
-    }
+	@Override
+	public Plan validate(Plan plan) {
+		return plan;
+	}
 
-    @Override
-    public Plan process(Plan plan) {
-//        HashMap<String, String> errors = new HashMap<>();
-//
-//        for (Block block : plan.getBlocks()) {
-//
-//            ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-//            scrutinyDetail.addColumnHeading(1, RULE_NO);
-//            scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-//            scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
-//            scrutinyDetail.addColumnHeading(4, PROVIDED);
-//            scrutinyDetail.addColumnHeading(5, STATUS);
-//            scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Fire Tender Movement");
-//
-//            if (block.getBuilding() != null
-//                    && block.getBuilding().getBuildingHeight().setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
-//                            DcrConstants.ROUNDMODE_MEASUREMENTS).compareTo(FIFTEEN) > 0) {
-//                org.egov.common.entity.edcr.FireTenderMovement fireTenderMovement = block.getFireTenderMovement();
-//                if (fireTenderMovement != null) {
-//                    List<BigDecimal> widths = fireTenderMovement.getFireTenderMovements().stream()
-//                            .map(fireTenderMovmnt -> fireTenderMovmnt.getWidth()).collect(Collectors.toList());
-//                    BigDecimal minWidth = widths.stream().reduce(BigDecimal::min).get();
-//                    BigDecimal providedWidth = minWidth.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
-//                            DcrConstants.ROUNDMODE_MEASUREMENTS);
-//                    Boolean isAccepted = providedWidth.compareTo(THREE_POINTSIXSIX) >= 0;
-//
-//                    Map<String, String> details = new HashMap<>();
-//                    details.put(RULE_NO, RULE_36_3);
-//                    details.put(DESCRIPTION, "Width of fire tender movement");
-//                    details.put(PERMISSIBLE, ">= " + THREE_POINTSIXSIX.toString());
-//                    details.put(PROVIDED, providedWidth.toString());
-//                    details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
-//                    scrutinyDetail.getDetail().add(details);
-//                    plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-//
+	@Override
+	public Plan process(Plan plan) {
+		HashMap<String, String> errors = new HashMap<>();
+
+		for (Block block : plan.getBlocks()) {
+
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
+			scrutinyDetail.addColumnHeading(4, PROVIDED);
+			scrutinyDetail.addColumnHeading(5, STATUS);
+			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Vehicular access within Site");
+
+			if (block.getBuilding() != null) {
+				org.egov.common.entity.edcr.FireTenderMovement fireTenderMovement = block.getFireTenderMovement();
+				if (fireTenderMovement != null) {
+					List<BigDecimal> widths = fireTenderMovement.getFireTenderMovements().stream()
+							.map(fireTenderMovmnt -> fireTenderMovmnt.getWidth()).collect(Collectors.toList());
+					BigDecimal minWidth = widths.stream().reduce(BigDecimal::min).get();
+					BigDecimal providedWidth = minWidth.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
+							DcrConstants.ROUNDMODE_MEASUREMENTS);
+					BigDecimal requiredWidth=getRequiredWidth(plan, block);
+					Boolean isAccepted = providedWidth.compareTo(requiredWidth) >= 0;
+
+					Map<String, String> details = new HashMap<>();
+					details.put(RULE_NO, RULE_36_3);
+					details.put(DESCRIPTION, "Width of vehicular access within Site");
+					details.put(PERMISSIBLE, ">= " + requiredWidth.toString());
+					details.put(PROVIDED, providedWidth.toString());
+					details.put(STATUS,
+							isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
 //                    if (!fireTenderMovement.getErrors().isEmpty()) {
 //                        StringBuffer yardNames = new StringBuffer();
 //
@@ -120,19 +124,55 @@ public class FireTenderMovement extends FeatureProcess {
 //                                + yardNames.toString().substring(0, yardNames.length() - 2) + ".");
 //                        plan.addErrors(errors);
 //                    }
-//                } else {
-//                    errors.put("BLK_FTM_" + block.getNumber(), "Fire tender movement not defined for Block " + block.getNumber());
-//                    plan.addErrors(errors);
-//                }
-//            }
-//        }
+				} else if(isMandatory(plan, block)){
+					errors.put("BLK_FTM_" + block.getNumber(),
+							"Vehicular access within Site not defined for Block " + block.getNumber());
+					plan.addErrors(errors);
+				}
+			}
+		}
 
-        return plan;
-    }
+		return plan;
+	}
 
-    @Override
-    public Map<String, Date> getAmendments() {
-        return new LinkedHashMap<>();
-    }
+	private boolean isMandatory(Plan pl, Block block) {
+		boolean flage = false;
+		BigDecimal openParking = OdishaUtill.getOpenParking(pl);
+		if (openParking.compareTo(BigDecimal.ZERO) > 0)
+			flage = true;
+		
+		if(DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(DxfFileConstants.IS_DRIVEWAY_PROVIDING_ACCESS_TO_REAR_SIDE_OR_ANY_OTHER_SIDE_OTHER_THAN_FRONT_OF_THE_BUILDING)))
+			flage = true;
+		
+		return flage;
+	}
+
+	private static final int ONE_SIDE_PARKING_COLOR = 1;
+	private static final int TWO_SIDE_PARKING_COLOR = 2;
+
+	private BigDecimal getRequiredWidth(Plan pl, Block block) {
+		BigDecimal required = BigDecimal.ZERO;
+		if (OdishaUtill.isEWSOrLIGBlock(pl, block)) {
+			org.egov.common.entity.edcr.FireTenderMovement fireTenderMovement = block.getFireTenderMovement();
+			for (Measurement measurement : fireTenderMovement.getFireTenderMovements()) {
+				if (measurement.getColorCode() == ONE_SIDE_PARKING_COLOR)
+					required = new BigDecimal("1.2");
+				if (measurement.getColorCode() == TWO_SIDE_PARKING_COLOR)
+					required = new BigDecimal("1.5");
+			}
+		} else {
+			if (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("15")) <= 0) {
+				required = new BigDecimal("6");
+			} else {
+				required = new BigDecimal("7.5");
+			}
+		}
+		return required;
+	}
+
+	@Override
+	public Map<String, Date> getAmendments() {
+		return new LinkedHashMap<>();
+	}
 
 }

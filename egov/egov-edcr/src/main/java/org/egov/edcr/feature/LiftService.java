@@ -69,6 +69,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -410,21 +411,26 @@ public class LiftService extends FeatureProcess {
 		return count;
 	}
 
+//	private BigDecimal getRoofTopParking(Plan pl) {
+//		ParkingDetails details = pl.getParkingDetails();
+//		BigDecimal totalParking = BigDecimal.ZERO;
+//		if (details.getSpecial() != null && !details.getSpecial().isEmpty()) {
+//			for (Measurement measurement : details.getSpecial()) {
+//				switch (measurement.getColorCode()) {
+//				case Parking.COLOR_LAYER_SPECIAL_PARKING_ROOF_TOP_PARKING:
+//					totalParking = totalParking.add(measurement.getArea()).setScale(2, BigDecimal.ROUND_HALF_UP);
+//					break;
+//				}
+//			}
+//		}
+//		return totalParking;
+//	}
+
 	private BigDecimal getRoofTopParking(Plan pl) {
-		ParkingDetails details = pl.getParkingDetails();
-		BigDecimal totalParking = BigDecimal.ZERO;
-		if (details.getSpecial() != null && !details.getSpecial().isEmpty()) {
-			for (Measurement measurement : details.getSpecial()) {
-				switch (measurement.getColorCode()) {
-				case Parking.COLOR_LAYER_SPECIAL_PARKING_ROOF_TOP_PARKING:
-					totalParking = totalParking.add(measurement.getArea()).setScale(2, BigDecimal.ROUND_HALF_UP);
-					break;
-				}
-			}
-		}
-		return totalParking;
+		return OdishaUtill.getRoofTopParking(pl);
 	}
 
+	
 	private void setReportOutputDetails(String ruleNo, String ruleDesc, int floor, String expected, String actual,
 			boolean isAccepted, ScrutinyDetail scrutinyDetail) {
 		Map<String, String> details = new HashMap<>();

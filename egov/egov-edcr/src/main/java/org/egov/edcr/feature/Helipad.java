@@ -15,6 +15,8 @@ import org.egov.common.entity.edcr.OccupancyType;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,64 +31,31 @@ public class Helipad extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-		boolean flage=true;
-		if(flage)
-			return pl;
 
-		boolean status = false;
-		String provided = "";
-
-		scrutinyDetail = new ScrutinyDetail();
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Helipad Provision");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 		scrutinyDetail.addColumnHeading(3, REQUIRED);
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
-
-		for (Block b : pl.getBlocks()) {
-
-			if (b.getBuilding().getBuildingHeight().doubleValue() >= 200) {
-
-				BigDecimal helipadDetails = getHelipad(pl);
-				if (helipadDetails.doubleValue() > 0) {
-					status = true;
-					provided = "Present";
-				} else {
-
-					provided = "Not Present";
-				}
-				Map<String, String> details = new HashMap<>();
-				details.put(RULE_NO, "");
-				details.put(DESCRIPTION, "Provision for Helipad");
-				details.put(REQUIRED, "Required");
-				details.put(PROVIDED, provided);
-
-				details.put(STATUS, status ? Result.Verify.getResultVal() : Result.Not_Accepted.getResultVal());
-				scrutinyDetail.getDetail().add(details);
-
-			} else if (b.getBuilding().getBuildingHeight().doubleValue() < 200) {
-				Map<String, String> details = new HashMap<>();
-				details.put(RULE_NO, "");
-				details.put(DESCRIPTION, "Provision for Helipad");
-				details.put(REQUIRED, " NA");
-				details.put(PROVIDED, " -");
-
-				details.put(STATUS, Result.Accepted.getResultVal());
-				scrutinyDetail.getDetail().add(details);
-			}
-
-			
-		}
+		
+		BigDecimal buildingHeight=OdishaUtill.getMaxBuildingHeight(pl);
+		boolean isMandatory=buildingHeight.compareTo(new BigDecimal("200"))>=0;
+		boolean isProvided = DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(DxfFileConstants.PROVISION_FOR_HELIPAD_PRESENT));
+		boolean status = isMandatory && isProvided?true:!isMandatory?true:false;
+		
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, "");
+		details.put(DESCRIPTION, "Provision for Helipad");
+		details.put(REQUIRED, isMandatory?DxfFileConstants.MANDATORY:DxfFileConstants.OPTIONAL);
+		details.put(PROVIDED, isProvided?DxfFileConstants.PROVIDED:DxfFileConstants.NA);
+		details.put(STATUS, status ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+		scrutinyDetail.getDetail().add(details);
+	
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		return pl;
 
-	}
-
-	private BigDecimal getHelipad(Plan pl) {
-		BigDecimal helipad = BigDecimal.ZERO;
-		// helipad=pl.getUtility().getWaterTankCapacity().doubleValue();
-		return helipad;
 	}
 
 	@Override
