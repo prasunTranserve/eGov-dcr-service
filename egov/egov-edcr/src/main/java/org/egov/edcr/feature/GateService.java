@@ -10,9 +10,11 @@ import java.util.Map;
 
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Measurement;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.od.OdishaUtill;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +31,6 @@ public class GateService extends FeatureProcess {
 	@Override
 	public Plan process(Plan plan) {
 		
-		boolean flage=true;
-		if(flage)
-			return plan;
-
-		scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Gate Service");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
@@ -43,7 +40,17 @@ public class GateService extends FeatureProcess {
 
 	
             BigDecimal getBuildingHeight=OdishaUtill.getMaxBuildingHeight(plan);
-			if (getBuildingHeight.compareTo(new BigDecimal(15))>=0) {
+            boolean flage=false;
+            
+            OccupancyTypeHelper typeHelper=plan.getVirtualBuilding().getMostRestrictiveFarHelper();
+            
+            if(DxfFileConstants.HOUSING_PROJECT.equals(typeHelper.getSubtype().getCode())
+            		|| DxfFileConstants.APARTMENT_BUILDING.equals(typeHelper.getSubtype().getCode())
+                	|| OdishaUtill.isSpecialBuilding(plan)	) {
+            	flage=true;
+            }
+            
+			if (getBuildingHeight.compareTo(new BigDecimal(15))>=0 || flage) {
 
 				
 				List<Measurement> maingateMeasurementList = getGateDimesions(plan);
@@ -55,18 +62,35 @@ public class GateService extends FeatureProcess {
 						BigDecimal providedWidthMainGate = measurement.getWidth();
 
 						details.put(RULE_NO, "");
-						details.put(DESCRIPTION, "MainGate" + i);
-						details.put(REQUIRED, "height>=5 and width>=6");
+						details.put(DESCRIPTION, "MainGate width " + i);
+						details.put(REQUIRED, "width>=6");
 						details.put(PROVIDED,
-								"height = " + providedHeightMainGate + " and width = " + providedWidthMainGate);
+								"width = " + providedWidthMainGate);
 
-						if (providedHeightMainGate.compareTo(new BigDecimal(5)) >= 0
-								&& providedWidthMainGate.compareTo(new BigDecimal(6)) >= 0)
+						if (providedWidthMainGate.compareTo(new BigDecimal(6)) >= 0)
 							details.put(STATUS, Result.Accepted.getResultVal());
 						else
 							details.put(STATUS, Result.Not_Accepted.getResultVal());
-
+						
 						scrutinyDetail.addDetail(details);
+
+						if(providedHeightMainGate!=null && providedHeightMainGate.compareTo(BigDecimal.ZERO)>0) {
+							Map<String, String> details2 = new HashMap<>();
+
+							details2.put(RULE_NO, "");
+							details2.put(DESCRIPTION, "Height of Main Gate "+i+" Archway");
+							details2.put(REQUIRED, "height>=5");
+							details2.put(PROVIDED,
+									"height = " + providedHeightMainGate);
+
+							if (providedHeightMainGate.compareTo(new BigDecimal(5)) >= 0)
+								details2.put(STATUS, Result.Accepted.getResultVal());
+							else
+								details2.put(STATUS, Result.Not_Accepted.getResultVal());
+							
+							scrutinyDetail.addDetail(details2);
+						}
+						
 						i++;
 					}
 
@@ -78,19 +102,6 @@ public class GateService extends FeatureProcess {
 
 		return plan;
 	}
-
-	private BigDecimal getGateHeight(Plan pl, Block b) {
-		BigDecimal gateHeight = BigDecimal.ZERO;
-		
-		return gateHeight;
-	}
-
-	private BigDecimal getGateWidth(Plan pl, Block b) {
-		BigDecimal gateWidth = BigDecimal.ZERO;
-
-		return gateWidth;
-	}
-
 	private List<Measurement> getGateDimesions(Plan pl) {
 		
 		List<Measurement> mainGate = new ArrayList<Measurement>();

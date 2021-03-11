@@ -76,11 +76,13 @@ import org.egov.edcr.feature.FireTenderMovement;
 import org.egov.edcr.feature.FootpathService;
 import org.egov.edcr.feature.GateService;
 import org.egov.edcr.feature.GeneralStair;
+import org.egov.edcr.feature.GlassFacadeOpening;
 import org.egov.edcr.feature.GovtBuildingDistance;
 import org.egov.edcr.feature.GuardRoom;
 import org.egov.edcr.feature.HeadRoom;
 import org.egov.edcr.feature.HeightOfRoom;
 import org.egov.edcr.feature.Helipad;
+import org.egov.edcr.feature.InfoCommsTechService;
 import org.egov.edcr.feature.InteriorOpenSpaceService;
 import org.egov.edcr.feature.Kitchen;
 import org.egov.edcr.feature.LandUse;
@@ -91,6 +93,7 @@ import org.egov.edcr.feature.MezzanineFloorService;
 import org.egov.edcr.feature.MonumentDistance;
 import org.egov.edcr.feature.NorthDirection;
 import org.egov.edcr.feature.OpenStairService;
+import org.egov.edcr.feature.OutHouseService;
 import org.egov.edcr.feature.OverHangs;
 import org.egov.edcr.feature.OverheadElectricalLineService;
 import org.egov.edcr.feature.Parapet;
@@ -101,6 +104,8 @@ import org.egov.edcr.feature.PlanInfoFeature;
 import org.egov.edcr.feature.Plantation;
 import org.egov.edcr.feature.PlantationGreenStrip;
 import org.egov.edcr.feature.PlotArea;
+import org.egov.edcr.feature.PorticoService;
+import org.egov.edcr.feature.PublicWashroomService;
 import org.egov.edcr.feature.RainWaterHarvesting;
 import org.egov.edcr.feature.RampService;
 import org.egov.edcr.feature.RecreationalSpace;
@@ -377,6 +382,21 @@ public class PlanFeatureRepository {
         features.add(pf);
         
         pf = new PlanFeature(DoorWays.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(GlassFacadeOpening.class);
+        features.add(pf);
+
+        pf = new PlanFeature(PorticoService.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(InfoCommsTechService.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(OutHouseService.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(PublicWashroomService.class);
         features.add(pf);
         
         return features;

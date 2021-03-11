@@ -392,6 +392,34 @@ public class PlanService {
     		pl.addError("isLandRegularized", "IS_LAND_REGULARIZED is mandatory in plan info.");
     	}
     	
+    	//TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W
+    	String totalConnectedLoadOfTheProposedProjectInW=pl.getPlanInfoProperties().get(TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W);
+    	try {
+    		pl.getPlanInformation().setTotalConnectedLoadOfTheProposedProjectInW(new BigDecimal(totalConnectedLoadOfTheProposedProjectInW));
+    	}catch (Exception e) {
+    		pl.addError("totalConnectedLoadOfTheProposedProjectInW", "TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W is mandatory in plan info.");
+		}
+    	
+    	//MINIMUM_GENERATION_CAPACITY_OF_THE_ROOFTOP_SOLAR_PV_SYSTEM_IN_W
+    	String minimumGenerationCapacityOfTheRooftopSolarPvSystemInW=pl.getPlanInfoProperties().get(MINIMUM_GENERATION_CAPACITY_OF_THE_ROOFTOP_SOLAR_PV_SYSTEM_IN_W);
+    	try {
+    		pl.getPlanInformation().setMinimumGenerationCapacityOfTheRooftopSolarPvSystemInW(new BigDecimal(minimumGenerationCapacityOfTheRooftopSolarPvSystemInW));
+    	}catch (Exception e) {
+    		if(!NA.equals(minimumGenerationCapacityOfTheRooftopSolarPvSystemInW)) {
+    			pl.addError("minimumGenerationCapacityOfTheRooftopSolarPvSystemInW", "MINIMUM_GENERATION_CAPACITY_OF_THE_ROOFTOP_SOLAR_PV_SYSTEM_IN_W is mandatory in plan info.");
+        	}
+		}
+    	
+    	//CAPACITY_OF_SOLAR_WATER_HEATING_SYSTEM_IN_LPD
+    	String capacityOfSolarWaterHeatingSystemInLpd=pl.getPlanInfoProperties().get(CAPACITY_OF_SOLAR_WATER_HEATING_SYSTEM_IN_LPD);
+    	try {
+    		pl.getPlanInformation().setCapacityOfSolarWaterHeatingSystemInLpd(new BigDecimal(capacityOfSolarWaterHeatingSystemInLpd));
+    	}catch (Exception e) {
+    		if(!NA.equals(capacityOfSolarWaterHeatingSystemInLpd)) {
+    			pl.addError("capacityOfSolarWaterHeatingSystemInLpd", "CAPACITY_OF_SOLAR_WATER_HEATING_SYSTEM_IN_LPD is mandatory in plan info.");
+        	}
+		}
+    	
     }
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

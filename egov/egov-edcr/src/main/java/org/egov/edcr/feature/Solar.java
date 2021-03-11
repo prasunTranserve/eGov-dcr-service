@@ -59,120 +59,152 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.OccupancyType;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
+import org.egov.edcr.service.PlanService;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class Solar extends FeatureProcess {
-    private static final String SUB_RULE_109_C_DESCRIPTION = "Solar Assisted Water Heating / Lighting system ";
-    private static final String SUB_RULE_109_C = "109-C";
-    private static final BigDecimal FOURHUNDRED = BigDecimal.valueOf(400);
+	private static final String SUB_RULE_109_C_DESCRIPTION = "Solar Assisted Water Heating / Lighting system ";
+	private static final String SUB_RULE_109_C = "109-C";
+	private static final BigDecimal FOURHUNDRED = BigDecimal.valueOf(400);
+	private static final Logger LOG = Logger.getLogger(FeatureProcess.class);
 
-    @Override
-    public Plan validate(Plan pl) {
-        HashMap<String, String> errors = new HashMap<>();
-        if (pl != null && pl.getUtility() != null) {
-            // solar water heating defined or not
-            if (pl.getVirtualBuilding() != null && !pl.getVirtualBuilding().getOccupancies().isEmpty()) {
-                for (OccupancyType occupancyType : pl.getVirtualBuilding().getOccupancies()) {
-                    if (occupancyType.equals(OccupancyType.OCCUPANCY_A1)
-                            && pl.getVirtualBuilding().getTotalBuitUpArea() != null
-                            && pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(FOURHUNDRED) > 0
-                            && pl.getUtility().getSolar().isEmpty()) {
-                        errors.put(SOLAR_SYSTEM,
-                                edcrMessageSource.getMessage(OBJECTNOTDEFINED, new String[] {
-                                        OBJECTNOTDEFINED }, LocaleContextHolder.getLocale()));
-                        pl.addErrors(errors);
-                        break;
-                    } else if ((occupancyType.equals(OccupancyType.OCCUPANCY_A4)
-                            || occupancyType.equals(OccupancyType.OCCUPANCY_A2) ||
-                            occupancyType.equals(OccupancyType.OCCUPANCY_A3) || occupancyType.equals(OccupancyType.OCCUPANCY_C) ||
-                            occupancyType.equals(OccupancyType.OCCUPANCY_C1) || occupancyType.equals(OccupancyType.OCCUPANCY_C2)
-                            ||
-                            occupancyType.equals(OccupancyType.OCCUPANCY_C3) || occupancyType.equals(OccupancyType.OCCUPANCY_D) ||
-                            occupancyType.equals(OccupancyType.OCCUPANCY_D1) || occupancyType.equals(OccupancyType.OCCUPANCY_D2))
-                            && pl.getVirtualBuilding().getTotalBuitUpArea() != null
-                            && pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(BigDecimal.valueOf(500)) > 0
-                            && pl.getUtility().getSolar().isEmpty()) {
-                        errors.put(SOLAR_SYSTEM,
-                                edcrMessageSource.getMessage(OBJECTNOTDEFINED, new String[] {
-                                        SOLAR_SYSTEM }, LocaleContextHolder.getLocale()));
-                        pl.addErrors(errors);
-                        break;
-                    }
-                }
-            }
-        }
+	@Override
+	public Plan validate(Plan pl) {
+		return pl;
+	}
 
-        return pl;
-    }
+	@Override
+	public Plan process(Plan pl) {
+		scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+		scrutinyDetail.setKey("Common_Solar PV System");
+		String rule = RULE109;
+		String subRule = SUB_RULE_109_C;
+		String subRuleDesc = SUB_RULE_109_C_DESCRIPTION;
+		String desc1 = "Total connected load of the proposed project in W";
+		String desc3 = "Solar PV System";
+		String desc2 = "Minimum generation capacity of the Rooftop Solar PV system in W";
 
-    @Override
-    public Plan process(Plan pl) {
-        validate(pl);
-        scrutinyDetail = new ScrutinyDetail();
-        scrutinyDetail.addColumnHeading(1, RULE_NO);
-        scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-        scrutinyDetail.addColumnHeading(3, REQUIRED);
-        scrutinyDetail.addColumnHeading(4, PROVIDED);
-        scrutinyDetail.addColumnHeading(5, STATUS);
-        scrutinyDetail.setKey("Common_Solar");
-        String rule = RULE109;
-        String subRule = SUB_RULE_109_C;
-        String subRuleDesc = SUB_RULE_109_C_DESCRIPTION;
-        if (pl.getVirtualBuilding() != null && !pl.getVirtualBuilding().getOccupancies().isEmpty()) {
-            for (OccupancyType occupancyType : pl.getVirtualBuilding().getOccupancies()) {
-                if (occupancyType.equals(OccupancyType.OCCUPANCY_A1)
-                        && pl.getVirtualBuilding().getTotalBuitUpArea() != null
-                        && pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(FOURHUNDRED) > 0) {
-                    processSolar(pl, rule, subRule, subRuleDesc);
-                    break;
-                } else if ((occupancyType.equals(OccupancyType.OCCUPANCY_A4) || occupancyType.equals(OccupancyType.OCCUPANCY_A2)
-                        ||
-                        occupancyType.equals(OccupancyType.OCCUPANCY_A3) || occupancyType.equals(OccupancyType.OCCUPANCY_C) ||
-                        occupancyType.equals(OccupancyType.OCCUPANCY_C1) || occupancyType.equals(OccupancyType.OCCUPANCY_C2) ||
-                        occupancyType.equals(OccupancyType.OCCUPANCY_C3) || occupancyType.equals(OccupancyType.OCCUPANCY_D) ||
-                        occupancyType.equals(OccupancyType.OCCUPANCY_D1) || occupancyType.equals(OccupancyType.OCCUPANCY_D2))
-                        && pl.getVirtualBuilding().getTotalBuitUpArea() != null
-                        && pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(BigDecimal.valueOf(500)) > 0) {
-                    processSolar(pl, rule, subRule, subRuleDesc);
-                    break;
-                }
-            }
-        }
-        return pl;
-    }
+		OccupancyTypeHelper typeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		BigDecimal plotArea = pl.getPlot().getArea();
+		boolean isApplicable = isRequired(typeHelper, plotArea);
 
-    private void processSolar(Plan pl, String rule, String subRule, String subRuleDesc) {
-        if (!pl.getUtility().getSolar().isEmpty()) {
-            setReportOutputDetailsWithoutOccupancy(pl, subRule, subRuleDesc, "", OBJECTDEFINED_DESC,
-                    Result.Accepted.getResultVal());
-            return;
-        } else {
-            setReportOutputDetailsWithoutOccupancy(pl, subRule, subRuleDesc, "", OBJECTNOTDEFINED_DESC,
-                    Result.Not_Accepted.getResultVal());
-            return;
-        }
-    }
+		BigDecimal totalRoofTopArea = OdishaUtill.getTotalRoofArea(pl);
+		BigDecimal totalConnectedLoadOfTheProposedProjectInW = pl.getPlanInformation()
+				.getTotalConnectedLoadOfTheProposedProjectInW();
+		BigDecimal required = BigDecimal.ZERO;
+		try {
+			BigDecimal FivePOfTCLOTPP = totalConnectedLoadOfTheProposedProjectInW.multiply(new BigDecimal("0.05"))
+					.setScale(2, BigDecimal.ROUND_HALF_UP);
+			BigDecimal totalRequiredPerRoofTopAreaInFeet = totalRoofTopArea.multiply(new BigDecimal("10.764"))
+					.multiply(new BigDecimal("20")).setScale(2, BigDecimal.ROUND_HALF_UP);
 
-    private void setReportOutputDetailsWithoutOccupancy(Plan pl, String ruleNo, String ruleDesc, String expected, String actual,
-            String status) {
-        Map<String, String> details = new HashMap<>();
-        details.put(RULE_NO, ruleNo);
-        details.put(DESCRIPTION, ruleDesc);
-        details.put(REQUIRED, expected);
-        details.put(PROVIDED, actual);
-        details.put(STATUS, status);
-        scrutinyDetail.getDetail().add(details);
-        pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-    }
+			if (FivePOfTCLOTPP.compareTo(totalRequiredPerRoofTopAreaInFeet) <= 0)
+				required = FivePOfTCLOTPP;
+			else
+				required = totalRequiredPerRoofTopAreaInFeet;
 
-    @Override
-    public Map<String, Date> getAmendments() {
-        return new LinkedHashMap<>();
-    }
+			if (DxfFileConstants.OC_RESIDENTIAL.equals(typeHelper.getType().getCode())) {
+				if (pl.getVirtualBuilding().getTotalCoverageArea().compareTo(new BigDecimal("300")) >= 0)
+					if (required.compareTo(new BigDecimal("500")) < 0)
+						required = new BigDecimal("500");
+			} else if (DxfFileConstants.FIVE_STAR_HOTEL.equals(typeHelper.getSubtype().getCode())) {
+				if (required.compareTo(new BigDecimal("5000")) < 0)
+					required = new BigDecimal("5000");
+			} else if (DxfFileConstants.HOTEL.equals(typeHelper.getSubtype().getCode())) {
+				if (required.compareTo(new BigDecimal("2000")) < 0)
+					required = new BigDecimal("2000");
+			} else if (DxfFileConstants.OC_COMMERCIAL.equals(typeHelper.getType().getCode())) {
+				if (pl.getVirtualBuilding().getTotalCoverageArea().compareTo(new BigDecimal("500")) >= 0)
+					if (required.compareTo(new BigDecimal("2000")) < 0)
+						required = new BigDecimal("2000");
+			}
+
+		} catch (Exception e) {
+			LOG.error(e);
+		}
+
+		// Total connected load of the proposed project in W
+		setReportOutputDetailsWithoutOccupancy(pl, subRule, desc1, DxfFileConstants.NA,
+				totalConnectedLoadOfTheProposedProjectInW.toString(), Result.Accepted.getResultVal());
+
+		// Solar PV System
+		if (isApplicable) {
+			BigDecimal minimumGenerationCapacityOfTheRooftopSolarPvSystemInW = BigDecimal.ZERO;
+			try {
+				minimumGenerationCapacityOfTheRooftopSolarPvSystemInW = pl.getPlanInformation()
+						.getMinimumGenerationCapacityOfTheRooftopSolarPvSystemInW();
+			} catch (Exception e) {
+				pl.addError("MINIMUM_GENERATION_CAPACITY_OF_THE_ROOFTOP_SOLAR_PV_SYSTEM_IN_W",
+						"MINIMUM_GENERATION_CAPACITY_OF_THE_ROOFTOP_SOLAR_PV_SYSTEM_IN_W is required.");
+			}
+			boolean flage = false;
+			if (minimumGenerationCapacityOfTheRooftopSolarPvSystemInW.compareTo(required) >= 0)
+				flage = true;
+
+			setReportOutputDetailsWithoutOccupancy(pl, subRule, desc2, required.toString(),
+					pl.getPlanInformation().getMinimumGenerationCapacityOfTheRooftopSolarPvSystemInW().toString(),
+					flage ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+
+			processSolar(pl, rule, subRule, desc3);
+
+		}
+		return pl;
+	}
+
+	private void processSolar(Plan pl, String rule, String subRule, String subRuleDesc) {
+		if (!pl.getUtility().getSolar().isEmpty()) {
+			setReportOutputDetailsWithoutOccupancy(pl, subRule, subRuleDesc, DxfFileConstants.MANDATORY,
+					OBJECTDEFINED_DESC, Result.Accepted.getResultVal());
+			return;
+		} else {
+			setReportOutputDetailsWithoutOccupancy(pl, subRule, subRuleDesc, DxfFileConstants.MANDATORY,
+					OBJECTNOTDEFINED_DESC, Result.Not_Accepted.getResultVal());
+			return;
+		}
+	}
+
+	private boolean isRequired(OccupancyTypeHelper typeHelper, BigDecimal plotarea) {
+		boolean flage = false;
+
+		if (DxfFileConstants.OC_RESIDENTIAL.equals(typeHelper.getType().getCode())
+				&& plotarea.compareTo(new BigDecimal("300")) >= 0) {
+			flage = true;
+		} else if (plotarea.compareTo(new BigDecimal("500")) >= 0) {
+			flage = true;
+		}
+
+		return flage;
+	}
+
+	private void setReportOutputDetailsWithoutOccupancy(Plan pl, String ruleNo, String ruleDesc, String expected,
+			String actual, String status) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, ruleNo);
+		details.put(DESCRIPTION, ruleDesc);
+		details.put(REQUIRED, expected);
+		details.put(PROVIDED, actual);
+		details.put(STATUS, status);
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
+
+	@Override
+	public Map<String, Date> getAmendments() {
+		return new LinkedHashMap<>();
+	}
 }

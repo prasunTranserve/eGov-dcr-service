@@ -47,30 +47,51 @@
 
 package org.egov.common.entity.edcr;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.List;
 
-public class SanityHelper implements Serializable {
+public class GlassFacadeOpening {
 
-    private static final long serialVersionUID = 55L;
-    public Double maleWc = 0d;
-    public Double commonWc=0d;
-    public Double femaleWc = 0d;
-    public Double urinal = 0d;
-    public Double maleWash = 0d;
-    public Double femaleWash = 0d;
-    public Double commonWash= 0d;
-    public Double maleBath = 0d;
-    public Double femaleBath = 0d;
-    public Double commonBath = 0d;
-    public Double abultionTap = 0d;
-    public Double requiredSpecialWc = 0d;
-    public Double providedSpecialWc = 0d;
-    public Set<String> ruleNo = new HashSet<>();
-    public String ruleDescription;
-    public Double failedAreaSpecialWc = 0d;
-    public Double failedDimensionSpecialWc = 0d;
-    public Double drinkingWater=0d;
-    public boolean drinkingWaterEachFloor=false;
+    private static final long serialVersionUID = 102L;
+
+    private Integer number;
+
+    private List<BigDecimal> widths;
+
+    private List<BigDecimal> heights;
+
+    private List<BigDecimal> floorToGlassOpeningHeights;
+
+    public Integer getNumber() {
+        return number;
+    }
+
+    public void setNumber(Integer number) {
+        this.number = number;
+    }
+
+    public List<BigDecimal> getWidths() {
+        return widths;
+    }
+
+    public void setWidths(List<BigDecimal> widths) {
+        this.widths = widths;
+    }
+
+    public List<BigDecimal> getHeights() {
+        return heights;
+    }
+
+    public void setHeights(List<BigDecimal> heights) {
+        this.heights = heights;
+    }
+
+    public List<BigDecimal> getFloorToGlassOpeningHeights() {
+        return floorToGlassOpeningHeights;
+    }
+
+    public void setFloorToGlassOpeningHeights(List<BigDecimal> floorToGlassOpeningHeights) {
+        this.floorToGlassOpeningHeights = floorToGlassOpeningHeights;
+    }
+
 }

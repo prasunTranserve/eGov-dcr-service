@@ -243,6 +243,12 @@ public class PlanInformation implements Serializable {
     
     private BigDecimal totalParking;
     
+    private BigDecimal totalConnectedLoadOfTheProposedProjectInW;
+    
+    private BigDecimal minimumGenerationCapacityOfTheRooftopSolarPvSystemInW; 
+    
+    private BigDecimal capacityOfSolarWaterHeatingSystemInLpd;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -961,7 +967,32 @@ public class PlanInformation implements Serializable {
 	public void setTotalParking(BigDecimal totalParking) {
 		this.totalParking = totalParking;
 	}
+
+	public BigDecimal getTotalConnectedLoadOfTheProposedProjectInW() {
+		return totalConnectedLoadOfTheProposedProjectInW;
+	}
+
+	public void setTotalConnectedLoadOfTheProposedProjectInW(BigDecimal totalConnectedLoadOfTheProposedProjectInW) {
+		this.totalConnectedLoadOfTheProposedProjectInW = totalConnectedLoadOfTheProposedProjectInW;
+	}
+
+	public BigDecimal getMinimumGenerationCapacityOfTheRooftopSolarPvSystemInW() {
+		return minimumGenerationCapacityOfTheRooftopSolarPvSystemInW;
+	}
+
+	public void setMinimumGenerationCapacityOfTheRooftopSolarPvSystemInW(
+			BigDecimal minimumGenerationCapacityOfTheRooftopSolarPvSystemInW) {
+		this.minimumGenerationCapacityOfTheRooftopSolarPvSystemInW = minimumGenerationCapacityOfTheRooftopSolarPvSystemInW;
+	}
+
+	public BigDecimal getCapacityOfSolarWaterHeatingSystemInLpd() {
+		return capacityOfSolarWaterHeatingSystemInLpd;
+	}
+
+	public void setCapacityOfSolarWaterHeatingSystemInLpd(BigDecimal capacityOfSolarWaterHeatingSystemInLpd) {
+		this.capacityOfSolarWaterHeatingSystemInLpd = capacityOfSolarWaterHeatingSystemInLpd;
+	}
+
+	
     
-	
-	
 }

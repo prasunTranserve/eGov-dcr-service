@@ -200,9 +200,125 @@ public class AdditionalFeature extends FeatureProcess {
 		validateServiceFloor(pl);
 		dwellingUnits.process(pl);
 		noOfFloors(pl);
+		validateOtherGreenBuildingProvisions(pl);
+		//validateAmmenity(pl);
 		return pl;
 	}
-
+	
+	
+	private void validateOtherGreenBuildingProvisions(Plan pl) {
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_Other Green Building Provisions");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+		
+		
+		BigDecimal plotArea=pl.getPlot().getArea();
+		OccupancyTypeHelper typeHelper=pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		
+		if(plotArea.compareTo(new BigDecimal("300"))>0 && plotArea.compareTo(new BigDecimal("500"))<=0) {
+			validateG6(pl, scrutinyDetail);
+		}else if(plotArea.compareTo(new BigDecimal("500"))>0 && plotArea.compareTo(new BigDecimal("1000"))<=0) {
+			validateG5(pl, scrutinyDetail);
+			validateG6(pl, scrutinyDetail);
+		}else if(plotArea.compareTo(new BigDecimal("1000"))>0 && plotArea.compareTo(new BigDecimal("3000"))<=0) {
+			if(DxfFileConstants.OC_RESIDENTIAL.equals(typeHelper.getType().getCode())) {
+				validateG4(pl, scrutinyDetail);
+				validateG5(pl, scrutinyDetail);
+				validateG6(pl, scrutinyDetail);
+			}else {
+				validateG2(pl, scrutinyDetail);
+				validateG4(pl, scrutinyDetail);
+				validateG5(pl, scrutinyDetail);
+				validateG6(pl, scrutinyDetail);
+			}
+		}else if(plotArea.compareTo(new BigDecimal("3000"))>0) {
+			validateG1(pl, scrutinyDetail);
+			validateG2(pl, scrutinyDetail);
+			validateG3(pl, scrutinyDetail);
+			validateG4(pl, scrutinyDetail);
+			validateG5(pl, scrutinyDetail);
+			validateG6(pl, scrutinyDetail);
+			validateG7(pl, scrutinyDetail);
+		}
+		
+		
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
+	
+	private void validateG1(Plan pl, ScrutinyDetail scrutinyDetail) {
+		if (pl.getPlanInfoProperties().get(G1) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G1))) {
+			addDetails(scrutinyDetail, "55-1-a", "Low water consumption and plumbing fixtures", DxfFileConstants.MANDATORY,
+					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+		} else {
+			addDetails(scrutinyDetail, "55-1-a", "Low water consumption and plumbing fixtures", DxfFileConstants.MANDATORY,
+					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
+		}
+	}
+	
+	private void validateG2(Plan pl, ScrutinyDetail scrutinyDetail) {
+		if (pl.getPlanInfoProperties().get(G2) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G2))) {
+			addDetails(scrutinyDetail, "55-1-a", "Reduced hardscape", DxfFileConstants.MANDATORY,
+					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+		} else {
+			addDetails(scrutinyDetail, "55-1-a", "Reduced hardscape", DxfFileConstants.MANDATORY,
+					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
+		}
+	}
+	
+	private void validateG3(Plan pl, ScrutinyDetail scrutinyDetail) {
+		if (pl.getPlanInfoProperties().get(G3) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G3))) {
+			addDetails(scrutinyDetail, "55-1-a", "Low energy consumption lighting fixtures", DxfFileConstants.MANDATORY,
+					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+		} else {
+			addDetails(scrutinyDetail, "55-1-a", "Low energy consumption lighting fixtures", DxfFileConstants.MANDATORY,
+					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
+		}
+	}
+	
+	private void validateG4(Plan pl, ScrutinyDetail scrutinyDetail) {
+		if (pl.getPlanInfoProperties().get(G4) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G4))) {
+			addDetails(scrutinyDetail, "55-1-a", "Energy efficient HVAC System", DxfFileConstants.MANDATORY,
+					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+		} else {
+			addDetails(scrutinyDetail, "55-1-a", "Energy efficient HVAC System", DxfFileConstants.MANDATORY,
+					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
+		}
+	}
+	
+	private void validateG5(Plan pl, ScrutinyDetail scrutinyDetail) {
+		if (pl.getPlanInfoProperties().get(G5) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G5))) {
+			addDetails(scrutinyDetail, "55-1-a", "Lighting of common areas by solar energy or LED devices", DxfFileConstants.MANDATORY,
+					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+		} else {
+			addDetails(scrutinyDetail, "55-1-a", "Lighting of common areas by solar energy or LED devices", DxfFileConstants.MANDATORY,
+					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
+		}
+	}
+	
+	private void validateG6(Plan pl, ScrutinyDetail scrutinyDetail) {
+		if (pl.getPlanInfoProperties().get(G6) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G6))) {
+			addDetails(scrutinyDetail, "55-1-a", "Segregation of waste provision", DxfFileConstants.MANDATORY,
+					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+		} else {
+			addDetails(scrutinyDetail, "55-1-a", "Segregation of waste provision", DxfFileConstants.MANDATORY,
+					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
+		}
+	}
+	
+	private void validateG7(Plan pl, ScrutinyDetail scrutinyDetail) {
+		if (pl.getPlanInfoProperties().get(G7) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G7))) {
+			addDetails(scrutinyDetail, "55-1-a", "Organic waste management provision", DxfFileConstants.MANDATORY,
+					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+		} else {
+			addDetails(scrutinyDetail, "55-1-a", "Organic waste management provision", DxfFileConstants.MANDATORY,
+					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
+		}
+	}
+	
 	private void noOfFloors(Plan pl) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_No of Floors");

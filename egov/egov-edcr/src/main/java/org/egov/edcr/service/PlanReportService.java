@@ -1036,11 +1036,14 @@ public class PlanReportService {
 	private List<DcrReportBlockDetail> buildBlockWiseProposedInfo(Plan plan) {
 		List<DcrReportBlockDetail> dcrReportBlockDetails = new ArrayList<>();
 
-		List<Block> blocks = plan.getBlocks();
+//		List<Block> blocks = plan.getBlocks();
+		List<Block> totalBlocksInPlan=new ArrayList<>();
+		totalBlocksInPlan.addAll(plan.getBlocks());
+		totalBlocksInPlan.addAll(plan.getOuthouse());
 
-		if (!blocks.isEmpty()) {
+		if (!totalBlocksInPlan.isEmpty()) {
 
-			for (Block block : blocks) {
+			for (Block block : totalBlocksInPlan) {
 
 				Building building = block.getBuilding();
 				if (building != null) {
@@ -1120,11 +1123,13 @@ public class PlanReportService {
 	private List<DcrReportBlockDetail> buildBlockWiseExistingInfo(Plan plan) {
 		List<DcrReportBlockDetail> dcrReportBlockDetails = new ArrayList<>();
 
-		List<Block> blocks = plan.getBlocks();
+		//List<Block> blocks = plan.getBlocks();
+		List<Block> totalBlocksInPlan=new ArrayList<>();
+		totalBlocksInPlan.addAll(plan.getBlocks());
+		totalBlocksInPlan.addAll(plan.getOuthouse());
+		if (!totalBlocksInPlan.isEmpty()) {
 
-		if (!blocks.isEmpty()) {
-
-			for (Block block : blocks) {
+			for (Block block : totalBlocksInPlan) {
 
 				Building building = block.getBuilding();
 				if (building != null && building.getTotalExistingBuiltUpArea() != null

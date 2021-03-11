@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.A.H.m;
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
@@ -112,6 +113,8 @@ public class Coverage extends FeatureProcess {
 		BigDecimal totalCoverage = BigDecimal.ZERO;
 		BigDecimal totalCoverageArea = BigDecimal.ZERO;
 
+		totalCoverageArea = updatedAmmenityArea(pl);
+
 		for (Block block : pl.getBlocks()) {
 			BigDecimal coverageAreaWithoutDeduction = BigDecimal.ZERO;
 			BigDecimal coverageDeductionArea = BigDecimal.ZERO;
@@ -155,9 +158,83 @@ public class Coverage extends FeatureProcess {
 		BigDecimal requiredCoverage = getPermissibleGroundCoverage(pl);
 		// if(requiredCoverage.compareTo(BigDecimal.ZERO)>0)
 		processCoverage(pl, StringUtils.EMPTY, totalCoverage, requiredCoverage);
+		OdishaUtill.updateBlock(pl);
 		return pl;
 	}
 
+	private BigDecimal updatedAmmenityArea(Plan pl) {
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_Amenity in open space");
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, REQUIRED);
+		scrutinyDetail.addColumnHeading(4, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+		
+		BigDecimal totalArea = BigDecimal.ZERO;
+		if (pl.getAmmenity().getGuardRooms().size() > 0) {
+			BigDecimal guardRoomArea = pl.getAmmenity().getGuardRooms().stream().map(m -> m.getArea())
+					.reduce(BigDecimal::add).get();
+			if (guardRoomArea.compareTo(new BigDecimal("10")) > 0)
+				totalArea = totalArea.add(guardRoomArea);
+			addDetails(scrutinyDetail, "55-1-a", "Guard room", DxfFileConstants.NA,
+					guardRoomArea.toString(), Result.Accepted.getResultVal());
+		}
+		if (pl.getAmmenity().getElectricCabins().size() > 0) {
+			BigDecimal electricCabinArea = pl.getAmmenity().getElectricCabins().stream().map(m -> m.getArea())
+					.reduce(BigDecimal::add).get();
+			if (electricCabinArea.compareTo(new BigDecimal("10")) > 0)
+				totalArea = totalArea.add(electricCabinArea);
+			addDetails(scrutinyDetail, "55-1-a", "Electric cabin", DxfFileConstants.NA,
+					electricCabinArea.toString(), Result.Accepted.getResultVal());
+		}
+		if (pl.getAmmenity().getSubStations().size() > 0) {
+			BigDecimal subStationArea = pl.getAmmenity().getSubStations().stream().map(m -> m.getArea())
+					.reduce(BigDecimal::add).get();
+			if (subStationArea.compareTo(new BigDecimal("10")) > 0)
+				totalArea = totalArea.add(subStationArea);
+			addDetails(scrutinyDetail, "55-1-a", "Sub-Station", DxfFileConstants.NA,
+					subStationArea.toString(), Result.Accepted.getResultVal());
+		}
+		if (pl.getAmmenity().getAreaForGeneratorSet().size() > 0) {
+			BigDecimal AreaForGeneratorSetArea = pl.getAmmenity().getAreaForGeneratorSet().stream()
+					.map(m -> m.getArea()).reduce(BigDecimal::add).get();
+			if (AreaForGeneratorSetArea.compareTo(new BigDecimal("10")) > 0)
+				totalArea = totalArea.add(AreaForGeneratorSetArea);
+			addDetails(scrutinyDetail, "55-1-a", "Area for generator set", DxfFileConstants.NA,
+					AreaForGeneratorSetArea.toString(), Result.Accepted.getResultVal());
+		}
+		if (pl.getAmmenity().getAtms().size() > 0) {
+			BigDecimal atmArea = pl.getAmmenity().getAtms().stream().map(m -> m.getArea()).reduce(BigDecimal::add)
+					.get();
+			if (atmArea.compareTo(new BigDecimal("10")) > 0)
+				totalArea = totalArea.add(atmArea);
+			addDetails(scrutinyDetail, "55-1-a", "ATM", DxfFileConstants.NA,
+					atmArea.toString(), Result.Accepted.getResultVal());
+		}
+		if (pl.getAmmenity().getOtherAmmenities().size() > 0) {
+			BigDecimal otherAmmenitieArea = pl.getAmmenity().getOtherAmmenities().stream().map(m -> m.getArea())
+					.reduce(BigDecimal::add).get();
+			if (otherAmmenitieArea.compareTo(new BigDecimal("10")) > 0)
+				totalArea = totalArea.add(otherAmmenitieArea);
+			addDetails(scrutinyDetail, "55-1-a", "Other Ammenities", DxfFileConstants.NA,
+					otherAmmenitieArea.toString(), Result.Accepted.getResultVal());
+		}
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		return totalArea;
+	}
+
+	private void addDetails(ScrutinyDetail scrutinyDetail, String rule, String description, String required,
+			String provided, String status) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, rule);
+		details.put(DESCRIPTION, description);
+		details.put(REQUIRED, required);
+		details.put(PROVIDED, provided);
+		details.put(STATUS, status);
+		scrutinyDetail.getDetail().add(details);
+	}
+	
 	private void processCoverage(Plan pl, String occupancy, BigDecimal coverage, BigDecimal upperLimit) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Coverage");
@@ -176,7 +253,7 @@ public class Coverage extends FeatureProcess {
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, RULE_38);
 		details.put(DESCRIPTION, "Coverage");
-		
+
 		details.put(PROVIDED, coverage.toString());
 		if (upperLimit.compareTo(BigDecimal.ZERO) > 0) {
 			details.put(PERMISSIBLE, upperLimit.toString());
@@ -187,7 +264,7 @@ public class Coverage extends FeatureProcess {
 			}
 
 		} else {
-			details.put(PERMISSIBLE,DxfFileConstants.NA);
+			details.put(PERMISSIBLE, DxfFileConstants.NA);
 			details.put(STATUS, Result.Accepted.getResultVal());
 		}
 
@@ -238,10 +315,10 @@ public class Coverage extends FeatureProcess {
 	}
 
 	private BigDecimal getPermissibleGroundCoverage(Plan pl) {
-		
-		if(checkLowRiskBuildingCriteria(pl))
+
+		if (checkLowRiskBuildingCriteria(pl))
 			return BigDecimal.ZERO;
-		
+
 		BigDecimal maxPermissibleGroundCoverage = BigDecimal.ZERO;
 		switch (pl.getPlanInformation().getLandUseZone()) {
 		case OPEN_SPACE_USE_ZONE:
@@ -255,12 +332,13 @@ public class Coverage extends FeatureProcess {
 
 		if (maxPermissibleGroundCoverage.compareTo(BigDecimal.ZERO) > 0)
 			return maxPermissibleGroundCoverage;
-		
+
 		// General Criteria
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		System.out.println(occupancyTypeHelper);
-		System.out.println(occupancyTypeHelper+" - "+ occupancyTypeHelper.getSubtype());
-		System.out.println(occupancyTypeHelper+" - "+ occupancyTypeHelper.getSubtype()+" - "+ occupancyTypeHelper.getSubtype().getCode());
+		System.out.println(occupancyTypeHelper + " - " + occupancyTypeHelper.getSubtype());
+		System.out.println(occupancyTypeHelper + " - " + occupancyTypeHelper.getSubtype() + " - "
+				+ occupancyTypeHelper.getSubtype().getCode());
 		if (DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION
 						.equals(occupancyTypeHelper.getSubtype().getCode())
@@ -303,9 +381,10 @@ public class Coverage extends FeatureProcess {
 		inPercentage = totalPublicOpenSace.divide(pl.getPlot().getArea()).multiply(new BigDecimal("100"));
 		return inPercentage;
 	}
-	
+
 	private static void init(Plan pl) {
 		OdishaUtill.updateDUnitInPlan(pl);
+		OdishaUtill.updateAmmenity(pl);
 	}
 
 	private boolean checkLowRiskBuildingCriteria(Plan pl) {
@@ -315,22 +394,21 @@ public class Coverage extends FeatureProcess {
 
 			if (pl.getPlot().getArea().compareTo(new BigDecimal("500")) <= 0
 					&& DxfFileConstants.YES.equalsIgnoreCase(pl.getPlanInformation().getApprovedLayoutDeclaration())) {
-				if (!checkIsBeasment(pl)
-						&& OdishaUtill.getMaxBuildingHeight(pl).compareTo(new BigDecimal("10")) <= 0) {
+				if (!checkIsBeasment(pl) && OdishaUtill.getMaxBuildingHeight(pl).compareTo(new BigDecimal("10")) <= 0) {
 					isLowRiskBuilding = true;
 				}
 			}
 		}
 		pl.getPlanInformation().setLowRiskBuilding(isLowRiskBuilding);
-		
-		if(isLowRiskBuilding) {
+
+		if (isLowRiskBuilding) {
 			pl.getPlanInformation().setRiskType(DxfFileConstants.LOW);
 			pl.getPlanInformation().setRiskTypeDes(DxfFileConstants.LOW);
-		}else {
+		} else {
 			pl.getPlanInformation().setRiskType(DxfFileConstants.HIGH);
 			pl.getPlanInformation().setRiskTypeDes(DxfFileConstants.OTHER_THAN_LOW);
 		}
-		
+
 		return isLowRiskBuilding;
 	}
 

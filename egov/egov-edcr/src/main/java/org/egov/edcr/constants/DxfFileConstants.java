@@ -16,6 +16,7 @@ public class DxfFileConstants {
 	public static final String G = "G"; // Transportation
 	public static final String H = "H"; // Agriculture
 	public static final String M = "M"; // MIXED USE
+	public static final String AF="AF"; //Additional Feature
 	
 	//version 2
 	public static final String OC_RESIDENTIAL = "A"; // Residential
@@ -27,6 +28,7 @@ public class DxfFileConstants {
 	public static final String OC_TRANSPORTATION= "G"; // Transportation
 	public static final String OC_AGRICULTURE = "H"; // Agriculture
 	public static final String OC_MIXED_USE = "M"; // MIXED USE
+	public static final String OC_ADDITIONAL_FEATURE="AF";//ADDITIONAL FEATURE
 
 	// sub occupancies code
 	public static final String A_P = "A-P";// Plotted Detached/Individual Residential building
@@ -360,7 +362,6 @@ public class DxfFileConstants {
 	public static final String H_PDS = "H-PDS";// Polutry, Diary and Swine/Goat/Horse
 	public static final String H_H = "H-H";// Horticulture
 	public static final String H_SC = "H-SC";// Seri culture
-
 	
 	public static final String AGRICULTURE_FARM = "H-AF";// Agriculture Farm
 	public static final String AGRO_GODOWN = "H-AG";// Agro Godown
@@ -371,7 +372,12 @@ public class DxfFileConstants {
 	public static final String POLUTRY_DIARY_AND_SWINE_OR_GOAT_OR_HORSE = "H-PDS";// Polutry, Diary and Swine/Goat/Horse
 	public static final String HORTICULTURE = "H-H";// Horticulture
 	public static final String SERI_CULTURE = "H-SC";// Seri culture
-
+	
+	public static final String AF_OH="AF-OH";	//Outhouse
+	public static final String AF_PW="AF-PW";	//Outhouse
+	
+	public static final String OUTHOUSE="AF-OH";	//Outhouse
+	public static final String PUBLIC_WASHROOMS="AF-PW";	//Public Washrooms
 
 	public static final String VERT_CLEAR_OHE = "VERT_CLEAR_OHEL";
 	public static final String REAR_YARD = "REAR_YARD";
@@ -647,6 +653,7 @@ public class DxfFileConstants {
 	
 	public static final String NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK="NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK";
 	public static final String LAND_USE_ZONE="LAND_USE_ZONE";
+	public static final String IS_BLOCK_S_HAVING_ENTIRE_FACADE_IN_GLASS="IS_BLOCK_%S_HAVING_ENTIRE_FACADE_IN_GLASS";
 	
 	//LAND_USE_ZONE
 	public static final String RETAIL_COMMERCIAL_AND_BUSINESS_USE_ZONE="RETAIL COMMERCIAL & BUSINESS USE ZONE";
@@ -705,6 +712,7 @@ public class DxfFileConstants {
 	public static final String OPTIONAL="OPTIONAL";
 	public static final String MANDATORY="MANDATORY";
 	public static final String PROVIDED="Provided";
+	public static final String NOT_PROVIDED="Not Provided";
 	
 	public static final String COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED = "Habitable Room (Naturally Ventilated)";//1 - db
 	public static final String COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED = "Habitable Room (Mechanically Ventilated)";//2 - db
@@ -732,4 +740,21 @@ public class DxfFileConstants {
 	public static final String BPA_PM_MODULE_CODE = "BPA3";
 	public static final String BPA_DP_BP_MODULE_CODE = "BPA4";
 	
+	public static final String MINIMUM_DISTANCE_FROM_THE_ROAD_INTERSECTIONS="MINIMUM_DISTANCE_FROM_THE_ROAD_INTERSECTIONS";
+	public static final String MINIMUM_DISTANCE_OF_PROPERTY_LINE_FROM_THE_CENTRE_LINE_OF_THE_ROAD="MINIMUM_DISTANCE_OF_PROPERTY_LINE_FROM_THE_CENTRE_LINE_OF_THE_ROAD";
+	public static final String TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W="TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W";
+	public static final String MINIMUM_GENERATION_CAPACITY_OF_THE_ROOFTOP_SOLAR_PV_SYSTEM_IN_W="MINIMUM_GENERATION_CAPACITY_OF_THE_ROOFTOP_SOLAR_PV_SYSTEM_IN_W";
+	public static final String CAPACITY_OF_SOLAR_WATER_HEATING_SYSTEM_IN_LPD="CAPACITY_OF_SOLAR_WATER_HEATING_SYSTEM_IN_LPD";
+	
+	public static final String G1="DOES_PROJECT_HAVE_LOW_WATER_CONSUMPTION_AND_PLUMBING_FIXTURES";
+	public static final String G2="DOES_PROJECT_HAVE_REDUCED_HARDSCAPE";
+	public static final String G3="DOES_PROJECT_HAVE_LOW_ENERGY_CONSUMPTION_LIGHTING_FIXTURES";
+	public static final String G4="DOES_PROJECT_HAVE_ENERGY_EFFICIENT_HVAC_SYSTEM";
+	public static final String G5="DOES_PROJECT_HAVE_LIGHTING_OF_COMMON_AREAS_BY_SOLAR_ENERGY_OR_LED_DEVICES";
+	public static final String G6="DOES_PROJECT_HAVE_SEGREGATION_OF_WASTE_PROVISION";
+	public static final String G7="DOES_PROJECT_HAVE_ORGANIC_WASTE_MANAGEMENT_PROVISION";
+	
+	public static final String IS_DRINKING_WATER_ON_EACH_FLOOR="IS_DRINKING_WATER_ON_EACH_FLOOR";
+	public static final String RESIDENTIAL_NO_OWNER="RESIDENTIAL_NO_OWNER";
+	public static final String No_Of_WARD="No_Of_WARD";
 }

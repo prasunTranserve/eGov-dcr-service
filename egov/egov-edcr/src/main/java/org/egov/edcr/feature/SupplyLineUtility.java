@@ -126,7 +126,7 @@ public class SupplyLineUtility extends FeatureProcess {
 		}
 		totalVol = totalVol.setScale(2, BigDecimal.ROUND_HALF_UP);
 
-		BigDecimal totalRoofArea = OdishaUtill.getTotalRoofArea(pl);
+		BigDecimal totalRoofArea = OdishaUtill.getTotalTopMostRoofArea(pl);
 		int multiplicand = 0;
 
 		if (totalRoofArea.remainder(new BigDecimal("100")).compareTo(BigDecimal.ZERO) == 0)

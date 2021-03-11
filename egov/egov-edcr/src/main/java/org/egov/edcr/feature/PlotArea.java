@@ -57,90 +57,159 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.egov.common.entity.dcr.helper.OccupancyHelperDetail;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.kabeja.dxf.DXFConstants;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PlotArea extends FeatureProcess {
 
-    private static final Logger LOG = Logger.getLogger(PlotArea.class);
-    private static final String RULE_34 = "34-1";
-    public static final String PLOTAREA_DESCRIPTION = "Minimum Plot Area";
-    public static final BigDecimal THREE_ZERO = BigDecimal.valueOf(300);
-    public static final BigDecimal FIVE_ZERO = BigDecimal.valueOf(500);
+	private static final Logger LOG = Logger.getLogger(PlotArea.class);
+	private static final String RULE_34 = "34-1";
+	public static final String PLOTAREA_DESCRIPTION_1 = "Minimum Plot Area";
+	public static final String PLOTAREA_DESCRIPTION_2 = "Minimum Plot Size";
+	public static final BigDecimal THREE_ZERO = BigDecimal.valueOf(300);
+	public static final BigDecimal FIVE_ZERO = BigDecimal.valueOf(500);
 
-    @Override
-    public Map<String, Date> getAmendments() {
-        return new LinkedHashMap<>();
-    }
+	@Override
+	public Map<String, Date> getAmendments() {
+		return new LinkedHashMap<>();
+	}
 
-    @Override
-    public Plan validate(Plan pl) {
-        return pl;
-    }
+	@Override
+	public Plan validate(Plan pl) {
+		return pl;
+	}
 
-    @Override
-    public Plan process(Plan pl) {
+	@Override
+	public Plan process(Plan pl) {
 
-        if (pl.getPlot() != null) {
-            BigDecimal plotArea = pl.getPlot().getArea();
-            if (plotArea != null) {
-                ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-                scrutinyDetail.setKey("Common_Plot Area");
-                scrutinyDetail.addColumnHeading(1, RULE_NO);
-                scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-                scrutinyDetail.addColumnHeading(3, OCCUPANCY);
-                scrutinyDetail.addColumnHeading(4, PERMITTED);
-                scrutinyDetail.addColumnHeading(5, PROVIDED);
-                scrutinyDetail.addColumnHeading(6, STATUS);
+		OccupancyTypeHelper typeHelper=pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		boolean flage=isApplicable(typeHelper);
+		
+		if (pl.getPlot() != null && flage) {
+			BigDecimal plotArea = pl.getPlot().getArea();
+			if (plotArea != null) {
+				ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+				scrutinyDetail.setKey("Common_Size of plot");
+				scrutinyDetail.addColumnHeading(1, RULE_NO);
+				scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+				scrutinyDetail.addColumnHeading(3, PERMITTED);
+				scrutinyDetail.addColumnHeading(4, PROVIDED);
+				scrutinyDetail.addColumnHeading(5, STATUS);
 
-                Map<String, String> details = new HashMap<>();
-                details.put(RULE_NO, RULE_34);
-                details.put(DESCRIPTION, PLOTAREA_DESCRIPTION);
+				BigDecimal requiredArea=BigDecimal.ZERO;
+				BigDecimal widthMinRequired=BigDecimal.ZERO;
+				BigDecimal depthMinRequired=BigDecimal.ZERO;
+				
+				BigDecimal widthMaxRequired=BigDecimal.ZERO;
+				BigDecimal depthMaxRequired=BigDecimal.ZERO;
+				
+				BigDecimal minimumDistanceFromTheRoadIntersectionsRequired=BigDecimal.ZERO;
+				BigDecimal minimumDistanceOfPropertyLineFromCentreLineOfTheRoadRequired=BigDecimal.ZERO;
+				
+				BigDecimal roadWith=pl.getPlanInformation().getRoadWidth();
+				
+				switch (typeHelper.getSubtype().getCode()) {
+				case DxfFileConstants.ROW_HOUSING:
+					requiredArea=new BigDecimal("30");
+					break;
+				case DxfFileConstants.FARM_HOUSE:
+					requiredArea=new BigDecimal("10000");
+					break;
+				case DxfFileConstants.COUNTRY_HOMES:
+					requiredArea=new BigDecimal("2000");
+					break;
+				case DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION:
+					widthMinRequired=new BigDecimal("30");
+					depthMinRequired=new BigDecimal("17");
+					if(roadWith.compareTo(new BigDecimal("30"))<0) {
+						minimumDistanceFromTheRoadIntersectionsRequired=new BigDecimal("50");
+						minimumDistanceOfPropertyLineFromCentreLineOfTheRoadRequired=new BigDecimal("15");
+					}
+					else if(roadWith.compareTo(new BigDecimal("30"))>=0) {
+						minimumDistanceFromTheRoadIntersectionsRequired=new BigDecimal("100");
+						minimumDistanceOfPropertyLineFromCentreLineOfTheRoadRequired=roadWith.divide(new BigDecimal("2")).setScale(2, BigDecimal.ROUND_HALF_UP);
+					}
+					break;
+				case DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION:
+					widthMinRequired=new BigDecimal("30");
+					depthMinRequired=new BigDecimal("36");
+					if(roadWith.compareTo(new BigDecimal("30"))<0) {
+						minimumDistanceFromTheRoadIntersectionsRequired=new BigDecimal("50");
+						minimumDistanceOfPropertyLineFromCentreLineOfTheRoadRequired=new BigDecimal("15");
+					}
+					else if(roadWith.compareTo(new BigDecimal("30"))>=0) {
+						minimumDistanceFromTheRoadIntersectionsRequired=new BigDecimal("100");
+						minimumDistanceOfPropertyLineFromCentreLineOfTheRoadRequired=roadWith.divide(new BigDecimal("2")).setScale(2, BigDecimal.ROUND_HALF_UP);
+					}
+					break;
+				case DxfFileConstants.CNG_MOTHER_STATION:
+					widthMaxRequired=new BigDecimal("30");
+					depthMaxRequired=new BigDecimal("36");
+					break;
+				}
+				
+				
+				
+				
+				
+				Map<String, String> details = new HashMap<>();
+				details.put(RULE_NO, RULE_34);
+				details.put(DESCRIPTION, PLOTAREA_DESCRIPTION_1);
 
-                Map<String, BigDecimal> occupancyValuesMap = getOccupancyValues();
+				Map<String, BigDecimal> occupancyValuesMap = getOccupancyValues();
+				
 
-                if (pl.getVirtualBuilding() != null && pl.getVirtualBuilding().getMostRestrictiveFarHelper() != null) {
-                    OccupancyHelperDetail occupancyType = pl.getVirtualBuilding().getMostRestrictiveFarHelper()
-                            .getSubtype() != null
-                                    ? pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype()
-                                    : pl.getVirtualBuilding().getMostRestrictiveFarHelper().getType();
 
-                    if (occupancyType != null) {
-                        details.put(OCCUPANCY, occupancyType.getName());
-                        BigDecimal occupancyValues = occupancyValuesMap.get(occupancyType.getCode());
-                        if (occupancyValues != null) {
-                            if (plotArea.compareTo(occupancyValues) >= 0) {
-                                details.put(PERMITTED, String.valueOf(occupancyValues) + "m2");
-                                details.put(PROVIDED, plotArea.toString() + "m2");
-                                details.put(STATUS, Result.Accepted.getResultVal());
-                                scrutinyDetail.getDetail().add(details);
-                                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-                            } else {
-                                details.put(PERMITTED, String.valueOf(occupancyValues) + "m2");
-                                details.put(PROVIDED, plotArea.toString() + "m2");
-                                details.put(STATUS, Result.Not_Accepted.getResultVal());
-                                scrutinyDetail.getDetail().add(details);
-                                pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return pl;
-    }
+//				if (plotArea.compareTo(occupancyValues) >= 0) {
+//					details.put(PERMITTED, String.valueOf(occupancyValues) + "m2");
+//					details.put(PROVIDED, plotArea.toString() + "m2");
+//					details.put(STATUS, Result.Accepted.getResultVal());
+//					scrutinyDetail.getDetail().add(details);
+//					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//				} else {
+//					details.put(PERMITTED, String.valueOf(occupancyValues) + "m2");
+//					details.put(PROVIDED, plotArea.toString() + "m2");
+//					details.put(STATUS, Result.Not_Accepted.getResultVal());
+//					scrutinyDetail.getDetail().add(details);
+//					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+//				}
+			
+				
+			
 
-    public Map<String, BigDecimal> getOccupancyValues() {
+			
+			}
+		}
+		return pl;
+	}
 
-        Map<String, BigDecimal> plotAreaValues = new HashMap<>();
+	public boolean isApplicable(OccupancyTypeHelper typeHelper) {
+		boolean flage = false;
+		if (DxfFileConstants.ROW_HOUSING.equals(typeHelper.getSubtype().getCode())
+				|| DxfFileConstants.FARM_HOUSE.equals(typeHelper.getSubtype().getCode())
+				|| DxfFileConstants.COUNTRY_HOMES.equals(typeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION.equals(typeHelper.getSubtype().getCode())
+				|| DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION.equals(typeHelper.getSubtype().getCode())
+				|| DxfFileConstants.CNG_MOTHER_STATION.equals(typeHelper.getSubtype().getCode())) {
+			flage = true;
+		}
+		return flage;
+	}
+
+	public Map<String, BigDecimal> getOccupancyValues() {
+
+		Map<String, BigDecimal> plotAreaValues = new HashMap<>();
 //        plotAreaValues.put(F_RT, THREE_ZERO);
 //        plotAreaValues.put(M_NAPI, THREE_ZERO);
 //        plotAreaValues.put(F_CB, THREE_ZERO);
 //        plotAreaValues.put(S_MCH, FIVE_ZERO);
 //        plotAreaValues.put(E_PS, THREE_ZERO);
-        return plotAreaValues;
-    }
+		return plotAreaValues;
+	}
 }

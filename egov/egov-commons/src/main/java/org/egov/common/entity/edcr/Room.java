@@ -62,6 +62,7 @@ public class Room {
 	private List<Measurement> rooms = new ArrayList<>();
 
 	private MeasurementWithHeight lightAndVentilation = new MeasurementWithHeight();
+	private List<Occupancy> mezzanineAreas = new ArrayList<>();
 
 	public List<RoomHeight> getHeights() {
 		return heightOfRooms;
@@ -124,4 +125,11 @@ public class Room {
 		this.rooms = rooms;
 	}
 
+	public List<Occupancy> getMezzanineAreas() {
+        return mezzanineAreas;
+    }
+
+    public void setMezzanineAreas(List<Occupancy> mezzanineAreas) {
+        this.mezzanineAreas = mezzanineAreas;
+    }
 }

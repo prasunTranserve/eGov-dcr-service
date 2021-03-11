@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.egov.common.entity.edcr.AccessoryBlock;
+import org.egov.common.entity.edcr.Ammenity;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.FloorUnit;
 import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.MeasurementWithHeight;
+import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Room;
@@ -273,10 +276,13 @@ public class OdishaUtill {
 		BigDecimal totalUserInPlan = BigDecimal.ZERO;
 		for (Block block : pl.getBlocks()) {
 			String value = pl.getPlanInfoProperties().get(key + "_" + block.getNumber());
+			String glassFacadeOpening = pl.getPlanInfoProperties()
+					.get(DxfFileConstants.IS_BLOCK_S_HAVING_ENTIRE_FACADE_IN_GLASS.replace("%S", block.getNumber()));
 			try {
 				BigDecimal numValue = new BigDecimal(value);
 				block.setNumberOfOccupantsOrUsersOrBedBlk(numValue);
 				totalUserInPlan.add(numValue);
+				block.setGlassFacadeOpening(DxfFileConstants.YES.equals(glassFacadeOpening) ? true : false);
 				if (numValue.compareTo(BigDecimal.ZERO) <= 0)
 					pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_" + block.getNumber(),
 							"Number Of Occupants/Users/Bed is not defined in block " + block.getNumber());
@@ -338,7 +344,7 @@ public class OdishaUtill {
 		pl.getPlanInformation().setTotalNoOfDwellingUnits(totalDU);
 	}
 
-	public static BigDecimal getTotalRoofArea(Plan pl) {
+	public static BigDecimal getTotalTopMostRoofArea(Plan pl) {
 		BigDecimal totalArea = BigDecimal.ZERO;
 
 //		for (Block block : pl.getBlocks()) {
@@ -352,23 +358,42 @@ public class OdishaUtill {
 //				}
 //			}
 //		}
-		
+
 		for (Block block : pl.getBlocks()) {
-			List<Floor> floors=block.getBuilding().getFloors();
-			if(floors!=null && !floors.isEmpty()) {
-				Floor lastFloor=floors.get(floors.size()-1);
-				BigDecimal area=BigDecimal.ZERO;
+			List<Floor> floors = block.getBuilding().getFloors();
+			if (floors != null && !floors.isEmpty()) {
+				Floor lastFloor = floors.get(floors.size() - 1);
+				BigDecimal area = BigDecimal.ZERO;
 				try {
-					area=lastFloor.getRoofAreas().stream().map(roofArea -> roofArea.getArea()).reduce(BigDecimal::add).get();
-				}catch (Exception e) {
+					area = lastFloor.getRoofAreas().stream().map(roofArea -> roofArea.getArea()).reduce(BigDecimal::add)
+							.get();
+				} catch (Exception e) {
 					// TODO: handle exception
 				}
-				if(area==null || area.compareTo(BigDecimal.ZERO)<=0) {
-					pl.addError("RoofArea", "RoofArea is not defined in block "+block.getNumber());
+				if (area == null || area.compareTo(BigDecimal.ZERO) <= 0) {
+					pl.addError("RoofArea", "RoofArea is not defined in block " + block.getNumber());
 				}
 				totalArea = totalArea.add(area);
 			}
-				
+
+		}
+
+		return totalArea;
+	}
+
+	public static BigDecimal getTotalRoofArea(Plan pl) {
+		BigDecimal totalArea = BigDecimal.ZERO;
+
+		for (Block block : pl.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				try {
+					BigDecimal area = floor.getRoofAreas().stream().map(roofArea -> roofArea.getArea())
+							.reduce(BigDecimal::add).get();
+					totalArea = totalArea.add(area);
+				} catch (Exception exception) {
+
+				}
+			}
 		}
 
 		return totalArea;
@@ -399,13 +424,14 @@ public class OdishaUtill {
 							heightOfRooms.add(height);
 						}
 					}
-					//lightAndVentilation
+					// lightAndVentilation
 					Room room2 = new Room();
 					room2.setNumber(room.getNumber());
 					room2.setHeights(heightOfRooms);
 					room2.setClosed(room.getClosed());
 					room2.setRooms(measurements);
 					room2.setLightAndVentilation(room.getLightAndVentilation());
+					room2.setMezzanineAreas(room.getMezzanineAreas());
 					spcRoom.add(room2);
 				}
 
@@ -413,4 +439,190 @@ public class OdishaUtill {
 		}
 		return spcRoom;
 	}
+
+	public static boolean isSpecialBuilding(Plan pl) {
+		boolean specialBuilding = false;
+
+		boolean isAssemblyBuilding = false;
+		for (Block block : pl.getBlocks()) {
+			if (block.isAssemblyBuilding()) {
+				isAssemblyBuilding = true;
+				break;
+			}
+		}
+
+		boolean isHazardousBuildings = false;
+		if (DxfFileConstants.YES.equals(pl.getPlanInformation().getBuildingUnderHazardousOccupancyCategory()))
+			isHazardousBuildings = true;
+
+		boolean isBuildingCentrallyAirConditioned = false;
+		if (DxfFileConstants.YES.equals(pl.getPlanInformation().getBuildingCentrallyAirConditioned())) {
+			if (pl.getVirtualBuilding().getTotalBuitUpArea().compareTo(new BigDecimal("500")) > 0)
+				isBuildingCentrallyAirConditioned = true;
+		}
+
+		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		boolean isSplOccupancy = false;
+		if (DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(occupancyTypeHelper.getType().getCode())
+				|| DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.WHOLESALE_MARKET.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyTypeHelper.getSubtype().getCode()))
+			isSplOccupancy = true;
+
+		boolean isMixedOccupancies = false;// need to add condition
+
+		if (isAssemblyBuilding || isHazardousBuildings || isBuildingCentrallyAirConditioned || isSplOccupancy
+				|| isMixedOccupancies)
+			specialBuilding = true;
+
+		return specialBuilding;
+	}
+
+	public static void updateBlock(Plan pl) {
+		List<Block> outhouses = new ArrayList<>();
+		List<Block> blocks = new ArrayList<>();
+
+		for (Block block : pl.getBlocks()) {
+			boolean flage = false;
+			for (Floor floor : block.getBuilding().getFloors()) {
+				for (Occupancy occupancy : floor.getOccupancies()) {
+					if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getSubtype() != null
+							&& DxfFileConstants.OUTHOUSE.equals(occupancy.getTypeHelper().getSubtype().getCode())) {
+						flage = true;
+					}
+				}
+				if (flage) {
+					break;
+				}
+			}
+			if (flage) {
+				block.setOutHouse(flage);
+				outhouses.add(block);
+				break;
+			} else {
+				blocks.add(block);
+			}
+		}
+		pl.setBlocks(blocks);
+		pl.setOuthouse(outhouses);
+	}
+
+	public static BigDecimal getNumberOfPerson(Plan pl) {
+		OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		BigDecimal numberOfPerson = BigDecimal.ZERO;
+		for (Block block : pl.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				numberOfPerson.add(getNumberPerson(floor.getArea(), mostRestrictiveOccupancyType, floor.getNumber()));
+			}
+		}
+
+		return numberOfPerson;
+
+	}
+
+	private static BigDecimal getNumberPerson(BigDecimal bulidUpArea, OccupancyTypeHelper mostRestrictiveOccupancyType,
+			int floor) {
+		BigDecimal numberOfPerson = BigDecimal.ZERO;
+		BigDecimal perPersonBuildupArea = BigDecimal.ZERO;
+		if (DxfFileConstants.OC_RESIDENTIAL.equals(mostRestrictiveOccupancyType.getType().getCode())
+				|| DxfFileConstants.OC_AGRICULTURE.equals(mostRestrictiveOccupancyType.getType().getCode()))
+			perPersonBuildupArea = BigDecimal.valueOf(12.5);
+		else if (DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(mostRestrictiveOccupancyType.getType().getCode())
+				|| DxfFileConstants.OC_TRANSPORTATION.equals(mostRestrictiveOccupancyType.getType().getCode())
+				|| DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.STORAGE_OR_HANGERS_OR_TERMINAL_DEPOT
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.WARE_HOUSE.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.GOOD_STORAGE.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.GODOWNS.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.GAS_GODOWN.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.HOTEL.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.MOTELS.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.BANK.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.RESORTS.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.LAGOONS_AND_LAGOON_RESORT
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.AMUSEMENT_BUILDING_OR_PARK_AND_WATER_SPORTS
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.FINANCIAL_SERVICES_AND_STOCK_EXCHANGES
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.PROFESSIONAL_OFFICES.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.HOLIDAY_RESORT.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.GUEST_HOUSES.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.BOARDING_AND_LODGING_HOUSES
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.RESTAURANT.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION
+						.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.CNG_MOTHER_STATION.equals(mostRestrictiveOccupancyType.getSubtype().getCode())
+				|| DxfFileConstants.WEIGH_BRIDGES.equals(mostRestrictiveOccupancyType.getSubtype().getCode()))
+			perPersonBuildupArea = BigDecimal.valueOf(10);
+		else if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL
+				.equals(mostRestrictiveOccupancyType.getType().getCode())
+				|| DxfFileConstants.OC_PUBLIC_UTILITY.equals(mostRestrictiveOccupancyType.getType().getCode()))
+			perPersonBuildupArea = BigDecimal.valueOf(15);
+		else if (DxfFileConstants.OC_EDUCATION.equals(mostRestrictiveOccupancyType.getType().getCode()))
+			perPersonBuildupArea = BigDecimal.valueOf(4);
+		else if (DxfFileConstants.OC_COMMERCIAL.equals(mostRestrictiveOccupancyType.getType().getCode())) {
+			if (floor <= 0)
+				perPersonBuildupArea = BigDecimal.valueOf(1);
+			else
+				perPersonBuildupArea = BigDecimal.valueOf(6);
+
+		}
+
+		numberOfPerson = perPersonBuildupArea.divide(perPersonBuildupArea);
+
+		return new BigDecimal(String.format("%.0f", numberOfPerson));
+
+	}
+
+	private static final int COLOR_AMMENITY_GUARD_ROOM = 1;
+	private static final int COLOR_ELECTRIC_CABIN = 2;
+	private static final int COLOR_SUB_STATION = 3;
+	private static final int COLOR_AREA_FOR_GENERATOR_SET = 4;
+	private static final int COLOR_ATM = 5;
+	private static final int COLOR_OTHER_AMMENITY = 6;
+
+	public static void updateAmmenity(Plan pl) {
+		Ammenity ammenity=new Ammenity();
+		for (AccessoryBlock accessoryBlock : pl.getAccessoryBlocks()) {
+			for(Measurement measurement:accessoryBlock.getAccessoryBuilding().getUnits()) {
+				switch (measurement.getColorCode()) {
+				case COLOR_AMMENITY_GUARD_ROOM:
+					ammenity.getGuardRooms().add(measurement);
+					break;
+				case COLOR_ELECTRIC_CABIN:
+					ammenity.getElectricCabins().add(measurement);
+					break;
+				case COLOR_SUB_STATION:
+					ammenity.getSubStations().add(measurement);
+					break;
+				case COLOR_AREA_FOR_GENERATOR_SET:
+					ammenity.getAreaForGeneratorSet().add(measurement);
+					break;
+				case COLOR_ATM:
+					ammenity.getAtms().add(measurement);
+					break;
+				case COLOR_OTHER_AMMENITY:
+					ammenity.getOtherAmmenities().add(measurement);
+					break;
+				}
+			}
+		}
+		
+		pl.setAmmenity(ammenity);
+
+	}
+
 }

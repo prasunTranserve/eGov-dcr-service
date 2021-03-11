@@ -48,6 +48,7 @@
 package org.egov.edcr.feature;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -102,8 +103,11 @@ public class OdissaSetBackService extends FeatureProcess {
 	public Plan process(Plan pl) {
 
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-
-		for (Block block : pl.getBlocks()) {
+		List<Block> totalBlocksInPlan=new ArrayList<>();
+		totalBlocksInPlan.addAll(pl.getBlocks());
+		totalBlocksInPlan.addAll(pl.getOuthouse());
+		
+		for (Block block : totalBlocksInPlan) {
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
 			scrutinyDetail.addColumnHeading(2, DESCRIPTION);

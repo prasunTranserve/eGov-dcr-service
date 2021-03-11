@@ -123,6 +123,8 @@ public class Floor extends Measurement {
 
 	private List<FloorUnit> roomUnit;
 
+	private List<GlassFacadeOpening> glassFacadeOpenings = new ArrayList<>();
+	
 	public List<FireStair> getFireStairs() {
 		return fireStairs;
 	}
@@ -689,6 +691,14 @@ public class Floor extends Measurement {
 
 	public void setRoomUnit(List<FloorUnit> roomUnit) {
 		this.roomUnit = roomUnit;
+	}
+
+	public List<GlassFacadeOpening> getGlassFacadeOpenings() {
+		return glassFacadeOpenings;
+	}
+
+	public void setGlassFacadeOpenings(List<GlassFacadeOpening> glassFacadeOpenings) {
+		this.glassFacadeOpenings = glassFacadeOpenings;
 	}
 
 	

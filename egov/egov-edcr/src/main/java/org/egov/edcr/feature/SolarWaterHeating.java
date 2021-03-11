@@ -65,6 +65,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.utility.DcrConstants;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -80,157 +81,52 @@ public class SolarWaterHeating extends FeatureProcess {
 
 	@Override
 	public Plan validate(Plan pl) {
-		HashMap<String, String> errors = new HashMap<>();
-		if (pl != null && pl.getUtility() != null) { // Solar Water Heating system defined or not
-			String subOccupancyCode = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode();
-			if (checkOccupancyTypeForSolarWaterHeating(subOccupancyCode)
-					&& pl.getUtility().getSolarWaterHeatingSystems().isEmpty()) {
-				errors.put(RULE_51_DESCRIPTION, edcrMessageSource.getMessage(OBJECTNOTDEFINED,
-						new String[] { RULE_51_DESCRIPTION }, LocaleContextHolder.getLocale()));
-				pl.addErrors(errors);
-			}
-
-		}
+//		HashMap<String, String> errors = new HashMap<>();
+//		if (pl != null && pl.getUtility() != null) { // Solar Water Heating system defined or not
+//			String subOccupancyCode = pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode();
+//			if (checkOccupancyTypeForSolarWaterHeating(subOccupancyCode)
+//					&& pl.getUtility().getSolarWaterHeatingSystems().isEmpty()) {
+//				errors.put(RULE_51_DESCRIPTION, edcrMessageSource.getMessage(OBJECTNOTDEFINED,
+//						new String[] { RULE_51_DESCRIPTION }, LocaleContextHolder.getLocale()));
+//				pl.addErrors(errors);
+//			}
+//
+//		}
 
 		return pl;
 
 	}
 
-	public boolean isOccupancyTypeNotApplicable(OccupancyTypeHelper occupancyTypeHelper) {
-		boolean isNotApplicable = false;
+	public boolean isRequired(OccupancyTypeHelper occupancyTypeHelper, BigDecimal covrage) {
+		boolean isApplicable = false;
 
-		if (DxfFileConstants.B_M.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_SFH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_B.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_R.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_IIR.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_AB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_F.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_C.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_CBO.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_CNS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_P.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_D.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_GG.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_G.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_GS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_HR.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_BLH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_P1.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_P2.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_CMS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_RES.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_LS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_SC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_SM.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_S.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_WST1.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_WST2.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_ST.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_SUP.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_WH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_WM.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_MC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_WB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.B_ME.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_A.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_C.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_CL.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_MP.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_CH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_O.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_OAH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_SC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_C1H.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_C2H.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_SCC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_CC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_EC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_G.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_ML.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_M.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_PW.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_PL.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_REB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_SPC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_S.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_T.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_AB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_GO.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_LSGO.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_RB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_SWC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_CI.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_D.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_YC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_DC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_GSGH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_RT.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_MTH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_MB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_NH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_PLY.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_RC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_VHAB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_RTI.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_PS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_FS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_J.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.C_PO.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_BCC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_BTC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_BCG.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_PDSS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_PTPA.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_PUB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_SS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_TEL.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_WPS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_SSY.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_EDD.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.E_IB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.E_NPI.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.E_ITB.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.E_SI.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.E_L.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.E_FF.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.E_SF.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_A.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_AS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_MS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_BS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_BT.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_I.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_RS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_TS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_MLCP.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_PP.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_TP.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.G_TT.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_AF.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_AG.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_ARF.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_FH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_CH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_NGH.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_PDS.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_H.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.H_SC.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.D_BCG.equals(occupancyTypeHelper.getSubtype().getCode())) {
-			isNotApplicable = true;
+		if (covrage.compareTo(new BigDecimal("200")) >= 0) {
+			if (DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())
+					|| DxfFileConstants.HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.SHOP_CUM_RESIDENTIAL.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.GUEST_HOUSES.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.FOOD_COURTS.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.BANQUET_HALL.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP
+							.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.LOCAL_AND_SEMI_GOVERNMENT_OFFICES
+							.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.POLICE_OR_ARMY_OR_BARRACK.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.HEALTH_CENTRE.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.HOSPITAL.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.LAB.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.OC_EDUCATION.equals(occupancyTypeHelper.getType().getCode())) {
+				isApplicable = true;
+			}
 		}
 
-		return isNotApplicable;
+		return isApplicable;
 	}
 
 	@Override
 	public Plan process(Plan pl) {
-		
-		boolean flage=true;
-		if(flage)
-			return pl;
 		validate(pl);
-
 		scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
@@ -240,178 +136,68 @@ public class SolarWaterHeating extends FeatureProcess {
 		scrutinyDetail.setKey("Common_Solar Water Heating");
 		String subRule = "";
 		String subRuleDesc = RULE_51_DESCRIPTION;
-		BigDecimal expectedTankCapacity = BigDecimal.ZERO;
-		BigDecimal actualTankCapacity = BigDecimal.ZERO;
-		int totalNumberOfStudents = 0;
-		int totalNumberOfBeds = 0;
-		boolean isValid = false;
+
+		BigDecimal actualTankCapacity = pl.getPlanInformation().getCapacityOfSolarWaterHeatingSystemInLpd();
+
 		OccupancyTypeHelper mostRestrictiveFarHelper = pl.getVirtualBuilding() != null
 				? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
 				: null;
+		if (isRequired(mostRestrictiveFarHelper, pl.getVirtualBuilding().getTotalCoverageArea())) {
+			BigDecimal expectedTankCapacity = BigDecimal.ZERO;
 
-		if (isOccupancyTypeNotApplicable(mostRestrictiveFarHelper)) {
-			return pl;
-		}
+			long totalDU = pl.getPlanInformation().getTotalNoOfDwellingUnits()>0?pl.getPlanInformation().getTotalNoOfDwellingUnits():1;
+			BigDecimal totalUserInPlan = pl.getPlanInformation().getNumberOfOccupantsOrUsers();
 
-		actualTankCapacity = new BigDecimal(
-				(String) pl.getPlanInfoProperties().get(DxfFileConstants.SOLOR_WATER_HEATING_IN_LTR));
-
-		totalNumberOfStudents = new Integer(
-				(String) pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_STUDENTS));
-
-		totalNumberOfBeds = new Integer((String) pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_BEDS));
-
-		if (mostRestrictiveFarHelper != null
-				&& checkOccupancyTypeForSolarWaterHeating(mostRestrictiveFarHelper.getSubtype().getCode())) {
-			if (DxfFileConstants.A_P.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_S.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_R.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_AB.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_HP.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_WCR.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_SA.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_DH.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Plotted
-																										// Detached,Semi-detached,Row
-																										// housing,Apartment
-																										// Building,Housing
-																										// Project,work-cum-residential,Studio
-																										// Apartments,Dharmasala
-				expectedTankCapacity = setUpTankCapacity(pl, expectedTankCapacity);
-
-			} else if (DxfFileConstants.A_D.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Dormitory
-				expectedTankCapacity = new BigDecimal(totalNumberOfStudents)
-						.multiply(new BigDecimal(10).setScale(0, BigDecimal.ROUND_HALF_UP));
-
-			} else if (DxfFileConstants.A_E.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_LIH.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_MIH.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// EWS,Low
-				expectedTankCapacity = setUpTankCapacity(pl, expectedTankCapacity);
-
-			} else if (DxfFileConstants.A_H.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Hostel
-				expectedTankCapacity = new BigDecimal(totalNumberOfStudents)
-						.multiply(new BigDecimal(10).setScale(0, BigDecimal.ROUND_HALF_UP));
-
-			} else if (DxfFileConstants.A_SH.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.A_SQ.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Shelter
-				expectedTankCapacity = setUpTankCapacity(pl, expectedTankCapacity);
-
-			} else if (DxfFileConstants.B_H.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Hotel,
-				expectedTankCapacity = new BigDecimal(totalNumberOfBeds)
-						.multiply(new BigDecimal(10).setScale(0, BigDecimal.ROUND_HALF_UP));
-
-			} else if (DxfFileConstants.B_5S.equals(mostRestrictiveFarHelper.getSubtype().getCode())) { // 5 Star Hotel
-				for (Block block : pl.getBlocks()) {
-					if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
-						int totalNumberOfUnits = 0;
-						for (Floor floor : block.getBuilding().getFloors()) {
-							List<FloorUnit> floorUnits = floor.getUnits();
-							if (!CollectionUtils.isEmpty(floorUnits)) {
-								totalNumberOfUnits = totalNumberOfUnits + floorUnits.size();
-							}
-
-						}
-						expectedTankCapacity = new BigDecimal(totalNumberOfUnits)
-								.multiply(new BigDecimal(15).setScale(0, BigDecimal.ROUND_HALF_UP));
-
-					}
-				}
-
-			} else if (DxfFileConstants.B_SCR.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Shop Cum
-				expectedTankCapacity = setUpTankCapacity(pl, expectedTankCapacity);
-
-			} else if (DxfFileConstants.B_GH.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Guest
-																										// Houses
-				expectedTankCapacity = new BigDecimal(200);
-
-			} else if (DxfFileConstants.B_FC.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Food Court
-				expectedTankCapacity = new BigDecimal(200);
-
-			} else if (DxfFileConstants.C_B.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Banquet
-																										// Hall
-				expectedTankCapacity = new BigDecimal(200);
-
-			} else if (DxfFileConstants.C_MH.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Marriage
-																										// Hall/Kalyan
-																										// Mandap
-				expectedTankCapacity = new BigDecimal(200);
-
-			} else if (DxfFileConstants.C_P.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Police/Army/Barrack
-				expectedTankCapacity = new BigDecimal(200);
-
-			} else if (DxfFileConstants.C_HC.equals(mostRestrictiveFarHelper.getSubtype().getCode())
-					|| DxfFileConstants.C_H.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Health
-																										// center,
-																										// Hospital
-				expectedTankCapacity = new BigDecimal(totalNumberOfBeds)
-						.multiply(new BigDecimal(10).setScale(0, BigDecimal.ROUND_HALF_UP));
-
-			} else if (DxfFileConstants.C_L.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Lab
-				expectedTankCapacity = new BigDecimal(100);
-
-			} else if (DxfFileConstants.F.equals(mostRestrictiveFarHelper.getType().getCode())) {
-				if (DxfFileConstants.F_RTC.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {// Research and
-																										// Training
-																										// Center
-					expectedTankCapacity = new BigDecimal(200);
-
-				} else {// Other sub-occupancies for Education
-					expectedTankCapacity = new BigDecimal(totalNumberOfStudents)
-							.multiply(new BigDecimal(10).setScale(0, BigDecimal.ROUND_HALF_UP));
-
-				}
-
+			if (DxfFileConstants.DORMITORY.equals(mostRestrictiveFarHelper.getSubtype().getCode())
+					|| DxfFileConstants.HOSTEL.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
+				expectedTankCapacity = totalUserInPlan.multiply(new BigDecimal("10"));
+			} else if (DxfFileConstants.OC_RESIDENTIAL.equals(mostRestrictiveFarHelper.getType().getCode())
+					|| DxfFileConstants.SHOP_CUM_RESIDENTIAL.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
+				expectedTankCapacity = new BigDecimal(totalDU * 100);
+			} else if (DxfFileConstants.FIVE_STAR_HOTEL.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
+				expectedTankCapacity = new BigDecimal(totalDU * 15);
+			} else if (DxfFileConstants.GUEST_HOUSES.equals(mostRestrictiveFarHelper.getSubtype().getCode())
+					|| DxfFileConstants.FOOD_COURTS.equals(mostRestrictiveFarHelper.getSubtype().getCode())
+					|| DxfFileConstants.BANQUET_HALL.equals(mostRestrictiveFarHelper.getSubtype().getCode())
+					|| DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP
+							.equals(mostRestrictiveFarHelper.getSubtype().getCode())
+					|| DxfFileConstants.LOCAL_AND_SEMI_GOVERNMENT_OFFICES
+							.equals(mostRestrictiveFarHelper.getSubtype().getCode())
+					|| DxfFileConstants.POLICE_OR_ARMY_OR_BARRACK
+							.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
+				expectedTankCapacity = new BigDecimal("200");
+			} else if (DxfFileConstants.LAB.equals(mostRestrictiveFarHelper.getSubtype().getCode())
+					|| DxfFileConstants.RESEARCH_AND_TRAINING_CENTER
+							.equals(mostRestrictiveFarHelper.getSubtype().getCode())) {
+				expectedTankCapacity = new BigDecimal("100");
+			} else if (DxfFileConstants.OC_EDUCATION.equals(mostRestrictiveFarHelper.getType().getCode())) {
+				expectedTankCapacity = totalUserInPlan.multiply(new BigDecimal("10"));
+			} else if (DxfFileConstants.HEALTH_CENTRE.equals(mostRestrictiveFarHelper.getType().getCode())
+					|| DxfFileConstants.HOSPITAL.equals(mostRestrictiveFarHelper.getType().getCode())
+					|| DxfFileConstants.HOTEL.equals(mostRestrictiveFarHelper.getType().getCode())) {
+				expectedTankCapacity = totalUserInPlan.multiply(new BigDecimal("10"));
 			}
-			if (actualTankCapacity.compareTo(expectedTankCapacity) >= 0) {
-				isValid = true;
-			}
-			processSolarWaterTankCapacity(pl, "Compulsary", subRule, subRuleDesc, expectedTankCapacity, isValid);
-		}
-		return pl;
-	}
 
-	private BigDecimal setUpTankCapacity(Plan pl, BigDecimal expectedTankCapacity) {
-		for (Block block : pl.getBlocks()) {
-			if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
-				BigDecimal expectedMinimumArea = MINIMUM_AREA_200;
-				BigDecimal plinthArea = block.getBuilding().getCoverageArea();
-				if (plinthArea.compareTo(expectedMinimumArea) >= 0) {
-					int totalNumberOfUnits = 0;
-					for (Floor floor : block.getBuilding().getFloors()) {
-						List<FloorUnit> floorUnits = floor.getUnits();
-						if (!CollectionUtils.isEmpty(floorUnits)) {
-							totalNumberOfUnits = totalNumberOfUnits + floorUnits.size();
-						}
-
-					}
-					expectedTankCapacity = expectedTankCapacity
-							.add(new BigDecimal(totalNumberOfUnits).multiply(new BigDecimal(100)))
-							.setScale(0, BigDecimal.ROUND_HALF_UP);
-				}
-
-			}
-		}
-		return expectedTankCapacity;
-	}
-
-	private void processSolarWaterTankCapacity(Plan planDetail, String rule, String subRule, String subRuleDesc,
-			BigDecimal expectedTankCapacity, Boolean valid) {
-		if (expectedTankCapacity.compareTo(BigDecimal.valueOf(0)) > 0) {
-			if (valid) {
-				setReportOutputDetails(planDetail, subRule, "RAINWATER_HARVESTING_TANK_CAPACITY",
-						expectedTankCapacity.toString(),
-						planDetail.getPlanInfoProperties().get(DxfFileConstants.SOLOR_WATER_HEATING_IN_LTR) != null
-								? planDetail.getPlanInfoProperties().get(DxfFileConstants.SOLOR_WATER_HEATING_IN_LTR)
-								: "0" + " litre",
-						Result.Accepted.getResultVal());
+			if (!pl.getUtility().getSolarWaterHeatingSystems().isEmpty()) {
+				setReportOutputDetails(pl, subRuleDesc, "Solar Water Heating System", DxfFileConstants.MANDATORY,
+						DcrConstants.OBJECTDEFINED_DESC, Result.Accepted.getResultVal());
 			} else {
-				setReportOutputDetails(planDetail, subRule, "RAINWATER_HARVESTING_TANK_CAPACITY",
-						expectedTankCapacity.toString() + "IN_LITRE",
-						planDetail.getPlanInfoProperties().get(DxfFileConstants.SOLOR_WATER_HEATING_IN_LTR) != null
-								? planDetail.getPlanInfoProperties().get(DxfFileConstants.SOLOR_WATER_HEATING_IN_LTR)
-								: "0" + "  litre",
+				setReportOutputDetails(pl, subRuleDesc, "Solar Water Heating System", DxfFileConstants.MANDATORY,
+						DcrConstants.OBJECTNOTDEFINED_DESC, Result.Not_Accepted.getResultVal());
+			}
+
+			if (actualTankCapacity.compareTo(expectedTankCapacity) >= 0) {
+				setReportOutputDetails(pl, subRuleDesc, "Capacity of Solar Water heating system in LPD",
+						expectedTankCapacity.toString(), actualTankCapacity.toString(), Result.Accepted.getResultVal());
+			} else {
+				setReportOutputDetails(pl, subRuleDesc, "Capacity of Solar Water heating system in LPD",
+						expectedTankCapacity.toString(), actualTankCapacity.toString(),
 						Result.Not_Accepted.getResultVal());
 			}
+
 		}
+
+		return pl;
 	}
 
 	private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String expected, String actual,
@@ -425,61 +211,6 @@ public class SolarWaterHeating extends FeatureProcess {
 		scrutinyDetail.getDetail().add(details);
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 	}
-
-	private boolean checkOccupancyTypeForSolarWaterHeating(String subOccupancyType) {
-
-		if (subOccupancyType.equals(DxfFileConstants.A_P.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_S.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_R.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_AB.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_HP.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_WCR.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_SA.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_DH.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_D.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_E.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_LIH.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_MIH.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_H.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_SH.toString())
-				|| subOccupancyType.equals(DxfFileConstants.A_SQ.toString())
-				|| subOccupancyType.equals(DxfFileConstants.B_H.toString())
-				|| subOccupancyType.equals(DxfFileConstants.B_5S.toString())
-				|| subOccupancyType.equals(DxfFileConstants.B_SCR.toString())
-				|| subOccupancyType.equals(DxfFileConstants.B_GH.toString())
-				|| subOccupancyType.equals(DxfFileConstants.B_FC.toString())
-				|| subOccupancyType.equals(DxfFileConstants.C_B.toString())
-				|| subOccupancyType.equals(DxfFileConstants.C_MH.toString())
-				|| subOccupancyType.equals(DxfFileConstants.C_P.toString())
-				|| subOccupancyType.equals(DxfFileConstants.C_HC.toString())
-				|| subOccupancyType.equals(DxfFileConstants.C_H.toString())
-				|| subOccupancyType.equals(DxfFileConstants.C_L.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_CC.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_CI.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_C.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_CTI.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_NS.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_PS.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_H.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_HS.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_PLS.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_CR.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_SMC.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_AA.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_TC.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_STC.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_TI.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_VI.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_MC.toString())
-				|| subOccupancyType.equals(DxfFileConstants.F_RTC.toString())) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	// CGCL End
 
 	@Override
 	public Map<String, Date> getAmendments() {

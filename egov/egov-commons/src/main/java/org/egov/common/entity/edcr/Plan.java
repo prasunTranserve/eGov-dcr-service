@@ -218,6 +218,14 @@ public class Plan implements Serializable {
 	
 	private String architectInformation;
 
+	private List<Block> outhouse=new ArrayList<>();
+	
+	private List<Block> publicWashroom=new ArrayList<>();
+	
+	private List<ICT> icts = new ArrayList<>();
+	
+	private Ammenity ammenity;
+	
 	public List<BigDecimal> getCanopyDistanceFromPlotBoundary() {
 		return canopyDistanceFromPlotBoundary;
 	}
@@ -687,7 +695,38 @@ public class Plan implements Serializable {
 	public void setThirdPartyUserTenantld(String thirdPartyUserTenantld) {
 		this.thirdPartyUserTenantld = thirdPartyUserTenantld;
 	}
-	
+
+	public List<Block> getOuthouse() {
+		return outhouse;
+	}
+
+	public void setOuthouse(List<Block> outhouse) {
+		this.outhouse = outhouse;
+	}
+
+	public List<Block> getPublicWashroom() {
+		return publicWashroom;
+	}
+
+	public void setPublicWashroom(List<Block> publicWashroom) {
+		this.publicWashroom = publicWashroom;
+	}
+
+	public List<ICT> getIcts() {
+		return icts;
+	}
+
+	public void setIcts(List<ICT> icts) {
+		this.icts = icts;
+	}
+
+	public Ammenity getAmmenity() {
+		return ammenity;
+	}
+
+	public void setAmmenity(Ammenity ammenity) {
+		this.ammenity = ammenity;
+	}
 	
 	
 }

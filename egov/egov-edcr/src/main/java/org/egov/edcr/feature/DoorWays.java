@@ -52,14 +52,14 @@ public class DoorWays extends FeatureProcess {
 				
 				if (floor.getBathRoom() != null) {
 					for (Measurement measurements : floor.getBathRoom().getRooms()) {
-						if (measurements.getWidth().doubleValue() >= 0.75) {
-							details.put(REQUIRED, "Width >= 0.75");
+						if (measurements.getWidth().doubleValue() >= 1) {
+							details.put(REQUIRED, "Width >= 1");
 							details.put(PROVIDED, " Width = " + measurements.getWidth().doubleValue());
 							details.put(STATUS, Result.Accepted.getResultVal());
 							scrutinyDetail.getDetail().add(details);
 							pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 						} else {
-							details.put(REQUIRED, "Width >= 0.75");
+							details.put(REQUIRED, "Width >= 1");
 							details.put(PROVIDED, " Width = " + measurements.getWidth().doubleValue());
 							details.put(STATUS, Result.Not_Accepted.getResultVal());
 							scrutinyDetail.getDetail().add(details);

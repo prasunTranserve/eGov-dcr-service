@@ -188,7 +188,10 @@ public class BlockDistancesService extends FeatureProcess {
 		scrutinyDetail.addColumnHeading(3, REQUIRED);
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
-		for (Block b : pl.getBlocks()) {
+		List<Block> blocks=new ArrayList<>();
+		blocks.addAll(pl.getBlocks());
+		blocks.addAll(pl.getOuthouse());
+		for (Block b : blocks) {
 			for (Block block : pl.getBlocks()) {
 				if (b.getNumber() != block.getNumber()) {
 					if (!b.getDistanceBetweenBlocks().isEmpty()) {
@@ -259,7 +262,9 @@ public class BlockDistancesService extends FeatureProcess {
 		blockMap.put(blockHeight, block);
 		List<BigDecimal> blkHeights = Arrays.asList(bHeight, blockHeight);
 		BigDecimal maxHeight = blkHeights.stream().reduce(BigDecimal::max).get();
-
+		
+		boolean isOutHouse=b.isOutHouse() || block.isOutHouse() ?true:false;
+		
 //		ArrayList<BigDecimal> setBacksValues = new ArrayList();
 //		setBacksValues.add(THREE);
 //		List<SetBack> setBacks = block.getSetBacks();
@@ -280,7 +285,7 @@ public class BlockDistancesService extends FeatureProcess {
 		//List<BigDecimal> heights = Arrays.asList(dividedHeight, BigDecimal.valueOf(18));
 		//BigDecimal minHeight = heights.stream().reduce(BigDecimal::min).get();
 		
-		BigDecimal minHeight=getMiniDistance(pl, maxHeight);
+		BigDecimal minHeight=getMiniDistance(pl, maxHeight,isOutHouse);
 		
 		if (actualDistance.compareTo(minHeight) >= 0) {
 			valid1 = true;
@@ -313,9 +318,14 @@ public class BlockDistancesService extends FeatureProcess {
 
 	}
 	
-	public BigDecimal getMiniDistance(Plan plan,BigDecimal maxBuildHeight) {
+	public BigDecimal getMiniDistance(Plan plan,BigDecimal maxBuildHeight,boolean isOuthouse) {
 		OccupancyTypeHelper occupancyTypeHelper=plan.getVirtualBuilding().getMostRestrictiveFarHelper();
 		BigDecimal minDistance=BigDecimal.ZERO;
+		
+		if(isOuthouse) {
+			return new BigDecimal("1.5");
+		}
+		
 		if(maxBuildHeight.compareTo(new BigDecimal("15"))<0)
 			minDistance=new BigDecimal("3");
 		else if(maxBuildHeight.compareTo(new BigDecimal("15"))>=0 && maxBuildHeight.compareTo(new BigDecimal("18"))<=0)
