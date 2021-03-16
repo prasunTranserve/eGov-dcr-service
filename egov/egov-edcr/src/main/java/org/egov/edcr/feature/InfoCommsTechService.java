@@ -95,7 +95,7 @@ public class InfoCommsTechService extends FeatureProcess {
 		if ((DxfFileConstants.OC_COMMERCIAL.equals(helper.getType().getCode()) || DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL.equals(helper.getType().getCode()))
 				&& pl.getPlot().getArea().compareTo(ONE_ARCH) >= 0)
 			isApplicable = true;
-		if(FIFTEEN.compareTo(OdishaUtill.getMaxBuildingHeight(pl))>0)
+		if(OdishaUtill.getMaxBuildingHeight(pl).compareTo(FIFTEEN)>0)
 			isApplicable=true;
 		if(pl.getPlot().getArea().compareTo(ONE_ARCH) >= 0)
 			isApplicable=true;

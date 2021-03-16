@@ -58,84 +58,143 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Portico;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.utility.DcrConstants;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PorticoService extends FeatureProcess {
-	
+
 	private static final String SUBRULE_PORTICO = "PORTICO";
 	private static final String SUBRULE_PORTICO_MAX_LENGTHDESCRIPTION = "Maximum Portico length for portico %s ";
-    public static final String PORTICO_DISTANCETO_EXTERIORWALL = "Block %s Portico %s Portico distance to exteriorwall";
+	private static final String SUBRULE_PORTICO_MAX_WIDTHDESCRIPTION = "Maximum Portico width for portico %s ";
+	private static final String SUBRULE_PORTICO_MAX_HEIGHTDESCRIPTION = "Maximum Portico height for portico %s ";
+	public static final String PORTICO_DISTANCETO_EXTERIORWALL = "Block %s Portico %s Portico distance to exteriorwall";
 
-    @Override
-    public Plan validate(Plan plan) {
-        HashMap<String, String> errors = new HashMap<>();
+	@Override
+	public Plan validate(Plan plan) {
+		HashMap<String, String> errors = new HashMap<>();
 
-    	 for (Block block : plan.getBlocks()) {
-    		 for(Portico portico:block.getPorticos())
-    		 { 
-    			 if(portico.getDistanceToExteriorWall().isEmpty())
-    			 {
-    				 errors.put(String.format(PORTICO_DISTANCETO_EXTERIORWALL, block.getNumber(),portico.getName()),
-                             edcrMessageSource.getMessage(DcrConstants.OBJECTNOTDEFINED,
-                                     new String[] { String.format(PORTICO_DISTANCETO_EXTERIORWALL, block.getNumber(),portico.getName()) },
-                                     LocaleContextHolder.getLocale()));
-                     plan.addErrors(errors);
-    			 }
-    		 }
-    	 }
-        return plan;
-    }
+		for (Block block : plan.getBlocks()) {
+			for (Portico portico : block.getPorticos()) {
+				if (portico.getDistanceToExteriorWall().isEmpty()) {
+					errors.put(String.format(PORTICO_DISTANCETO_EXTERIORWALL, block.getNumber(), portico.getName()),
+							edcrMessageSource
+									.getMessage(DcrConstants.OBJECTNOTDEFINED,
+											new String[] { String.format(PORTICO_DISTANCETO_EXTERIORWALL,
+													block.getNumber(), portico.getName()) },
+											LocaleContextHolder.getLocale()));
+					plan.addErrors(errors);
+				}
+			}
+		}
+		return plan;
+	}
 
-    @Override
-    public Plan process(Plan plan) {
-    	validate(plan);
+	@Override
+	public Plan process(Plan plan) {
+		validate(plan);
+		BigDecimal expectedWidth = new BigDecimal("2.5");
+		BigDecimal expectedHeight = new BigDecimal("2.4");
+		BigDecimal expectedLength = new BigDecimal("4.6");
+
 		for (Block block : plan.getBlocks()) {
 
 			for (Portico portico : block.getPorticos()) {
 
-				  scrutinyDetail = new ScrutinyDetail();
-	                scrutinyDetail.addColumnHeading(1, RULE_NO);
-	                scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-	                scrutinyDetail.addColumnHeading(3, REQUIRED);
-	                scrutinyDetail.addColumnHeading(4, PROVIDED);
-	                scrutinyDetail.addColumnHeading(5, STATUS);
-	                scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Portico");
-	                
+				scrutinyDetail = new ScrutinyDetail();
+				scrutinyDetail.addColumnHeading(1, RULE_NO);
+				scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+				scrutinyDetail.addColumnHeading(3, REQUIRED);
+				scrutinyDetail.addColumnHeading(4, PROVIDED);
+				scrutinyDetail.addColumnHeading(5, STATUS);
+				scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Portico within side setback");
+
 				if (portico.getLength() != null) {
 
-					if (portico.getLength().compareTo(BigDecimal.valueOf(4.6)) >= 0) {
+					if (portico.getLength().compareTo(expectedLength) >= 0) {
 						setReportOutputDetails(plan, SUBRULE_PORTICO,
-								String.format(SUBRULE_PORTICO_MAX_LENGTHDESCRIPTION, portico.getName()), "Max 4.6 Mtr.",
-								portico.getLength() + " Mtr.", Result.Accepted.getResultVal(), scrutinyDetail);
+								String.format(SUBRULE_PORTICO_MAX_LENGTHDESCRIPTION, portico.getName()),
+								"Max " + expectedLength.toString(), portico.getLength().toString(),
+								Result.Accepted.getResultVal(), scrutinyDetail);
 					} else {
 						setReportOutputDetails(plan, SUBRULE_PORTICO,
-								String.format(SUBRULE_PORTICO_MAX_LENGTHDESCRIPTION, portico.getName()), "Max 4.6 Mtr.",
-								portico.getLength() + " Mtr.", Result.Not_Accepted.getResultVal(), scrutinyDetail);
+								String.format(SUBRULE_PORTICO_MAX_LENGTHDESCRIPTION, portico.getName()),
+								"Max " + expectedLength.toString(), portico.getLength().toString(),
+								Result.Not_Accepted.getResultVal(), scrutinyDetail);
+					}
+				}
+
+				if (portico.getWidth() != null) {
+
+					if (portico.getWidth().compareTo(expectedWidth) >= 0) {
+						setReportOutputDetails(plan, SUBRULE_PORTICO,
+								String.format(SUBRULE_PORTICO_MAX_WIDTHDESCRIPTION, portico.getName()),
+								"Max " + expectedWidth.toString(), portico.getWidth().toString(),
+								Result.Accepted.getResultVal(), scrutinyDetail);
+					} else {
+						setReportOutputDetails(plan, SUBRULE_PORTICO,
+								String.format(SUBRULE_PORTICO_MAX_WIDTHDESCRIPTION, portico.getName()),
+								"Max " + expectedWidth.toString(), portico.getWidth().toString(),
+								Result.Not_Accepted.getResultVal(), scrutinyDetail);
+					}
+				}
+
+				if (portico.getHeight() != null) {
+
+					if (portico.getHeight().compareTo(expectedWidth) >= 0) {
+						setReportOutputDetails(plan, SUBRULE_PORTICO, String.format(SUBRULE_PORTICO_MAX_HEIGHTDESCRIPTION, portico.getName()),
+								"Max " + expectedHeight.toString(), portico.getHeight().toString(),
+								Result.Accepted.getResultVal(), scrutinyDetail);
+					} else {
+						setReportOutputDetails(plan, SUBRULE_PORTICO,
+								String.format(SUBRULE_PORTICO_MAX_HEIGHTDESCRIPTION, portico.getName()),
+								"Max " + expectedHeight.toString(), portico.getHeight().toString(),
+								Result.Not_Accepted.getResultVal(), scrutinyDetail);
+					}
+				}
+
+				if (portico.getDistanceToExteriorWall() != null) {
+					
+					BigDecimal distanceToExteriorWall=BigDecimal.ZERO;
+					if(portico.getDistanceToExteriorWall().size() > 0)
+						distanceToExteriorWall=portico.getDistanceToExteriorWall().stream()
+								.reduce(BigDecimal::min).get();
+					if (distanceToExteriorWall.compareTo(BigDecimal.ZERO) > 0) {
+						setReportOutputDetails(plan, SUBRULE_PORTICO,
+								String.format(PORTICO_DISTANCETO_EXTERIORWALL, block.getNumber(), portico.getName()),
+								"> 0", distanceToExteriorWall.toString(), Result.Accepted.getResultVal(),
+								scrutinyDetail);
+					} else {
+						setReportOutputDetails(plan, SUBRULE_PORTICO,
+								String.format(PORTICO_DISTANCETO_EXTERIORWALL, block.getNumber(), portico.getName()),
+								"> 0", distanceToExteriorWall.toString(), Result.Not_Accepted.getResultVal(),
+								scrutinyDetail);
 					}
 				}
 
 			}
-   	 }
-    	
-        return plan;
-    }
-    private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String expected, String actual, String status,
-            ScrutinyDetail scrutinyDetail) {
-        Map<String, String> details = new HashMap<>();
-        details.put(RULE_NO, ruleNo);
-        details.put(DESCRIPTION, ruleDesc);
-        details.put(REQUIRED, expected);
-        details.put(PROVIDED, actual);
-        details.put(STATUS, status);
-        scrutinyDetail.getDetail().add(details);
-        pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-    }
-    @Override
-    public Map<String, Date> getAmendments() {
-        return new LinkedHashMap<>();
-    }
+		}
+
+		return plan;
+	}
+
+	private void setReportOutputDetails(Plan pl, String ruleNo, String ruleDesc, String expected, String actual,
+			String status, ScrutinyDetail scrutinyDetail) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, ruleNo);
+		details.put(DESCRIPTION, ruleDesc);
+		details.put(REQUIRED, expected);
+		details.put(PROVIDED, actual);
+		details.put(STATUS, status);
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
+
+	@Override
+	public Map<String, Date> getAmendments() {
+		return new LinkedHashMap<>();
+	}
 
 }
