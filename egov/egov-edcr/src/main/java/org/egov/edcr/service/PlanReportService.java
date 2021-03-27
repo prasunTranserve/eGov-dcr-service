@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Building;
 import org.egov.common.entity.edcr.DcrReportBlockDetail;
+import org.egov.common.entity.edcr.DcrReportErrorDetail;
 import org.egov.common.entity.edcr.DcrReportFloorDetail;
 import org.egov.common.entity.edcr.DcrReportOutput;
 import org.egov.common.entity.edcr.DcrReportPlanDetail;
@@ -117,6 +118,7 @@ public class PlanReportService {
 	private static final String LEVEL = "Level";
 	private static final String COMBINED_BLOCKS_SUMMARY_DETAILS = "Overall Summary";
 	private static final String BLOCK_WISE_SUMMARY = "Block Wise Summary";
+	private static final String ERROR_SUMMARY = "Error Summary";
 
 	public InputStream generateDynamicReport(Plan plan, EdcrApplication dcrApplication) {
 		FastReportBuilder drb = new FastReportBuilder();
@@ -622,16 +624,16 @@ public class PlanReportService {
 			}
 		}
 
-		if (plan.getErrors() != null && plan.getErrors().size() > 0) {
-			int i = 1;
-			for (Map.Entry<String, String> entry : plan.getErrors().entrySet()) {
-				errors.append(String.valueOf(i)).append(". ");
-				errors.append(entry.getValue());
-				errors.append("\n");
-				i++;
-				finalReportStatus = false;
-			}
-		}
+//		if (plan.getErrors() != null && plan.getErrors().size() > 0) {
+//			int i = 1;
+//			for (Map.Entry<String, String> entry : plan.getErrors().entrySet()) {
+//				errors.append(String.valueOf(i)).append(". ");
+//				errors.append(entry.getValue());
+//				errors.append("\n");
+//				i++;
+//				finalReportStatus = false;
+//			}
+//		}
 
 		drb.setPageSizeAndOrientation(new Page(842, 595, true));
 		final JRDataSource ds = new JRBeanCollectionDataSource(Collections.singletonList(plan));
@@ -661,8 +663,8 @@ public class PlanReportService {
 		valuesMap.put("licensee", plan.getArchitectInformation());
 		valuesMap.put("applicationNumber", applicationNumber);
 		valuesMap.put("applicationDate", applicationDate);
-		valuesMap.put("errors", plan.getErrors());
-		valuesMap.put("errorString", errors.toString());
+//		valuesMap.put("errors", plan.getErrors());
+//		valuesMap.put("errorString", errors.toString());
 		valuesMap.put("nocString", nocs.toString());
 		valuesMap.put("nocs", plan.getNoObjectionCertificates());
 		valuesMap.put("reportGeneratedDate", DateUtils.toDefaultDateTimeFormat(new Date()));
@@ -872,6 +874,18 @@ public class PlanReportService {
 				}
 
 			}
+			
+			// Errors in Scrutiny report
+			if(plan != null && !plan.getErrors().isEmpty()) {
+				List<String> errorSummary = new ArrayList<>();
+				errorSummary.add(ERROR_SUMMARY);
+				drb.addConcatenatedReport(
+						createHeaderSubreport(ERROR_SUMMARY, ERROR_SUMMARY));
+				valuesMap.put(ERROR_SUMMARY, errorSummary); 
+				
+				drb.addConcatenatedReport(getErrors());
+				valuesMap.put("Errors", getDcrReportErrorDetails(plan.getErrors()));
+			}
 
 			if (finalReportStatus)
 				for (String cmnFeature : common) {
@@ -964,6 +978,59 @@ public class PlanReportService {
 		}
 		return exportPdf;
 
+	}
+
+	private List<DcrReportErrorDetail> getDcrReportErrorDetails(Map<String, String> errors) {
+		List<DcrReportErrorDetail> dcrReportErrorDetails = new ArrayList<>();
+		int slNo = 0;
+		for(String key:errors.keySet()) {
+			slNo++;
+			DcrReportErrorDetail dred = new DcrReportErrorDetail();
+			dred.setSlNo(String.valueOf(slNo));
+			dred.setDescription(errors.get(key));
+			dcrReportErrorDetails.add(dred);
+		}
+		return dcrReportErrorDetails;
+	}
+
+	private Subreport getErrors() {
+		try {
+			FastReportBuilder frb = new FastReportBuilder();
+			
+			AbstractColumn errorSlNo = ColumnBuilder.getNew()
+					.setColumnProperty("slNo", String.class.getName())
+					.setTitle("S.No").setWidth(30).setStyle(reportService.getTotalNumberStyle())
+					.build();
+			
+			AbstractColumn errorDesc = ColumnBuilder.getNew()
+					.setColumnProperty("description", String.class.getName())
+					.setTitle("Error Description").setWidth(510).setStyle(reportService.getDetailStyle())
+					.build();
+			
+			frb.addColumn(errorSlNo);
+			frb.addColumn(errorDesc);
+			frb.setHeaderHeight(5);
+			frb.setTopMargin(5);
+			frb.setDefaultStyles(reportService.getTitleStyle(), reportService.getSubTitleStyle(),
+					reportService.getColumnHeaderStyle(), reportService.getDetailStyle());
+			frb.setAllowDetailSplit(false);
+			frb.setPageSizeAndOrientation(Page.Page_A4_Portrait());
+			DynamicReport build = frb.build();
+			Subreport sub = new Subreport();
+			sub.setDynamicReport(build);
+			Style style = new Style();
+			style.setStretchWithOverflow(true);
+			style.setStreching(RELATIVE_TO_BAND_HEIGHT);
+			sub.setStyle(style);
+
+			sub.setDatasource(new DJDataSource("Errors", DJConstants.DATA_SOURCE_ORIGIN_PARAMETER, 0));
+
+			sub.setLayoutManager(new ClassicLayoutManager());
+			return sub;
+		} catch (ColumnBuilderException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
 	}
 
 	public Subreport generateDcrSubReport(final List<DcrReportOutput> dcrReportOutputs) {

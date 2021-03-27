@@ -2,6 +2,7 @@ package org.egov.edcr.od;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +12,7 @@ import org.egov.common.entity.edcr.Ammenity;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.FloorUnit;
+import org.egov.common.entity.edcr.Lift;
 import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.MeasurementWithHeight;
 import org.egov.common.entity.edcr.Occupancy;
@@ -350,6 +352,7 @@ public class OdishaUtill {
 		}
 		pl.getPlanInformation().setTotalNoOfDwellingUnits(totalDU);
 	}
+	
 
 	public static BigDecimal getTotalTopMostRoofArea(Plan pl) {
 		BigDecimal totalArea = BigDecimal.ZERO;
@@ -432,14 +435,16 @@ public class OdishaUtill {
 						}
 					}
 					// lightAndVentilation
-					Room room2 = new Room();
-					room2.setNumber(room.getNumber());
-					room2.setHeights(heightOfRooms);
-					room2.setClosed(room.getClosed());
-					room2.setRooms(measurements);
-					room2.setLightAndVentilation(room.getLightAndVentilation());
-					room2.setMezzanineAreas(room.getMezzanineAreas());
-					spcRoom.add(room2);
+					if (!measurements.isEmpty()) {
+						Room room2 = new Room();
+						room2.setNumber(room.getNumber());
+						room2.setHeights(heightOfRooms);
+						room2.setClosed(room.getClosed());
+						room2.setRooms(measurements);
+						room2.setLightAndVentilation(room.getLightAndVentilation());
+						room2.setMezzanineAreas(room.getMezzanineAreas());
+						spcRoom.add(room2);
+					}
 				}
 
 			}
@@ -538,33 +543,58 @@ public class OdishaUtill {
 
 	public static void updateBlock(Plan pl) {
 		List<Block> outhouses = new ArrayList<>();
+		List<Block> pulicwashroom = new ArrayList<>();
 		List<Block> blocks = new ArrayList<>();
 
 		for (Block block : pl.getBlocks()) {
-			boolean flage = false;
+			boolean outhousesFlage = false;
+			boolean pulicwashroomFlage=false;
 			for (Floor floor : block.getBuilding().getFloors()) {
 				for (Occupancy occupancy : floor.getOccupancies()) {
 					if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getSubtype() != null
 							&& DxfFileConstants.OUTHOUSE.equals(occupancy.getTypeHelper().getSubtype().getCode())) {
-						flage = true;
+						outhousesFlage = true;
+					}
+					
+					if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getSubtype() != null
+							&& DxfFileConstants.PUBLIC_WASHROOMS.equals(occupancy.getTypeHelper().getSubtype().getCode())) {
+						pulicwashroomFlage = true;
 					}
 				}
-				if (flage) {
+				if (outhousesFlage && pulicwashroomFlage) {
 					break;
 				}
 			}
-			if (flage) {
-				block.setOutHouse(flage);
+			block.setOutHouse(outhousesFlage);
+			block.setPublicWashroom(pulicwashroomFlage);
+			if (outhousesFlage) {
 				outhouses.add(block);
-				break;
-			} else {
+				removeSetbackError(pl, block);
+			} else if(pulicwashroomFlage) {
+				pulicwashroom.add(block);
+				removeSetbackError(pl, block);
+			}
+			else {
 				blocks.add(block);
 			}
 		}
 		pl.setBlocks(blocks);
 		pl.setOuthouse(outhouses);
+		pl.setPublicWashroom(pulicwashroom);
 	}
-
+	
+	private static void removeSetbackError(Plan pl,Block block) {
+		Set<Map.Entry<String, String>> set=pl.getErrors().entrySet();
+		Iterator<Map.Entry<String, String>> iterator=set.iterator();
+		String setbackerror="BLK_%s_LVL_0_FRONT_SETBACK".replace("%s", block.getNumber());
+		while(iterator.hasNext()) {
+			Map.Entry<String, String> entry=iterator.next();
+			String value=entry.getValue();
+			if(value.contains(setbackerror))
+				iterator.remove();
+		}
+	}
+	
 	public static BigDecimal getNumberOfPerson(Plan pl) {
 		OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		BigDecimal numberOfPerson = BigDecimal.ZERO;
@@ -679,6 +709,23 @@ public class OdishaUtill {
 		
 		pl.setAmmenity(ammenity);
 
+	}
+	
+	public static boolean isLiftPersent(Block block, List<Integer> colorCodes) {
+		boolean flage=false;
+
+		for(Floor floor:block.getBuilding().getFloors()) {
+			for (Lift lift : floor.getLifts()) {
+				Measurement measurement = lift.getLifts().get(0);
+				if (colorCodes.contains(measurement.getColorCode())) {
+					flage=true;
+					break;
+				}
+			}
+			if(flage)break;
+		}
+
+		return flage;
 	}
 
 }

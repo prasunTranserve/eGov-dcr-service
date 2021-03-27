@@ -85,9 +85,9 @@ public class LiftService extends FeatureProcess {
 	private static final String SUBRULE_118_DESCRIPTION = "Minimum dimension Of lift %s on floor %s";
 	private static final String SUBRULE_118_DESC = "Minimum dimension Of lift";
 
-	private static final int COLOR_GENERAL_LEFT = 1;
+	public static final int COLOR_GENERAL_LEFT = 1;
 	public static final int COLOR_SPECIAL_LEFT = 2;
-	private static final int COLOR_CAR_LEFT = 3;
+	public static final int COLOR_CAR_LEFT = 3;
 
 	@Override
 	public Plan validate(Plan plan) {
@@ -249,7 +249,7 @@ public class LiftService extends FeatureProcess {
 
 		for (Floor floor : block.getBuilding().getFloors()) {
 			String desc = "Minimum number of lifts";
-			int providedCount = getLifts(floor, COLOR_GENERAL_LEFT).size();
+			int providedCount = getLifts(floor, COLOR_GENERAL_LEFT).size() + getLifts(floor, COLOR_SPECIAL_LEFT).size();
 			boolean isAccepted = providedCount >= requiredcount;
 
 			setReportOutputDetails(SUBRULE_118, desc, floor.getNumber().intValue(), requiredcount + "",

@@ -210,8 +210,8 @@ public class PlanService {
 
     public void updateOdPlanInfo(Plan pl) {
     	
-    	//NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK_%s 
-    	OdishaUtill.setPlanInfoBlkWise(pl, DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK);
+//    	//NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK_%s 
+//    	OdishaUtill.setPlanInfoBlkWise(pl, DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK);
     	
     	//IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY
     	String buildingUnderHazardousOccupancyCategory=pl.getPlanInfoProperties().get(IS_BUILDING_UNDER_HAZARDOUS_OCCUPANCY_CATEGORY);

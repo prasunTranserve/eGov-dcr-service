@@ -63,6 +63,7 @@ import org.apache.log4j.Logger;
 import org.egov.common.entity.dcr.helper.OccupancyHelperDetail;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.Lift;
 import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
@@ -135,64 +136,28 @@ public class Sanitation extends FeatureProcess {
 							? occupancy.getTypeHelper().getSubtype()
 							: occupancy.getTypeHelper().getType();
 					if (o != null) {
-//						switch (o.getCode()) {
-//						case DxfFileConstants.A:
-//						case DxfFileConstants.A_SR:
-//						case DxfFileConstants.A_AF:
-//							if (sanityDetails.getTotalSPWC() == 0)
-//								pl.addError(BLDG_PART_SPECIAL_WATER_CLOSET, getLocaleMessage(MSG_ERROR_MANDATORY,
-//										FEATURE_NAME, BLDG_PART_SPECIAL_WATER_CLOSET, b.getNumber()));
-//							break;
-//						case DxfFileConstants.A_HE:
-//							commonSanitationValidations(pl, b, sanityDetails, o);
-//							validateBathRoom(pl, b, sanityDetails);
-//							break;
-//						case DxfFileConstants.B:
-//						case DxfFileConstants.B2:
-//						case DxfFileConstants.B_HEI:
-//							commonSanitationValidations(pl, b, sanityDetails, o);
-//							break;
-//						case DxfFileConstants.C_MIP:
-//							commonSanitationValidations(pl, b, sanityDetails, o);
-//							if (pl.getPlanInformation().getNoOfBeds() == null)
-//								pl.addError(NOOFBEDS,
-//										getLocaleMessage(MSG_ERROR_MANDATORY, FEATURE_NAME, NOOFBEDS, b.getNumber()));
-//							break;
-//						case DxfFileConstants.C_MOP:
-//						case DxfFileConstants.C_MA:
-//							commonSanitationValidations(pl, b, sanityDetails, o);
-//							break;
-//						case DxfFileConstants.D:
-//						case DxfFileConstants.D_AW:
-//						case DxfFileConstants.D_BT:
-//							commonSanitationValidations(pl, b, sanityDetails, o);
-//							break;
-//						case DxfFileConstants.E:
-//						case DxfFileConstants.F:
-//						case DxfFileConstants.F_K:
-//							commonSanitationValidations(pl, b, sanityDetails, o);
-//							break;
-//						case DxfFileConstants.F_H:
-//							commonSanitationValidations(pl, b, sanityDetails, o);
-//							validateBathRoom(pl, b, sanityDetails);
-//							break;
-//						case DxfFileConstants.G:
-//						case DxfFileConstants.G_SI:
-//						case DxfFileConstants.H:
-//						case DxfFileConstants.I1:
-//						case DxfFileConstants.I2:
-//							if (sanityDetails.getMaleWaterClosets().isEmpty()
-//									&& sanityDetails.getFemaleWaterClosets().isEmpty()) {
-//								pl.addError(BLDG_PART_WATER_CLOSET, getLocaleMessage(MSG_ERROR_MANDATORY, FEATURE_NAME,
-//										BLDG_PART_WATER_CLOSET, b.getNumber()));
-//							}
-//
-//							if (sanityDetails.getUrinals().isEmpty()) {
-//								pl.addError(BLDG_PART_URINAL, getLocaleMessage(MSG_ERROR_MANDATORY, FEATURE_NAME,
-//										BLDG_PART_URINAL, b.getNumber()));
-//							}
-//							break;
-//						}
+						switch (o.getCode()) {
+						case DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL:
+						case DxfFileConstants.OC_EDUCATION:
+						case DxfFileConstants.OC_TRANSPORTATION:
+							List<Integer> colorCodes=new ArrayList<>();
+							colorCodes.add(LiftService.COLOR_GENERAL_LEFT);
+							colorCodes.add(LiftService.COLOR_SPECIAL_LEFT);
+							boolean isLiftPersent=OdishaUtill.isLiftPersent(b, colorCodes);
+							
+							for(Floor floor:b.getBuilding().getFloors()) {
+								if(floor.getNumber()>=0) {
+									if(floor.getNumber()==0 && (floor.getSpecialWaterClosets()==null || floor.getSpecialWaterClosets().size()==0))
+										pl.addError(BLDG_PART_SPECIAL_WATER_CLOSET, getLocaleMessage(MSG_ERROR_MANDATORY,
+												FEATURE_NAME, BLDG_PART_SPECIAL_WATER_CLOSET, b.getNumber(),floor.getNumber()+""));
+									else if(isLiftPersent && (floor.getSpecialWaterClosets()==null || floor.getSpecialWaterClosets().size()==0))
+										pl.addError(BLDG_PART_SPECIAL_WATER_CLOSET, getLocaleMessage(MSG_ERROR_MANDATORY,
+												FEATURE_NAME, BLDG_PART_SPECIAL_WATER_CLOSET, b.getNumber(),floor.getNumber()+""));
+									if(!isLiftPersent)
+										break;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -314,10 +279,6 @@ public class Sanitation extends FeatureProcess {
 				? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
 				: null;
 
-		if (mostRestrictiveFarHelper == null || mostRestrictiveFarHelper.getSubtype() == null
-				|| DxfFileConstants.F_H.equals(mostRestrictiveFarHelper.getSubtype().getCode()))
-			return pl;
-
 		verifyDimesions(pl);
 		checkCount(pl);
 		return pl;
@@ -337,289 +298,424 @@ public class Sanitation extends FeatureProcess {
 		scrutinyDetail.setKey(key);
 		return scrutinyDetail;
 	}
+	
+	private double getTotalDuInBlcok(Block block) {
+		double noOfDu=0;
+		for(Floor floor:block.getBuilding().getFloors()) {
+			noOfDu=noOfDu+floor.getEwsUnit().size()+floor.getLigUnit().size()+floor.getMig1Unit().size()+floor.getMig2Unit().size()+floor.getOthersUnit().size();
+		}
+		return noOfDu;
+	}
 
 	private void checkCount(Plan pl) {
 
 		// BigDecimal two=BigDecimal.valueOf(val)
 		Boolean allStatus = true;
 		Boolean accepted = true;
-//		for (Block b : pl.getBlocks()) {
-//			if (!b.getCompletelyExisting()) {
-//
-//				LOG.debug("Starting  Sanitation of ....." + b.getNumber());
-//
-//				ScrutinyDetail scrutinyDetail = getNewScrutinyDetail(BLOCK_U_S + b.getNumber() + "_" + SANITATION);
-//				SanityHelper helper = new SanityHelper();
-//				Map<Integer, Integer> requiredSpWcMap = new ConcurrentHashMap<>();
-//				Map<Integer, Integer> providedSpWcMap = new ConcurrentHashMap<>();
-//				Map<Integer, Integer> failedAreaSpWcMap = new ConcurrentHashMap<>();
-//				Map<Integer, Integer> failedDimensionSpWcMap = new ConcurrentHashMap<>();
-//				Double noOfPerson = OdishaUtill.getNumberOfPerson(pl).doubleValue();
-//				for (Occupancy type : b.getBuilding().getTotalArea()) {
-//
-//					OccupancyHelperDetail o = type.getTypeHelper().getSubtype() != null
-//							? type.getTypeHelper().getSubtype()
-//							: type.getTypeHelper().getType();
-//
-//					switch (o.getCode()) {
-//
-//					case DxfFileConstants.A:
-//					case DxfFileConstants.A_P:
-//						float noOfOwner = 0.0f;
-//						try {
-//							noOfOwner = pl.getPlanInfoProperties().get(DxfFileConstants.RESIDENTIAL_NO_OWNER) != null
-//									? Float.parseFloat(
-//											pl.getPlanInfoProperties().get(DxfFileConstants.RESIDENTIAL_NO_OWNER))
-//									: 1;
-//						} catch (NumberFormatException e) {
-//							pl.addError("RESIDENTIAL_NO_OWNER", "RESIDENTIAL_NO_OWNER not defined in plan info layer");
-//							return;
-//						}
-//						double requiredWc = 0;
-//						if (noOfOwner == 1)
-//							requiredWc = 1;
-//						else {
-//							requiredWc = Math.ceil(noOfOwner / 2);
-//						}
-//						helper.commonWc = requiredWc;
-//						helper.commonBath = requiredWc;
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//					case DxfFileConstants.F_SCO:
-//					case DxfFileConstants.F_B:
-//
-//						helper.maleWc = (1 / 25) * noOfPerson;
-//						helper.femaleWc = (1 / 15) * noOfPerson;
-//						// helper.commonWash = (1 / 25) * noOfPerson;
-//
-//						double urinal = 0;
-//						if (noOfPerson >= 7 && noOfPerson <= 20)
-//							urinal = 1;
-//						else if (noOfPerson >= 21 && noOfPerson <= 45)
-//							urinal = 2;
-//						else if (noOfPerson >= 46 && noOfPerson <= 70)
-//							urinal = 3;
-//						else if (noOfPerson >= 71 && noOfPerson <= 100)
-//							urinal = 4;
-//						else if (noOfPerson >= 101 && noOfPerson <= 200)
-//							urinal = noOfPerson * 0.03;
-//						else
-//							urinal = noOfPerson * 0.025;
-//						helper.urinal = urinal;
-//
-//						helper.drinkingWaterEachFloor = true;
-//						helper.drinkingWater = noOfPerson * 0.01;
-//
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//					case DxfFileConstants.F_H:
-//						helper.commonWc = noOfPerson * 0.125;
-//						helper.commonWash = noOfPerson * 0.1;
-//						helper.commonBath = noOfPerson * 0.1;
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//					case DxfFileConstants.F_M:
-//					case DxfFileConstants.ITH_CC:
-//
-//						if (noOfPerson > 400)
-//							helper.maleWc = noOfPerson * 0.01 + (noOfPerson > 400 ? ((noOfPerson - 400) * 0.04) : 0);
-//						else
-//							helper.maleWc = noOfPerson * 0.01;
-//
-//						if (noOfPerson > 200)
-//							helper.femaleWc = noOfPerson * 0.04 + (noOfPerson > 200 ? ((noOfPerson - 200) * 0.02) : 0);
-//						else
-//							helper.femaleWc = noOfPerson * 0.04;
-//
-//						helper.drinkingWater = noOfPerson * 0.01 * 2;
-//						helper.maleWash = noOfPerson * 0.005;
-//						helper.femaleWash = noOfPerson * 0.005;
-//
-//						helper.urinal = noOfPerson * 0.02;
-//
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//					case DxfFileConstants.F_BH:
-//
-//						if (noOfPerson > 200)
-//							helper.maleWc = noOfPerson * 0.02 + (noOfPerson > 200 ? ((noOfPerson - 200) * 0.01) : 0);
-//						else
-//							helper.maleWc = noOfPerson * 0.02;
-//
-//						if (noOfPerson > 200)
-//							helper.femaleWc = noOfPerson * 0.04 + (noOfPerson > 200 ? ((noOfPerson - 200) * 0.02) : 0);
-//						else
-//							helper.femaleWc = noOfPerson * 0.04;
-//
-//						helper.maleWash = noOfPerson * 0.005;
-//						helper.femaleWash = noOfPerson * 0.005;
-//						helper.urinal = noOfPerson * 0.02;
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//
-//					case DxfFileConstants.P_D:
-//					case DxfFileConstants.P_N:
-//					case DxfFileConstants.P_P:
-//					case DxfFileConstants.P_F:
-//
-//						helper.maleWc = noOfPerson * 0.04;
-//						helper.femaleWc = noOfPerson * 0.133;
-//						helper.drinkingWater = noOfPerson * 0.01 * 2;
-//						helper.drinkingWaterEachFloor = true;
-//						helper.maleWash = noOfPerson * 0.04;
-//						helper.femaleWash = noOfPerson * 0.04;
-//
-//						if (noOfPerson >= 7 && noOfPerson <= 20)
-//							helper.urinal = 1d;
-//						else if (noOfPerson >= 21 && noOfPerson <= 45)
-//							helper.urinal = 2d;
-//						else if (noOfPerson >= 46 && noOfPerson <= 70)
-//							helper.urinal = 3d;
-//						else if (noOfPerson >= 71 && noOfPerson <= 100)
-//							helper.urinal = 4d;
-//						else if (noOfPerson >= 101 && noOfPerson <= 200)
-//							helper.urinal = noOfPerson * 0.03;
-//						else
-//							urinal = noOfPerson * 0.025;
-//						helper.ruleNo.add(RULE_38_1);
-//						helper.commonBath = 1d;
-//						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
-//								failedDimensionSpWcMap);
-//						break;
-//					case DxfFileConstants.P_H:
-//						double noOfBed = Double
-//								.parseDouble(pl.getPlanInfoProperties().get(DxfFileConstants.NO_OF_BEDS));
-//						helper.commonWc = noOfBed * 0.125;
-//						helper.maleWc = noOfPerson * 0.01;
-//						helper.femaleWc = noOfPerson * 0.04;
-//
-//						helper.drinkingWater = Double
-//								.parseDouble(pl.getPlanInfoProperties().get(DxfFileConstants.No_Of_WARD)) * 0.01;
-//
-//						helper.drinkingWater = helper.drinkingWater + (noOfPerson * 0.002);// male
-//						helper.drinkingWater = helper.drinkingWater + (noOfPerson * 0.002);// female
-//
-//						helper.commonWash = Math.ceil(2 + (noOfBed > 30 ? ((noOfBed - 30) * 0.033) : 0));
-//						helper.maleWash = noOfPerson * 0.01;
-//						helper.femaleWash = noOfPerson * 0.04;
-//
-//						helper.urinal = noOfBed * 0.033;
-//						helper.urinal = helper.urinal + (noOfPerson * 0.02);
-//
-//						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
-//								failedDimensionSpWcMap);
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//					case DxfFileConstants.P_CC:
-//
-//						if (noOfPerson > 400)
-//							helper.maleWc = noOfPerson * 0.01 + (noOfPerson > 400 ? ((noOfPerson - 400) * 0.004) : 0);
-//						else
-//							helper.maleWc = noOfPerson * 0.001;
-//
-//						if (noOfPerson > 200)
-//							helper.femaleWc = noOfPerson * 0.02 + (noOfPerson > 200 ? ((noOfPerson - 200) * 0.01) : 0);
-//						else
-//							helper.femaleWc = noOfPerson * 0.02;
-//
-//						helper.maleWash = helper.maleWc;
-//						helper.femaleWash = helper.femaleWc;
-//						helper.urinal = noOfPerson * 0.02;
-//						helper.maleBath = noOfPerson * 0.1;
-//						helper.femaleBath = noOfPerson * 0.1;
-//
-//						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
-//								failedDimensionSpWcMap);
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//
-//					case DxfFileConstants.B_EC:
-//
-//						helper.maleWc = (noOfPerson * 0.066) / 2;//
-//						helper.femaleWc = (noOfPerson * 0.166) / 2;//
-//						helper.drinkingWater = noOfPerson * 0.02;
-//						helper.commonWash = noOfPerson * 0.066;
-//						helper.urinal = (noOfPerson * 0.0833) / 2;
-//						helper.commonBath = noOfPerson * 0.025;
-//
-//						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
-//								failedDimensionSpWcMap);
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//
-//					case DxfFileConstants.B_HEI:
-//						if (DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(DxfFileConstants.IS_BOARDING))) {
-//							helper.maleWc = (noOfPerson * 0.125) / 2;
-//							helper.femaleWc = (noOfPerson * 0.166) / 2;
-//
-//							helper.maleWash = noOfPerson * 0.125;
-//							helper.femaleWash = noOfPerson * 0.125;
-//
-//							helper.urinal = noOfPerson * 0.04;
-//							helper.maleBath = noOfPerson * 0.125;
-//							helper.femaleBath = noOfPerson * 0.166;
-//
-//						} else {
-//							helper.maleWc = (noOfPerson * 0.025) / 2;
-//							helper.femaleWc = (noOfPerson * 0.04) / 2;
-//
-//							helper.maleWash = noOfPerson * 0.0166;
-//							helper.femaleWash = noOfPerson * 0.025;
-//
-//							helper.urinal = noOfPerson * 0.05;
-//						}
-//
-//						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
-//								failedDimensionSpWcMap);
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//					case DxfFileConstants.B_H:
-//
-//						helper.maleWc = (noOfPerson * 0.125) / 2;
-//						helper.femaleWc = (noOfPerson * 0.166) / 2;
-//
-//						helper.maleWash = noOfPerson * 0.125;
-//						helper.femaleWash = noOfPerson * 0.125;
-//
-//						helper.urinal = noOfPerson * 0.04;
-//						helper.maleBath = noOfPerson * 0.125;
-//						helper.femaleBath = noOfPerson * 0.166;
-//
-//						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
-//								failedDimensionSpWcMap);
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//
-//					case DxfFileConstants.IT:
-//					case DxfFileConstants.IT_MCL:
-//					case DxfFileConstants.IT_MCM:
-//					case DxfFileConstants.IT_MCS:
-//
-//						helper.maleWc = (1 / 25) * noOfPerson;
-//						helper.femaleWc = (1 / 15) * noOfPerson;
-//						// helper.commonWash = (1 / 25) * noOfPerson;
-//
-//						double urinal1 = 0;
-//						if (noOfPerson >= 7 && noOfPerson <= 20)
-//							urinal1 = 1;
-//						else if (noOfPerson >= 21 && noOfPerson <= 45)
-//							urinal1 = 2;
-//						else if (noOfPerson >= 46 && noOfPerson <= 70)
-//							urinal1 = 3;
-//						else if (noOfPerson >= 71 && noOfPerson <= 100)
-//							urinal1 = 4;
-//						else if (noOfPerson >= 101 && noOfPerson <= 200)
-//							urinal1 = noOfPerson * 0.03;
-//						else
-//							urinal1 = noOfPerson * 0.025;
-//						helper.urinal = urinal1;
-//
-//						helper.drinkingWaterEachFloor = true;
-//						helper.drinkingWater = noOfPerson * 0.01;
-//
-//						helper.ruleNo.add(RULE_38_1);
-//						break;
-//
+		for (Block b : pl.getBlocks()) {
+			if (!b.getCompletelyExisting()) {
+
+				LOG.debug("Starting  Sanitation of ....." + b.getNumber());
+
+				ScrutinyDetail scrutinyDetail = getNewScrutinyDetail(BLOCK_U_S + b.getNumber() + "_" + SANITATION);
+				SanityHelper helper = new SanityHelper();
+				Map<Integer, Integer> requiredSpWcMap = new ConcurrentHashMap<>();
+				Map<Integer, Integer> providedSpWcMap = new ConcurrentHashMap<>();
+				Map<Integer, Integer> failedAreaSpWcMap = new ConcurrentHashMap<>();
+				Map<Integer, Integer> failedDimensionSpWcMap = new ConcurrentHashMap<>();
+				Double noOfPerson = OdishaUtill.getNumberOfPerson(pl).doubleValue();
+				for (Occupancy type : b.getBuilding().getTotalArea()) {
+
+					OccupancyHelperDetail o = type.getTypeHelper().getSubtype() != null
+							? type.getTypeHelper().getSubtype()
+							: type.getTypeHelper().getType();
+
+					switch (o.getCode()) {
+
+					case DxfFileConstants.APARTMENT_BUILDING:
+					case DxfFileConstants.HOUSING_PROJECT:
+					case DxfFileConstants.WORK_CUM_RESIDENTIAL:
+					case DxfFileConstants.STUDIO_APARTMENTS:
+					case DxfFileConstants.EWS:
+					case DxfFileConstants.LOW_INCOME_HOUSING:
+					case DxfFileConstants.MEDIUM_INCOME_HOUSING:
+						double noOfDU=getTotalDuInBlcok(b);
+						//need to write
+						helper.commonWc=noOfDU;
+						helper.commonBath=noOfDU;
+						helper.commonBath=noOfDU;
+						helper.ruleNo.add(RULE_38_1);
+						break;
+					case DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING:
+					case DxfFileConstants.SEMI_DETACHED:
+					case DxfFileConstants.ROW_HOUSING:
+						float noOfOwner=0.0f;
+						 try {
+							 noOfOwner = pl.getPlanInfoProperties().get(DxfFileConstants.NO_OF_OWNER_FOR_RESIDENTIAL_BUILDING) != null
+										? Float.parseFloat(
+												pl.getPlanInfoProperties().get(DxfFileConstants.NO_OF_OWNER_FOR_RESIDENTIAL_BUILDING))
+										: 1;
+						 }catch (NumberFormatException e) {
+							pl.addError("RESIDENTIAL_NO_OWNER", "RESIDENTIAL_NO_OWNER not defined in plan info layer");
+							return;
+						}
+						double requiredWc = 0;
+						if (noOfOwner == 1)
+							requiredWc = 1;
+						else {
+							requiredWc = Math.ceil(noOfOwner / 2);
+						}
+						helper.commonWc = requiredWc;
+						helper.commonBath = requiredWc;
+
+						helper.ruleNo.add(RULE_38_1);
+						break;
+					case DxfFileConstants.SERVICES_FOR_HOUSEHOLDS:
+					case DxfFileConstants.SHOP_CUM_RESIDENTIAL:
+					case DxfFileConstants.FINANCIAL_SERVICES_AND_STOCK_EXCHANGES:
+					case DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX:
+					case DxfFileConstants.CONVENIENCE_AND_NEIGHBORHOOD_SHOPPING:
+					case DxfFileConstants.PROFESSIONAL_OFFICES:
+					case DxfFileConstants.DEPARTMENTAL_STORE:
+					case DxfFileConstants.LOCAL_RETAIL_SHOPPING:
+					case DxfFileConstants.SHOWROOM:
+					case DxfFileConstants.SUPERMARKETS:
+					case DxfFileConstants.WHOLESALE_MARKET:
+					case DxfFileConstants.MEDIA_CENTRES:
+					case DxfFileConstants.WEIGH_BRIDGES:
+					case DxfFileConstants.MERCENTILE:
+						helper.maleWc = (1 / 25) * noOfPerson;
+						helper.femaleWc = (1 / 15) * noOfPerson;
+						// helper.commonWash = (1 / 25) * noOfPerson;
+
+						double urinal = 0;
+						if (noOfPerson >= 7 && noOfPerson <= 20)
+							urinal = 1;
+						else if (noOfPerson >= 21 && noOfPerson <= 45)
+							urinal = 2;
+						else if (noOfPerson >= 46 && noOfPerson <= 70)
+							urinal = 3;
+						else if (noOfPerson >= 71 && noOfPerson <= 100)
+							urinal = 4;
+						else if (noOfPerson >= 101 && noOfPerson <= 200)
+							urinal = noOfPerson * 0.03;
+						else
+							urinal = noOfPerson * 0.025;
+						helper.urinal = urinal;
+
+						helper.drinkingWaterEachFloor = true;
+						helper.drinkingWater = noOfPerson * 0.01;
+
+						helper.ruleNo.add(RULE_38_1);
+						break;
+					case DxfFileConstants.HOTEL:
+					case DxfFileConstants.FIVE_STAR_HOTEL:
+					case DxfFileConstants.MOTELS:
+					case DxfFileConstants.RESORTS:
+					case DxfFileConstants.LAGOONS_AND_LAGOON_RESORT:
+					case DxfFileConstants.GUEST_HOUSES:
+					case DxfFileConstants.HOLIDAY_RESORT:
+					case DxfFileConstants.BOARDING_AND_LODGING_HOUSES:
+						helper.commonWc = noOfPerson * 0.125;
+						helper.commonWash = noOfPerson * 0.1;
+						helper.commonBath = noOfPerson * 0.1;
+						helper.ruleNo.add(RULE_38_1);
+						break;
+					case DxfFileConstants.SHOPPING_CENTER:
+					case DxfFileConstants.SHOPPING_MALL:
+					case DxfFileConstants.FOOD_COURTS:
+					case DxfFileConstants.AUDITORIUM:
+					case DxfFileConstants.CINEMA:
+					case DxfFileConstants.CLUB:
+					case DxfFileConstants.MUSIC_PAVILIONS:
+					case DxfFileConstants.COMMUNITY_HALL:
+					case DxfFileConstants.SCIENCE_CENTRE_OR_MUSEUM:
+					case DxfFileConstants.CONFERNCE_HALL:
+					case DxfFileConstants.CONVENTION_HALL:
+					case DxfFileConstants.SCULPTURE_COMPLEX:
+					case DxfFileConstants.CULTURAL_COMPLEX:
+					case DxfFileConstants.EXHIBITION_CENTER:
+					case DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP:
+					case DxfFileConstants.MULTIPLEX:
+					case DxfFileConstants.MUSUEM:
+					case DxfFileConstants.PUBLIC_LIBRARIES:
+					case DxfFileConstants.RECREATION_BLDG:
+					case DxfFileConstants.SPORTS_COMPLEX:
+					case DxfFileConstants.STADIUM:
+					case DxfFileConstants.THEATRE:
+
+						if (noOfPerson > 400)
+							helper.maleWc = noOfPerson * 0.01 + (noOfPerson > 400 ? ((noOfPerson - 400) * 0.04) : 0);
+						else
+							helper.maleWc = noOfPerson * 0.01;
+
+						if (noOfPerson > 200)
+							helper.femaleWc = noOfPerson * 0.04 + (noOfPerson > 200 ? ((noOfPerson - 200) * 0.02) : 0);
+						else
+							helper.femaleWc = noOfPerson * 0.04;
+
+						helper.drinkingWater = noOfPerson * 0.01 * 2;
+						helper.maleWash = noOfPerson * 0.005;
+						helper.femaleWash = noOfPerson * 0.005;
+
+						helper.urinal = noOfPerson * 0.02;
+
+						helper.ruleNo.add(RULE_38_1);
+						break;
+					case DxfFileConstants.RESTAURANT:
+					case DxfFileConstants.BANQUET_HALL:
+
+						if (noOfPerson > 200)
+							helper.maleWc = noOfPerson * 0.02 + (noOfPerson > 200 ? ((noOfPerson - 200) * 0.01) : 0);
+						else
+							helper.maleWc = noOfPerson * 0.02;
+
+						if (noOfPerson > 200)
+							helper.femaleWc = noOfPerson * 0.04 + (noOfPerson > 200 ? ((noOfPerson - 200) * 0.02) : 0);
+						else
+							helper.femaleWc = noOfPerson * 0.04;
+
+						helper.maleWash = noOfPerson * 0.005;
+						helper.femaleWash = noOfPerson * 0.005;
+						helper.urinal = noOfPerson * 0.02;
+						helper.ruleNo.add(RULE_38_1);
+						break;
+
+					case DxfFileConstants.BANK:
+					case DxfFileConstants.FIRE_STATION:
+					case DxfFileConstants.JAIL_OR_PRISON:
+					case DxfFileConstants.POST_OFFICE:
+					case DxfFileConstants.POLICE_STATION:
+					case DxfFileConstants.BILL_COLLECTION_CENTER:
+					case DxfFileConstants.ADMINISTRATIVE_BUILDINGS:
+					case DxfFileConstants.GOVERNMENT_OFFICES:
+					case DxfFileConstants.LOCAL_AND_SEMI_GOVERNMENT_OFFICES:
+					case DxfFileConstants.POLICE_OR_ARMY_OR_BARRACK:
+						
+						helper.maleWc = noOfPerson * 0.04;
+						helper.femaleWc = noOfPerson * 0.133;
+						helper.drinkingWater = noOfPerson * 0.01 * 2;
+						helper.drinkingWaterEachFloor = true;
+						helper.maleWash = noOfPerson * 0.04;
+						helper.femaleWash = noOfPerson * 0.04;
+
+						if (noOfPerson >= 7 && noOfPerson <= 20)
+							helper.urinal = 1d;
+						else if (noOfPerson >= 21 && noOfPerson <= 45)
+							helper.urinal = 2d;
+						else if (noOfPerson >= 46 && noOfPerson <= 70)
+							helper.urinal = 3d;
+						else if (noOfPerson >= 71 && noOfPerson <= 100)
+							helper.urinal = 4d;
+						else if (noOfPerson >= 101 && noOfPerson <= 200)
+							helper.urinal = noOfPerson * 0.03;
+						else
+							urinal = noOfPerson * 0.025;
+						helper.ruleNo.add(RULE_38_1);
+						helper.commonBath = 1d;
+						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
+								failedDimensionSpWcMap);
+						break;
+					case DxfFileConstants.CLINIC:
+					case DxfFileConstants.DISPENSARY:
+					case DxfFileConstants.YOGA_CENTER:
+					case DxfFileConstants.DIAGNOSTIC_CENTRE:
+					case DxfFileConstants.GOVT_SEMI_GOVT_HOSPITAL:
+					case DxfFileConstants.HEALTH_CENTRE:
+					case DxfFileConstants.HOSPITAL:
+					case DxfFileConstants.LAB:
+					case DxfFileConstants.MATERNITY_HOME:
+					case DxfFileConstants.MEDICAL_BUILDING:
+					case DxfFileConstants.NURSING_HOME:
+					case DxfFileConstants.POLYCLINIC:
+					case DxfFileConstants.REHABILITAION_CENTER:
+					case DxfFileConstants.VETERINARY_HOSPITAL_FOR_PET_ANIMALS_AND_BIRDS:
+						double noOfBed = Double
+								.parseDouble(pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK));
+						helper.commonWc = noOfBed * 0.125;
+						helper.maleWc = noOfPerson * 0.01;
+						helper.femaleWc = noOfPerson * 0.04;
+
+						helper.commonWash = Math.ceil(2 + (noOfBed > 30 ? ((noOfBed - 30) * 0.033) : 0));
+						helper.maleWash = noOfPerson * 0.01;
+						helper.femaleWash = noOfPerson * 0.04;
+
+						helper.urinal = noOfBed * 0.033;
+						helper.urinal = helper.urinal + (noOfPerson * 0.02);
+
+						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
+								failedDimensionSpWcMap);
+						helper.ruleNo.add(RULE_38_1);
+						break;
+					case DxfFileConstants.AUTO_STAND:
+					case DxfFileConstants.METRO_STATION:
+					case DxfFileConstants.BUS_STAND:
+					case DxfFileConstants.BUS_TERMINAL:
+					case DxfFileConstants.TAXI_STAND:
+					case DxfFileConstants.MULTI_LEVEL_CAR_PARKING:
+					case DxfFileConstants.PUBLIC_PARKING:
+					case DxfFileConstants.TOLL_PLAZA:
+					case DxfFileConstants.TRUCK_TERMINAL:
+					case DxfFileConstants.ISBT:
+					case DxfFileConstants.BROADCASTING_TRANSMISSION_CENTRE:
+					case DxfFileConstants.BURIAL_AND_CREMATION_GROUNDS:
+					case DxfFileConstants.PUBLIC_DISTRIBUTION_SYSTEM_SHOP:
+					case DxfFileConstants.PUBLIC_TOILETS_IN_PUBLIC_AREA:
+					case DxfFileConstants.PUBLIC_UTILITY_BLDG:
+					case DxfFileConstants.SUB_STATION:
+					case DxfFileConstants.TELECOMMUNICATION:
+					case DxfFileConstants.WATER_PUMPING_STATIONS:
+					case DxfFileConstants.SERVICE_AND_STORAGE_YARDS:
+					case DxfFileConstants.ELECTRICAL_DISTRIBUTION_DEPOTS:
+					case DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION:
+					case DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION:
+					case DxfFileConstants.CNG_MOTHER_STATION:
+					case DxfFileConstants.PLACE_OF_WORKSHIP:
+					case DxfFileConstants.RELIGIOUS_BUILDING:
+					case DxfFileConstants.SOCIAL_AND_WELFARE_CENTRES:
+
+						if (noOfPerson > 400)
+							helper.maleWc = noOfPerson * 0.01 + (noOfPerson > 400 ? ((noOfPerson - 400) * 0.004) : 0);
+						else
+							helper.maleWc = noOfPerson * 0.001;
+
+						if (noOfPerson > 200)
+							helper.femaleWc = noOfPerson * 0.02 + (noOfPerson > 200 ? ((noOfPerson - 200) * 0.01) : 0);
+						else
+							helper.femaleWc = noOfPerson * 0.02;
+
+						helper.maleWash = helper.maleWc;
+						helper.femaleWash = helper.femaleWc;
+						helper.urinal = noOfPerson * 0.02;
+						helper.maleBath = noOfPerson * 0.1;
+						helper.femaleBath = noOfPerson * 0.1;
+
+						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
+								failedDimensionSpWcMap);
+						helper.ruleNo.add(RULE_38_1);
+						break;
+
+					case DxfFileConstants.PLAY_SCHOOL:
+					case DxfFileConstants.CRECHE:
+					case DxfFileConstants.NURSERY_SCHOOL:
+
+						helper.maleWc = (noOfPerson * 0.066) / 2;//
+						helper.femaleWc = (noOfPerson * 0.166) / 2;//
+						helper.drinkingWater = noOfPerson * 0.02;
+						helper.commonWash = noOfPerson * 0.066;
+						helper.urinal = (noOfPerson * 0.0833) / 2;
+						helper.commonBath = noOfPerson * 0.025;
+
+						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
+								failedDimensionSpWcMap);
+						helper.ruleNo.add(RULE_38_1);
+						break;
+
+					case DxfFileConstants.RESEARCH_AND_TRAINING_INSTITUTE:
+					case DxfFileConstants.COACHING_CENTRE:
+					case DxfFileConstants.COMMERCIAL_INSTITUTE:
+					case DxfFileConstants.COLLEGE:
+					case DxfFileConstants.COMPUTER_TRAINING_INSTITUTE:
+					case DxfFileConstants.PRIMARY_SCHOOL:
+					case DxfFileConstants.HIGH_SCHOOL:
+					case DxfFileConstants.SCHOOL_FOR_MENTALLY_CHALLENGED:
+					case DxfFileConstants.ART_ACADEMY:
+					case DxfFileConstants.TECHNICAL_COLLEGE:
+					case DxfFileConstants.SPORTS_TRAINING_CENTERS:
+					case DxfFileConstants.TRAINING_INSTITUTE:
+					case DxfFileConstants.VETERINARY_INSTITUTE:
+					case DxfFileConstants.MEDICAL_COLLEGE:
+					case DxfFileConstants.RESEARCH_AND_TRAINING_CENTER:
+									
+						if (DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(DxfFileConstants.IS_BOARDING_FACILITY_PRESENT))) {
+							helper.maleWc = (noOfPerson * 0.125) / 2;
+							helper.femaleWc = (noOfPerson * 0.166) / 2;
+
+							helper.maleWash = noOfPerson * 0.125;
+							helper.femaleWash = noOfPerson * 0.125;
+
+							helper.urinal = noOfPerson * 0.04;
+							helper.maleBath = noOfPerson * 0.125;
+							helper.femaleBath = noOfPerson * 0.166;
+
+						} else {
+							helper.maleWc = (noOfPerson * 0.025) / 2;
+							helper.femaleWc = (noOfPerson * 0.04) / 2;
+
+							helper.maleWash = noOfPerson * 0.0166;
+							helper.femaleWash = noOfPerson * 0.025;
+
+							helper.urinal = noOfPerson * 0.05;
+						}
+
+						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
+								failedDimensionSpWcMap);
+						helper.ruleNo.add(RULE_38_1);
+						break;
+					case DxfFileConstants.DHARMASALA:
+					case DxfFileConstants.DORMITORY:
+					case DxfFileConstants.HOSTEL:
+					case DxfFileConstants.SHELTER_HOUSE:
+					case DxfFileConstants.STAFF_QAURTER:
+					case DxfFileConstants.ORPHANAGE:
+					case DxfFileConstants.OLD_AGE_HOME:
+					case DxfFileConstants.HOSTEL_CAPTIVE:
+						helper.maleWc = (noOfPerson * 0.125) / 2;
+						helper.femaleWc = (noOfPerson * 0.166) / 2;
+
+						helper.maleWash = noOfPerson * 0.125;
+						helper.femaleWash = noOfPerson * 0.125;
+
+						helper.urinal = noOfPerson * 0.04;
+						helper.maleBath = noOfPerson * 0.125;
+						helper.femaleBath = noOfPerson * 0.166;
+
+						processSpecialWaterCloset(b, requiredSpWcMap, providedSpWcMap, failedAreaSpWcMap,
+								failedDimensionSpWcMap);
+						helper.ruleNo.add(RULE_38_1);
+						break;
+
+					case DxfFileConstants.COLD_STORAGE_AND_ICE_FACTORY:
+					case DxfFileConstants.GAS_GODOWN:
+					case DxfFileConstants.GODOWNS:
+					case DxfFileConstants.GOOD_STORAGE:
+					case DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE:
+					case DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE:
+					case DxfFileConstants.STORAGE_OR_HANGERS_OR_TERMINAL_DEPOT:
+					case DxfFileConstants.WARE_HOUSE:
+					case DxfFileConstants.INDUSTRIAL_BUILDINGS_FACTORIES_WORKSHOPS_ETC:
+					case DxfFileConstants.NON_POLLUTING_INDUSTRIAL:
+					case DxfFileConstants.IT_ITES_BUILDINGS:
+					case DxfFileConstants.SEZ_INDUSTRIAL:
+					case DxfFileConstants.LOADING_OR_UNLOADING_SPACES:
+					case DxfFileConstants.FLATTED_FACTORY:
+					case DxfFileConstants.SMALL_FACTORIES_AND_ETC_FALLS_IN_INDUSTRIAL:
+
+						helper.maleWc = (1 / 25) * noOfPerson;
+						helper.femaleWc = (1 / 15) * noOfPerson;
+						// helper.commonWash = (1 / 25) * noOfPerson;
+
+						double urinal1 = 0;
+						if (noOfPerson >= 7 && noOfPerson <= 20)
+							urinal1 = 1;
+						else if (noOfPerson >= 21 && noOfPerson <= 45)
+							urinal1 = 2;
+						else if (noOfPerson >= 46 && noOfPerson <= 70)
+							urinal1 = 3;
+						else if (noOfPerson >= 71 && noOfPerson <= 100)
+							urinal1 = 4;
+						else if (noOfPerson >= 101 && noOfPerson <= 200)
+							urinal1 = noOfPerson * 0.03;
+						else
+							urinal1 = noOfPerson * 0.025;
+						helper.urinal = urinal1;
+
+						helper.drinkingWaterEachFloor = true;
+						helper.drinkingWater = noOfPerson * 0.01;
+
+						helper.ruleNo.add(RULE_38_1);
+						break;
+
 //					case DxfFileConstants.ITH_H:
 //
 //						double noOfBed1 = Double
@@ -645,7 +741,7 @@ public class Sanitation extends FeatureProcess {
 //								failedDimensionSpWcMap);
 //						helper.ruleNo.add(RULE_38_1);
 //						break;
-//
+
 //					case DxfFileConstants.ITH_C:
 //
 //						helper.commonWc = noOfPerson * 0.125;
@@ -653,7 +749,7 @@ public class Sanitation extends FeatureProcess {
 //						helper.commonBath = noOfPerson * 0.1;
 //						helper.ruleNo.add(RULE_38_1);
 //						break;
-//
+
 //					case DxfFileConstants.ITH_R:
 //					case DxfFileConstants.ITH_GH:
 //
@@ -672,78 +768,78 @@ public class Sanitation extends FeatureProcess {
 //						helper.commonBath = requiredWc1;
 //						helper.ruleNo.add(RULE_38_1);
 //						break;
-//
-//					}
-//					if (!accepted) {
-//						allStatus = false;
-//					}
-//
-//				}
-//				for (Map.Entry<Integer, Integer> req : requiredSpWcMap.entrySet()) {
-//					helper.requiredSpecialWc += req.getValue();
-//				}
-//				for (Map.Entry<Integer, Integer> pro : providedSpWcMap.entrySet()) {
-//					helper.providedSpecialWc += pro.getValue();
-//				}
-//				for (Map.Entry<Integer, Integer> pro : failedAreaSpWcMap.entrySet()) {
-//					helper.failedAreaSpecialWc += pro.getValue();
-//				}
-//				for (Map.Entry<Integer, Integer> pro : failedDimensionSpWcMap.entrySet()) {
-//					helper.failedDimensionSpecialWc += pro.getValue();
-//				}
-//
-//				if (helper.requiredSpecialWc > 0) {
-//					Set<String> ruleNo = new HashSet<>();
-//					ruleNo.add(RULE_38_1);
-//					if (helper.providedSpecialWc < helper.requiredSpecialWc) {
-//						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET,
-//								String.valueOf(helper.requiredSpecialWc.intValue()),
-//								String.valueOf(helper.providedSpecialWc.intValue()), Result.Not_Accepted.getResultVal(),
-//								scrutinyDetail);
-//					} else {
-//						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET,
-//								String.valueOf(helper.requiredSpecialWc.intValue()),
-//								String.valueOf(helper.providedSpecialWc.intValue()), Result.Accepted.getResultVal(),
-//								scrutinyDetail);
-//					}
-//					if (helper.failedAreaSpecialWc > 0 && helper.failedAreaSpecialWc <= helper.requiredSpecialWc) {
-//						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET + " - Minimum Area", MINIMUM_AREA_SPWC,
-//								String.valueOf(helper.failedAreaSpecialWc.intValue()) + " not having area 2.625",
-//								Result.Not_Accepted.getResultVal(), scrutinyDetail);
-//					} else {
-//						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET + " - Minimum Area", MINIMUM_AREA_SPWC,
-//								String.valueOf(
-//										helper.providedSpecialWc.intValue() - helper.failedAreaSpecialWc.intValue())
-//										+ " having area 2.625",
-//								Result.Accepted.getResultVal(), scrutinyDetail);
-//					}
-//
-//					if (helper.failedDimensionSpecialWc > 0
-//							&& helper.failedDimensionSpecialWc <= helper.requiredSpecialWc) {
-//						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET + " - Minimum Dimension",
-//								MINIMUM_DIMENSION_SPWC, String.valueOf(helper.failedDimensionSpecialWc.intValue())
-//										+ " not having dimension 1.5" + DxfFileConstants.METER,
-//								Result.Not_Accepted.getResultVal(), scrutinyDetail);
-//					} else {
-//						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET + " - Minimum Dimension",
-//								MINIMUM_DIMENSION_SPWC,
-//								String.valueOf(helper.providedSpecialWc.intValue()
-//										- helper.failedDimensionSpecialWc.intValue()) + " having dimension 1.5"
-//										+ DxfFileConstants.METER,
-//								Result.Accepted.getResultVal(), scrutinyDetail);
-//					}
-//
-//				}
-//				accepted = processSanity(pl, b, helper, scrutinyDetail);
-//
-//				pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-//				LOG.debug("Keys of the Sanitation Message ....." + scrutinyDetail.getKey() + "   "
-//						+ scrutinyDetail.getDetail().size());
-//			}
-//		}
+
+					}
+					if (!accepted) {
+						allStatus = false;
+					}
+
+				}
+				for (Map.Entry<Integer, Integer> req : requiredSpWcMap.entrySet()) {
+					helper.requiredSpecialWc += req.getValue();
+				}
+				for (Map.Entry<Integer, Integer> pro : providedSpWcMap.entrySet()) {
+					helper.providedSpecialWc += pro.getValue();
+				}
+				for (Map.Entry<Integer, Integer> pro : failedAreaSpWcMap.entrySet()) {
+					helper.failedAreaSpecialWc += pro.getValue();
+				}
+				for (Map.Entry<Integer, Integer> pro : failedDimensionSpWcMap.entrySet()) {
+					helper.failedDimensionSpecialWc += pro.getValue();
+				}
+
+				if (helper.requiredSpecialWc > 0) {
+					Set<String> ruleNo = new HashSet<>();
+					ruleNo.add(RULE_38_1);
+					if (helper.providedSpecialWc < helper.requiredSpecialWc) {
+						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET,
+								String.valueOf(helper.requiredSpecialWc.intValue()),
+								String.valueOf(helper.providedSpecialWc.intValue()), Result.Not_Accepted.getResultVal(),
+								scrutinyDetail);
+					} else {
+						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET,
+								String.valueOf(helper.requiredSpecialWc.intValue()),
+								String.valueOf(helper.providedSpecialWc.intValue()), Result.Accepted.getResultVal(),
+								scrutinyDetail);
+					}
+					if (helper.failedAreaSpecialWc > 0 && helper.failedAreaSpecialWc <= helper.requiredSpecialWc) {
+						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET + " - Minimum Area", MINIMUM_AREA_SPWC,
+								String.valueOf(helper.failedAreaSpecialWc.intValue()) + " not having area 2.625",
+								Result.Not_Accepted.getResultVal(), scrutinyDetail);
+					} else {
+						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET + " - Minimum Area", MINIMUM_AREA_SPWC,
+								String.valueOf(
+										helper.providedSpecialWc.intValue() - helper.failedAreaSpecialWc.intValue())
+										+ " having area 2.625",
+								Result.Accepted.getResultVal(), scrutinyDetail);
+					}
+
+					if (helper.failedDimensionSpecialWc > 0
+							&& helper.failedDimensionSpecialWc <= helper.requiredSpecialWc) {
+						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET + " - Minimum Dimension",
+								MINIMUM_DIMENSION_SPWC, String.valueOf(helper.failedDimensionSpecialWc.intValue())
+										+ " not having dimension 1.5" + DxfFileConstants.METER,
+								Result.Not_Accepted.getResultVal(), scrutinyDetail);
+					} else {
+						addReportDetail(ruleNo, BLDG_PART_SPECIAL_WATER_CLOSET + " - Minimum Dimension",
+								MINIMUM_DIMENSION_SPWC,
+								String.valueOf(helper.providedSpecialWc.intValue()
+										- helper.failedDimensionSpecialWc.intValue()) + " having dimension 1.5"
+										+ DxfFileConstants.METER,
+								Result.Accepted.getResultVal(), scrutinyDetail);
+					}
+
+				}
+				accepted = processSanity(pl, b, helper, scrutinyDetail);
+
+				pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+				LOG.debug("Keys of the Sanitation Message ....." + scrutinyDetail.getKey() + "   "
+						+ scrutinyDetail.getDetail().size());
+			}
+		}
 	}
 
-	private Boolean processSanity(Plan pl, Block b, SanityHelper helper, ScrutinyDetail detail) {
+	public Boolean processSanity(Plan pl, Block b, SanityHelper helper, ScrutinyDetail detail) {
 
 		Boolean accepted = true;
 		String description = "";
@@ -783,7 +879,7 @@ public class Sanitation extends FeatureProcess {
 					+ sanityDetails.getMaleRoomsWithWaterCloset().size();
 
 			Double totalWCActual = Math.ceil(maleWcActual);
-			Double totalWCExpected = Math.ceil(helper.maleWc + helper.femaleWc + helper.commonWc);
+			Double totalWCExpected = Math.ceil(helper.maleWc);
 			if (totalWCExpected >= 0) {
 				List<Measurement> wcList = new ArrayList<>();
 				wcList.addAll(sanityDetails.getMaleWaterClosets());
@@ -810,7 +906,7 @@ public class Sanitation extends FeatureProcess {
 					+ sanityDetails.getFemaleRoomsWithWaterCloset().size();
 
 			Double totalWCActual = Math.ceil(femaleWcActual);
-			Double totalWCExpected = Math.ceil(helper.maleWc + helper.femaleWc + helper.commonWc);
+			Double totalWCExpected = Math.ceil(helper.femaleWc);
 			if (totalWCExpected >= 0) {
 				List<Measurement> wcList = new ArrayList<>();
 				wcList.addAll(sanityDetails.getMaleWaterClosets());

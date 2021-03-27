@@ -82,7 +82,7 @@ public class FireTenderMovement extends FeatureProcess {
 	@Override
 	public Plan process(Plan plan) {
 		HashMap<String, String> errors = new HashMap<>();
-
+		boolean isMandatory = isVehicularAccessMandatory(plan);
 		for (Block block : plan.getBlocks()) {
 
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
@@ -124,7 +124,7 @@ public class FireTenderMovement extends FeatureProcess {
 //                                + yardNames.toString().substring(0, yardNames.length() - 2) + ".");
 //                        plan.addErrors(errors);
 //                    }
-				} else if(isMandatory(plan, block)){
+				} else if(isMandatory){
 					errors.put("BLK_FTM_" + block.getNumber(),
 							"Vehicular access within Site not defined for Block " + block.getNumber());
 					plan.addErrors(errors);
@@ -133,6 +133,14 @@ public class FireTenderMovement extends FeatureProcess {
 		}
 
 		return plan;
+	}
+	
+	private boolean isVehicularAccessMandatory(Plan pl) {
+		long blockCount = pl.getBlocks().stream().filter(block -> !block.isOutHouse()).filter(block -> !block.isPublicWashroom()).count();
+		if(blockCount > 1)
+			return true;
+		else
+			return false;
 	}
 
 	private boolean isMandatory(Plan pl, Block block) {

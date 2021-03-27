@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.5.1  -->
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="edcr_report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ccdee1e7-8a6e-4168-a80a-d10d6f4f913c">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="ireport.zoom" value="1.0"/>
@@ -97,7 +97,7 @@
 				<imageExpression><![CDATA[$P{cityLogo}]]></imageExpression>
 			</image>
 			<staticText>
-				<reportElement x="16" y="365" width="186" height="18" forecolor="#4F4EBB" uuid="3f3325d3-7390-4b18-a07b-d723a2d91099"/>
+				<reportElement x="16" y="352" width="186" height="18" uuid="3f3325d3-7390-4b18-a07b-d723a2d91099"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -105,10 +105,10 @@
 					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<textElement textAlignment="Left" verticalAlignment="Bottom">
-					<font size="12" isBold="false" isUnderline="false"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="12" isBold="true" isUnderline="false"/>
 				</textElement>
-				<text><![CDATA[Declarations in Drawings]]></text>
+				<text><![CDATA[Declaration in drawings]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="12" y="105" width="536" height="18" uuid="c90071fa-f965-4d78-8e92-98e7658a97b9"/>
@@ -169,6 +169,21 @@
 					<paragraph leftIndent="3"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{reportStatus}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="9" y="663" width="193" height="19" isRemoveLineWhenBlank="true" uuid="1bc539b3-3399-4906-9c6d-2f6ce7399eb8">
+					<printWhenExpression><![CDATA[!$P{errors}.isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="12" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Errors ]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="9" y="678" width="537" height="34" isRemoveLineWhenBlank="true" uuid="3993cc76-bd9f-4699-897a-2330010ece90">
+					<printWhenExpression><![CDATA[!$P{errors}.isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<textFieldExpression><![CDATA[$P{errorString}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="142" y="288" width="146" height="21" uuid="4baabfce-be8c-41ca-a630-4f652544996b"/>
@@ -256,7 +271,7 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{plot}.getPlotBndryArea()]]></textFieldExpression>
 			</textField>
@@ -355,7 +370,7 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getDepthOfPlot()]]></textFieldExpression>
 			</textField>
@@ -445,7 +460,7 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{surrenderRoadArea}]]></textFieldExpression>
 			</textField>
@@ -535,7 +550,7 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getPlotNo()]]></textFieldExpression>
 			</textField>
@@ -625,7 +640,7 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getKhataNo()]]></textFieldExpression>
 			</textField>
@@ -715,7 +730,7 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getMauza()]]></textFieldExpression>
 			</textField>
@@ -805,7 +820,7 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getDistrict()]]></textFieldExpression>
 			</textField>
@@ -895,12 +910,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getPlotArea()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="389" width="16" height="40" uuid="0b650422-ec24-4c2f-8bad-e98a7a96f8dd"/>
+				<reportElement x="12" y="370" width="16" height="40" uuid="0b650422-ec24-4c2f-8bad-e98a7a96f8dd"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -915,7 +930,7 @@
 				<textFieldExpression><![CDATA["1"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="454" width="343" height="30" uuid="8c11d7a3-ceab-4b5e-893d-467a7e6a399c"/>
+				<reportElement x="28" y="435" width="343" height="30" uuid="8c11d7a3-ceab-4b5e-893d-467a7e6a399c"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -930,7 +945,7 @@
 				<textFieldExpression><![CDATA["Is the project located within  300 meters distance of the Centrally Protected Monument ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="454" width="177" height="30" uuid="148c27fd-a793-4703-930b-7adfcd5bb119"/>
+				<reportElement x="371" y="435" width="177" height="30" uuid="148c27fd-a793-4703-930b-7adfcd5bb119"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -940,12 +955,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getIsProjectNearOfCentrallyProtectedMonument()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="429" width="16" height="25" uuid="9fbc44f1-8d68-4e79-9edf-09fa938aded6"/>
+				<reportElement x="12" y="410" width="16" height="25" uuid="9fbc44f1-8d68-4e79-9edf-09fa938aded6"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -960,7 +975,7 @@
 				<textFieldExpression><![CDATA["2"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="484" width="343" height="30" uuid="4ea62cb9-2d9e-4957-96b5-93275327e0dc"/>
+				<reportElement x="28" y="465" width="343" height="30" uuid="4ea62cb9-2d9e-4957-96b5-93275327e0dc"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -975,7 +990,7 @@
 				<textFieldExpression><![CDATA["Is the project located within 300 meters distance of the State Protected Monument ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="484" width="177" height="30" uuid="66850446-2663-4002-a8b3-9f2c0bcdf981"/>
+				<reportElement x="371" y="465" width="177" height="30" uuid="66850446-2663-4002-a8b3-9f2c0bcdf981"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -985,12 +1000,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getIsProjectNearOfStateProtectedMonument()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="454" width="16" height="30" uuid="41215c9c-61d0-4957-a1a0-8223035d5eab"/>
+				<reportElement x="12" y="435" width="16" height="30" uuid="41215c9c-61d0-4957-a1a0-8223035d5eab"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1005,7 +1020,7 @@
 				<textFieldExpression><![CDATA["3"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="514" width="343" height="30" uuid="a985866b-9db1-41da-8b86-d5e889af1e28"/>
+				<reportElement x="28" y="495" width="343" height="30" uuid="a985866b-9db1-41da-8b86-d5e889af1e28"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1020,7 +1035,7 @@
 				<textFieldExpression><![CDATA["Is the project located within 200 meters from strategic buildings ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="514" width="177" height="30" uuid="a0ebbafd-7003-4b9e-919e-f47ee55e7b8a"/>
+				<reportElement x="371" y="495" width="177" height="30" uuid="a0ebbafd-7003-4b9e-919e-f47ee55e7b8a"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1030,12 +1045,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getProjectNearOfStrategicBuildings()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="484" width="16" height="30" uuid="e69a735a-46bc-4d97-8826-98f319d8a636"/>
+				<reportElement x="12" y="465" width="16" height="30" uuid="e69a735a-46bc-4d97-8826-98f319d8a636"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1050,7 +1065,7 @@
 				<textFieldExpression><![CDATA["4"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="544" width="343" height="30" uuid="dc2e353b-4eed-4dd5-8d48-3b2812cb44ef"/>
+				<reportElement x="28" y="525" width="343" height="30" uuid="dc2e353b-4eed-4dd5-8d48-3b2812cb44ef"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1065,7 +1080,7 @@
 				<textFieldExpression><![CDATA["Is proposed construction next to flood embankment and does applicant want to have direct access from the Embankment Road ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="544" width="177" height="30" uuid="b1921a1c-b5e2-4f42-9556-0745ac52338d"/>
+				<reportElement x="371" y="525" width="177" height="30" uuid="b1921a1c-b5e2-4f42-9556-0745ac52338d"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1075,12 +1090,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getIsProposedConstructionNextToFloodEmbankment()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="514" width="16" height="30" uuid="41df6618-b136-4128-9eef-e9cfb4c946b8"/>
+				<reportElement x="12" y="495" width="16" height="30" uuid="41df6618-b136-4128-9eef-e9cfb4c946b8"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1095,7 +1110,7 @@
 				<textFieldExpression><![CDATA["5"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="574" width="343" height="25" uuid="9e8f3668-dd55-4f95-aa26-d97f64f64cb0"/>
+				<reportElement x="28" y="555" width="343" height="25" uuid="9e8f3668-dd55-4f95-aa26-d97f64f64cb0"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1110,7 +1125,7 @@
 				<textFieldExpression><![CDATA["Is kisam of land recorded as agriculture in record of Rights ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="574" width="177" height="25" uuid="80d9a919-c613-4ddb-9600-c39edb19ed05"/>
+				<reportElement x="371" y="555" width="177" height="25" uuid="80d9a919-c613-4ddb-9600-c39edb19ed05"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1120,12 +1135,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getIsKisamOfLandRecordedAsAgricultureInRecordOfRights()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="544" width="16" height="30" uuid="fdceed65-f55a-4089-a933-da6f310f911e"/>
+				<reportElement x="12" y="525" width="16" height="30" uuid="fdceed65-f55a-4089-a933-da6f310f911e"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1140,7 +1155,7 @@
 				<textFieldExpression><![CDATA["6"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="629" width="343" height="25" uuid="23cb8d54-d340-4549-b8d3-77025ed53acb"/>
+				<reportElement x="28" y="610" width="343" height="25" uuid="23cb8d54-d340-4549-b8d3-77025ed53acb"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1155,7 +1170,7 @@
 				<textFieldExpression><![CDATA["Is the project close to the coastal region ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="629" width="177" height="25" uuid="88336fbe-81a3-4043-9ff0-14880d9ac9f6"/>
+				<reportElement x="371" y="610" width="177" height="25" uuid="88336fbe-81a3-4043-9ff0-14880d9ac9f6"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1165,12 +1180,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getIsTheProjectCloseToTheCoastalRegion()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="574" width="16" height="25" uuid="f3594287-1c88-4208-8c59-73ec2432037a"/>
+				<reportElement x="12" y="555" width="16" height="25" uuid="f3594287-1c88-4208-8c59-73ec2432037a"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1185,7 +1200,7 @@
 				<textFieldExpression><![CDATA["7"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="599" width="343" height="30" uuid="64e36724-d50e-48fc-bc74-dc3f23d59c0f"/>
+				<reportElement x="28" y="580" width="343" height="30" uuid="64e36724-d50e-48fc-bc74-dc3f23d59c0f"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1200,7 +1215,7 @@
 				<textFieldExpression><![CDATA["Is the project adjacent to Highway and having direct access to it ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="599" width="177" height="30" uuid="61fab795-1167-4593-bf59-694d9001ad47"/>
+				<reportElement x="371" y="580" width="177" height="30" uuid="61fab795-1167-4593-bf59-694d9001ad47"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1210,12 +1225,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getIsTheProjectAdjacentToHighwayAndHavingDirectAccessToIt()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="599" width="16" height="30" uuid="f4af6927-09d9-4074-ba15-6137ce97546d"/>
+				<reportElement x="12" y="580" width="16" height="30" uuid="f4af6927-09d9-4074-ba15-6137ce97546d"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1230,7 +1245,7 @@
 				<textFieldExpression><![CDATA["8"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="389" width="343" height="40" uuid="d4d02a1e-db23-48c0-8e69-f4cce4da1cae"/>
+				<reportElement x="28" y="370" width="343" height="40" uuid="d4d02a1e-db23-48c0-8e69-f4cce4da1cae"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1245,7 +1260,7 @@
 				<textFieldExpression><![CDATA["Is the plot part of the layout approved by the authority or developed/allotted by the government or statutory bodies or is this a final plot in town planning schemes or development schemes ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="389" width="177" height="40" uuid="004298e8-45f6-4095-a084-809e0658e44c"/>
+				<reportElement x="371" y="370" width="177" height="40" uuid="004298e8-45f6-4095-a084-809e0658e44c"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1255,12 +1270,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getApprovedLayoutDeclaration()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="429" width="343" height="25" uuid="3ef13b8a-34a4-4be3-a714-84484de4a776"/>
+				<reportElement x="28" y="410" width="343" height="25" uuid="3ef13b8a-34a4-4be3-a714-84484de4a776"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1275,7 +1290,7 @@
 				<textFieldExpression><![CDATA["Does the Project require NOC from AAI as per the Colour Coded Zone Maps ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="429" width="177" height="25" uuid="277ae2bb-2372-44a0-a330-ab75596da242"/>
+				<reportElement x="371" y="410" width="177" height="25" uuid="277ae2bb-2372-44a0-a330-ab75596da242"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1285,12 +1300,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getNocFromAAI()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="629" width="16" height="25" uuid="dc76f7c2-e44d-4674-8950-3f55f8d76414"/>
+				<reportElement x="12" y="610" width="16" height="25" uuid="dc76f7c2-e44d-4674-8950-3f55f8d76414"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1305,7 +1320,7 @@
 				<textFieldExpression><![CDATA["9"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="654" width="343" height="25" uuid="571e3ece-34d8-4577-a1a1-ab0f6a4bc5f7"/>
+				<reportElement x="28" y="635" width="343" height="25" uuid="571e3ece-34d8-4577-a1a1-ab0f6a4bc5f7"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1320,7 +1335,7 @@
 				<textFieldExpression><![CDATA["Rain water harvesting declared ?"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="371" y="654" width="177" height="25" uuid="51126563-9b73-4332-8577-f8a87965f306"/>
+				<reportElement x="371" y="635" width="177" height="25" uuid="51126563-9b73-4332-8577-f8a87965f306"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1330,12 +1345,12 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getRwhDeclared()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="654" width="16" height="25" uuid="417e51bc-efb5-41da-90e3-177492acbf7a"/>
+				<reportElement x="12" y="635" width="16" height="25" uuid="417e51bc-efb5-41da-90e3-177492acbf7a"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1450,7 +1465,7 @@
 				</box>
 				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="8"/>
-					<paragraph leftIndent="3"/>
+					<paragraph leftIndent="5"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getDemolitionArea()]]></textFieldExpression>
 			</textField>

@@ -103,11 +103,8 @@ public class OdissaSetBackService extends FeatureProcess {
 	public Plan process(Plan pl) {
 
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-		List<Block> totalBlocksInPlan=new ArrayList<>();
-		totalBlocksInPlan.addAll(pl.getBlocks());
-		totalBlocksInPlan.addAll(pl.getOuthouse());
 		
-		for (Block block : totalBlocksInPlan) {
+		for (Block block : pl.getBlocks()) {
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
 			scrutinyDetail.addColumnHeading(2, DESCRIPTION);

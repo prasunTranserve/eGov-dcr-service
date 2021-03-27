@@ -48,10 +48,12 @@
 package org.egov.edcr.feature;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.A.H.m;
@@ -114,7 +116,9 @@ public class Coverage extends FeatureProcess {
 		BigDecimal totalCoverageArea = BigDecimal.ZERO;
 
 		totalCoverageArea = updatedAmmenityArea(pl);
-
+		List<Block> blocks=new ArrayList<>();
+		blocks.addAll(pl.getBlocks());
+		blocks.addAll(pl.getOuthouse());
 		for (Block block : pl.getBlocks()) {
 			BigDecimal coverageAreaWithoutDeduction = BigDecimal.ZERO;
 			BigDecimal coverageDeductionArea = BigDecimal.ZERO;
@@ -158,7 +162,7 @@ public class Coverage extends FeatureProcess {
 		BigDecimal requiredCoverage = getPermissibleGroundCoverage(pl);
 		// if(requiredCoverage.compareTo(BigDecimal.ZERO)>0)
 		processCoverage(pl, StringUtils.EMPTY, totalCoverage, requiredCoverage);
-		OdishaUtill.updateBlock(pl);
+		
 		return pl;
 	}
 
@@ -385,6 +389,8 @@ public class Coverage extends FeatureProcess {
 	private static void init(Plan pl) {
 		OdishaUtill.updateDUnitInPlan(pl);
 		OdishaUtill.updateAmmenity(pl);
+		OdishaUtill.updateBlock(pl);
+		OdishaUtill.setPlanInfoBlkWise(pl, DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK);
 	}
 
 	private boolean checkLowRiskBuildingCriteria(Plan pl) {

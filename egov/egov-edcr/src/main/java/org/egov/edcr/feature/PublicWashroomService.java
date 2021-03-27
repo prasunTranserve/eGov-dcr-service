@@ -51,21 +51,32 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
+import org.egov.common.entity.edcr.Room;
+import org.egov.common.entity.edcr.RoomHeight;
+import org.egov.common.entity.edcr.SanityHelper;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PublicWashroomService extends FeatureProcess {
+	
+	@Autowired
+	private Sanitation sanitation;
+	
 	@Override
 	public Plan validate(Plan pl) {
 
@@ -98,41 +109,89 @@ public class PublicWashroomService extends FeatureProcess {
 	public Plan process(Plan pl) {
 		validate(pl);
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_publicwashroom");
+		scrutinyDetail.setKey("Common_Public Washroom complex in front setback area");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
 		scrutinyDetail.addColumnHeading(3, REQUIRED);
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
-		BigDecimal coverage = BigDecimal.ZERO;
 		BigDecimal height = BigDecimal.ZERO;
+		boolean lightAndVentilationPersent=false;
 		List<Block> publicwashrooms = pl.getPublicWashroom();
+		List<Room> list=new ArrayList<>();
+		List<BigDecimal> parapets=new ArrayList<>();
+		BigDecimal parapetsHeight=BigDecimal.ZERO;
+		for(Block block:publicwashrooms) {
+			for(Floor floor:block.getBuilding().getFloors()) {
+				list.addAll(floor.getRegularRooms());
+			}
+			if(block.getGenralParapets()!=null)
+				parapets.addAll(block.getGenralParapets());
+		}
+			
+		
+		List<Room> rooms=getRegularRoom(pl, list);
+		List<BigDecimal> list2=new ArrayList<>();
+		for(Room r:rooms) {
+			for(RoomHeight rh:r.getHeights()) {
+				list2.add(rh.getHeight());
+			}
+			if(r.getLightAndVentilation().getMeasurements().size()>0)
+				lightAndVentilationPersent=true;
+		}
+		
 		try {
-			height = publicwashrooms.stream().map(block -> block.getBuilding().getBuildingHeight()).reduce(BigDecimal::max).get().setScale(2, BigDecimal.ROUND_HALF_UP);
-			coverage=publicwashrooms.stream().map(block -> block.getBuilding().getCoverageArea()).reduce(BigDecimal::add).get().setScale(2, BigDecimal.ROUND_HALF_UP);
+			height=list2.stream().reduce(BigDecimal::max).get();
+			parapetsHeight=parapets.stream().reduce(BigDecimal::max).get();
 		}catch (Exception e) {
 			// TODO: handle exception
 		}
 		
-		BigDecimal requiredCovrage=new BigDecimal("30");
-		BigDecimal requiredHeight=new BigDecimal("3");
+	
+		BigDecimal requiredHeight=new BigDecimal("2.8");
+		BigDecimal requiredParapetHeight=new BigDecimal("1");
 		
 		if(publicwashrooms.size()>0) {
-			//coverage
-			addDetails(scrutinyDetail, "55-1-a", "Max coverage", requiredCovrage.toString(),
-					coverage.toString(), coverage.compareTo(requiredCovrage)<=0?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
-		
 			//Height
-			addDetails(scrutinyDetail, "55-1-a", "Max height", requiredHeight.toString(),
+			addDetails(scrutinyDetail, "55-1-a", "Max Room Clear Height", requiredHeight.toString(),
 					height.toString(), height.compareTo(requiredHeight)<=0?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
 		
 		}
 		
-
+		//checking lightAndVentilation
+		if(!lightAndVentilationPersent) {
+			pl.addError("lightAndVentilation-publicwashroom", "lightAndVentilation is mandatory in public washroom");
+		}
+		
+		//parapet max 1min
+		if(parapets.size()>0)
+		addDetails(scrutinyDetail, "55-1-a", "Parapet height", parapetsHeight.toString(),
+				height.toString(), height.compareTo(requiredParapetHeight)<=0?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
+	
+		
+		//validate Sanitation
+		SanityHelper helper = new SanityHelper();
+		helper.commonWash=1d;
+		helper.urinal=2d;
+		helper.maleWc=1d;
+		helper.femaleWc=1d;
+		helper.ruleNo.add(RULE_NO);
+		
+		for(Block block:pl.getPublicWashroom()) {
+			sanitation.processSanity(pl, block, helper, scrutinyDetail);
+		}
+		
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		return pl;
 	}
 
+	private List<Room> getRegularRoom(Plan pl, List<Room> rooms) {
+		Set<String> allowedRooms=new HashSet();
+		allowedRooms.add(DxfFileConstants.COLOR_PUBLIC_WASHROOM);
+		List<Room> spcRoom=OdishaUtill.getRegularRoom(pl, rooms, allowedRooms);
+		return spcRoom;
+	}
+	
 	private void addDetails(ScrutinyDetail scrutinyDetail, String rule, String description, String required,
 			String provided, String status) {
 		Map<String, String> details = new HashMap<>();

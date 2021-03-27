@@ -308,7 +308,7 @@ public class AdditionalFeature extends FeatureProcess {
 	private void validateG1(Plan pl, ScrutinyDetail scrutinyDetail) {
 		if (pl.getPlanInfoProperties().get(G1) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G1))) {
 			addDetails(scrutinyDetail, "55-1-a", "Low water consumption and plumbing fixtures", DxfFileConstants.MANDATORY,
-					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+					DxfFileConstants.PROVIDED, Result.Verify.getResultVal());
 		} else {
 			addDetails(scrutinyDetail, "55-1-a", "Low water consumption and plumbing fixtures", DxfFileConstants.MANDATORY,
 					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
@@ -318,7 +318,7 @@ public class AdditionalFeature extends FeatureProcess {
 	private void validateG2(Plan pl, ScrutinyDetail scrutinyDetail) {
 		if (pl.getPlanInfoProperties().get(G2) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G2))) {
 			addDetails(scrutinyDetail, "55-1-a", "Reduced hardscape", DxfFileConstants.MANDATORY,
-					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+					DxfFileConstants.PROVIDED, Result.Verify.getResultVal());
 		} else {
 			addDetails(scrutinyDetail, "55-1-a", "Reduced hardscape", DxfFileConstants.MANDATORY,
 					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
@@ -328,7 +328,7 @@ public class AdditionalFeature extends FeatureProcess {
 	private void validateG3(Plan pl, ScrutinyDetail scrutinyDetail) {
 		if (pl.getPlanInfoProperties().get(G3) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G3))) {
 			addDetails(scrutinyDetail, "55-1-a", "Low energy consumption lighting fixtures", DxfFileConstants.MANDATORY,
-					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+					DxfFileConstants.PROVIDED, Result.Verify.getResultVal());
 		} else {
 			addDetails(scrutinyDetail, "55-1-a", "Low energy consumption lighting fixtures", DxfFileConstants.MANDATORY,
 					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
@@ -338,7 +338,7 @@ public class AdditionalFeature extends FeatureProcess {
 	private void validateG4(Plan pl, ScrutinyDetail scrutinyDetail) {
 		if (pl.getPlanInfoProperties().get(G4) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G4))) {
 			addDetails(scrutinyDetail, "55-1-a", "Energy efficient HVAC System", DxfFileConstants.MANDATORY,
-					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+					DxfFileConstants.PROVIDED, Result.Verify.getResultVal());
 		} else {
 			addDetails(scrutinyDetail, "55-1-a", "Energy efficient HVAC System", DxfFileConstants.MANDATORY,
 					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
@@ -348,7 +348,7 @@ public class AdditionalFeature extends FeatureProcess {
 	private void validateG5(Plan pl, ScrutinyDetail scrutinyDetail) {
 		if (pl.getPlanInfoProperties().get(G5) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G5))) {
 			addDetails(scrutinyDetail, "55-1-a", "Lighting of common areas by solar energy or LED devices", DxfFileConstants.MANDATORY,
-					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+					DxfFileConstants.PROVIDED, Result.Verify.getResultVal());
 		} else {
 			addDetails(scrutinyDetail, "55-1-a", "Lighting of common areas by solar energy or LED devices", DxfFileConstants.MANDATORY,
 					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
@@ -358,7 +358,7 @@ public class AdditionalFeature extends FeatureProcess {
 	private void validateG6(Plan pl, ScrutinyDetail scrutinyDetail) {
 		if (pl.getPlanInfoProperties().get(G6) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G6))) {
 			addDetails(scrutinyDetail, "55-1-a", "Segregation of waste provision", DxfFileConstants.MANDATORY,
-					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+					DxfFileConstants.PROVIDED, Result.Verify.getResultVal());
 		} else {
 			addDetails(scrutinyDetail, "55-1-a", "Segregation of waste provision", DxfFileConstants.MANDATORY,
 					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());
@@ -368,7 +368,7 @@ public class AdditionalFeature extends FeatureProcess {
 	private void validateG7(Plan pl, ScrutinyDetail scrutinyDetail) {
 		if (pl.getPlanInfoProperties().get(G7) != null && DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(G7))) {
 			addDetails(scrutinyDetail, "55-1-a", "Organic waste management provision", DxfFileConstants.MANDATORY,
-					DxfFileConstants.PROVIDED, Result.Accepted.getResultVal());
+					DxfFileConstants.PROVIDED, Result.Verify.getResultVal());
 		} else {
 			addDetails(scrutinyDetail, "55-1-a", "Organic waste management provision", DxfFileConstants.MANDATORY,
 					DxfFileConstants.NOT_PROVIDED, Result.Not_Accepted.getResultVal());

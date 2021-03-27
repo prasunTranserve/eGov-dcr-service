@@ -314,6 +314,10 @@ public class Parapet extends FeatureProcess {
 		List<BigDecimal> dARailingParapets = new ArrayList<BigDecimal>();
 		List<BigDecimal> genralParapets = new ArrayList<BigDecimal>();
 		List<BigDecimal> specialLiftHandrails = new ArrayList<BigDecimal>();
+		List<Block> blocks=new ArrayList<>();
+		blocks.addAll(pl.getBlocks());
+		blocks.addAll(pl.getPublicWashroom());
+		blocks.addAll(pl.getOuthouse());
 		for (Block block : pl.getBlocks()) {
 			for (Measurement measurement : block.getParapetWithColor()) {
 				switch (measurement.getColorCode()) {

@@ -674,6 +674,11 @@ public class Far extends FeatureProcess {
 			if(occupancy.getTypeHelper().getSubtype() != null)
 				occupancySubTypeHelperCode=occupancy.getTypeHelper().getSubtype().getCode();
 		}
+		
+		//remove from far calculation
+		if(DxfFileConstants.PUBLIC_WASHROOMS.equals(occupancySubTypeHelperCode)) {
+			return;
+		}
 
 		if (occupancy.getBuiltUpArea() != null && occupancy.getBuiltUpArea().compareTo(BigDecimal.valueOf(0)) < 0) {
 			pl.addError(VALIDATION_NEGATIVE_BUILTUP_AREA, getLocaleMessage(VALIDATION_NEGATIVE_BUILTUP_AREA,

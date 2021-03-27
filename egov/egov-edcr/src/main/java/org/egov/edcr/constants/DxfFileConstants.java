@@ -718,6 +718,7 @@ public class DxfFileConstants {
 	
 	public static final String COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED = "Habitable Room (Naturally Ventilated)";//1 - db
 	public static final String COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED = "Habitable Room (Mechanically Ventilated)";//2 - db
+	public static final String COLOR_PUBLIC_WASHROOM = "Public Washroom";//101 - db
 	
 	public static final String COLOR_STUDY_ROOM="Study Room";//3
 	public static final String COLOR_LIBRARY_ROOM="Library Room";//4
@@ -757,6 +758,8 @@ public class DxfFileConstants {
 	public static final String G7="DOES_PROJECT_HAVE_ORGANIC_WASTE_MANAGEMENT_PROVISION";
 	
 	public static final String IS_DRINKING_WATER_ON_EACH_FLOOR="IS_DRINKING_WATER_ON_EACH_FLOOR";
-	public static final String RESIDENTIAL_NO_OWNER="RESIDENTIAL_NO_OWNER";
+	public static final String NO_OF_OWNER_FOR_RESIDENTIAL_BUILDING="NO_OF_OWNER_FOR_RESIDENTIAL_BUILDING";
 	public static final String No_Of_WARD="No_Of_WARD";
+	
+	public static final String IS_BOARDING_FACILITY_PRESENT="IS_BOARDING_FACILITY_PRESENT";
 }

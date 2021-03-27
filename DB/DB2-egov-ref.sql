@@ -42,3 +42,9 @@ select nextval('state.seq_egdcr_layername'),'LAYER_NAME_ROAD_RESERVE_SIDE1','ROA
 
 insert into state.egdcr_layername(id,key,value,createdby,createddate,lastmodifiedby,lastmodifieddate,version) 
 select nextval('state.seq_egdcr_layername'),'LAYER_NAME_ROAD_RESERVE_SIDE2','ROAD_RESERVE_SIDE2',1,now(),1,now(),0 where not exists(select key from state.egdcr_layername where key='LAYER_NAME_ROAD_RESERVE_SIDE2');
+
+--public washroom supporting feature
+insert
+	into
+	generic.egdcr_sub_feature_colorcode (id, feature, subfeature, colorcode, ordernumber)
+values (68, 'HeightOfRoom', 'Public Washroom', 101, 7);
