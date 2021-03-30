@@ -55,9 +55,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -204,9 +206,63 @@ public class AdditionalFeature extends FeatureProcess {
 		validateOtherGreenBuildingProvisions(pl);
 		//validateAmmenity(pl);
 		validateOwnersSocietyOffice(pl);
+		showAllOtherRoom(pl);
 		return pl;
 	}
+	
+	private void showAllOtherRoom(Plan pl) {
+		Map<Integer,String> map=OdishaUtill.getRoomColorCodesMaster(pl);
+		for (Block block : pl.getBlocks()) {
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, FLOOR);
+			scrutinyDetail.addColumnHeading(4, ROOM);
+			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Other Room");
+			for(Floor floor:block.getBuilding().getFloors()) {
+				List<Room> rooms = getAllRoom(pl, floor.getRegularRooms());
+				int roomNumber = 1;
+				for (Room r : rooms) {
+					Measurement room = r.getRooms().get(0);
+					setReportOutputDetails(scrutinyDetail, RULE_38, map.get(room.getColorCode()),floor.getNumber()+"", roomNumber);
+					roomNumber++;
+				}
+			}
+			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		}
+	}
 
+	private List<Room> getAllRoom(Plan pl, List<Room> rooms) {
+		Set<String> allowedRooms=new HashSet();
+		allowedRooms.add(DxfFileConstants.COLOR_STUDY_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_LIBRARY_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_GAME_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_STORE_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_GUARD_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_ELECTRIC_CABIN_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_SUB_STATION_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_GYM_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_CCTV_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_SERVICE_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_MEP_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_LIFT_LOBBY);
+		allowedRooms.add(DxfFileConstants.COLOR_STILT_FLOOR);
+		allowedRooms.add(DxfFileConstants.COLOR_SERVICE_FLOOR);
+		allowedRooms.add(DxfFileConstants.COLOR_LAUNDRY_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_GENERATOR_ROOM);
+		List<Room> spcRoom=OdishaUtill.getRegularRoom(pl, rooms, allowedRooms);
+		return spcRoom;
+	}
+	
+	private void setReportOutputDetails(ScrutinyDetail scrutinyDetail, String ruleNo, String ruleDesc, String floor, int room) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, ruleNo);
+		details.put(DESCRIPTION, ruleDesc);
+		details.put(FLOOR, floor);
+		details.put(ROOM, room + "");
+		scrutinyDetail.getDetail().add(details);
+	}
+	
 	private void validateOwnersSocietyOffice(Plan pl) {
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();

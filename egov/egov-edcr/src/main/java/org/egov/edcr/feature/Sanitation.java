@@ -973,7 +973,7 @@ public class Sanitation extends FeatureProcess {
 
 		}
 
-		if (helper.maleWash > 0 || helper.femaleWash > 0) {
+		if (helper.maleWash > 0 || helper.femaleWash > 0 || helper.commonWash > 0) {
 
 			int actualWash = 0;
 			for (Floor f : b.getBuilding().getFloors()) {

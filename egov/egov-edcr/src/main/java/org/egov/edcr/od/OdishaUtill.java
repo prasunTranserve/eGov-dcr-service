@@ -2,6 +2,8 @@ package org.egov.edcr.od;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -450,6 +452,38 @@ public class OdishaUtill {
 			}
 		}
 		return spcRoom;
+	}
+	
+	public static Map<Integer, String> getRoomColorCodesMaster(Plan pl){
+		Map<Integer,String> result=new HashMap<>();
+		Set<String> allowedRooms=new HashSet<>();
+		allowedRooms.add(DxfFileConstants.COLOR_STUDY_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_LIBRARY_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_GAME_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_STORE_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_GUARD_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_ELECTRIC_CABIN_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_SUB_STATION_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_GYM_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_CCTV_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_SERVICE_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_MEP_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_LIFT_LOBBY);
+		allowedRooms.add(DxfFileConstants.COLOR_STILT_FLOOR);
+		allowedRooms.add(DxfFileConstants.COLOR_SERVICE_FLOOR);
+		allowedRooms.add(DxfFileConstants.COLOR_LAUNDRY_ROOM);
+		allowedRooms.add(DxfFileConstants.COLOR_GENERATOR_ROOM);
+		
+		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED);
+		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED);
+		allowedRooms.add(DxfFileConstants.COLOR_PUBLIC_WASHROOM);
+		
+		for(Map.Entry<String, Integer> entry:pl.getSubFeatureColorCodesMaster().get("HeightOfRoom").entrySet()) {
+			if(allowedRooms.contains(entry.getKey())) {
+				result.put(entry.getValue(), entry.getKey());
+			}
+		}
+		return result;
 	}
 
 	public static BigDecimal getRoofTopParking(Plan pl) {
