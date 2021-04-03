@@ -901,7 +901,7 @@ public class PlanReportService {
 				for (String blkName : blocks.keySet()) {
 					for (String blkFeature : blocks.get(blkName)) {
 						for (Map<String, String> blkStatus : allMap.get(blkName + blkFeature).getDetail()) {
-							if (blkStatus.get(STATUS).equalsIgnoreCase(Result.Not_Accepted.getResultVal())) {
+							if (blkStatus.get(STATUS)!=null && blkStatus.get(STATUS).equalsIgnoreCase(Result.Not_Accepted.getResultVal())) {
 								finalReportStatus = false;
 							}
 						}

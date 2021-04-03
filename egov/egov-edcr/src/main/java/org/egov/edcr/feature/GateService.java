@@ -30,7 +30,7 @@ public class GateService extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan plan) {
-		
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Gate Service");
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);

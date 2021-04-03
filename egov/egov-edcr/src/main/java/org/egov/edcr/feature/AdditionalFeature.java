@@ -245,9 +245,9 @@ public class AdditionalFeature extends FeatureProcess {
 		allowedRooms.add(DxfFileConstants.COLOR_CCTV_ROOM);
 		allowedRooms.add(DxfFileConstants.COLOR_SERVICE_ROOM);
 		allowedRooms.add(DxfFileConstants.COLOR_MEP_ROOM);
-		allowedRooms.add(DxfFileConstants.COLOR_LIFT_LOBBY);
-		allowedRooms.add(DxfFileConstants.COLOR_STILT_FLOOR);
-		allowedRooms.add(DxfFileConstants.COLOR_SERVICE_FLOOR);
+		//allowedRooms.add(DxfFileConstants.COLOR_LIFT_LOBBY);
+		//allowedRooms.add(DxfFileConstants.COLOR_STILT_FLOOR);
+		//allowedRooms.add(DxfFileConstants.COLOR_SERVICE_FLOOR);
 		allowedRooms.add(DxfFileConstants.COLOR_LAUNDRY_ROOM);
 		allowedRooms.add(DxfFileConstants.COLOR_GENERATOR_ROOM);
 		List<Room> spcRoom=OdishaUtill.getRegularRoom(pl, rooms, allowedRooms);
