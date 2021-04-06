@@ -100,7 +100,7 @@ public class OverHangs extends FeatureProcess {
 								.collect(Collectors.toList());
 						BigDecimal minWidth = BigDecimal.ZERO;
 						
-						minWidth = widths.stream().reduce(BigDecimal::min).get();
+						minWidth = widths.stream().reduce(BigDecimal::max).get();
 						minWidth = minWidth.setScale(2, BigDecimal.ROUND_HALF_EVEN);
 						Map<String, String> details = new HashMap<>();
 						details.put(RULE_NO, RULE_45);

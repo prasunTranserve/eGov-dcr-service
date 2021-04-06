@@ -144,22 +144,6 @@ public class VehicleRamp extends FeatureProcess {
 
 	@Override
 	public Plan validate(Plan pl) {
-//		for (Block block : pl.getBlocks()) {
-//			if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
-//				for (Floor floor : block.getBuilding().getFloors()) {
-//					List<org.egov.common.entity.edcr.VehicleRamp> vehicleRamps = floor.getVehicleRamps();
-//					if (vehicleRamps != null && !vehicleRamps.isEmpty()) {
-//						for (org.egov.common.entity.edcr.VehicleRamp vehicleRamp : vehicleRamps) {
-//							List<Measurement> vehicleRampPolyLines = vehicleRamp.getRamps();
-//							if (vehicleRampPolyLines != null && !vehicleRampPolyLines.isEmpty()) {
-//								validateDimensions(pl, block.getNumber(), floor.getNumber(),
-//										vehicleRamp.getNumber().toString(), vehicleRampPolyLines);
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
 		return pl;
 	}
 

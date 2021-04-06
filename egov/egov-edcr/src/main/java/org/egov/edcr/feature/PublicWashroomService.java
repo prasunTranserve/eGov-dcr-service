@@ -60,6 +60,7 @@ import java.util.Set;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Occupancy;
+import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.Room;
@@ -82,11 +83,11 @@ public class PublicWashroomService extends FeatureProcess {
 
 		List<Block> publicwashrooms = pl.getPublicWashroom();
 
-		if (pl.getPlot().getArea().compareTo(new BigDecimal("150")) < 0 && publicwashrooms.size() > 1) {
-			pl.addError("publicwashroomNotAllowed", "publicwashroom not allowed in less then 150 sqm plot.");
+		if (isOCApplicable(pl) && pl.getPlot().getArea().compareTo(new BigDecimal("4046.86")) >= 0 && publicwashrooms.size() ==0) {
+			pl.addError("publicwashroomNotAllowed", "publicwashroom is mandatory");
 			return pl;
 		}
-
+		
 		for (Block block : publicwashrooms) {
 			if (block.getBuilding().getFloors().size() > 1) {
 				pl.addError("publicwashroomFloor", "More than 1 floor is not allowed in publicwashroom");
@@ -118,70 +119,74 @@ public class PublicWashroomService extends FeatureProcess {
 		BigDecimal height = BigDecimal.ZERO;
 		boolean lightAndVentilationPersent=false;
 		List<Block> publicwashrooms = pl.getPublicWashroom();
-		List<Room> list=new ArrayList<>();
-		List<BigDecimal> parapets=new ArrayList<>();
-		BigDecimal parapetsHeight=BigDecimal.ZERO;
-		for(Block block:publicwashrooms) {
-			for(Floor floor:block.getBuilding().getFloors()) {
-				list.addAll(floor.getRegularRooms());
+		
+		if(publicwashrooms!=null && publicwashrooms.size()>0) {
+			List<Room> list=new ArrayList<>();
+			List<BigDecimal> parapets=new ArrayList<>();
+			BigDecimal parapetsHeight=BigDecimal.ZERO;
+			for(Block block:publicwashrooms) {
+				for(Floor floor:block.getBuilding().getFloors()) {
+					list.addAll(floor.getRegularRooms());
+				}
+				if(block.getGenralParapets()!=null)
+					parapets.addAll(block.getGenralParapets());
 			}
-			if(block.getGenralParapets()!=null)
-				parapets.addAll(block.getGenralParapets());
-		}
+				
+			
+			List<Room> rooms=getRegularRoom(pl, list);
+			List<BigDecimal> list2=new ArrayList<>();
+			for(Room r:rooms) {
+				for(RoomHeight rh:r.getHeights()) {
+					list2.add(rh.getHeight());
+				}
+				if(r.getLightAndVentilation().getMeasurements().size()>0)
+					lightAndVentilationPersent=true;
+			}
+			
+			try {
+				height=list2.stream().reduce(BigDecimal::max).get();
+				parapetsHeight=parapets.stream().reduce(BigDecimal::max).get();
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
 			
 		
-		List<Room> rooms=getRegularRoom(pl, list);
-		List<BigDecimal> list2=new ArrayList<>();
-		for(Room r:rooms) {
-			for(RoomHeight rh:r.getHeights()) {
-				list2.add(rh.getHeight());
+			BigDecimal requiredHeight=new BigDecimal("2.8");
+			BigDecimal requiredParapetHeight=new BigDecimal("1");
+			
+			if(publicwashrooms.size()>0) {
+				//Height
+				addDetails(scrutinyDetail, "55-1-a", "Max Room Clear Height", requiredHeight.toString(),
+						height.toString(), height.compareTo(requiredHeight)<=0?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
+			
 			}
-			if(r.getLightAndVentilation().getMeasurements().size()>0)
-				lightAndVentilationPersent=true;
+			
+			//checking lightAndVentilation
+			if(!lightAndVentilationPersent) {
+				pl.addError("lightAndVentilation-publicwashroom", "lightAndVentilation is mandatory in public washroom");
+			}
+			
+			//parapet max 1min
+			if(parapets.size()>0)
+			addDetails(scrutinyDetail, "55-1-a", "Parapet height", parapetsHeight.toString(),
+					height.toString(), height.compareTo(requiredParapetHeight)<=0?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
+		
+			
+			//validate Sanitation
+			SanityHelper helper = new SanityHelper();
+			helper.commonWash=1d;
+			helper.urinal=2d;
+			helper.maleWc=1d;
+			helper.femaleWc=1d;
+			helper.ruleNo.add(RULE_NO);
+			
+			for(Block block:pl.getPublicWashroom()) {
+				sanitation.processSanity(pl, block, helper, scrutinyDetail);
+			}
+			
+			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		}
 		
-		try {
-			height=list2.stream().reduce(BigDecimal::max).get();
-			parapetsHeight=parapets.stream().reduce(BigDecimal::max).get();
-		}catch (Exception e) {
-			// TODO: handle exception
-		}
-		
-	
-		BigDecimal requiredHeight=new BigDecimal("2.8");
-		BigDecimal requiredParapetHeight=new BigDecimal("1");
-		
-		if(publicwashrooms.size()>0) {
-			//Height
-			addDetails(scrutinyDetail, "55-1-a", "Max Room Clear Height", requiredHeight.toString(),
-					height.toString(), height.compareTo(requiredHeight)<=0?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
-		
-		}
-		
-		//checking lightAndVentilation
-		if(!lightAndVentilationPersent) {
-			pl.addError("lightAndVentilation-publicwashroom", "lightAndVentilation is mandatory in public washroom");
-		}
-		
-		//parapet max 1min
-		if(parapets.size()>0)
-		addDetails(scrutinyDetail, "55-1-a", "Parapet height", parapetsHeight.toString(),
-				height.toString(), height.compareTo(requiredParapetHeight)<=0?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal());
-	
-		
-		//validate Sanitation
-		SanityHelper helper = new SanityHelper();
-		helper.commonWash=1d;
-		helper.urinal=2d;
-		helper.maleWc=1d;
-		helper.femaleWc=1d;
-		helper.ruleNo.add(RULE_NO);
-		
-		for(Block block:pl.getPublicWashroom()) {
-			sanitation.processSanity(pl, block, helper, scrutinyDetail);
-		}
-		
-		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		return pl;
 	}
 
@@ -205,6 +210,18 @@ public class PublicWashroomService extends FeatureProcess {
 	@Override
 	public Map<String, Date> getAmendments() {
 		return new LinkedHashMap<>();
+	}
+	
+	private boolean isOCApplicable(Plan pl) {
+		OccupancyTypeHelper occupancyTypeHelper=pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		boolean flage=true;
+		if(DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())
+			|| DxfFileConstants.OC_PUBLIC_UTILITY.equals(occupancyTypeHelper.getType().getCode())
+			|| DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(occupancyTypeHelper.getType().getCode())
+			|| DxfFileConstants.OC_AGRICULTURE.equals(occupancyTypeHelper.getType().getCode())
+				)
+			flage=false;
+		return flage;
 	}
 
 }

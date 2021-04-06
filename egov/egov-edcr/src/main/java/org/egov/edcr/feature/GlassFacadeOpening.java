@@ -55,6 +55,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Plan;
@@ -64,6 +65,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class GlassFacadeOpening extends FeatureProcess {
+	private static final Logger LOG = Logger.getLogger(GlassFacadeOpening.class);
 	@Override
 	public Plan validate(Plan plan) {
 		return plan;
@@ -71,7 +73,7 @@ public class GlassFacadeOpening extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-
+		
 		for (Block b : pl.getBlocks()) {
 			if (b.isGlassFacadeOpening()) {
 				ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
@@ -117,10 +119,14 @@ public class GlassFacadeOpening extends FeatureProcess {
 						floorToGlassOpeningHeights.addAll(glassFacadeOpening.getFloorToGlassOpeningHeights());
 					}
 					
-					providedWidth=widths.stream().reduce(BigDecimal::min).get();
-					providedMinHeight=heights.stream().reduce(BigDecimal::min).get();
-					providedFloorToGlassOpeningHeightMin=floorToGlassOpeningHeights.stream().reduce(BigDecimal::min).get();
-					providedFloorToGlassOpeningHeightMax=floorToGlassOpeningHeights.stream().reduce(BigDecimal::max).get();
+					try {
+						providedWidth=widths.stream().reduce(BigDecimal::min).get();
+						providedMinHeight=heights.stream().reduce(BigDecimal::min).get();
+						providedFloorToGlassOpeningHeightMin=floorToGlassOpeningHeights.stream().reduce(BigDecimal::min).get();
+						providedFloorToGlassOpeningHeightMax=floorToGlassOpeningHeights.stream().reduce(BigDecimal::max).get();
+					}catch (Exception e) {
+						LOG.error("Parssing error", e);
+					}
 					//count
 					setReportOutputDetails(pl, floor.getNumber()+"", RULE_NO, "Count", "2", providedCount+"", providedCount>=2?Result.Accepted.getResultVal():Result.Not_Accepted.getResultVal(), scrutinyDetail);
 					
