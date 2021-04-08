@@ -58,7 +58,6 @@ public class MezzanineFloorService extends FeatureProcess {
 				scrutinyDetail.addColumnHeading(6, STATUS);
 				scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Mezzanine Floor");
 				if (block.getBuilding() != null && !block.getBuilding().getFloors().isEmpty()) {
-					BigDecimal totalBuiltupArea = BigDecimal.ZERO;
 					for (Floor floor : block.getBuilding().getFloors()) {
 						for(Room room:getRegularRoom(pl, floor.getRegularRooms())) {
 							
@@ -70,53 +69,63 @@ public class MezzanineFloorService extends FeatureProcess {
 								if (measurement.getArea() != null)
 									roomArea = roomArea.add(measurement.getArea());
 							}
-							totalBuiltupArea = totalBuiltupArea.add(roomArea);
+							BigDecimal mezzanineFloorArea = BigDecimal.ZERO;
+							List<BigDecimal> heights=new ArrayList<>();
 							for (Occupancy eachOccupancy : room.getMezzanineAreas()) {
-								if (eachOccupancy.getIsMezzanine() && floor.getNumber() != 0) {
-									BigDecimal mezzanineFloorArea = BigDecimal.ZERO;
-									if (eachOccupancy.getBuiltUpArea() != null)
-										mezzanineFloorArea = eachOccupancy.getBuiltUpArea()
-												.subtract(eachOccupancy.getDeduction());
-
-									boolean valid = false;
-									BigDecimal oneThirdOfBuiltup = roomArea.divide(BigDecimal.valueOf(3),
-											DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
-									if (mezzanineFloorArea.doubleValue() > 0
-											&& mezzanineFloorArea.compareTo(oneThirdOfBuiltup) <= 0) {
-										valid = true;
-									}
-									String floorNo = " floor " + floor.getNumber();
-
-									BigDecimal height = eachOccupancy.getHeight();
-									if (height.compareTo(BigDecimal.ZERO) == 0) {
-										pl.addError(RULE46_DIM_DESC,
-												getLocaleMessage(HEIGHTNOTDEFINED,
-														"Mezzanine floor " + eachOccupancy.getMezzanineNumber(),
-														block.getName(), String.valueOf(floor.getNumber())));
-									} else if (height.compareTo(HEIGHT_2_POINT_2) >= 0) {
-										setReportOutputDetails(pl, subRule,
-												RULE46_DIM_DESC + " " + eachOccupancy.getMezzanineNumber(), floorNo,
-												HEIGHT_2_POINT_2 + IN_METER, height + IN_METER,
-												Result.Accepted.getResultVal());
-									} else {
-										setReportOutputDetails(pl, subRule,
-												RULE46_DIM_DESC + " " + eachOccupancy.getMezzanineNumber(), floorNo,
-												HEIGHT_2_POINT_2 + IN_METER, height + IN_METER,
-												Result.Not_Accepted.getResultVal());
-									}
-									if (valid) {
-										setReportOutputDetails(pl, subRule,
-												RULE46_MAXAREA_DESC + " " + eachOccupancy.getMezzanineNumber(), floorNo,
-												oneThirdOfBuiltup + SQMTRS, mezzanineFloorArea + SQMTRS,
-												Result.Accepted.getResultVal());
-									} else {
-										setReportOutputDetails(pl, subRule,
-												RULE46_MAXAREA_DESC + " " + eachOccupancy.getMezzanineNumber(), floorNo,
-												oneThirdOfBuiltup + SQMTRS, mezzanineFloorArea + SQMTRS,
-												Result.Not_Accepted.getResultVal());
+								if (eachOccupancy.getIsMezzanine()) {
+									if (eachOccupancy.getBuiltUpArea() != null) {
+										mezzanineFloorArea = mezzanineFloorArea.add(eachOccupancy.getBuiltUpArea()
+												.subtract(eachOccupancy.getDeduction())) ;
+										heights.add(eachOccupancy.getHeight());
 									}
 								}
 							}
+							
+							if(room.getMezzanineAreas()!=null && room.getMezzanineAreas().size()>0) {
+								mezzanineFloorArea=mezzanineFloorArea.setScale(2,BigDecimal.ROUND_HALF_UP);
+								boolean valid = false;
+								BigDecimal oneThirdOfBuiltup = roomArea.divide(BigDecimal.valueOf(3),
+										DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
+								if (mezzanineFloorArea.doubleValue() > 0
+										&& mezzanineFloorArea.compareTo(oneThirdOfBuiltup) <= 0) {
+									valid = true;
+								}
+								String floorNo = " floor " + floor.getNumber();
+
+								BigDecimal height = BigDecimal.ZERO;
+								if(heights.size()>0) {
+									height=heights.stream().reduce(BigDecimal::min).get();
+								}
+								if (height.compareTo(BigDecimal.ZERO) == 0) {
+									pl.addError(RULE46_DIM_DESC,
+											getLocaleMessage(HEIGHTNOTDEFINED,
+													"Mezzanine floor " + floor.getNumber(),
+													block.getName(), String.valueOf(floor.getNumber())));
+								} else if (height.compareTo(HEIGHT_2_POINT_2) >= 0) {
+									setReportOutputDetails(pl, subRule,
+											RULE46_DIM_DESC , floorNo,
+											HEIGHT_2_POINT_2.toString(), height.toString(),
+											Result.Accepted.getResultVal());
+								} else {
+									setReportOutputDetails(pl, subRule,
+											RULE46_DIM_DESC, floorNo,
+											HEIGHT_2_POINT_2 .toString(), height.toString() ,
+											Result.Not_Accepted.getResultVal());
+								}
+								if (valid) {
+									setReportOutputDetails(pl, subRule,
+											RULE46_MAXAREA_DESC, floorNo,
+											oneThirdOfBuiltup.toString(), mezzanineFloorArea.toString(),
+											Result.Accepted.getResultVal());
+								} else {
+									setReportOutputDetails(pl, subRule,
+											RULE46_MAXAREA_DESC , floorNo,
+											oneThirdOfBuiltup .toString(), mezzanineFloorArea.toString(),
+											Result.Not_Accepted.getResultVal());
+								}
+
+							}
+							
 						
 						}
 					}

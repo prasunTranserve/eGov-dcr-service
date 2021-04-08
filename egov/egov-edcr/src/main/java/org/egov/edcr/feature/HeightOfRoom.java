@@ -96,6 +96,7 @@ public class HeightOfRoom extends FeatureProcess {
 	@Override
 	public Plan validate(Plan pl) {
 		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
+		validateRoomLayer(pl);
 		for (Block block : pl.getBlocks()) {
 			int regularRoomCount = 0;
 			for (Floor floor : block.getBuilding().getFloors()) {
@@ -115,6 +116,22 @@ public class HeightOfRoom extends FeatureProcess {
 
 		return pl;
 	}
+
+	private void validateRoomLayer(Plan pl) {
+		for (Block block : pl.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				int regularRoomCount = 0;
+				for(Room room:floor.getRegularRooms()) {
+					regularRoomCount++;
+					if(room.getRooms()==null)
+						pl.addError("RoomNotDefind"+block.getNumber()+"f"+floor.getNumber()+"r"+regularRoomCount, "Polygon is not definded block "+block.getColorCode()+" floor "+floor.getNumber()+" room "+regularRoomCount);
+					else if(room.getRooms().size()>1)
+						pl.addError("RoomMoreDefindeb"+block.getNumber()+"f"+floor.getNumber()+"r"+regularRoomCount, "Multiple Polygons with same layer name not allowed for Regular Rooms in block "+block.getColorCode()+" floor "+floor.getNumber()+" room "+regularRoomCount);
+				}
+			}
+		}
+	}
+	
 
 	@Override
 	public Plan process(Plan pl) {
@@ -264,10 +281,10 @@ public class HeightOfRoom extends FeatureProcess {
 //				spcRoom.add(room2);
 //			}
 //		}
-		Set<String> allowedRooms=new HashSet();
+		Set<String> allowedRooms = new HashSet();
 		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED);
 		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED);
-		List<Room> spcRoom=OdishaUtill.getRegularRoom(pl, rooms, allowedRooms);
+		List<Room> spcRoom = OdishaUtill.getRegularRoom(pl, rooms, allowedRooms);
 		return spcRoom;
 	}
 
@@ -290,9 +307,9 @@ public class HeightOfRoom extends FeatureProcess {
 			String value = typicalFloorValues.get("typicalFloors") != null
 					? (String) typicalFloorValues.get("typicalFloors")
 					: " floor " + floor.getNumber();
-			
-			actual=actual.setScale(2, BigDecimal.ROUND_HALF_UP);
-					
+
+			actual = actual.setScale(2, BigDecimal.ROUND_HALF_UP);
+
 			if (actual.compareTo(expected) >= 0) {
 				valid = true;
 			}
@@ -311,8 +328,8 @@ public class HeightOfRoom extends FeatureProcess {
 		if (!(Boolean) typicalFloorValues.get("isTypicalRepititiveFloor")
 				&& expected.compareTo(BigDecimal.valueOf(0)) > 0 && subRule != null && subRuleDesc != null) {
 
-			actual=actual.setScale(2, BigDecimal.ROUND_HALF_UP);
-			
+			actual = actual.setScale(2, BigDecimal.ROUND_HALF_UP);
+
 			if (actual.compareTo(expected) >= 0) {
 				valid = true;
 			}

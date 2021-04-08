@@ -174,54 +174,60 @@ public class Coverage extends FeatureProcess {
 		scrutinyDetail.addColumnHeading(3, REQUIRED);
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
-		
 		BigDecimal totalArea = BigDecimal.ZERO;
+		String required="Ground Coverage Exemption till 10 sqm";
 		if (pl.getAmmenity().getGuardRooms().size() > 0) {
 			BigDecimal guardRoomArea = pl.getAmmenity().getGuardRooms().stream().map(m -> m.getArea())
 					.reduce(BigDecimal::add).get();
+			guardRoomArea=guardRoomArea.setScale(2,BigDecimal.ROUND_HALF_UP);
 			if (guardRoomArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(guardRoomArea);
-			addDetails(scrutinyDetail, "55-1-a", "Guard room", DxfFileConstants.NA,
+			addDetails(scrutinyDetail, "55-1-a", "Guard room",required,
 					guardRoomArea.toString(), Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getElectricCabins().size() > 0) {
 			BigDecimal electricCabinArea = pl.getAmmenity().getElectricCabins().stream().map(m -> m.getArea())
 					.reduce(BigDecimal::add).get();
+			electricCabinArea=electricCabinArea.setScale(2,BigDecimal.ROUND_HALF_UP);
 			if (electricCabinArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(electricCabinArea);
-			addDetails(scrutinyDetail, "55-1-a", "Electric cabin", DxfFileConstants.NA,
+			addDetails(scrutinyDetail, "55-1-a", "Electric cabin", required,
 					electricCabinArea.toString(), Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getSubStations().size() > 0) {
 			BigDecimal subStationArea = pl.getAmmenity().getSubStations().stream().map(m -> m.getArea())
 					.reduce(BigDecimal::add).get();
+			subStationArea=subStationArea.setScale(2,BigDecimal.ROUND_HALF_UP);
 			if (subStationArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(subStationArea);
-			addDetails(scrutinyDetail, "55-1-a", "Sub-Station", DxfFileConstants.NA,
+			addDetails(scrutinyDetail, "55-1-a", "Sub-Station", required,
 					subStationArea.toString(), Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getAreaForGeneratorSet().size() > 0) {
 			BigDecimal AreaForGeneratorSetArea = pl.getAmmenity().getAreaForGeneratorSet().stream()
 					.map(m -> m.getArea()).reduce(BigDecimal::add).get();
+			AreaForGeneratorSetArea=AreaForGeneratorSetArea.setScale(2,BigDecimal.ROUND_HALF_UP);
 			if (AreaForGeneratorSetArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(AreaForGeneratorSetArea);
-			addDetails(scrutinyDetail, "55-1-a", "Area for generator set", DxfFileConstants.NA,
+			addDetails(scrutinyDetail, "55-1-a", "Area for generator set", required,
 					AreaForGeneratorSetArea.toString(), Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getAtms().size() > 0) {
 			BigDecimal atmArea = pl.getAmmenity().getAtms().stream().map(m -> m.getArea()).reduce(BigDecimal::add)
 					.get();
+			atmArea=atmArea.setScale(2,BigDecimal.ROUND_HALF_UP);
 			if (atmArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(atmArea);
-			addDetails(scrutinyDetail, "55-1-a", "ATM", DxfFileConstants.NA,
+			addDetails(scrutinyDetail, "55-1-a", "ATM", required,
 					atmArea.toString(), Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getOtherAmmenities().size() > 0) {
 			BigDecimal otherAmmenitieArea = pl.getAmmenity().getOtherAmmenities().stream().map(m -> m.getArea())
 					.reduce(BigDecimal::add).get();
+			otherAmmenitieArea=otherAmmenitieArea.setScale(2,BigDecimal.ROUND_HALF_UP);
 			if (otherAmmenitieArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(otherAmmenitieArea);
-			addDetails(scrutinyDetail, "55-1-a", "Other Ammenities", DxfFileConstants.NA,
+			addDetails(scrutinyDetail, "55-1-a", "Other Ammenities", required,
 					otherAmmenitieArea.toString(), Result.Accepted.getResultVal());
 		}
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
