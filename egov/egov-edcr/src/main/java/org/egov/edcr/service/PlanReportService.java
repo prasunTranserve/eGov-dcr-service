@@ -885,6 +885,7 @@ public class PlanReportService {
 				
 				drb.addConcatenatedReport(getErrors());
 				valuesMap.put("Errors", getDcrReportErrorDetails(plan.getErrors()));
+				finalReportStatus = false;
 			}
 
 			if (finalReportStatus)
