@@ -66,6 +66,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.egov.common.entity.dcr.helper.OccupancyHelperDetail;
@@ -147,6 +148,10 @@ public class Far extends FeatureProcess {
 		
 	}
 
+	private List<Occupancy> getOccupanciesFromRegularRomms(Floor floor) {
+		return floor.getRegularRooms().stream().flatMap(room -> room.getMezzanineAreas().stream()).collect(Collectors.toList());
+	}
+	
 	@Override
 	public Plan process(Plan pl) {
 		decideNocIsRequired(pl);
@@ -177,8 +182,11 @@ public class Far extends FeatureProcess {
 				OdishaUtill.validateServiceFloor(pl, blk, flr);
 				OdishaUtill.validateStilledFloor(pl, blk, flr);
 				OdishaUtill.validateHeightOfTheCeilingOfUpperBasementDeduction(pl, blk, flr);
+				List<Occupancy> occupancies = flr.getOccupancies();
+				occupancies.addAll(getOccupanciesFromRegularRomms(flr));
+				
 				// if(!flr.getIsStiltFloor()) {
-				for (Occupancy occupancy : flr.getOccupancies()) {
+				for (Occupancy occupancy : occupancies) {
 					validate2(pl, blk, flr, occupancy);
 					/*
 					 * occupancy.setCarpetArea(occupancy.getFloorArea().multiply
