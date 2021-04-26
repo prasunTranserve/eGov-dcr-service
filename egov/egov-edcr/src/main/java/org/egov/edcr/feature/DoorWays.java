@@ -1,21 +1,34 @@
 package org.egov.edcr.feature;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Door;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.Room;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DoorWays extends FeatureProcess {
+
+	private static final int GENERAL_DOOR_COLOR_CODE = 1;
+	private static final int BATHROOMS_WATER_CLOSET_AND_STORES_DOOR_COLOR_CODE = 2;
+	private static final int FIRE_DOOR_COLOR_CODE = 3;
+	private static final int DA_DOOR_COLOR_CODE = 4;
 
 	@Override
 	public Map<String, Date> getAmendments() {
@@ -31,90 +44,182 @@ public class DoorWays extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-		boolean flage=true;
-		if(flage)
-			return pl;
-		scrutinyDetail = new ScrutinyDetail();
-		scrutinyDetail.setKey("Common_Doorways");
-		scrutinyDetail.addColumnHeading(1, RULE_NO);
-		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-		scrutinyDetail.addColumnHeading(3, REQUIRED);
-		scrutinyDetail.addColumnHeading(4, PROVIDED);
-		scrutinyDetail.addColumnHeading(5, STATUS);
-
-		
 		for (Block b : pl.getBlocks()) {
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			scrutinyDetail.setKey("Block_" + b.getNumber() + "_" + "Doorways");
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, FLOOR);
+			scrutinyDetail.addColumnHeading(4, REQUIRED);
+			scrutinyDetail.addColumnHeading(5, PROVIDED);
+			scrutinyDetail.addColumnHeading(6, STATUS);
 
 			for (Floor floor : b.getBuilding().getFloors()) {
-				Map<String, String> details = new HashMap<>();
-				details.put(RULE_NO, "");
-				details.put(DESCRIPTION, "Doorways Dimensions");
-				
-				if (floor.getBathRoom() != null) {
-					for (Measurement measurements : floor.getBathRoom().getRooms()) {
-						if (measurements.getWidth().doubleValue() >= 1) {
-							details.put(REQUIRED, "Width >= 1");
-							details.put(PROVIDED, " Width = " + measurements.getWidth().doubleValue());
-							details.put(STATUS, Result.Accepted.getResultVal());
-							scrutinyDetail.getDetail().add(details);
-							pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-						} else {
-							details.put(REQUIRED, "Width >= 1");
-							details.put(PROVIDED, " Width = " + measurements.getWidth().doubleValue());
-							details.put(STATUS, Result.Not_Accepted.getResultVal());
-							scrutinyDetail.getDetail().add(details);
-							pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-						}
-					}
 
-				}
-				if (floor.getWaterClosets() != null) {
-					for (Measurement measurements : floor.getWaterClosets().getRooms()) {
-						if (measurements.getWidth().doubleValue() >= 0.75) {
-							details.put(REQUIRED, "Width >= 0.75");
-							details.put(PROVIDED, " Width = " + measurements.getWidth().doubleValue());
-							details.put(STATUS, Result.Accepted.getResultVal());
-							scrutinyDetail.getDetail().add(details);
-							pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-						} else {
-							details.put(REQUIRED, "Width >= 0.75");
-							details.put(PROVIDED, " Width = " + measurements.getWidth().doubleValue());
-							details.put(STATUS, Result.Not_Accepted.getResultVal());
-							scrutinyDetail.getDetail().add(details);
-							pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-						}
+				Map<Integer, List<BigDecimal>> doorWays = getDoors(floor.getDoors());
+
+				// GeneralDoorways
+				boolean isGeneralDoorwaysRequired = true;
+
+				if (isGeneralDoorwaysRequired) {
+					List<BigDecimal> genralDoorways = doorWays.get(GENERAL_DOOR_COLOR_CODE);
+					setReportOutputDetails(pl, scrutinyDetail, "", "Genral Doorways Count", floor.getNumber(), "1",
+							genralDoorways.size() + "", genralDoorways.size() > 0 ? Result.Accepted.getResultVal()
+									: Result.Not_Accepted.getResultVal());
+
+					if (genralDoorways.size() > 0) {
+						BigDecimal requiredWidth = new BigDecimal("1");
+						BigDecimal providedWidth = genralDoorways.stream().reduce(BigDecimal::min).get();
+						setReportOutputDetails(pl, scrutinyDetail, "", "Genral Doorways Width", floor.getNumber(),
+								requiredWidth.toString(), providedWidth.toString(),
+								providedWidth.compareTo(requiredWidth) >= 0 ? Result.Accepted.getResultVal()
+										: Result.Not_Accepted.getResultVal());
+
 					}
 
 				}
 
-				if (floor.getRegularRooms() != null) {
-					for (Room rooms : floor.getRegularRooms()) {
-						for (Measurement measurements : rooms.getRooms()) {
+				// BATHROOMS_WATER_CLOSET_AND_STORES_DOOR_COLOR_CODE
+				int bathroomDoorwaysCountRequired = bathRoomAndStoreCount(pl, floor);
 
-							if (measurements.getWidth().doubleValue() >= 1
-									&& measurements.getHeight().doubleValue() >= 2) {
-								details.put(REQUIRED, "Height >= 2, Width >= 1");
-								details.put(PROVIDED, "Height = " + measurements.getHeight().doubleValue()
-										+ ", Width = " + measurements.getWidth().doubleValue());
-								details.put(STATUS, Result.Accepted.getResultVal());
-								scrutinyDetail.getDetail().add(details);
-								pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-							} else {
-								details.put(REQUIRED, "Height >= 2, Width >= 1");
-								details.put(PROVIDED, "Height = " + measurements.getHeight().doubleValue()
-										+ ", Width = " + measurements.getWidth().doubleValue());
-								details.put(STATUS, Result.Not_Accepted.getResultVal());
-								scrutinyDetail.getDetail().add(details);
-								pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-							}
-						}
+				if (bathroomDoorwaysCountRequired > 0) {
+					List<BigDecimal> bathDoorways = doorWays.get(BATHROOMS_WATER_CLOSET_AND_STORES_DOOR_COLOR_CODE);
+					setReportOutputDetails(pl, scrutinyDetail, "", "Bathroom Doorways Count", floor.getNumber(),
+							bathroomDoorwaysCountRequired + "", bathDoorways.size() + "",
+							bathDoorways.size() >= bathroomDoorwaysCountRequired ? Result.Accepted.getResultVal()
+									: Result.Not_Accepted.getResultVal());
+
+					if (bathDoorways.size() > 0) {
+						BigDecimal requiredWidth = new BigDecimal("0.75");
+						BigDecimal providedWidth = bathDoorways.stream().reduce(BigDecimal::min).get();
+						setReportOutputDetails(pl, scrutinyDetail, "", "Bathroom Doorways Width", floor.getNumber(),
+								requiredWidth.toString(), providedWidth.toString(),
+								providedWidth.compareTo(requiredWidth) >= 0 ? Result.Accepted.getResultVal()
+										: Result.Not_Accepted.getResultVal());
 
 					}
 				}
+
+				// fireDoorways
+				int fireDoorwaysCountRequired = isFireDoorwaysRequiredCount(pl, floor);
+
+				if (fireDoorwaysCountRequired > 0) {
+					List<BigDecimal> fireDoorways = doorWays.get(FIRE_DOOR_COLOR_CODE);
+					setReportOutputDetails(pl, scrutinyDetail, "", "Fire Doorways Count", floor.getNumber(),
+							fireDoorwaysCountRequired + "", fireDoorways.size() + "",
+							fireDoorways.size() >= fireDoorwaysCountRequired ? Result.Accepted.getResultVal()
+									: Result.Not_Accepted.getResultVal());
+
+					if (fireDoorways.size() > 0) {
+						BigDecimal requiredWidth = new BigDecimal("1.2");
+						BigDecimal providedWidth = fireDoorways.stream().reduce(BigDecimal::min).get();
+						setReportOutputDetails(pl, scrutinyDetail, "", "Fire Doorways Width", floor.getNumber(),
+								requiredWidth.toString(), providedWidth.toString(),
+								providedWidth.compareTo(requiredWidth) >= 0 ? Result.Accepted.getResultVal()
+										: Result.Not_Accepted.getResultVal());
+
+					}
+				}
+
+				// SpecialDoorways
+				boolean isDADoorwaysRequired = false;
+				int daDoorwaysCountRequired = 0;
+				if (floor.getSpecialWaterClosets() != null && floor.getSpecialWaterClosets().size() > 0) {
+					isDADoorwaysRequired = true;
+					daDoorwaysCountRequired = floor.getSpecialWaterClosets().size();
+				}
+
+				if (isDADoorwaysRequired) {
+					List<BigDecimal> daDoorways = doorWays.get(DA_DOOR_COLOR_CODE);
+					setReportOutputDetails(pl, scrutinyDetail, "", "DA Doorways Count", floor.getNumber(),
+							daDoorwaysCountRequired + "", daDoorways.size() + "",
+							daDoorways.size() >= daDoorwaysCountRequired ? Result.Accepted.getResultVal()
+									: Result.Not_Accepted.getResultVal());
+
+					if (daDoorways.size() > 0) {
+						BigDecimal requiredWidth = new BigDecimal("0.9");
+						BigDecimal providedWidth = daDoorways.stream().reduce(BigDecimal::min).get();
+						setReportOutputDetails(pl, scrutinyDetail, "", "DA Doorways Width", floor.getNumber(),
+								requiredWidth.toString(), providedWidth.toString(),
+								providedWidth.compareTo(requiredWidth) >= 0 ? Result.Accepted.getResultVal()
+										: Result.Not_Accepted.getResultVal());
+
+					}
+				}
+
 			}
-
+			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		}
 		return pl;
 	}
 
+	private Map<Integer, List<BigDecimal>> getDoors(List<Door> doors) {
+		List<BigDecimal> general = new ArrayList<>();
+		List<BigDecimal> bathroomAndWc = new ArrayList<>();
+		List<BigDecimal> fire = new ArrayList<>();
+		List<BigDecimal> da = new ArrayList<>();
+
+		for (Door door : doors) {
+			switch (door.getColorCode()) {
+			case GENERAL_DOOR_COLOR_CODE:
+				general.addAll(door.getWidths());
+				break;
+			case BATHROOMS_WATER_CLOSET_AND_STORES_DOOR_COLOR_CODE:
+				bathroomAndWc.addAll(door.getWidths());
+				break;
+			case FIRE_DOOR_COLOR_CODE:
+				fire.addAll(door.getWidths());
+				break;
+			case DA_DOOR_COLOR_CODE:
+				da.addAll(door.getWidths());
+				break;
+
+			}
+		}
+
+		Map<Integer, List<BigDecimal>> map = new HashMap<>();
+		map.put(GENERAL_DOOR_COLOR_CODE, general);
+		map.put(BATHROOMS_WATER_CLOSET_AND_STORES_DOOR_COLOR_CODE, bathroomAndWc);
+		map.put(FIRE_DOOR_COLOR_CODE, fire);
+		map.put(DA_DOOR_COLOR_CODE, da);
+
+		return map;
+	}
+
+	private int isFireDoorwaysRequiredCount(Plan pl, Floor floor) {
+		int count = 0;
+		Set<String> allowedRooms = new HashSet();
+		allowedRooms.add(DxfFileConstants.COLOR_LIFT_LOBBY);
+		List<Room> spcRoom = OdishaUtill.getRegularRoom(pl, floor.getRegularRooms(), allowedRooms);
+		count = spcRoom.size();
+		return count;
+	}
+
+	private int bathRoomAndStoreCount(Plan pl, Floor floor) {
+		int count = 0;
+		Set<String> allowedRooms = new HashSet();
+		allowedRooms.add(DxfFileConstants.COLOR_STORE_ROOM);
+		List<Room> spcRoom = OdishaUtill.getRegularRoom(pl, floor.getRegularRooms(), allowedRooms);
+		count = spcRoom.size();
+
+		// getBathRoomWaterClosets
+		int totalwcBath = 0;
+		if (floor.getBathRoomWaterClosets() != null) {
+			totalwcBath = floor.getBathRoomWaterClosets().getHeights().size();
+		}
+		count = count + totalwcBath;
+		return count;
+	}
+
+	private void setReportOutputDetails(Plan pl, ScrutinyDetail scrutinyDetail, String ruleNo, String ruleDesc,
+			int floor, String expected, String actual, String status) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, ruleNo);
+		details.put(DESCRIPTION, ruleDesc);
+		details.put(FLOOR, floor + "");
+		details.put(REQUIRED, expected);
+		details.put(PROVIDED, actual);
+		details.put(STATUS, status);
+		scrutinyDetail.getDetail().add(details);
+	}
 }

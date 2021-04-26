@@ -127,6 +127,9 @@ public class Floor extends Measurement {
 
 	private List<GlassFacadeOpening> glassFacadeOpenings = new ArrayList<>();
 	
+	 // Doors for version 1.1.1
+    private List<Door> doors = new ArrayList<>();
+	
 	public List<FireStair> getFireStairs() {
 		return fireStairs;
 	}
@@ -711,6 +714,13 @@ public class Floor extends Measurement {
 		this.ownersSocietyOffice = ownersSocietyOffice;
 	}
 
-	
+	public List<Door> getDoors() {
+		return doors;
+	}
+
+	public void setDoors(List<Door> doors) {
+		this.doors = doors;
+	}
+
 	
 }
