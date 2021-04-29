@@ -1,5 +1,8 @@
 package org.egov.edcr.od;
 
+import static org.egov.edcr.utility.DcrConstants.DECIMALDIGITS_MEASUREMENTS;
+import static org.egov.edcr.utility.DcrConstants.ROUNDMODE_MEASUREMENTS;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.egov.common.entity.dcr.helper.OccupancyHelperDetail;
 import org.egov.common.entity.edcr.AccessoryBlock;
 import org.egov.common.entity.edcr.Ammenity;
 import org.egov.common.entity.edcr.Block;
@@ -18,6 +22,7 @@ import org.egov.common.entity.edcr.Lift;
 import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.MeasurementWithHeight;
 import org.egov.common.entity.edcr.Occupancy;
+import org.egov.common.entity.edcr.OccupancyPercentage;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.ParkingDetails;
 import org.egov.common.entity.edcr.Plan;
@@ -760,6 +765,33 @@ public class OdishaUtill {
 		}
 
 		return flage;
+	}
+	
+	public static void computeOccupancyPercentage(Plan pl) {
+		Map<String, OccupancyPercentage> ocPercentage = new HashMap<>();
+		
+		for(Block bl : pl.getBlocks()) {
+			for(Floor flr : bl.getBuilding().getFloors()) {
+				for(Occupancy oc : flr.getOccupancies()) {
+					OccupancyHelperDetail ohd = oc.getTypeHelper().getSubtype() == null ? oc.getTypeHelper().getType() : oc.getTypeHelper().getSubtype();
+					BigDecimal existingBua = ocPercentage.get(ohd.getName()) != null ? ocPercentage.get(ohd.getName()).getTotalBuildUpArea() : BigDecimal.ZERO;
+					
+					OccupancyPercentage ocp = new OccupancyPercentage();
+					ocp.setOccupancy(oc.getTypeHelper().getType().getName());
+					ocp.setSubOccupancy(ohd.getName());
+					ocp.setTotalBuildUpArea(existingBua.add(oc.getBuiltUpArea()));
+					ocPercentage.put(ohd.getName(), ocp);
+				}
+			}
+		}
+		
+		for(String oc : ocPercentage.keySet()) {
+			BigDecimal percentage = ocPercentage.get(oc).getTotalBuildUpArea().multiply(BigDecimal.valueOf(100)).divide(pl.getVirtualBuilding().getTotalBuitUpArea(), DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
+			ocPercentage.get(oc).setPercentage(percentage);
+			//ocPercentage.put(oc, percentage);
+		}
+		
+		pl.getPlanInformation().setOccupancyPercentages(ocPercentage);
 	}
 
 }

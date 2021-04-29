@@ -378,6 +378,7 @@ public class DxfFileConstants {
 	
 	public static final String OUTHOUSE="AF-OH";	//Outhouse
 	public static final String PUBLIC_WASHROOMS="AF-PW";	//Public Washrooms
+	public static final String ACCOMODATION_OF_WATCH_AND_WARD_MAINTENANCE_STAFF="AF-AWWS";	//Public Washrooms
 
 	public static final String VERT_CLEAR_OHE = "VERT_CLEAR_OHEL";
 	public static final String REAR_YARD = "REAR_YARD";
@@ -700,6 +701,9 @@ public class DxfFileConstants {
 	public static final String IS_LAND_REGULARIZED="IS_LAND_REGULARIZED";
 	public static final String IS_DRIVEWAY_PROVIDING_ACCESS_TO_REAR_SIDE_OR_ANY_OTHER_SIDE_OTHER_THAN_FRONT_OF_THE_BUILDING="IS_DRIVEWAY_PROVIDING_ACCESS_TO_REAR_SIDE_OR_ANY_OTHER_SIDE_OTHER_THAN_FRONT_OF_THE_BUILDING";
 	public static final String PROVISION_FOR_HELIPAD_PRESENT="PROVISION_FOR_HELIPAD_PRESENT";
+	public static final String IS_THE_PROJECT_LOCATED_IN_MIXED_USE_ZONE = "IS_THE_PROJECT_LOCATED_IN_MIXED_USE_ZONE";
+	public static final String IS_THE_PROJECT_LOCATED_IN_TRANSIT_ORIENTED_ZONE = "IS_THE_PROJECT_LOCATED_IN_TRANSIT_ORIENTED_ZONE";
+	public static final String PRINCIPAL_USE_IN_BUILDING_IF_PROJECT_IS_LOCATED_IN_MUZ_OR_TOZ = "PRINCIPAL_USE_IN_BUILDING_IF_PROJECT_IS_LOCATED_IN_MUZ_OR_TOZ";
 	
 	public static final String LOW="LOW";
 	public static final String HIGH="HIGH";

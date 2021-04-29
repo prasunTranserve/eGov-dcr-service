@@ -122,6 +122,7 @@ public class PlanService {
         	NocAndDocumentsUtill.updateDocuments(plan);
         	FeeCalculationUtill.checkShelterFeePrevalidation(plan);
         	DataPreparation.updatePlanDetails(plan);
+        	OdishaUtill.computeOccupancyPercentage(plan);
         }
         String comparisonDcrNumber = dcrApplication.getEdcrApplicationDetails().get(0).getComparisonDcrNumber();
         if (ApplicationType.PERMIT.getApplicationTypeVal()

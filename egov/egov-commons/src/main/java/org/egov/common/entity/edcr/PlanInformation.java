@@ -51,6 +51,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -248,6 +249,8 @@ public class PlanInformation implements Serializable {
     private BigDecimal minimumGenerationCapacityOfTheRooftopSolarPvSystemInW; 
     
     private BigDecimal capacityOfSolarWaterHeatingSystemInLpd;
+    
+    private Map<String, OccupancyPercentage> occupancyPercentages;
     
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
@@ -993,6 +996,12 @@ public class PlanInformation implements Serializable {
 		this.capacityOfSolarWaterHeatingSystemInLpd = capacityOfSolarWaterHeatingSystemInLpd;
 	}
 
-	
-    
+	public Map<String, OccupancyPercentage> getOccupancyPercentages() {
+		return occupancyPercentages;
+	}
+
+	public void setOccupancyPercentages(Map<String, OccupancyPercentage> occupancyPercentages) {
+		this.occupancyPercentages = occupancyPercentages;
+	}
+
 }

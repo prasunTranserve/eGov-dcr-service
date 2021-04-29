@@ -36,6 +36,8 @@ import org.egov.common.entity.edcr.DcrReportPlanDetail;
 import org.egov.common.entity.edcr.ElectricLine;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Occupancy;
+import org.egov.common.entity.edcr.OccupancyPercentage;
+import org.egov.common.entity.edcr.OccupancyReport;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
@@ -695,6 +697,7 @@ public class PlanReportService {
 
 			List<DcrReportBlockDetail> existingBlockDetails = buildBlockWiseExistingInfo(plan);
 			VirtualBuildingReport virtualBuildingReport = buildVirtualBuilding(plan.getVirtualBuilding());
+			List<OccupancyReport> occupanciesReport = buildSubOccupanciesReport(plan.getPlanInformation().getOccupancyPercentages());
 
 			List<String> combinedSummary = new ArrayList<>();
 			combinedSummary.add(COMBINED_BLOCKS_SUMMARY_DETAILS);
@@ -705,7 +708,11 @@ public class PlanReportService {
 			// Add total area details
 			drb.addConcatenatedReport(getTotalAreaDetails(virtualBuildingReport));
 			valuesMap.put("Total Area Details", Arrays.asList(virtualBuildingReport));
-
+			
+			// Add Occupancy percentage details
+			drb.addConcatenatedReport(getOccupanciesPercentageDetails());
+			valuesMap.put("Occupancy Percentage Details", occupanciesReport);
+			
 			List<String> blockSummary = new ArrayList<>();
 			blockSummary.add(BLOCK_WISE_SUMMARY);
 			drb.addConcatenatedReport(createHeaderSubreport(BLOCK_WISE_SUMMARY, BLOCK_WISE_SUMMARY));
@@ -979,6 +986,71 @@ public class PlanReportService {
 		}
 		return exportPdf;
 
+	}
+
+	private Subreport getOccupanciesPercentageDetails() {
+
+		try {
+
+			FastReportBuilder frb = new FastReportBuilder();
+			AbstractColumn occupancy = ColumnBuilder.getNew()
+					.setColumnProperty("occupancy", String.class.getName())
+					.setTitle("Occupancy").setWidth(120).setStyle(reportService.getTotalNumberStyle())
+					.build();
+			
+			AbstractColumn subOccupancy = ColumnBuilder.getNew()
+					.setColumnProperty("subOccupancy", String.class.getName())
+					.setTitle("Sub-Occupancy").setWidth(120).setStyle(reportService.getTotalNumberStyle())
+					.build();
+
+			AbstractColumn buaPercentage = ColumnBuilder.getNew()
+					.setColumnProperty("percentage", BigDecimal.class.getName()).setTitle("Build Up Area percentage")
+					.setWidth(120).setStyle(reportService.getTotalNumberStyle()).build();
+
+			frb.addColumn(occupancy);
+			frb.addColumn(subOccupancy);
+			frb.addColumn(buaPercentage);
+
+			frb.setTitle("Sub-Occupancy occupied Percentage");
+			frb.setTitleStyle(reportService.getTitleStyle());
+			frb.setHeaderHeight(5);
+			frb.setTopMargin(5);
+			frb.setDefaultStyles(reportService.getTitleStyle(), reportService.getSubTitleStyle(),
+					reportService.getColumnHeaderStyle(), reportService.getDetailStyle());
+			frb.setAllowDetailSplit(false);
+			frb.setPageSizeAndOrientation(Page.Page_A4_Portrait());
+			frb.setGrandTotalLegend(TOTAL);
+			frb.setGrandTotalLegendStyle(reportService.getNumberStyle());
+			DynamicReport build = frb.build();
+			Subreport sub = new Subreport();
+			sub.setDynamicReport(build);
+			Style style = new Style();
+			style.setStretchWithOverflow(true);
+			style.setStreching(RELATIVE_TO_BAND_HEIGHT);
+			sub.setStyle(style);
+
+			sub.setDatasource(new DJDataSource("Occupancy Percentage Details", DJConstants.DATA_SOURCE_ORIGIN_PARAMETER, 0));
+
+			sub.setLayoutManager(new ClassicLayoutManager());
+			return sub;
+		} catch (ColumnBuilderException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+	
+	}
+
+	private List<OccupancyReport> buildSubOccupanciesReport(Map<String, OccupancyPercentage> occupancyPercentage) {
+		List<OccupancyReport> occupanciesReport = new ArrayList<OccupancyReport>();
+		for(String oc : occupancyPercentage.keySet()) {
+			OccupancyPercentage ocp = occupancyPercentage.get(oc);
+			OccupancyReport ort = new OccupancyReport();
+			ort.setOccupancy(ocp.getOccupancy());
+			ort.setSubOccupancy(ocp.getSubOccupancy());
+			ort.setPercentage(ocp.getPercentage());
+			occupanciesReport.add(ort);
+		}
+		return occupanciesReport;
 	}
 
 	private List<DcrReportErrorDetail> getDcrReportErrorDetails(Map<String, String> errors) {

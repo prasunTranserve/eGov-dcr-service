@@ -105,6 +105,7 @@ import org.egov.edcr.feature.Plantation;
 import org.egov.edcr.feature.PlantationGreenStrip;
 import org.egov.edcr.feature.PlotArea;
 import org.egov.edcr.feature.PorticoService;
+import org.egov.edcr.feature.ProvisionService;
 import org.egov.edcr.feature.PublicWashroomService;
 import org.egov.edcr.feature.RainWaterHarvesting;
 import org.egov.edcr.feature.RampService;
@@ -397,6 +398,9 @@ public class PlanFeatureRepository {
         features.add(pf);
         
         pf = new PlanFeature(PublicWashroomService.class);
+        features.add(pf);
+        
+        pf = new PlanFeature(ProvisionService.class);
         features.add(pf);
         
         return features;
