@@ -135,6 +135,11 @@ public class HeightOfRoom extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
+		//disabled as per client request 30-Apr-2021
+		boolean flage=true;
+		if(flage) {
+			return pl;
+		}
 		Map<String, Integer> heightOfRoomFeaturesColor = pl.getSubFeatureColorCodesMaster().get("HeightOfRoom");
 		validate(pl);
 

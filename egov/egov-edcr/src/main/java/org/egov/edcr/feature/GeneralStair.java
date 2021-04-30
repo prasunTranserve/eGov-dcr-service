@@ -19,6 +19,7 @@ import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.common.entity.edcr.StairLanding;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.edcr.utility.Util;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -149,10 +150,12 @@ public class GeneralStair extends FeatureProcess {
 	public Plan process(Plan plan) {
 		validate(plan);
 		HashMap<String, String> errors = new HashMap<>();
+		
 		blk: for (Block block : plan.getBlocks()) {
 			int generalStairCount = 0;
-
 			if (block.getBuilding() != null) {
+				if(OdishaUtill.isStairRequired(plan, block))
+					continue;
 				/*
 				 * if (Util.checkExemptionConditionForBuildingParts(block) ||
 				 * Util.checkExemptionConditionForSmallPlotAtBlkLevel(planDetail.getPlot(),

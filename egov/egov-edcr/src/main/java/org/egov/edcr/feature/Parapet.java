@@ -63,6 +63,7 @@ import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.od.OdishaUtill;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -271,6 +272,9 @@ public class Parapet extends FeatureProcess {
 			Map<String, String> details = new HashMap<>();
 			details.put(RULE_NO, RULE_41_V);
 			details.put(DESCRIPTION, "General Stair Railling");
+			
+			if(OdishaUtill.isStairRequired(pl, b))
+				continue;
 
 			BigDecimal minHeight = BigDecimal.ZERO;
 

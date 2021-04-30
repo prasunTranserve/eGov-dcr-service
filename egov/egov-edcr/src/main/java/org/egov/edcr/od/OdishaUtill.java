@@ -794,4 +794,17 @@ public class OdishaUtill {
 		pl.getPlanInformation().setOccupancyPercentages(ocPercentage);
 	}
 
+	public static boolean isStairRequired(Plan pl, Block block) {
+		BigDecimal buildingHeight=block.getBuilding().getBuildingHeight();
+		OccupancyTypeHelper occupancyTypeHelper=pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		boolean flage=false;
+		if((DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.SEMI_DETACHED.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.ROW_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
+					) && buildingHeight.compareTo(new BigDecimal("15"))<0) {
+			flage=true;
+		}
+		
+		return flage;
+	}
 }

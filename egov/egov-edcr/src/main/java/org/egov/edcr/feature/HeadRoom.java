@@ -61,6 +61,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.utility.Util;
 import org.springframework.stereotype.Service;
 
@@ -81,6 +82,10 @@ public class HeadRoom extends FeatureProcess {
     	
         for (Block block : plan.getBlocks()) {
             if (block.getBuilding() != null && isGenralStairPersent(block)) {
+            	
+            	if(OdishaUtill.isStairRequired(plan, block))
+					continue;
+            	
                 ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
                 scrutinyDetail.addColumnHeading(1, RULE_NO);
                 scrutinyDetail.addColumnHeading(2, DESCRIPTION);

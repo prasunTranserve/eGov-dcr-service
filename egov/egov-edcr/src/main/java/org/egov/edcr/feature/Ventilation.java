@@ -88,7 +88,11 @@ public class Ventilation extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-
+		//disabled as per client request 30-Apr-2021
+				boolean flage=true;
+				if(flage) {
+					return pl;
+				}
 		for (Block b : pl.getBlocks()) {
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 			//scrutinyDetail.setKey("Common_Ventilation");
