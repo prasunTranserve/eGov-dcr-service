@@ -250,8 +250,6 @@ public class PlanService {
 	}
 
 	public void updateOdPlanInfo(Plan pl) {
-		if(pl.getPlanInfoProperties()==null || pl.getPlanInfoProperties().size()>1)
-			return;
 
 //    	//NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK_%s 
 //    	OdishaUtill.setPlanInfoBlkWise(pl, DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK);
