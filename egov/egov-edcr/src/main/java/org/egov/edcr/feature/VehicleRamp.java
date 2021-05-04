@@ -316,13 +316,17 @@ public class VehicleRamp extends FeatureProcess {
 			BigDecimal expectedLength = new BigDecimal("40");
 			String desc = "Ramp " + count + " length";
 			String type=getType(vehicleRampData);
-			if (vehicleRampData.length.compareTo(expectedLength) <= 0) {
+			BigDecimal height=BigDecimal.ZERO;
+			if(vehicleRampData.measurements!=null)
+				height=vehicleRampData.measurements.getHeight();
+			height=height.setScale(2, BigDecimal.ROUND_HALF_UP);
+			if (height.compareTo(expectedLength) <= 0) {
 				setReport(SUBRULE_40_8, desc, type, floor.getNumber() + "",
-						"Max " + expectedLength.toString(), vehicleRampData.length + "", Result.Accepted,
+						"Max " + expectedLength.toString(),height + "", Result.Accepted,
 						scrutinyDetail);
 			} else {
 				setReport(SUBRULE_40_8, desc, type, floor.getNumber() + "",
-						"Max " + expectedLength.toString(), vehicleRampData.length + "", Result.Not_Accepted,
+						"Max " + expectedLength.toString(), height+ "", Result.Not_Accepted,
 						scrutinyDetail);
 			}
 			count++;

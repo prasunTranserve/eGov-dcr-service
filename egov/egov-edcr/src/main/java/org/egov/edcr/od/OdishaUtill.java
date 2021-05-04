@@ -267,16 +267,34 @@ public class OdishaUtill {
 	}
 
 	public static void validateHeightOfTheCeilingOfUpperBasementDeduction(Plan pl, Block b, Floor f) {
-		if (f != null && f.getNumber() == -1) {
-			BigDecimal maxLength = BigDecimal.ZERO;
-			try {
-				maxLength = f.getHeightOfTheCeilingOfUpperBasement().stream().reduce(BigDecimal::max).get();
-			} catch (Exception e) {
-				// TODO: handle exception
+		if(isBasementParesent(b)) {
+			if (f != null && f.getNumber() == -1) {
+				BigDecimal maxLength = BigDecimal.ZERO;
+				try {
+					maxLength = f.getHeightOfTheCeilingOfUpperBasement().stream().reduce(BigDecimal::max).get();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(maxLength));
 			}
-			b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(maxLength));
-			;
+		}else {
+			if (f != null && f.getNumber() == 0) {
+				BigDecimal maxLength = BigDecimal.ZERO;
+				try {
+					maxLength = b.getPlinthHeight().stream().reduce(BigDecimal::max).get();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(maxLength));
+			}
 		}
+	}
+	
+	public static boolean isBasementParesent(Block blk) {
+		boolean flage=false;
+		if(blk.getBuilding().getFloorNumber(-1)!=null)
+			flage=true;
+		return flage;
 	}
 
 	public static BigDecimal roundUp(BigDecimal number) {

@@ -216,36 +216,38 @@ public class ProvisionService extends FeatureProcess {
 	private void validateCommercialActivity(Plan pl) {
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 
-		if (DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())
-				&& (DxfFileConstants.APARTMENT_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
-						|| DxfFileConstants.HOUSING_PROJECT.equals(occupancyTypeHelper.getSubtype().getCode()))) {
-			validateCommercialActivityWithRoadWidth(pl);
-			BigDecimal commercialBua = calculateBuildUpArea(pl, getCommercialSubOccupancies());
-			BigDecimal commercialActivityPercentage = commercialBua
-					.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4).multiply(BigDecimal.valueOf(100))
-					.setScale(SCALE, BigDecimal.ROUND_HALF_UP);
-			if (COMERCIAL_ACTIVITY_MAX_PERCENTAGE.compareTo(commercialActivityPercentage) <= 0) {
-				// Mixed Use
-			}
-			
-			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
-			scrutinyDetail.addColumnHeading(1, RULE_NO);
-			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
-			scrutinyDetail.addColumnHeading(3, REQUIRED);
-			scrutinyDetail.addColumnHeading(4, PROVIDED);
-			scrutinyDetail.addColumnHeading(5, STATUS);
-			scrutinyDetail.setKey("Common_Commercial Activity Provisions");
+		if(occupancyTypeHelper!=null) {
+			if (DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())
+					&& (DxfFileConstants.APARTMENT_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+							|| DxfFileConstants.HOUSING_PROJECT.equals(occupancyTypeHelper.getSubtype().getCode()))) {
+				validateCommercialActivityWithRoadWidth(pl);
+				BigDecimal commercialBua = calculateBuildUpArea(pl, getCommercialSubOccupancies());
+				BigDecimal commercialActivityPercentage = commercialBua
+						.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4).multiply(BigDecimal.valueOf(100))
+						.setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+				if (COMERCIAL_ACTIVITY_MAX_PERCENTAGE.compareTo(commercialActivityPercentage) <= 0) {
+					// Mixed Use
+				}
+				
+				ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+				scrutinyDetail.addColumnHeading(1, RULE_NO);
+				scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+				scrutinyDetail.addColumnHeading(3, REQUIRED);
+				scrutinyDetail.addColumnHeading(4, PROVIDED);
+				scrutinyDetail.addColumnHeading(5, STATUS);
+				scrutinyDetail.setKey("Common_Commercial Activity Provisions");
 
-			Map<String, String> details = new HashMap<>();
-			details.put(RULE_NO, "");
-			details.put(DESCRIPTION, "Commercial activity percentage");
-			details.put(REQUIRED, "Max 5%");
-			details.put(PROVIDED, commercialActivityPercentage.toString());
-			details.put(STATUS, Result.Accepted.getResultVal());
-			scrutinyDetail.getDetail().add(details);
-			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-		} else if (DxfFileConstants.OC_MIXED_USE.equals(occupancyTypeHelper.getType().getCode())) {
-			validateCommercialActivityWithRoadWidth(pl);
+				Map<String, String> details = new HashMap<>();
+				details.put(RULE_NO, "");
+				details.put(DESCRIPTION, "Commercial activity percentage");
+				details.put(REQUIRED, "Max 5%");
+				details.put(PROVIDED, commercialActivityPercentage.toString());
+				details.put(STATUS, Result.Accepted.getResultVal());
+				scrutinyDetail.getDetail().add(details);
+				pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+			} else if (DxfFileConstants.OC_MIXED_USE.equals(occupancyTypeHelper.getType().getCode())) {
+				validateCommercialActivityWithRoadWidth(pl);
+			}
 		}
 
 	}

@@ -111,22 +111,25 @@ public class Parapet extends FeatureProcess {
 				details.put(DESCRIPTION, "Special Lift Handrail");
 
 				BigDecimal minHeight = BigDecimal.ZERO;
-				if (b.getGenralParapets() != null && !b.getGenralParapets().isEmpty()) {
-					minHeight = b.getGenralParapets().stream().reduce(BigDecimal::min).get();
-					if (minHeight.compareTo(new BigDecimal("1")) == 0) {
-						details.put(REQUIRED, "Height = 1");
-						details.put(PROVIDED, "Height = " + minHeight);
-						details.put(STATUS, Result.Accepted.getResultVal());
-						scrutinyDetail.getDetail().add(details);
-						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
-					} else {
-						details.put(REQUIRED, "Height = 1");
-						details.put(PROVIDED, "Height = " + minHeight);
-						details.put(STATUS, Result.Not_Accepted.getResultVal());
-						scrutinyDetail.getDetail().add(details);
-						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-					}
+				try {
+					minHeight = b.getSpecialLiftHandrails().stream().reduce(BigDecimal::min).get();
+				}catch (Exception e) {
+					// TODO: handle exception
+				}
+				if (minHeight.compareTo(new BigDecimal("1")) == 0) {
+					details.put(REQUIRED, "Height = 1");
+					details.put(PROVIDED, "Height = " + minHeight);
+					details.put(STATUS, Result.Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
+				} else {
+					details.put(REQUIRED, "Height = 1");
+					details.put(PROVIDED, "Height = " + minHeight);
+					details.put(STATUS, Result.Not_Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
 			
 			}
@@ -314,15 +317,16 @@ public class Parapet extends FeatureProcess {
 	}
 
 	private void prepareParapet(Plan pl) {
-		List<BigDecimal> genralStairParapets = new ArrayList<BigDecimal>();
-		List<BigDecimal> dARailingParapets = new ArrayList<BigDecimal>();
-		List<BigDecimal> genralParapets = new ArrayList<BigDecimal>();
-		List<BigDecimal> specialLiftHandrails = new ArrayList<BigDecimal>();
+		
 		List<Block> blocks=new ArrayList<>();
 		blocks.addAll(pl.getBlocks());
 		blocks.addAll(pl.getPublicWashroom());
 		blocks.addAll(pl.getOuthouse());
 		for (Block block : pl.getBlocks()) {
+			List<BigDecimal> genralStairParapets = new ArrayList<BigDecimal>();
+			List<BigDecimal> dARailingParapets = new ArrayList<BigDecimal>();
+			List<BigDecimal> genralParapets = new ArrayList<BigDecimal>();
+			List<BigDecimal> specialLiftHandrails = new ArrayList<BigDecimal>();
 			for (Measurement measurement : block.getParapetWithColor()) {
 				switch (measurement.getColorCode()) {
 				case COLOR_GENRAL_STAIR_CASE_RAILLING:

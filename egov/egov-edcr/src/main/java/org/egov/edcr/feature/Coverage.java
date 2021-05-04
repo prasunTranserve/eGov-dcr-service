@@ -100,18 +100,20 @@ public class Coverage extends FeatureProcess {
 
 	@Override
 	public Plan validate(Plan pl) {
-//        for (Block block : pl.getBlocks()) {
-//            if (block.getCoverage().isEmpty()) {
-//                pl.addError("coverageArea" + block.getNumber(), "Coverage Area for block " + block.getNumber() + " not Provided");
-//            }
-//        }
+		List<Block> list=pl.getBlocks();
+		list.addAll(pl.getOuthouse());
+        for (Block block : list) {
+            if (block.getCoverage().isEmpty()) {
+                pl.addError("coverageArea" + block.getNumber(), "Coverage Area for block " + block.getNumber() + " not Provided");
+            }
+        }
 		return pl;
 	}
 
 	@Override
 	public Plan process(Plan pl) {
-		validate(pl);
 		init(pl);
+		validate(pl);
 		BigDecimal totalCoverage = BigDecimal.ZERO;
 		BigDecimal totalCoverageArea = BigDecimal.ZERO;
 

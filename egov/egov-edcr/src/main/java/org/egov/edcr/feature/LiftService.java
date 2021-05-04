@@ -195,12 +195,12 @@ public class LiftService extends FeatureProcess {
 			if (totalDUAbove2Floor > 0) {
 				requiredCountWithRespectToDU = totalDUAbove2Floor / 20;
 				if ((totalDUAbove2Floor % 20) != 0)
-					requiredcount++;
+					requiredCountWithRespectToDU++;
 			}
 			if (requiredCountWithRespectToDU > requiredcount)
 				requiredcount = requiredCountWithRespectToDU;
 
-			if (totalDUAbove2Floor == getTotalEWSAndLIGDU(block)) {
+			if (totalDUAbove2Floor == getTotalEWSAndLIGDUAbove2Floor(block)) {
 				if (buildingHeight.compareTo(new BigDecimal("15")) <= 0) {
 					requiredcount = 0;
 				} else {
@@ -291,10 +291,19 @@ public class LiftService extends FeatureProcess {
 		return count;
 	}
 
+	private int getTotalEWSAndLIGDUAbove2Floor(Block block) {
+		int count = 0;
+		for (Floor floor : block.getBuilding().getFloors()) {
+			if (floor.getNumber() > 2)
+				count = count + floor.getEwsUnit().size() + floor.getLigUnit().size();
+		}
+		return count;
+	}
+
 	private int getTotalEWSAndLIGDU(Block block) {
 		int count = 0;
 		for (Floor floor : block.getBuilding().getFloors()) {
-			count = count + floor.getEwsUnit().size() + floor.getLigUnit().size();
+				count = count + floor.getEwsUnit().size() + floor.getLigUnit().size();
 		}
 		return count;
 	}
@@ -303,15 +312,25 @@ public class LiftService extends FeatureProcess {
 		boolean isMandatory = false;
 		OccupancyTypeHelper typeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		if (DxfFileConstants.OC_RESIDENTIAL.equals(typeHelper.getType().getCode())) {
-			if (getTotalDU(block) > 8)
-				isMandatory = true;
+			int totalDu = getTotalDU(block);
+			int ewsAndLIGDu = getTotalEWSAndLIGDU(block);
+			BigDecimal buildingHeight = block.getBuilding().getBuildingHeight();
+
+			if (DxfFileConstants.EWS.equals(typeHelper.getSubtype().getCode())
+					|| DxfFileConstants.LOW_INCOME_HOUSING.equals(typeHelper.getSubtype().getCode()) || totalDu == ewsAndLIGDu) {
+				if (buildingHeight.compareTo(new BigDecimal("15")) >= 0)
+					isMandatory = true;
+			} else {
+				if (getTotalDU(block) > 8 && buildingHeight.compareTo(new BigDecimal("10")) >= 0)
+					isMandatory = true;
+			}
 		} else if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL.equals(typeHelper.getType().getCode())
 				|| DxfFileConstants.OC_EDUCATION.equals(typeHelper.getType().getCode())
 				|| DxfFileConstants.OC_TRANSPORTATION.equals(typeHelper.getType().getCode())) {
 			isMandatory = true;
 		}
 
-		if(isMandatory) {
+		if (isMandatory) {
 			for (Floor floor : block.getBuilding().getFloors()) {
 				List<Lift> lifts = getLifts(floor, COLOR_SPECIAL_LEFT);
 				// checkCount
@@ -330,15 +349,17 @@ public class LiftService extends FeatureProcess {
 					BigDecimal width = measurement.getHeight().setScale(2, BigDecimal.ROUND_HALF_UP);
 					BigDecimal requiredWidth = new BigDecimal("2");
 					boolean isWidthAccepted = width.compareTo(requiredWidth) >= 0;
-					setReportOutputDetails(SUBRULE_118,"Minimum width of Special lift " + count, floor.getNumber().intValue(),
-							requiredWidth + "", width + "", isWidthAccepted, scrutinyDetail);
+					setReportOutputDetails(SUBRULE_118, "Minimum width of Special lift " + count,
+							floor.getNumber().intValue(), requiredWidth + "", width + "", isWidthAccepted,
+							scrutinyDetail);
 
 					// depth validation
 					BigDecimal depth = measurement.getWidth().setScale(2, BigDecimal.ROUND_HALF_UP);
 					BigDecimal requiredDepth = new BigDecimal("1.1");
 					boolean isDepthAccepted = depth.compareTo(requiredDepth) >= 0;
-					setReportOutputDetails(SUBRULE_118,"Minimum depth of Special lift " + count, floor.getNumber().intValue(),
-							requiredDepth + "", depth + "", isDepthAccepted, scrutinyDetail);
+					setReportOutputDetails(SUBRULE_118, "Minimum depth of Special lift " + count,
+							floor.getNumber().intValue(), requiredDepth + "", depth + "", isDepthAccepted,
+							scrutinyDetail);
 
 					count++;
 				}
@@ -359,8 +380,8 @@ public class LiftService extends FeatureProcess {
 	}
 
 	private void validateCar(Plan pl, Block block, ScrutinyDetail scrutinyDetail) {
-		int countRequired = getRequiredCount(pl,block);
-		if(countRequired>0) {
+		int countRequired = getRequiredCount(pl, block);
+		if (countRequired > 0) {
 			for (Floor floor : block.getBuilding().getFloors()) {
 				List<Lift> lifts = getLifts(floor, COLOR_CAR_LEFT);
 				// checkCount
@@ -430,7 +451,6 @@ public class LiftService extends FeatureProcess {
 		return OdishaUtill.getRoofTopParking(pl);
 	}
 
-	
 	private void setReportOutputDetails(String ruleNo, String ruleDesc, int floor, String expected, String actual,
 			boolean isAccepted, ScrutinyDetail scrutinyDetail) {
 		Map<String, String> details = new HashMap<>();

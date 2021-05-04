@@ -766,4 +766,6 @@ public class DxfFileConstants {
 	public static final String No_Of_WARD="No_Of_WARD";
 	
 	public static final String IS_BOARDING_FACILITY_PRESENT="IS_BOARDING_FACILITY_PRESENT";
+	
+	public static final String BLT_UP_AREA_ERROR_MSG="Please cross verify *_BLT_UP_AREA layer";
 }

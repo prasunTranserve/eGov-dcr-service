@@ -10,6 +10,10 @@ public class FeeCalculationUtill {
 
 	public static void checkShelterFeePrevalidation(Plan pl) {
 		OccupancyTypeHelper helper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		
+		if(helper==null || helper.getType()==null || helper.getSubtype()==null)
+			return;
+		
 		boolean isShelterFeeRequired = false;
 		BigDecimal totalEWSFeeEffectiveArea = BigDecimal.ZERO;
 

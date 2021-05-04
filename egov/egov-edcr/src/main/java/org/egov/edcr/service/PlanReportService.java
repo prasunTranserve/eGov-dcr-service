@@ -1042,13 +1042,15 @@ public class PlanReportService {
 
 	private List<OccupancyReport> buildSubOccupanciesReport(Map<String, OccupancyPercentage> occupancyPercentage) {
 		List<OccupancyReport> occupanciesReport = new ArrayList<OccupancyReport>();
-		for(String oc : occupancyPercentage.keySet()) {
-			OccupancyPercentage ocp = occupancyPercentage.get(oc);
-			OccupancyReport ort = new OccupancyReport();
-			ort.setOccupancy(ocp.getOccupancy());
-			ort.setSubOccupancy(ocp.getSubOccupancy());
-			ort.setPercentage(ocp.getPercentage());
-			occupanciesReport.add(ort);
+		if(occupancyPercentage!=null) {
+			for(String oc : occupancyPercentage.keySet()) {
+				OccupancyPercentage ocp = occupancyPercentage.get(oc);
+				OccupancyReport ort = new OccupancyReport();
+				ort.setOccupancy(ocp.getOccupancy());
+				ort.setSubOccupancy(ocp.getSubOccupancy());
+				ort.setPercentage(ocp.getPercentage());
+				occupanciesReport.add(ort);
+			}
 		}
 		return occupanciesReport;
 	}
