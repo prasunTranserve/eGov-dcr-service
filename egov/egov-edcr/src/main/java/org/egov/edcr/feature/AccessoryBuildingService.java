@@ -169,6 +169,10 @@ public class AccessoryBuildingService extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan plan) {
+		boolean flage =true;//skip this feature not in scop
+		if(flage) {
+			return plan;
+		}
 		validate(plan);
 		processAreaOfAccessoryBlock(plan);
 		processHeightOfAccessoryBlock(plan);
