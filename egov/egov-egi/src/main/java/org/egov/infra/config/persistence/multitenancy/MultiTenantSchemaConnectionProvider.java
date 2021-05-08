@@ -91,6 +91,7 @@ public class MultiTenantSchemaConnectionProvider implements MultiTenantConnectio
 
     @Override
     public void releaseConnection(String tenantId, Connection connection) throws SQLException {
+    	System.out.println("releaseConnection : tenantId "+tenantId);
         try {
             connection.setSchema(tenantId);
         } catch (SQLException e) {
