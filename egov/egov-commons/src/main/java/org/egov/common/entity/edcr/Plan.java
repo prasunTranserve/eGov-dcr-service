@@ -60,6 +60,7 @@ import java.util.Map;
 
 import javax.persistence.Transient;
 
+import org.egov.common.entity.ApplicationType;
 import org.egov.common.entity.bpa.SubOccupancy;
 import org.egov.common.entity.bpa.Usage;
 
@@ -86,7 +87,7 @@ public class Plan implements Serializable {
 	 * decides on what date scrutiny should be done
 	 */
 	private Date asOnDate;
-
+	private ApplicationType applicationType;
 	/**
 	 * Planinformation captures the declarations of the plan.Plan information
 	 * captures the boundary, building location details,surrounding building NOC's
@@ -727,6 +728,15 @@ public class Plan implements Serializable {
 	public void setAmmenity(Ammenity ammenity) {
 		this.ammenity = ammenity;
 	}
+
+	public ApplicationType getApplicationType() {
+		return applicationType;
+	}
+
+	public void setApplicationType(ApplicationType applicationType) {
+		this.applicationType = applicationType;
+	}
+	
 	
 	
 }

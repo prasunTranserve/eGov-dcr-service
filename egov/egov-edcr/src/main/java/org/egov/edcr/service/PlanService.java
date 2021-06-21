@@ -114,6 +114,8 @@ public class PlanService {
 			execution = end - start;
 			LOG.info("Total time taken to extract plan : " + execution);
 			if (!isAborted) {
+				plan.setApplicationType(
+						org.egov.common.entity.ApplicationType.valueOf(dcrApplication.getApplicationType().name()));
 				plan.setMdmsMasterData(dcrApplication.getMdmsMasterData());
 				plan.setThirdPartyUserTenantld(dcrApplication.getThirdPartyUserTenant());
 				// plan.getErrors().clear();
@@ -229,8 +231,8 @@ public class PlanService {
 		if (pl == null || pl.getBlocks() == null || pl.getBlocks().size() == 0
 				|| pl.getErrors().get("PLOT_BOUNDARY") != null)
 			flage = true;
-		if(pl.getPlanInfoProperties() ==null || pl.getPlanInfoProperties().size()<2)
-			flage=true;
+		if (pl.getPlanInfoProperties() == null || pl.getPlanInfoProperties().size() < 2)
+			flage = true;
 		return flage;
 	}
 
@@ -522,6 +524,26 @@ public class PlanService {
 			}
 		}
 
+		// PROJECT_VALUE_IN_INR_IF_EIDP_FEE_IS_APPLICABLE_FOR_PROJECT
+		String projectValueForEIDP = pl.getPlanInfoProperties()
+				.get(PROJECT_VALUE_IN_INR_IF_EIDP_FEE_IS_APPLICABLE_FOR_PROJECT);
+		try {
+			pl.getPlanInformation().setProjectValueForEIDP(
+					new BigDecimal(projectValueForEIDP));
+		} catch (Exception e) {
+			if (!NA.equals(projectValueForEIDP)) {
+				pl.addError("projectValueForEIDP",
+						"PROJECT_VALUE_IN_INR_IF_EIDP_FEE_IS_APPLICABLE_FOR_PROJECT is mandatory in plan info.");
+			}
+		}
+
+		//IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING
+		String isProjectUndertakingByGovt = pl.getPlanInfoProperties().get(IS_LAND_REGULARIZED);
+		if (YES.equals(isProjectUndertakingByGovt) || NO.equals(isProjectUndertakingByGovt)) {
+			pl.getPlanInformation().setIsProjectUndertakingByGovt(isProjectUndertakingByGovt);
+		} else {
+			pl.addError("isProjectUndertakingByGovt", "IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING is mandatory in plan info.");
+		}
 	}
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {

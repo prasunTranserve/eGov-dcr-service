@@ -69,6 +69,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
+import org.egov.common.entity.ApplicationType;
 import org.egov.common.entity.dcr.helper.OccupancyHelperDetail;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Building;
@@ -1253,13 +1254,23 @@ public class Far extends FeatureProcess {
 		}
 
 		// far validation
-
+		BigDecimal permissableFar=BigDecimal.ZERO;
 		if (pl.getFarDetails() != null && pl.getFarDetails().getPermissableFar() != null
 				&& pl.getFarDetails().getPermissableFar() > 0) {
-			isAccepted = far.compareTo(new BigDecimal(pl.getFarDetails().getPermissableFar())) <= 0;
+			permissableFar=new BigDecimal(pl.getFarDetails().getPermissableFar());
+			permissableFar=permissableFar.setScale(2,BigDecimal.ROUND_HALF_UP);
+		}
+		
+		if(ApplicationType.OCCUPANCY_CERTIFICATE.equals(pl.getApplicationType())) {
+			permissableFar=permissableFar.multiply(new BigDecimal("1.10"));
+		}
+		
+		if (pl.getFarDetails() != null && pl.getFarDetails().getPermissableFar() != null
+				&& pl.getFarDetails().getPermissableFar() > 0) {
+			isAccepted = far.compareTo(permissableFar) <= 0;
 		} else
 			isAccepted = true;
-
+		
 		String occupancyName = occupancyType.getType().getName();
 		buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
 		checkFarBanchMarkValue(pl);
@@ -1636,8 +1647,13 @@ public class Far extends FeatureProcess {
 			details.put(BASE_FAR, pl.getFarDetails().getBaseFar().toString());
 		else
 			details.put(BASE_FAR, DxfFileConstants.NA);
-		if (pl.getFarDetails() != null && pl.getFarDetails().getPermissableFar() != null)
-			details.put(MAX_PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString());
+		if (pl.getFarDetails() != null && pl.getFarDetails().getPermissableFar() != null) {
+			String str=" (10% deviation allowed)";
+			if(ApplicationType.OCCUPANCY_CERTIFICATE.equals(pl.getApplicationType()))
+				details.put(MAX_PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString()+str);
+			else
+				details.put(MAX_PERMISSIBLE, pl.getFarDetails().getPermissableFar().toString());
+		}
 		else
 			details.put(MAX_PERMISSIBLE, DxfFileConstants.NA);
 

@@ -252,6 +252,10 @@ public class PlanInformation implements Serializable {
     
     private Map<String, OccupancyPercentage> occupancyPercentages;
     
+    private BigDecimal projectValueForEIDP;
+    
+    private String isProjectUndertakingByGovt;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -1003,5 +1007,22 @@ public class PlanInformation implements Serializable {
 	public void setOccupancyPercentages(Map<String, OccupancyPercentage> occupancyPercentages) {
 		this.occupancyPercentages = occupancyPercentages;
 	}
+
+	public BigDecimal getProjectValueForEIDP() {
+		return projectValueForEIDP;
+	}
+
+	public void setProjectValueForEIDP(BigDecimal projectValueForEIDP) {
+		this.projectValueForEIDP = projectValueForEIDP;
+	}
+
+	public String getIsProjectUndertakingByGovt() {
+		return isProjectUndertakingByGovt;
+	}
+
+	public void setIsProjectUndertakingByGovt(String isProjectUndertakingByGovt) {
+		this.isProjectUndertakingByGovt = isProjectUndertakingByGovt;
+	}
+	
 
 }
