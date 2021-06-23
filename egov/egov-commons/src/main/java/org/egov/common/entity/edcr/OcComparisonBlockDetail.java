@@ -64,6 +64,30 @@ public class OcComparisonBlockDetail {
     private BigDecimal hgtFromGroundPermit = BigDecimal.ZERO;;
 
     private List<OcComparisonReportFloorDetail> comparisonReportFloorDetails = new ArrayList<>();
+    
+    private BigDecimal minFrontOc = BigDecimal.ZERO;
+    
+    private BigDecimal minFrontPermit = BigDecimal.ZERO;
+    
+    private BigDecimal minRearOc;
+    
+    private BigDecimal minRearPermit;
+
+    private BigDecimal minSide1Oc;
+
+    private BigDecimal minSide1Permit;
+    
+    private BigDecimal minSide2Oc;
+
+    private BigDecimal minSide2Permit;
+
+    private BigDecimal totalCumulativeFrontAndRearOc = BigDecimal.ZERO;
+
+    private BigDecimal totalCumulativeFrontAndRearPermit = BigDecimal.ZERO;
+    
+    private BigDecimal totalCumulativeSideOc = BigDecimal.ZERO;
+    
+    private BigDecimal totalCumulativeSidePermit = BigDecimal.ZERO;
 
     public Long getNumber() {
         return number;
@@ -113,4 +137,101 @@ public class OcComparisonBlockDetail {
         this.comparisonReportFloorDetails = comparisonReportFloorDetails;
     }
 
+	public BigDecimal getMinFrontOc() {
+		return minFrontOc;
+	}
+
+	public void setMinFrontOc(BigDecimal minFrontOc) {
+		this.minFrontOc = minFrontOc;
+	}
+
+	public BigDecimal getMinFrontPermit() {
+		return minFrontPermit;
+	}
+
+	public void setMinFrontPermit(BigDecimal minFrontPermit) {
+		this.minFrontPermit = minFrontPermit;
+	}
+
+	public BigDecimal getTotalCumulativeFrontAndRearOc() {
+		return totalCumulativeFrontAndRearOc;
+	}
+
+	public void setTotalCumulativeFrontAndRearOc(BigDecimal totalCumulativeFrontAndRearOc) {
+		this.totalCumulativeFrontAndRearOc = totalCumulativeFrontAndRearOc;
+	}
+
+	public BigDecimal getTotalCumulativeFrontAndRearPermit() {
+		return totalCumulativeFrontAndRearPermit;
+	}
+
+	public void setTotalCumulativeFrontAndRearPermit(BigDecimal totalCumulativeFrontAndRearPermit) {
+		this.totalCumulativeFrontAndRearPermit = totalCumulativeFrontAndRearPermit;
+	}
+
+	public BigDecimal getTotalCumulativeSideOc() {
+		return totalCumulativeSideOc;
+	}
+
+	public void setTotalCumulativeSideOc(BigDecimal totalCumulativeSideOc) {
+		this.totalCumulativeSideOc = totalCumulativeSideOc;
+	}
+
+	public BigDecimal getTotalCumulativeSidePermit() {
+		return totalCumulativeSidePermit;
+	}
+
+	public void setTotalCumulativeSidePermit(BigDecimal totalCumulativeSidePermit) {
+		this.totalCumulativeSidePermit = totalCumulativeSidePermit;
+	}
+
+	public BigDecimal getMinRearOc() {
+		return minRearOc;
+	}
+
+	public void setMinRearOc(BigDecimal minRearOc) {
+		this.minRearOc = minRearOc;
+	}
+
+	public BigDecimal getMinRearPermit() {
+		return minRearPermit;
+	}
+
+	public void setMinRearPermit(BigDecimal minRearPermit) {
+		this.minRearPermit = minRearPermit;
+	}
+
+	public BigDecimal getMinSide1Oc() {
+		return minSide1Oc;
+	}
+
+	public void setMinSide1Oc(BigDecimal minSide1Oc) {
+		this.minSide1Oc = minSide1Oc;
+	}
+
+	public BigDecimal getMinSide1Permit() {
+		return minSide1Permit;
+	}
+
+	public void setMinSide1Permit(BigDecimal minSide1Permit) {
+		this.minSide1Permit = minSide1Permit;
+	}
+
+	public BigDecimal getMinSide2Oc() {
+		return minSide2Oc;
+	}
+
+	public void setMinSide2Oc(BigDecimal minSide2Oc) {
+		this.minSide2Oc = minSide2Oc;
+	}
+
+	public BigDecimal getMinSide2Permit() {
+		return minSide2Permit;
+	}
+
+	public void setMinSide2Permit(BigDecimal minSide2Permit) {
+		this.minSide2Permit = minSide2Permit;
+	}
+
+    
 }
