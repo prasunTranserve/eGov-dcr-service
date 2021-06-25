@@ -2,6 +2,7 @@ package org.egov.edcr.od;
 
 import java.math.BigDecimal;
 
+import org.egov.common.entity.ApplicationType;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
@@ -84,7 +85,10 @@ public class DataPreparation {
 			Double plotArea = pl.getPlot().getArea().doubleValue();
 			boolean isSpecialBuilding = DxfFileConstants.YES.equals(pl.getPlanInformation().getSpecialBuilding()) ? true
 					: false;
-			setBusinessService(pl, buildingHeight, plotArea, isSpecialBuilding);
+			if(ApplicationType.OCCUPANCY_CERTIFICATE.equals(pl.getApplicationType()))
+				setBusinessServiceOC(pl, buildingHeight, plotArea, isSpecialBuilding);
+			else
+				setBusinessService(pl, buildingHeight, plotArea, isSpecialBuilding);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -119,6 +123,35 @@ public class DataPreparation {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PM_MODULE_CODE);
 				} else if (buildingHeight > 30) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_DP_BP_MODULE_CODE);
+				}
+
+			}
+		}
+	}
+	
+	private static void setBusinessServiceOC(Plan pl, Double buildingHeight, Double plotArea, boolean isSpecialBuilding) {
+		if (null != buildingHeight && null != plotArea) {
+			if (!isSpecialBuilding) {
+				if ((buildingHeight <= 10) || (plotArea <= 500)) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PA_MODULE_CODE);
+				}
+				if ((buildingHeight > 10 && buildingHeight <= 15) || (plotArea > 500 && plotArea <= 4047)) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PO_MODULE_CODE);
+				}
+				if ((buildingHeight > 15 && buildingHeight <= 30) || (plotArea > 4047 && plotArea <= 10000)) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PM_MODULE_CODE);
+				}
+				if ((buildingHeight > 30) || (plotArea > 10000)) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_DP_BP_MODULE_CODE);
+				}
+
+			} else {
+				if (buildingHeight <= 15) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PO_MODULE_CODE);
+				} else if (buildingHeight > 15 && buildingHeight <= 30) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PM_MODULE_CODE);
+				} else if (buildingHeight > 30) {
+					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_DP_BP_MODULE_CODE);
 				}
 
 			}

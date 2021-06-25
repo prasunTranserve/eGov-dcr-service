@@ -748,6 +748,12 @@ public class DxfFileConstants {
 	public static final String BPA_PM_MODULE_CODE = "BPA3";
 	public static final String BPA_DP_BP_MODULE_CODE = "BPA4";
 	
+	
+	public static final String BPA_OC_PA_MODULE_CODE = "BPA_OC1";
+	public static final String BPA_OC_PO_MODULE_CODE = "BPA_OC2";
+	public static final String BPA_OC_PM_MODULE_CODE = "BPA_OC3";
+	public static final String BPA_OC_DP_BP_MODULE_CODE = "BPA_OC4";
+	
 	public static final String MINIMUM_DISTANCE_FROM_THE_ROAD_INTERSECTIONS="MINIMUM_DISTANCE_FROM_THE_ROAD_INTERSECTIONS";
 	public static final String MINIMUM_DISTANCE_OF_PROPERTY_LINE_FROM_THE_CENTRE_LINE_OF_THE_ROAD="MINIMUM_DISTANCE_OF_PROPERTY_LINE_FROM_THE_CENTRE_LINE_OF_THE_ROAD";
 	public static final String TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W="TOTAL_CONNECTED_LOAD_OF_THE_PROPOSED_PROJECT_IN_W";
