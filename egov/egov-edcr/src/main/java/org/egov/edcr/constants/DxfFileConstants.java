@@ -646,6 +646,7 @@ public class DxfFileConstants {
 	private static final Map<String, String> SERVICE_TYPE = new ConcurrentHashMap<>();
 	static {
 		SERVICE_TYPE.put("NEW_CONSTRUCTION", "New Construction");
+		SERVICE_TYPE.put("ALTERATION", "Alteration");
 	}
 
 	public static Map<String, String> getServiceTypeList() {
