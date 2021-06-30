@@ -79,6 +79,7 @@ public class OcComparisonReportService {
 	public static final String STATUS = "Status";
 	public static final String BLOCK = "Block";
 	public static final BigDecimal DEVIATION_VALUE = BigDecimal.valueOf(5);
+	public static final BigDecimal SETBACK_DEVIATION_VALUE = BigDecimal.valueOf(-10);
 	@Autowired
 	private CityService cityService;
 	@Autowired
@@ -950,7 +951,7 @@ public class OcComparisonReportService {
 		setback.addColumnHeading(2, "OC");
 		setback.addColumnHeading(3, "Permit");
 		setback.addColumnHeading(4, "Deviation in %");
-		//bldngHgt.addColumnHeading(3, "Status");
+		setback.addColumnHeading(5, "Status");
 		boolean isLowRisk=false;
 		if(permitPlan.getPlanInformation().isLowRiskBuilding()!=ocPlan.getPlanInformation().isLowRiskBuilding()) {
 			ocPlan.addError("Oc-setback", "Risk type of the project should be same as in buliding permit");
@@ -959,65 +960,132 @@ public class OcComparisonReportService {
 			isLowRisk=ocPlan.getPlanInformation().isLowRiskBuilding();
 		}
 		
-		if(isLowRisk) {
-			
-			Map<String, String> details = new HashMap<>();
-			details.put("Description", "Min Front setback ");
-			details.put("OC", blockDetail.getMinFrontOc().toString());
-			details.put("Permit", blockDetail.getMinFrontPermit().toString());
-			BigDecimal deviation = getDeviation(blockDetail.getMinFrontOc(),blockDetail.getMinFrontPermit());
-			details.put("Deviation in %", deviation.toString());
-			setback.getDetail().add(details);
-			
-			Map<String, String> details1 = new HashMap<>();
-			details1.put("Description", "Total cumulative Front and rear Setback ");
-			details1.put("OC", blockDetail.getTotalCumulativeFrontAndRearOc().toString());
-			details1.put("Permit", blockDetail.getTotalCumulativeFrontAndRearPermit().toString());
-			BigDecimal deviation1 = getDeviation(blockDetail.getTotalCumulativeFrontAndRearOc(),blockDetail.getTotalCumulativeFrontAndRearPermit());
-			details1.put("Deviation in %", deviation1.toString());
-			setback.getDetail().add(details1);
-			
-			Map<String, String> details2 = new HashMap<>();
-			details2.put("Description", "Total cumulative side Setback ");
-			details2.put("OC", blockDetail.getTotalCumulativeSideOc().toString());
-			details2.put("Permit", blockDetail.getTotalCumulativeSidePermit().toString());
-			BigDecimal deviation2 = getDeviation(blockDetail.getTotalCumulativeSideOc(),blockDetail.getTotalCumulativeSidePermit());
-			details2.put("Deviation in %", deviation2.toString());
-			setback.getDetail().add(details2);
+//		if(isLowRisk) {
+//			
+//			Map<String, String> details = new HashMap<>();
+//			details.put("Description", "Min Front setback ");
+//			details.put("OC", blockDetail.getMinFrontOc().toString());
+//			details.put("Permit", blockDetail.getMinFrontPermit().toString());
+//			BigDecimal deviation = getDeviation(blockDetail.getMinFrontOc(),blockDetail.getMinFrontPermit());
+//			details.put("Deviation in %", deviation.toString());
+//			details.put("Status",
+//					deviation.compareTo(SETBACK_DEVIATION_VALUE) <= 0 ? Result.Accepted.getResultVal()
+//							: Result.Not_Accepted.getResultVal());
+//			setback.getDetail().add(details);
+//			
+//			Map<String, String> details1 = new HashMap<>();
+//			details1.put("Description", "Total cumulative Front and rear Setback ");
+//			details1.put("OC", blockDetail.getTotalCumulativeFrontAndRearOc().toString());
+//			details1.put("Permit", blockDetail.getTotalCumulativeFrontAndRearPermit().toString());
+//			BigDecimal deviation1 = getDeviation(blockDetail.getTotalCumulativeFrontAndRearOc(),blockDetail.getTotalCumulativeFrontAndRearPermit());
+//			details1.put("Deviation in %", deviation1.toString());
+//			details1.put("Status",
+//					deviation1.compareTo(SETBACK_DEVIATION_VALUE) <= 0 ? Result.Accepted.getResultVal()
+//							: Result.Not_Accepted.getResultVal());
+//			setback.getDetail().add(details1);
+//			
+//			Map<String, String> details2 = new HashMap<>();
+//			details2.put("Description", "Total cumulative side Setback ");
+//			details2.put("OC", blockDetail.getTotalCumulativeSideOc().toString());
+//			details2.put("Permit", blockDetail.getTotalCumulativeSidePermit().toString());
+//			BigDecimal deviation2 = getDeviation(blockDetail.getTotalCumulativeSideOc(),blockDetail.getTotalCumulativeSidePermit());
+//			details2.put("Deviation in %", deviation2.toString());
+//			details2.put("Status",
+//					deviation2.compareTo(SETBACK_DEVIATION_VALUE) <= 0 ? Result.Accepted.getResultVal()
+//							: Result.Not_Accepted.getResultVal());
+//			setback.getDetail().add(details2);
+//
+//		}else {
+//			Map<String, String> details = new HashMap<>();
+//			details.put("Description", "Min Front setback ");
+//			details.put("OC", blockDetail.getMinFrontOc().toString());
+//			details.put("Permit", blockDetail.getMinFrontPermit().toString());
+//			BigDecimal deviation = getDeviation(blockDetail.getMinFrontOc(),blockDetail.getMinFrontPermit());
+//			details.put("Deviation in %", deviation.toString());
+//			details.put("Status",
+//					deviation.compareTo(SETBACK_DEVIATION_VALUE) <= 0 ? Result.Accepted.getResultVal()
+//							: Result.Not_Accepted.getResultVal());
+//			setback.getDetail().add(details);
+//			
+//			Map<String, String> details1 = new HashMap<>();
+//			details1.put("Description", "Min Rear setback ");
+//			details1.put("OC", blockDetail.getMinRearOc().toString());
+//			details1.put("Permit", blockDetail.getMinRearPermit().toString());
+//			BigDecimal deviation1 = getDeviation(blockDetail.getMinRearOc(),blockDetail.getMinRearPermit());
+//			details1.put("Deviation in %", deviation1.toString());
+//			details1.put("Status",
+//					deviation1.compareTo(SETBACK_DEVIATION_VALUE) <= 0 ? Result.Accepted.getResultVal()
+//							: Result.Not_Accepted.getResultVal());
+//			setback.getDetail().add(details1);
+//			
+//			Map<String, String> details2 = new HashMap<>();
+//			details2.put("Description", "Min Side1 setback ");
+//			details2.put("OC", blockDetail.getMinSide1Oc().toString());
+//			details2.put("Permit", blockDetail.getMinSide1Permit().toString());
+//			BigDecimal deviation2 = getDeviation(blockDetail.getMinSide1Oc(),blockDetail.getMinSide1Permit());
+//			details2.put("Deviation in %", deviation2.toString());
+//			details2.put("Status",
+//					deviation2.compareTo(SETBACK_DEVIATION_VALUE) <= 0 ? Result.Accepted.getResultVal()
+//							: Result.Not_Accepted.getResultVal());
+//			setback.getDetail().add(details2);
+//			
+//			Map<String, String> details3 = new HashMap<>();
+//			details3.put("Description", "Min Side2 setback ");
+//			details3.put("OC", blockDetail.getMinSide1Oc().toString());
+//			details3.put("Permit", blockDetail.getMinSide1Permit().toString());
+//			BigDecimal deviation3 = getDeviation(blockDetail.getMinSide1Oc(),blockDetail.getMinSide1Permit());
+//			details3.put("Deviation in %", deviation3.toString());
+//			details3.put("Status",
+//					deviation3.compareTo(SETBACK_DEVIATION_VALUE) <= 0 ? Result.Accepted.getResultVal()
+//							: Result.Not_Accepted.getResultVal());
+//			setback.getDetail().add(details3);
+//		}
+		
+		
+		Map<String, String> details = new HashMap<>();
+		details.put("Description", "Min Front setback ");
+		details.put("OC", blockDetail.getMinFrontOc().toString());
+		details.put("Permit", blockDetail.getMinFrontPermit().toString());
+		BigDecimal deviation = getDeviation(blockDetail.getMinFrontOc(),blockDetail.getMinFrontPermit());
+		details.put("Deviation in %", deviation.abs().toString());
+		details.put("Status",
+				deviation.compareTo(SETBACK_DEVIATION_VALUE) >= 0 ? Result.Accepted.getResultVal()
+						: Result.Not_Accepted.getResultVal());
+		setback.getDetail().add(details);
+		
+		Map<String, String> details1 = new HashMap<>();
+		details1.put("Description", "Min Rear setback ");
+		details1.put("OC", blockDetail.getMinRearOc().toString());
+		details1.put("Permit", blockDetail.getMinRearPermit().toString());
+		BigDecimal deviation1 = getDeviation(blockDetail.getMinRearOc(),blockDetail.getMinRearPermit());
+		details1.put("Deviation in %", deviation1.abs().toString());
+		details1.put("Status",
+				deviation1.compareTo(SETBACK_DEVIATION_VALUE) >= 0 ? Result.Accepted.getResultVal()
+						: Result.Not_Accepted.getResultVal());
+		setback.getDetail().add(details1);
+		
+		Map<String, String> details2 = new HashMap<>();
+		details2.put("Description", "Min Side1 setback ");
+		details2.put("OC", blockDetail.getMinSide1Oc().toString());
+		details2.put("Permit", blockDetail.getMinSide1Permit().toString());
+		BigDecimal deviation2 = getDeviation(blockDetail.getMinSide1Oc(),blockDetail.getMinSide1Permit());
+		details2.put("Deviation in %", deviation2.abs().toString());
+		details2.put("Status",
+				deviation2.compareTo(SETBACK_DEVIATION_VALUE) >= 0 ? Result.Accepted.getResultVal()
+						: Result.Not_Accepted.getResultVal());
+		setback.getDetail().add(details2);
+		
+		Map<String, String> details3 = new HashMap<>();
+		details3.put("Description", "Min Side2 setback ");
+		details3.put("OC", blockDetail.getMinSide2Oc().toString());
+		details3.put("Permit", blockDetail.getMinSide2Permit().toString());
+		BigDecimal deviation3 = getDeviation(blockDetail.getMinSide2Oc(),blockDetail.getMinSide2Permit());
+		details3.put("Deviation in %", deviation3.abs().toString());
+		details3.put("Status",
+				deviation3.compareTo(SETBACK_DEVIATION_VALUE) >= 0 ? Result.Accepted.getResultVal()
+						: Result.Not_Accepted.getResultVal());
+		setback.getDetail().add(details3);
 
-		}else {
-			Map<String, String> details = new HashMap<>();
-			details.put("Description", "Min Front setback ");
-			details.put("OC", blockDetail.getMinFrontOc().toString());
-			details.put("Permit", blockDetail.getMinFrontPermit().toString());
-			BigDecimal deviation = getDeviation(blockDetail.getMinFrontOc(),blockDetail.getMinFrontPermit());
-			details.put("Deviation in %", deviation.toString());
-			setback.getDetail().add(details);
-			
-			Map<String, String> details1 = new HashMap<>();
-			details1.put("Description", "Min Rear setback ");
-			details1.put("OC", blockDetail.getMinRearOc().toString());
-			details1.put("Permit", blockDetail.getMinRearPermit().toString());
-			BigDecimal deviation1 = getDeviation(blockDetail.getMinRearOc(),blockDetail.getMinRearPermit());
-			details1.put("Deviation in %", deviation1.toString());
-			setback.getDetail().add(details1);
-			
-			Map<String, String> details2 = new HashMap<>();
-			details2.put("Description", "Min Side1 setback ");
-			details2.put("OC", blockDetail.getMinSide1Oc().toString());
-			details2.put("Permit", blockDetail.getMinSide1Permit().toString());
-			BigDecimal deviation2 = getDeviation(blockDetail.getMinSide1Oc(),blockDetail.getMinSide1Permit());
-			details2.put("Deviation in %", deviation2.toString());
-			setback.getDetail().add(details2);
-			
-			Map<String, String> details3 = new HashMap<>();
-			details3.put("Description", "Min Side2 setback ");
-			details3.put("OC", blockDetail.getMinSide1Oc().toString());
-			details3.put("Permit", blockDetail.getMinSide1Permit().toString());
-			BigDecimal deviation3 = getDeviation(blockDetail.getMinSide1Oc(),blockDetail.getMinSide1Permit());
-			details3.put("Deviation in %", deviation3.toString());
-			setback.getDetail().add(details3);
-		}
 		
 		return setback;
 	}
