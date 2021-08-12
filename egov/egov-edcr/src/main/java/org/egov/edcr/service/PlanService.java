@@ -538,7 +538,7 @@ public class PlanService {
 		}
 
 		//IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING
-		String isProjectUndertakingByGovt = pl.getPlanInfoProperties().get(IS_LAND_REGULARIZED);
+		String isProjectUndertakingByGovt = pl.getPlanInfoProperties().get(IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING);
 		if (YES.equals(isProjectUndertakingByGovt) || NO.equals(isProjectUndertakingByGovt)) {
 			pl.getPlanInformation().setIsProjectUndertakingByGovt(isProjectUndertakingByGovt);
 		} else {
