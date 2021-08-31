@@ -117,7 +117,7 @@ public class SupplyLineUtility extends FeatureProcess {
 		BigDecimal totalVol = BigDecimal.ZERO;
 		BigDecimal height = BigDecimal.ZERO;
 		BigDecimal totalRequiredVol = new BigDecimal("6");
-		if (supplyLine.getDistances() != null)
+		if (supplyLine.getDistances() != null && supplyLine.getDistances().get(COLOR_CODE_RECHARGING_PITS)!=null)
 			height = supplyLine.getDistances().get(COLOR_CODE_RECHARGING_PITS).size() > 0
 					? supplyLine.getDistances().get(COLOR_CODE_RECHARGING_PITS).get(0)
 					: BigDecimal.ZERO;

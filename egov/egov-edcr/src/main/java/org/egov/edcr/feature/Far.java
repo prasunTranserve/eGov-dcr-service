@@ -1280,7 +1280,7 @@ public class Far extends FeatureProcess {
 	private void checkFarBanchMarkValue(Plan pl) {
 		FarDetails farDetails=pl.getFarDetails();
 		
-		if(farDetails!=null && farDetails.getBaseFar()>0) {
+		if(farDetails!=null && farDetails.getBaseFar()!=null &&farDetails.getBaseFar()>0) {
 			if(farDetails.getProvidedFar()>farDetails.getBaseFar() && pl.getPlanInformation().getBenchmarkValuePerAcre().compareTo(BigDecimal.ZERO)<=0)
 				pl.addError("benchmarkValuePerAcre", "PER_ACRE_BENCHMARK_VALUE_OF_LAND Should be greater than zero.");
 		}
