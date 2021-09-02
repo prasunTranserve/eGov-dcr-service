@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 import org.egov.common.entity.ApplicationType;
 import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.ScrutinyDetail;
@@ -12,10 +14,36 @@ import org.egov.edcr.constants.DxfFileConstants;
 public class DataPreparation {
 
 	public static void updatePlanDetails(Plan pl) {
+		updateNmaData(pl);
 		updateVirtualBuildingHeight(pl);
 		updateSpecialBuilding(pl);
 		updateBusinessService(pl);
 		updateSubOccupancy(pl);
+	}
+	
+	private static void updateNmaData(Plan pl) {
+		StringBuffer numberOfStoreys=new StringBuffer();
+		StringBuffer buildingHeightExcludingMumty=new StringBuffer();
+		StringBuffer floorAreaInSquareMetresStoreyWise=new StringBuffer();
+		
+		for(Block block:pl.getBlocks()) {
+			if(block.getBuilding().getFloors()!=null) {
+				numberOfStoreys.append("block "+block.getNumber()+" "+block.getBuilding().getFloors().size()+" \r\n");
+				for(Floor floor:block.getBuilding().getFloors()) {
+					StringBuffer occupancyArea=new StringBuffer();
+					for(Occupancy occupancy:floor.getOccupancies()) {
+						if(occupancy.getTypeHelper()!=null & occupancy.getTypeHelper().getType()!=null)
+						occupancyArea.append(occupancy.getTypeHelper().getType().getName()+" "+ occupancy.getBuiltUpArea()+" \r\n");
+					}
+					floorAreaInSquareMetresStoreyWise.append("block "+block.getNumber()+" floor "+floor.getNumber()+" "+occupancyArea.toString()+" \r\n");
+				}
+			}
+			buildingHeightExcludingMumty.append("block"+block.getNumber()+" "+block.getBuilding().getBuildingHeight()+" \r\n");
+		}
+		pl.getPlanInformation().setNumberOfStoreys(numberOfStoreys.toString());
+		pl.getPlanInformation().setBuildingHeightExcludingMumty(buildingHeightExcludingMumty.toString());
+		pl.getPlanInformation().setBuildingHeightIncludingMumty(buildingHeightExcludingMumty.toString());
+		pl.getPlanInformation().setFloorAreaInSquareMetresStoreyWise(floorAreaInSquareMetresStoreyWise.toString());
 	}
 
 	private static void updateVirtualBuildingHeight(Plan pl) {

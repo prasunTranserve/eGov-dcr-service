@@ -609,8 +609,10 @@ public class PlanReportService {
 					occupancies.add(occ.getType().getName());
 			});
 			Set<String> distinctOccupancies = new HashSet<>(occupancies);
-			plan.getPlanInformation()
-					.setOccupancy(distinctOccupancies.stream().map(String::new).collect(Collectors.joining(",")));
+//			plan.getPlanInformation()
+//					.setOccupancy(distinctOccupancies.stream().map(String::new).collect(Collectors.joining(",")));
+			if(plan.getVirtualBuilding().getMostRestrictiveFarHelper()!=null && plan.getVirtualBuilding().getMostRestrictiveFarHelper().getType()!=null)
+				plan.getPlanInformation().setOccupancy(plan.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getName());
 		}
 		boolean reportStatus = false;
 		boolean finalReportStatus = true;

@@ -256,6 +256,14 @@ public class PlanInformation implements Serializable {
     
     private String isProjectUndertakingByGovt;
     
+    private String floorAreaInSquareMetresStoreyWise;
+    
+    private String buildingHeightExcludingMumty;
+    
+    private String buildingHeightIncludingMumty;
+    
+    private String numberOfStoreys;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -1023,6 +1031,39 @@ public class PlanInformation implements Serializable {
 	public void setIsProjectUndertakingByGovt(String isProjectUndertakingByGovt) {
 		this.isProjectUndertakingByGovt = isProjectUndertakingByGovt;
 	}
+
+	public String getFloorAreaInSquareMetresStoreyWise() {
+		return floorAreaInSquareMetresStoreyWise;
+	}
+
+	public void setFloorAreaInSquareMetresStoreyWise(String floorAreaInSquareMetresStoreyWise) {
+		this.floorAreaInSquareMetresStoreyWise = floorAreaInSquareMetresStoreyWise;
+	}
+
+	public String getBuildingHeightExcludingMumty() {
+		return buildingHeightExcludingMumty;
+	}
+
+	public void setBuildingHeightExcludingMumty(String buildingHeightExcludingMumty) {
+		this.buildingHeightExcludingMumty = buildingHeightExcludingMumty;
+	}
+
+	public String getBuildingHeightIncludingMumty() {
+		return buildingHeightIncludingMumty;
+	}
+
+	public void setBuildingHeightIncludingMumty(String buildingHeightIncludingMumty) {
+		this.buildingHeightIncludingMumty = buildingHeightIncludingMumty;
+	}
+
+	public String getNumberOfStoreys() {
+		return numberOfStoreys;
+	}
+
+	public void setNumberOfStoreys(String numberOfStoreys) {
+		this.numberOfStoreys = numberOfStoreys;
+	}
 	
 
+	
 }
