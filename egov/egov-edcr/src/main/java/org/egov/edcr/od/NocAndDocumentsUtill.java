@@ -24,24 +24,24 @@ public class NocAndDocumentsUtill {
 		List<String> list = new ArrayList<>();
 
 		if (pl.getPlanInformation().isLowRiskBuilding()) {
-			list.add(NOCConstants.OSHB_OR_DEVELOPMENT_AUTHORITY_NOC);
-			if (DxfFileConstants.ENVIRONMENTALLY_SENSITIVE_ZONE.equals(pl.getPlanInformation().getLandUseZone()))
-				list.add(NOCConstants.DEPUTY_FORST_OFFICEER_NOC);
+//			list.add(NOCConstants.OSHB_OR_DEVELOPMENT_AUTHORITY_NOC);
+//			if (DxfFileConstants.ENVIRONMENTALLY_SENSITIVE_ZONE.equals(pl.getPlanInformation().getLandUseZone()))
+//				list.add(NOCConstants.DEPUTY_FORST_OFFICEER_NOC);
 			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getNocFromAAI()))
 				list.add(NOCConstants.AAI_NOC);
 			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsProjectNearOfCentrallyProtectedMonument()))
 				list.add(NOCConstants.NMA_NOC);
-			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsProjectNearOfStateProtectedMonument()))
-				list.add(NOCConstants.STATE_ARCHAEOLOGY);
+//			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsProjectNearOfStateProtectedMonument()))
+//				list.add(NOCConstants.STATE_ARCHAEOLOGY);
 		} else {
 			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getNocFromAAI()))
 				list.add(NOCConstants.AAI_NOC);
 			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsProjectNearOfCentrallyProtectedMonument()))
 				list.add(NOCConstants.NMA_NOC);
-			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsProjectNearOfStateProtectedMonument()))
-				list.add(NOCConstants.STATE_ARCHAEOLOGY);
-			if (DxfFileConstants.ENVIRONMENTALLY_SENSITIVE_ZONE.equals(pl.getPlanInformation().getLandUseZone()))
-				list.add(NOCConstants.DEPUTY_FORST_OFFICEER_NOC);
+//			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsProjectNearOfStateProtectedMonument()))
+//				list.add(NOCConstants.STATE_ARCHAEOLOGY);
+//			if (DxfFileConstants.ENVIRONMENTALLY_SENSITIVE_ZONE.equals(pl.getPlanInformation().getLandUseZone()))
+//				list.add(NOCConstants.DEPUTY_FORST_OFFICEER_NOC);
 
 			OccupancyTypeHelper helper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 			String ocCode = "";
@@ -56,41 +56,44 @@ public class NocAndDocumentsUtill {
 				if (pl.getVirtualBuilding() != null)
 					buildUpArea = pl.getVirtualBuilding().getTotalBuitUpArea();
 			}
-			if (DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(ocCode)) {
-				if (buildUpArea.compareTo(new BigDecimal("150000")) > 0)
-					list.add(NOCConstants.ENVIRONMENT_CLEARANCE_NOC);
-			} else {
-				if (buildUpArea.compareTo(new BigDecimal("20000")) > 0)
-					list.add(NOCConstants.ENVIRONMENT_CLEARANCE_NOC);
-			}
+//			if (DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(ocCode)) {
+//				if (buildUpArea.compareTo(new BigDecimal("150000")) > 0)
+//					list.add(NOCConstants.ENVIRONMENT_CLEARANCE_NOC);
+//			} else {
+//				if (buildUpArea.compareTo(new BigDecimal("20000")) > 0)
+//					list.add(NOCConstants.ENVIRONMENT_CLEARANCE_NOC);
+//			}
 
-			if (buildUpArea.compareTo(new BigDecimal("500")) > 0)
-				list.add(NOCConstants.URBAN_LOCAL_BODIES_UNDER_H_AND_UD_NOC);
+//			if (buildUpArea.compareTo(new BigDecimal("500")) > 0)
+//				list.add(NOCConstants.URBAN_LOCAL_BODIES_UNDER_H_AND_UD_NOC);
+//
+//			list.add(NOCConstants.PUBLIC_HEALTH_ENGINEERING_ORGANIZATION_NOC);
 
-			list.add(NOCConstants.PUBLIC_HEALTH_ENGINEERING_ORGANIZATION_NOC);
-			list.add(NOCConstants.CENTRAL_GROUND_WATER_AUTHORITY_NOC);
+			// Need to handle from noc_approvel user if required need to send back to arch
+			// and arch will trigger the noc
+//			list.add(NOCConstants.CENTRAL_GROUND_WATER_AUTHORITY_NOC);
 
-			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getProjectNearOfStrategicBuildings())
-					&& buildingHeight.compareTo(new BigDecimal("10")) > 0) {
-				list.add(NOCConstants.POLICE_UNDER_HOME_DEPARTMENT_NOC);
-			}
+//			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getProjectNearOfStrategicBuildings())
+//					&& buildingHeight.compareTo(new BigDecimal("10")) > 0) {
+//				list.add(NOCConstants.POLICE_UNDER_HOME_DEPARTMENT_NOC);
+//			}
 
-			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsProposedConstructionNextToFloodEmbankment())) {
-				list.add(NOCConstants.WATER_RESOURCES_DEPARTMENT_NOC);
-			}
-			if (DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(ocCode)) {
-				list.add(NOCConstants.ODISHA_STATE_POLLUTION_CONTROL_BOARD_NOC);
-			}
+//			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsProposedConstructionNextToFloodEmbankment())) {
+//				list.add(NOCConstants.WATER_RESOURCES_DEPARTMENT_NOC);
+//			}
+//			if (DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(ocCode)) {
+//				list.add(NOCConstants.ODISHA_STATE_POLLUTION_CONTROL_BOARD_NOC);
+//			}
 
-			if (DxfFileConstants.YES
-					.equals(pl.getPlanInformation().getIsKisamOfLandRecordedAsAgricultureInRecordOfRights()))
-				list.add(NOCConstants.TEHSILDAR_OF_CONCERNED_MOUZA_UNDER_REVENUE_AND_DISASTER_MANGEMENT_NOC);
+//			if (DxfFileConstants.YES
+//					.equals(pl.getPlanInformation().getIsKisamOfLandRecordedAsAgricultureInRecordOfRights()))
+//				list.add(NOCConstants.TEHSILDAR_OF_CONCERNED_MOUZA_UNDER_REVENUE_AND_DISASTER_MANGEMENT_NOC);
+//
+//			if (DxfFileConstants.YES
+//					.equals(pl.getPlanInformation().getIsTheProjectAdjacentToHighwayAndHavingDirectAccessToIt())) {
+//				list.add(NOCConstants.NHAI_NOC);
+//			}
 
-			if (DxfFileConstants.YES
-					.equals(pl.getPlanInformation().getIsTheProjectAdjacentToHighwayAndHavingDirectAccessToIt())) {
-				list.add(NOCConstants.NHAI_NOC);
-
-			}
 			if (DxfFileConstants.YES.equals(pl.getPlanInformation().getIsTheProjectCloseToTheCoastalRegion())) {
 				list.add(NOCConstants.COASTAL_REGULATION_NOC);
 			}
@@ -199,7 +202,7 @@ public class NocAndDocumentsUtill {
 		}
 
 		pl.getPlanInformation().setRequiredNOCs(list);
-		
+
 		return list;
 
 	}
