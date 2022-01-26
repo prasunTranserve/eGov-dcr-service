@@ -60,7 +60,7 @@ public class GeneralStair extends FeatureProcess {
 				if (floor.getNumber() < 0) {
 					if (floor.getGeneralStairs() == null || !flageForStair2) {
 						plan.addError("MINIMUM_TWO_STAIR_Required" + block.getNumber() + "f" + floor.getNumber(),
-								"Minimum two GeneralStair are required in blook " + block.getNumber() + ""
+								"Minimum two GeneralStair are required in blook " + block.getNumber() + " floor "
 										+ floor.getNumber() + " but provided " + floor.getGeneralStairs().size());
 					}
 				} else {
@@ -69,7 +69,7 @@ public class GeneralStair extends FeatureProcess {
 								|| floor.getGeneralStairs().size() < requiredGenralStairPerFloor) {
 							plan.addError("MINIMUM_STAIR_Required" + block.getNumber() + "f" + floor.getNumber(),
 									"Minimum " + requiredGenralStairPerFloor + " GeneralStair are required in blook "
-											+ block.getNumber() + "" + floor.getNumber() + " but provided "
+											+ block.getNumber() + " floor " + floor.getNumber() + " but provided "
 											+ floor.getGeneralStairs().size());
 						}
 					}
