@@ -508,7 +508,7 @@ public class EdcrRestService {
                 if (!dcrAllowedExtenstions.contains(extension.toLowerCase())) {
                     return new ErrorDetail("BPA-02", "Please upload " + dcrAllowedExtenstions + " format file only");
                 } else if (file.getSize() > (Long.valueOf(maxAllowSizeInMB) * 1024 * 1024)) {
-                    return new ErrorDetail("BPA-04", "File size should not exceed 30 MB");
+                    return new ErrorDetail("BPA-04", "File size should not exceed 300 MB");
                 } /*
                    * else if (allowedExtenstions.contains(extension.toLowerCase()) && (!mimeTypes.contains(mimeType) ||
                    * StringUtils.countMatches(file.getOriginalFilename(), ".") > 1 || file.getOriginalFilename().contains("%00")))
