@@ -87,6 +87,8 @@ public class PlanService {
 	private OcComparisonService ocComparisonService;
 	@Autowired
 	private OcComparisonDetailService ocComparisonDetailService;
+	@Autowired
+	private ShortenedReportService shortenedReportService;
 
 	public Plan process(EdcrApplication dcrApplication, String applicationType) {
 		Map<String, String> cityDetails = specificRuleService.getCityDetails();
@@ -758,6 +760,8 @@ public class PlanService {
 			}
 			edcrApplicationDetail.setCreatedDate(new Date());
 			edcrApplicationDetail.setReportOutputId(reportOutput);
+			if (plan.getEdcrPassed())
+				edcrApplicationDetail.setShortenedreportOutputId(generateShortenedReport(plan, edcrApplication));
 			List<EdcrApplicationDetail> edcrApplicationDetails = new ArrayList<>();
 			edcrApplicationDetails.add(edcrApplicationDetail);
 			savePlanDetail(plan, edcrApplicationDetail);
@@ -850,5 +854,20 @@ public class PlanService {
 		} catch (IOException e) {
 			throw new ValidationException(Arrays.asList(new ValidationError("error", e.getMessage())));
 		}
+	}
+	
+	public FileStoreMapper generateShortenedReport(Plan plan, EdcrApplication dcrApplication) {
+		try {
+			InputStream reportOutputStream=shortenedReportService.generateReport(plan, dcrApplication);
+			final String fileName = dcrApplication.getApplicationNumber() + "-"+DxfFileConstants.SHORTENED_SCRUTINY_REPORT + ".pdf";
+
+			final FileStoreMapper fileStoreMapper = fileStoreService.store(reportOutputStream, fileName, "application/pdf",
+					DcrConstants.FILESTORE_MODULECODE);
+			
+			return fileStoreMapper;
+		}catch (Exception e) {
+			LOG.error("while genrating shortened report", e);
+		}
+		return null;
 	}
 }

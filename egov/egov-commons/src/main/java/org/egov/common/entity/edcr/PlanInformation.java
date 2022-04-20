@@ -268,6 +268,8 @@ public class PlanInformation implements Serializable {
     
     private BigDecimal numberOfTemporaryStructures=BigDecimal.ZERO;
     
+    private String shortenedReportFileStoreId;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -1084,5 +1086,12 @@ public class PlanInformation implements Serializable {
 		this.numberOfTemporaryStructures = numberOfTemporaryStructures;
 	}
 
-	
+	public String getShortenedReportFileStoreId() {
+		return shortenedReportFileStoreId;
+	}
+
+	public void setShortenedReportFileStoreId(String shortenedReportFileStoreId) {
+		this.shortenedReportFileStoreId = shortenedReportFileStoreId;
+	}
+
 }

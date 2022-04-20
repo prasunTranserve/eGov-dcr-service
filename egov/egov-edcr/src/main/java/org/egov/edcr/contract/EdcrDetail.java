@@ -60,6 +60,8 @@ public class EdcrDetail {
     private String updatedDxfFile;
 
     private String planReport;
+    
+    private String shortenedPlanReport;
 
     private String transactionNumber;
 
@@ -88,7 +90,7 @@ public class EdcrDetail {
     private String applicationSubType;
 
     private String comparisonEdcrNumber;
-
+    
     public String getPlanReport() {
         return planReport;
     }
@@ -224,5 +226,13 @@ public class EdcrDetail {
     public void setComparisonEdcrNumber(String comparisonEdcrNumber) {
         this.comparisonEdcrNumber = comparisonEdcrNumber;
     }
+
+	public String getShortenedPlanReport() {
+		return shortenedPlanReport;
+	}
+
+	public void setShortenedPlanReport(String shortenedPlanReport) {
+		this.shortenedPlanReport = shortenedPlanReport;
+	}
 
 }
