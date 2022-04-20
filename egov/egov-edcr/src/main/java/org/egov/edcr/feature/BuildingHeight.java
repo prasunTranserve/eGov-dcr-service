@@ -121,7 +121,7 @@ public class BuildingHeight extends FeatureProcess {
 				expectedResult = exptectedDistance.toString();
 			
 
-			if (actualDistance.compareTo(exptectedDistance) >= 0) {
+			if (exptectedDistance.compareTo(BigDecimal.ZERO)== 0 || actualDistance.compareTo(exptectedDistance) <= 0) {
 				Map<String, String> details = new HashMap<>();
 				details.put(RULE_NO, subRule);
 				details.put(DESCRIPTION, HEIGHT_OF_BUILDING + " for Block " + block.getNumber());

@@ -403,6 +403,12 @@ public class Far extends FeatureProcess {
 					blockWiseOccupancyTypes.add(occupancy.getTypeHelper());
 			}
 			Set<OccupancyTypeHelper> setOfBlockDistinctOccupancyTypes = new HashSet<>(blockWiseOccupancyTypes);
+			
+			//multiple Sub-Occupancies not allowed in one block
+			if(setOfBlockDistinctOccupancyTypes.size()>1) {
+				pl.addError("multiple_Occupancy_Type_b_"+blk.getNumber(), "Found sub-Occupancy "+setOfBlockDistinctOccupancyTypes.stream().map(o -> o.getSubtype()!=null?o.getSubtype().getName():null).collect(Collectors.toList())+" in block "+blk.getNumber()+", You cannot use multiple Sub-Occupancies in a single building block.");
+			}
+			
 			OccupancyTypeHelper mostRestrictiveFar = getMostRestrictiveFar(setOfBlockDistinctOccupancyTypes);
 			blk.getBuilding().setMostRestrictiveFarHelper(mostRestrictiveFar);
 
@@ -700,7 +706,7 @@ public class Far extends FeatureProcess {
 							flr.getNumber().toString(), occupancyTypeHelper));
 		}
 
-		if(flr.getNumber()>=0 && !DxfFileConstants.EWS.equals(occupancySubTypeHelperCode)) {
+		if(!DxfFileConstants.EWS.equals(occupancySubTypeHelperCode)) {
 			if (flr.getIsStiltFloor() || flr.getIsServiceFloor())
 				occupancy.setFloorArea((occupancy.getBuiltUpArea() == null ? BigDecimal.ZERO : occupancy.getBuiltUpArea())
 						.subtract(occupancy.getDeduction() == null ? BigDecimal.ZERO : occupancy.getDeduction())
@@ -1244,7 +1250,8 @@ public class Far extends FeatureProcess {
 			if (buildingHeight.compareTo(new BigDecimal("10")) > 0
 					|| pl.getPlot().getArea().compareTo(new BigDecimal("115")) > 0) {
 				generalCriteriasFar(pl.getFarDetails(), roadWidth);
-				pl.getFarDetails().setPermissableFar(pl.getFarDetails().getPermissableFar() + 0.25);
+//				pl.getFarDetails().setPermissableFar(pl.getFarDetails().getPermissableFar() + 0.25);
+				pl.getFarDetails().setPermissableFar(pl.getFarDetails().getPermissableFar());
 			}
 
 		} else if (DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())

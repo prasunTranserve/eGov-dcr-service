@@ -103,7 +103,8 @@ public class OdissaSetBackService extends FeatureProcess {
 	public Plan process(Plan pl) {
 
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-		
+		String serviceType = pl.getPlanInformation().getServiceType();
+
 		for (Block block : pl.getBlocks()) {
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
@@ -133,10 +134,10 @@ public class OdissaSetBackService extends FeatureProcess {
 					if (data.minSide2Expected.compareTo(new BigDecimal("6")) < 0)
 						data.minSide2Expected = new BigDecimal("6");
 
-					validateMinFrontSetBack(data, scrutinyDetail);
-					validateMinRearSetBack(data, scrutinyDetail);
-					validateMinSide1SetBack(data, scrutinyDetail);
-					validateMinSide2SetBack(data, scrutinyDetail);
+					validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+					validateMinRearSetBack(data, scrutinyDetail,serviceType);
+					validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+					validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 
 				} else if (DxfFileConstants.YES
 						.equals(pl.getPlanInformation().getBuildingUnderHazardousOccupancyCategory())) {
@@ -149,10 +150,10 @@ public class OdissaSetBackService extends FeatureProcess {
 					if (data.minSide2Expected.compareTo(new BigDecimal("6")) < 0)
 						data.minSide2Expected = new BigDecimal("6");
 
-					validateMinFrontSetBack(data, scrutinyDetail);
-					validateMinRearSetBack(data, scrutinyDetail);
-					validateMinSide1SetBack(data, scrutinyDetail);
-					validateMinSide2SetBack(data, scrutinyDetail);
+					validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+					validateMinRearSetBack(data, scrutinyDetail,serviceType);
+					validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+					validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 
 				} else {
 					if (DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())
@@ -206,11 +207,11 @@ public class OdissaSetBackService extends FeatureProcess {
 									.equals(occupancyTypeHelper.getSubtype().getCode())
 							|| DxfFileConstants.HORTICULTURE.equals(occupancyTypeHelper.getSubtype().getCode())
 							|| DxfFileConstants.SERI_CULTURE.equals(occupancyTypeHelper.getSubtype().getCode())) {
-						applyGeneralCriterias(pl, data, scrutinyDetail);
+						applyGeneralCriterias(pl, data, scrutinyDetail,serviceType);
 					} else if (DxfFileConstants.SHOP_CUM_RESIDENTIAL
 							.equals(occupancyTypeHelper.getSubtype().getCode())) {
 						// need to work for later as of now apply genral crt
-						applyGeneralCriterias(pl, data, scrutinyDetail);
+						applyGeneralCriterias(pl, data, scrutinyDetail,serviceType);
 					} else if (DxfFileConstants.GODOWNS.equals(occupancyTypeHelper.getSubtype().getCode())
 							|| DxfFileConstants.GOOD_STORAGE.equals(occupancyTypeHelper.getSubtype().getCode())
 							|| DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE
@@ -222,7 +223,7 @@ public class OdissaSetBackService extends FeatureProcess {
 							|| DxfFileConstants.WARE_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())) {
 						List<String> nocList = NocAndDocumentsUtill.updateNoc(pl);
 						if (nocList.contains(NOCConstants.FIRE_SERVICE_NOC)) {
-							applyGeneralCriterias(pl, data, scrutinyDetail);
+							applyGeneralCriterias(pl, data, scrutinyDetail,serviceType);
 						} else {
 							BigDecimal allSetbackvalue = BigDecimal.ZERO;
 							if (pl.getPlot().getArea().compareTo(new BigDecimal("500")) <= 0) {
@@ -243,10 +244,10 @@ public class OdissaSetBackService extends FeatureProcess {
 							if (allSetbackvalue.compareTo(data.minSide2Expected) > 0)
 								data.minSide2Expected = allSetbackvalue;
 
-							validateMinFrontSetBack(data, scrutinyDetail);
-							validateMinRearSetBack(data, scrutinyDetail);
-							validateMinSide1SetBack(data, scrutinyDetail);
-							validateMinSide2SetBack(data, scrutinyDetail);
+							validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+							validateMinRearSetBack(data, scrutinyDetail,serviceType);
+							validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+							validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 
 						}
 
@@ -258,19 +259,19 @@ public class OdissaSetBackService extends FeatureProcess {
 						data.minRearExpected = BigDecimal.ZERO;
 						data.minSide1Expected = BigDecimal.ZERO;
 						data.minSide2Expected = BigDecimal.ZERO;
-						validateMinFrontSetBack(data, scrutinyDetail);
-						validateMinRearSetBack(data, scrutinyDetail);
-						validateMinSide1SetBack(data, scrutinyDetail);
-						validateMinSide2SetBack(data, scrutinyDetail);
+						validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+						validateMinRearSetBack(data, scrutinyDetail,serviceType);
+						validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+						validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 					} else if (DxfFileConstants.CINEMA.equals(occupancyTypeHelper.getSubtype().getCode())) {
 						data.minFrontExpected = new BigDecimal("12");
 						data.minRearExpected = new BigDecimal("6");
 						data.minSide1Expected = new BigDecimal("6");
 						data.minSide2Expected = new BigDecimal("6");
-						validateMinFrontSetBack(data, scrutinyDetail);
-						validateMinRearSetBack(data, scrutinyDetail);
-						validateMinSide1SetBack(data, scrutinyDetail);
-						validateMinSide2SetBack(data, scrutinyDetail);
+						validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+						validateMinRearSetBack(data, scrutinyDetail,serviceType);
+						validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+						validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 					} else if (DxfFileConstants.MULTIPLEX.equals(occupancyTypeHelper.getSubtype().getCode())) {
 
 						BigDecimal noOfSeat = block.getNumberOfOccupantsOrUsersOrBedBlk();
@@ -286,10 +287,10 @@ public class OdissaSetBackService extends FeatureProcess {
 							data.minSide1Expected = new BigDecimal("6");
 							data.minSide2Expected = new BigDecimal("6");
 						}
-						validateMinFrontSetBack(data, scrutinyDetail);
-						validateMinRearSetBack(data, scrutinyDetail);
-						validateMinSide1SetBack(data, scrutinyDetail);
-						validateMinSide2SetBack(data, scrutinyDetail);
+						validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+						validateMinRearSetBack(data, scrutinyDetail,serviceType);
+						validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+						validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 
 					} else if (DxfFileConstants.AUDITORIUM.equals(occupancyTypeHelper.getSubtype().getCode())
 							|| DxfFileConstants.BANQUET_HALL.equals(occupancyTypeHelper.getSubtype().getCode())
@@ -318,10 +319,10 @@ public class OdissaSetBackService extends FeatureProcess {
 							data.minRearExpected = tempSetBack;
 							data.minSide1Expected = tempSetBack;
 							data.minSide2Expected = tempSetBack;
-							validateMinFrontSetBack(data, scrutinyDetail);
-							validateMinRearSetBack(data, scrutinyDetail);
-							validateMinSide1SetBack(data, scrutinyDetail);
-							validateMinSide2SetBack(data, scrutinyDetail);
+							validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+							validateMinRearSetBack(data, scrutinyDetail,serviceType);
+							validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+							validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 						} else {
 							generalCriterias(pl, block, data);
 						}
@@ -332,10 +333,10 @@ public class OdissaSetBackService extends FeatureProcess {
 						data.minSide1Expected = new BigDecimal("9");
 						data.minSide2Expected = new BigDecimal("9");
 
-						validateMinFrontSetBack(data, scrutinyDetail);
-						validateMinRearSetBack(data, scrutinyDetail);
-						validateMinSide1SetBack(data, scrutinyDetail);
-						validateMinSide2SetBack(data, scrutinyDetail);
+						validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+						validateMinRearSetBack(data, scrutinyDetail,serviceType);
+						validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+						validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 					} else if (DxfFileConstants.INDUSTRIAL_BUILDINGS_FACTORIES_WORKSHOPS_ETC
 							.equals(occupancyTypeHelper.getSubtype().getCode())
 							|| DxfFileConstants.NON_POLLUTING_INDUSTRIAL
@@ -368,10 +369,10 @@ public class OdissaSetBackService extends FeatureProcess {
 							data.minSide1Expected = tempSetback;
 							data.minSide2Expected = tempSetback;
 
-							validateMinFrontSetBack(data, scrutinyDetail);
-							validateMinRearSetBack(data, scrutinyDetail);
-							validateMinSide1SetBack(data, scrutinyDetail);
-							validateMinSide2SetBack(data, scrutinyDetail);
+							validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+							validateMinRearSetBack(data, scrutinyDetail,serviceType);
+							validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+							validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 						}
 					} else if (DxfFileConstants.IT_ITES_BUILDINGS.equals(occupancyTypeHelper.getSubtype().getCode())
 							|| DxfFileConstants.FLATTED_FACTORY.equals(occupancyTypeHelper.getSubtype().getCode())) {
@@ -384,10 +385,10 @@ public class OdissaSetBackService extends FeatureProcess {
 							data.minSide1Expected = tempSetback;
 							data.minSide2Expected = tempSetback;
 
-							validateMinFrontSetBack(data, scrutinyDetail);
-							validateMinRearSetBack(data, scrutinyDetail);
-							validateMinSide1SetBack(data, scrutinyDetail);
-							validateMinSide2SetBack(data, scrutinyDetail);
+							validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+							validateMinRearSetBack(data, scrutinyDetail,serviceType);
+							validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+							validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 						} else {
 							generalCriterias(pl, block, data);
 						}
@@ -404,16 +405,16 @@ public class OdissaSetBackService extends FeatureProcess {
 		return pl;
 	}
 
-	public void applyGeneralCriterias(Plan pl, SetBackData data, ScrutinyDetail scrutinyDetail) {
+	public void applyGeneralCriterias(Plan pl, SetBackData data, ScrutinyDetail scrutinyDetail,String serviceType) {
 		if (pl.getPlanInformation().isLowRiskBuilding()) {
-			validateMinFrontSetBack(data, scrutinyDetail);
-			validateTotalCumulativeFrontAndRearSetBack(data, scrutinyDetail);
-			validateTotalCumulativeSideSetBack(data, scrutinyDetail);
+			validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+			validateTotalCumulativeFrontAndRearSetBack(data, scrutinyDetail,serviceType);
+			validateTotalCumulativeSideSetBack(data, scrutinyDetail,serviceType);
 		} else {
-			validateMinFrontSetBack(data, scrutinyDetail);
-			validateMinRearSetBack(data, scrutinyDetail);
-			validateMinSide1SetBack(data, scrutinyDetail);
-			validateMinSide2SetBack(data, scrutinyDetail);
+			validateMinFrontSetBack(data, scrutinyDetail,serviceType);
+			validateMinRearSetBack(data, scrutinyDetail,serviceType);
+			validateMinSide1SetBack(data, scrutinyDetail,serviceType);
+			validateMinSide2SetBack(data, scrutinyDetail,serviceType);
 		}
 	}
 
@@ -501,81 +502,111 @@ public class OdissaSetBackService extends FeatureProcess {
 		}
 	}
 
-	private void validateMinFrontSetBack(SetBackData data, ScrutinyDetail scrutinyDetail) {
-		if (data.minFrontProvided.compareTo(data.minFrontExpected) >= 0)
-			setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
-					data.minFrontProvided.toString(), Result.Accepted, scrutinyDetail);
-		else
-			setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
-					data.minFrontProvided.toString(), Result.Not_Accepted, scrutinyDetail);
+	private void validateMinFrontSetBack(SetBackData data, ScrutinyDetail scrutinyDetail, String serviceType) {
+		if (DxfFileConstants.NEW_CONSTRUCTION.equals(serviceType)) {
+			if (data.minFrontProvided.compareTo(data.minFrontExpected) >= 0)
+				setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
+						data.minFrontProvided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
+						data.minFrontProvided.toString(), Result.Not_Accepted, scrutinyDetail);
+		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+			setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(),
+					data.minFrontExpected.toString() + DxfFileConstants.ALTERATION_MSG1,
+					data.minFrontProvided.toString(), Result.Verify, scrutinyDetail);
+		}
 
 	}
 
-	private void validateMinRearSetBack(SetBackData data, ScrutinyDetail scrutinyDetail) {
+	private void validateMinRearSetBack(SetBackData data, ScrutinyDetail scrutinyDetail, String serviceType) {
 		String expected = DxfFileConstants.NA;
 		if (data.minRearExpected.compareTo(BigDecimal.ZERO) > 0)
 			expected = data.minRearExpected.toString();
-
-		if (data.minRearProvided.compareTo(data.minRearExpected) >= 0)
-			setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected, data.minRearProvided.toString(),
-					Result.Accepted, scrutinyDetail);
-		else
-			setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected, data.minRearProvided.toString(),
-					Result.Not_Accepted, scrutinyDetail);
-
+		if (DxfFileConstants.NEW_CONSTRUCTION.equals(serviceType)) {
+			if (data.minRearProvided.compareTo(data.minRearExpected) >= 0)
+				setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected,
+						data.minRearProvided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected,
+						data.minRearProvided.toString(), Result.Not_Accepted, scrutinyDetail);
+		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+			setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected + DxfFileConstants.ALTERATION_MSG1,
+					data.minRearProvided.toString(), Result.Verify, scrutinyDetail);
+		}
 	}
 
-	private void validateMinSide1SetBack(SetBackData data, ScrutinyDetail scrutinyDetail) {
+	private void validateMinSide1SetBack(SetBackData data, ScrutinyDetail scrutinyDetail, String serviceType) {
 		String expected = DxfFileConstants.NA;
 		if (data.minSide1Expected.compareTo(BigDecimal.ZERO) > 0)
 			expected = data.minSide1Expected.toString();
-		if (data.minSide1Provided.compareTo(data.minSide1Expected) >= 0)
-			setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected, data.minSide1Provided.toString(),
-					Result.Accepted, scrutinyDetail);
-		else
-			setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected, data.minSide1Provided.toString(),
-					Result.Not_Accepted, scrutinyDetail);
-
+		if (DxfFileConstants.NEW_CONSTRUCTION.equals(serviceType)) {
+			if (data.minSide1Provided.compareTo(data.minSide1Expected) >= 0)
+				setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected,
+						data.minSide1Provided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected,
+						data.minSide1Provided.toString(), Result.Not_Accepted, scrutinyDetail);
+		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+			setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected + DxfFileConstants.ALTERATION_MSG1,
+					data.minSide1Provided.toString(), Result.Verify, scrutinyDetail);
+		}
 	}
 
-	private void validateMinSide2SetBack(SetBackData data, ScrutinyDetail scrutinyDetail) {
+	private void validateMinSide2SetBack(SetBackData data, ScrutinyDetail scrutinyDetail, String serviceType) {
 		String expected = DxfFileConstants.NA;
 		if (data.minSide2Expected.compareTo(BigDecimal.ZERO) > 0)
 			expected = data.minSide2Expected.toString();
-		if (data.minSide2Provided.compareTo(data.minSide2Expected) >= 0)
-			setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected, data.minSide2Provided.toString(),
-					Result.Accepted, scrutinyDetail);
-		else
-			setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected, data.minSide2Provided.toString(),
-					Result.Not_Accepted, scrutinyDetail);
-
+		if (DxfFileConstants.NEW_CONSTRUCTION.equals(serviceType)) {
+			if (data.minSide2Provided.compareTo(data.minSide2Expected) >= 0)
+				setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected,
+						data.minSide2Provided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected,
+						data.minSide2Provided.toString(), Result.Not_Accepted, scrutinyDetail);
+		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+			setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected + DxfFileConstants.ALTERATION_MSG1,
+					data.minSide2Provided.toString(), Result.Verify, scrutinyDetail);
+		}
 	}
 
-	private void validateTotalCumulativeFrontAndRearSetBack(SetBackData data, ScrutinyDetail scrutinyDetail) {
+	private void validateTotalCumulativeFrontAndRearSetBack(SetBackData data, ScrutinyDetail scrutinyDetail,
+			String serviceType) {
 		String expected = DxfFileConstants.NA;
 		if (data.totalCumulativeFrontAndRearExpected.compareTo(BigDecimal.ZERO) > 0)
 			expected = data.totalCumulativeFrontAndRearExpected.toString();
-		if (data.totalCumulativeFrontAndRearProvided.compareTo(data.totalCumulativeFrontAndRearExpected) >= 0)
-			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
-					data.totalCumulativeFrontAndRearProvided.toString(), Result.Accepted, scrutinyDetail);
-		else
-			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
-					data.totalCumulativeFrontAndRearProvided.toString(), Result.Not_Accepted,
-					scrutinyDetail);
+		if (DxfFileConstants.NEW_CONSTRUCTION.equals(serviceType)) {
+			if (data.totalCumulativeFrontAndRearProvided.compareTo(data.totalCumulativeFrontAndRearExpected) >= 0)
+				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
+						data.totalCumulativeFrontAndRearProvided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
+						data.totalCumulativeFrontAndRearProvided.toString(), Result.Not_Accepted, scrutinyDetail);
+		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(),
+					expected + DxfFileConstants.ALTERATION_MSG1, data.totalCumulativeFrontAndRearProvided.toString(),
+					Result.Verify, scrutinyDetail);
+		}
 
 	}
 
-	private void validateTotalCumulativeSideSetBack(SetBackData data, ScrutinyDetail scrutinyDetail) {
+	private void validateTotalCumulativeSideSetBack(SetBackData data, ScrutinyDetail scrutinyDetail,
+			String serviceType) {
 		String expected = DxfFileConstants.NA;
 		if (data.totalCumulativeSideExpected.compareTo(BigDecimal.ZERO) > 0)
 			expected = data.totalCumulativeSideExpected.toString();
-		if (data.totalCumulativeSideProvided.compareTo(data.totalCumulativeSideExpected) >= 0)
-			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
-					data.totalCumulativeSideProvided.toString(), Result.Accepted, scrutinyDetail);
-		else
-			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
-					data.totalCumulativeSideProvided.toString(), Result.Not_Accepted, scrutinyDetail);
-
+		
+		if (DxfFileConstants.NEW_CONSTRUCTION.equals(serviceType)) {
+			if (data.totalCumulativeSideProvided.compareTo(data.totalCumulativeSideExpected) >= 0)
+				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
+						data.totalCumulativeSideProvided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
+						data.totalCumulativeSideProvided.toString(), Result.Not_Accepted, scrutinyDetail);
+		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(),
+					expected + DxfFileConstants.ALTERATION_MSG1, data.totalCumulativeSideProvided.toString(),
+					Result.Verify, scrutinyDetail);
+		}
 	}
 
 	private void setReport(String ruleNo, String description, String level, String expected, String provided,

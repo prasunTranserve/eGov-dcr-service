@@ -388,13 +388,26 @@ public class LiftService extends FeatureProcess {
 				String desc = "Minimum number of lifts";
 				int providedCount = lifts.size();
 				boolean isCountAccepted = providedCount >= countRequired;
-
-				setReportOutputDetails(SUBRULE_118, desc, floor.getNumber().intValue(), countRequired + "",
+				if(!isGenralStairAvailableAfterCurrentFloor(floor.getNumber(), block) || isCountAccepted)
+					setReportOutputDetails(SUBRULE_118, desc, floor.getNumber().intValue(), countRequired + "",
 						providedCount + "", isCountAccepted, scrutinyDetail);
 			}
 		}
 
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
+	
+	private boolean isGenralStairAvailableAfterCurrentFloor(int currentFloor,Block block) {
+		boolean flage=true;
+			
+		for(int i=currentFloor;i<block.getBuilding().getFloors().size();i++) {
+			Floor floor=block.getBuilding().getFloorNumber(currentFloor);
+			if(floor.getGeneralStairs()==null || floor.getGeneralStairs().size()==0) {
+				flage=false;
+			}
+		}
+		
+		return flage;
 	}
 
 	private int getRequiredCount(Plan pl, Block block) {

@@ -420,12 +420,12 @@ public class DxfFileConstants {
 	public static final String LAYER_LIFT_WITH_NO = "BLK_%s_FLR_%s_LIFT_%s";
 	public static final String LAYER_PLINTH_HEIGHT = "BLK_%s_PLINTH_HEIGHT";
 
-	public static String CRZ_ZONE = "CRZ";
+	public static final String CRZ_ZONE = "CRZ";
 	public static final String PLOT_AREA = "PLOT_AREA_M2";
 	public static final Object ARCHITECT_NAME = "ARCHITECT_NAME";
 	public static final String SHORTEST_DISTANCE_TO_ROAD = "SHORTEST_DIST_TO_ROAD";
 	public static final String PLAN_INFO = "PLAN_INFO";
-	public static String LAYER_NAME_WASTE_DISPOSAL = "WASTE_DISPOSAL";
+	public static final String LAYER_NAME_WASTE_DISPOSAL = "WASTE_DISPOSAL";
 	public static final String LAYER_NAME_WATER_CLOSET = "WATER_CLOSET";
 	public static final String LAYER_NAME_URINAL = "URINAL";
 	public static final String LAYER_NAME_WASH = "WASH";
@@ -648,7 +648,13 @@ public class DxfFileConstants {
 		SERVICE_TYPE.put("NEW_CONSTRUCTION", "New Construction");
 		SERVICE_TYPE.put("ALTERATION", "Alteration");
 	}
-
+	
+	//from api
+	public static final String NEW_CONSTRUCTION="NEW_CONSTRUCTION";
+	public static final String ALTERATION="ALTERATION";
+	public static final String ALTERATION_MSG1=" (According to ODA (P&BS) Rules 2020)";
+	
+	
 	public static Map<String, String> getServiceTypeList() {
 		return Collections.unmodifiableMap(SERVICE_TYPE);
 	}
@@ -778,4 +784,5 @@ public class DxfFileConstants {
 	
 	public static final String PROJECT_VALUE_IN_INR_IF_EIDP_FEE_IS_APPLICABLE_FOR_PROJECT="PROJECT_VALUE_IN_INR_IF_EIDP_FEE_IS_APPLICABLE_FOR_PROJECT";
 	public static final String IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING="IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING";
+	public static final String NUMBER_OF_TEMPORARY_STRUCTURES_IF_PRESENT_AT_THE_SITE="NUMBER_OF_TEMPORARY_STRUCTURES_IF_PRESENT_AT_THE_SITE";
 }

@@ -47,6 +47,9 @@
 
 package org.egov.edcr.feature;
 
+import static org.egov.edcr.constants.DxfFileConstants.ENVIRONMENTALLY_SENSITIVE_ZONE;
+import static org.egov.edcr.constants.DxfFileConstants.OPEN_SPACE_USE_ZONE;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,7 +59,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.A.H.m;
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
@@ -70,9 +72,8 @@ import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.utils.StringUtils;
+import org.kabeja.dxf.DXFConstants;
 import org.springframework.stereotype.Service;
-
-import static org.egov.edcr.constants.DxfFileConstants.*;
 
 @Service
 public class Coverage extends FeatureProcess {
@@ -100,13 +101,15 @@ public class Coverage extends FeatureProcess {
 
 	@Override
 	public Plan validate(Plan pl) {
-		List<Block> list=pl.getBlocks();
+		List<Block> list = pl.getBlocks();
 		list.addAll(pl.getOuthouse());
-        for (Block block : list) {
-            if (block.getCoverage().isEmpty()) {
-                pl.addError("coverageArea" + block.getNumber(), "Coverage Area for block " + block.getNumber() + " not Provided");
-            }
-        }
+		for (Block block : list) {
+			if (block.getCoverage().isEmpty()) {
+				pl.addError("coverageArea" + block.getNumber(),
+						"Coverage Area for block " + block.getNumber() + " not Provided");
+			}
+		}
+		OdishaUtill.additionalValidation(pl);
 		return pl;
 	}
 
@@ -118,7 +121,7 @@ public class Coverage extends FeatureProcess {
 		BigDecimal totalCoverageArea = BigDecimal.ZERO;
 
 		totalCoverageArea = updatedAmmenityArea(pl);
-		List<Block> blocks=new ArrayList<>();
+		List<Block> blocks = new ArrayList<>();
 		blocks.addAll(pl.getBlocks());
 		blocks.addAll(pl.getOuthouse());
 		for (Block block : pl.getBlocks()) {
@@ -164,7 +167,7 @@ public class Coverage extends FeatureProcess {
 		BigDecimal requiredCoverage = getPermissibleGroundCoverage(pl);
 		// if(requiredCoverage.compareTo(BigDecimal.ZERO)>0)
 		processCoverage(pl, StringUtils.EMPTY, totalCoverage, requiredCoverage);
-		
+
 		return pl;
 	}
 
@@ -177,60 +180,59 @@ public class Coverage extends FeatureProcess {
 		scrutinyDetail.addColumnHeading(4, PROVIDED);
 		scrutinyDetail.addColumnHeading(5, STATUS);
 		BigDecimal totalArea = BigDecimal.ZERO;
-		String required="Ground Coverage Exemption till 10 sqm";
+		String required = "Ground Coverage Exemption till 10 sqm";
 		if (pl.getAmmenity().getGuardRooms().size() > 0) {
 			BigDecimal guardRoomArea = pl.getAmmenity().getGuardRooms().stream().map(m -> m.getArea())
 					.reduce(BigDecimal::add).get();
-			guardRoomArea=guardRoomArea.setScale(2,BigDecimal.ROUND_HALF_UP);
+			guardRoomArea = guardRoomArea.setScale(2, BigDecimal.ROUND_HALF_UP);
 			if (guardRoomArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(guardRoomArea);
-			addDetails(scrutinyDetail, "55-1-a", "Guard room",required,
-					guardRoomArea.toString(), Result.Accepted.getResultVal());
+			addDetails(scrutinyDetail, "55-1-a", "Guard room", required, guardRoomArea.toString(),
+					Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getElectricCabins().size() > 0) {
 			BigDecimal electricCabinArea = pl.getAmmenity().getElectricCabins().stream().map(m -> m.getArea())
 					.reduce(BigDecimal::add).get();
-			electricCabinArea=electricCabinArea.setScale(2,BigDecimal.ROUND_HALF_UP);
+			electricCabinArea = electricCabinArea.setScale(2, BigDecimal.ROUND_HALF_UP);
 			if (electricCabinArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(electricCabinArea);
-			addDetails(scrutinyDetail, "55-1-a", "Electric cabin", required,
-					electricCabinArea.toString(), Result.Accepted.getResultVal());
+			addDetails(scrutinyDetail, "55-1-a", "Electric cabin", required, electricCabinArea.toString(),
+					Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getSubStations().size() > 0) {
 			BigDecimal subStationArea = pl.getAmmenity().getSubStations().stream().map(m -> m.getArea())
 					.reduce(BigDecimal::add).get();
-			subStationArea=subStationArea.setScale(2,BigDecimal.ROUND_HALF_UP);
+			subStationArea = subStationArea.setScale(2, BigDecimal.ROUND_HALF_UP);
 			if (subStationArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(subStationArea);
-			addDetails(scrutinyDetail, "55-1-a", "Sub-Station", required,
-					subStationArea.toString(), Result.Accepted.getResultVal());
+			addDetails(scrutinyDetail, "55-1-a", "Sub-Station", required, subStationArea.toString(),
+					Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getAreaForGeneratorSet().size() > 0) {
 			BigDecimal AreaForGeneratorSetArea = pl.getAmmenity().getAreaForGeneratorSet().stream()
 					.map(m -> m.getArea()).reduce(BigDecimal::add).get();
-			AreaForGeneratorSetArea=AreaForGeneratorSetArea.setScale(2,BigDecimal.ROUND_HALF_UP);
+			AreaForGeneratorSetArea = AreaForGeneratorSetArea.setScale(2, BigDecimal.ROUND_HALF_UP);
 			if (AreaForGeneratorSetArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(AreaForGeneratorSetArea);
-			addDetails(scrutinyDetail, "55-1-a", "Area for generator set", required,
-					AreaForGeneratorSetArea.toString(), Result.Accepted.getResultVal());
+			addDetails(scrutinyDetail, "55-1-a", "Area for generator set", required, AreaForGeneratorSetArea.toString(),
+					Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getAtms().size() > 0) {
 			BigDecimal atmArea = pl.getAmmenity().getAtms().stream().map(m -> m.getArea()).reduce(BigDecimal::add)
 					.get();
-			atmArea=atmArea.setScale(2,BigDecimal.ROUND_HALF_UP);
+			atmArea = atmArea.setScale(2, BigDecimal.ROUND_HALF_UP);
 			if (atmArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(atmArea);
-			addDetails(scrutinyDetail, "55-1-a", "ATM", required,
-					atmArea.toString(), Result.Accepted.getResultVal());
+			addDetails(scrutinyDetail, "55-1-a", "ATM", required, atmArea.toString(), Result.Accepted.getResultVal());
 		}
 		if (pl.getAmmenity().getOtherAmmenities().size() > 0) {
 			BigDecimal otherAmmenitieArea = pl.getAmmenity().getOtherAmmenities().stream().map(m -> m.getArea())
 					.reduce(BigDecimal::add).get();
-			otherAmmenitieArea=otherAmmenitieArea.setScale(2,BigDecimal.ROUND_HALF_UP);
+			otherAmmenitieArea = otherAmmenitieArea.setScale(2, BigDecimal.ROUND_HALF_UP);
 			if (otherAmmenitieArea.compareTo(new BigDecimal("10")) > 0)
 				totalArea = totalArea.add(otherAmmenitieArea);
-			addDetails(scrutinyDetail, "55-1-a", "Other Ammenities", required,
-					otherAmmenitieArea.toString(), Result.Accepted.getResultVal());
+			addDetails(scrutinyDetail, "55-1-a", "Other Ammenities", required, otherAmmenitieArea.toString(),
+					Result.Accepted.getResultVal());
 		}
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 		return totalArea;
@@ -246,7 +248,7 @@ public class Coverage extends FeatureProcess {
 		details.put(STATUS, status);
 		scrutinyDetail.getDetail().add(details);
 	}
-	
+
 	private void processCoverage(Plan pl, String occupancy, BigDecimal coverage, BigDecimal upperLimit) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Coverage");
@@ -262,22 +264,33 @@ public class Coverage extends FeatureProcess {
 		String actualResult = getLocaleMessage(RULE_ACTUAL_KEY, coverage.toString());
 		String expectedResult = getLocaleMessage(RULE_EXPECTED_KEY, upperLimit.toString());
 
+		String serviceType = pl.getPlanInformation().getServiceType();
+
 		Map<String, String> details = new HashMap<>();
 		details.put(RULE_NO, RULE_38);
 		details.put(DESCRIPTION, "Coverage");
 
 		details.put(PROVIDED, coverage.toString());
-		if (upperLimit.compareTo(BigDecimal.ZERO) > 0) {
-			details.put(PERMISSIBLE, upperLimit.toString());
-			if (coverage.doubleValue() <= upperLimit.doubleValue()) {
-				details.put(STATUS, Result.Accepted.getResultVal());
-			} else {
-				details.put(STATUS, Result.Not_Accepted.getResultVal());
-			}
+		if (DxfFileConstants.NEW_CONSTRUCTION.equals(serviceType)) {
+			if (upperLimit.compareTo(BigDecimal.ZERO) > 0) {
+				details.put(PERMISSIBLE, upperLimit.toString());
+				if (coverage.doubleValue() <= upperLimit.doubleValue()) {
+					details.put(STATUS, Result.Accepted.getResultVal());
+				} else {
+					details.put(STATUS, Result.Not_Accepted.getResultVal());
+				}
 
-		} else {
-			details.put(PERMISSIBLE, DxfFileConstants.NA);
-			details.put(STATUS, Result.Accepted.getResultVal());
+			} else {
+				details.put(PERMISSIBLE, DxfFileConstants.NA);
+				details.put(STATUS, Result.Accepted.getResultVal());
+			}
+		}else if(DxfFileConstants.ALTERATION.equals(serviceType)) {
+			if (upperLimit.compareTo(BigDecimal.ZERO) > 0) {
+				details.put(PERMISSIBLE, upperLimit.toString()+DxfFileConstants.ALTERATION_MSG1);
+			}else {
+				details.put(PERMISSIBLE, DxfFileConstants.NA+DxfFileConstants.ALTERATION_MSG1);
+			}
+			details.put(STATUS, Result.Verify.getResultVal());
 		}
 
 		scrutinyDetail.getDetail().add(details);

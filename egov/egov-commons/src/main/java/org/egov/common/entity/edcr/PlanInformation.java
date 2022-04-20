@@ -264,6 +264,10 @@ public class PlanInformation implements Serializable {
     
     private String numberOfStoreys;
     
+    private Boolean isRetentionFeeApplicable=Boolean.FALSE;
+    
+    private BigDecimal numberOfTemporaryStructures=BigDecimal.ZERO;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -1063,7 +1067,22 @@ public class PlanInformation implements Serializable {
 	public void setNumberOfStoreys(String numberOfStoreys) {
 		this.numberOfStoreys = numberOfStoreys;
 	}
-	
+
+	public Boolean getIsRetentionFeeApplicable() {
+		return isRetentionFeeApplicable;
+	}
+
+	public void setIsRetentionFeeApplicable(Boolean isRetentionFeeApplicable) {
+		this.isRetentionFeeApplicable = isRetentionFeeApplicable;
+	}
+
+	public BigDecimal getNumberOfTemporaryStructures() {
+		return numberOfTemporaryStructures;
+	}
+
+	public void setNumberOfTemporaryStructures(BigDecimal numberOfTemporaryStructures) {
+		this.numberOfTemporaryStructures = numberOfTemporaryStructures;
+	}
 
 	
 }

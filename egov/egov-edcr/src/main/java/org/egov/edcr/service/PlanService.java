@@ -537,12 +537,35 @@ public class PlanService {
 			}
 		}
 
-		//IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING
-		String isProjectUndertakingByGovt = pl.getPlanInfoProperties().get(IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING);
+		// IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING
+		String isProjectUndertakingByGovt = pl.getPlanInfoProperties()
+				.get(IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING);
 		if (YES.equals(isProjectUndertakingByGovt) || NO.equals(isProjectUndertakingByGovt)) {
 			pl.getPlanInformation().setIsProjectUndertakingByGovt(isProjectUndertakingByGovt);
 		} else {
-			pl.addError("isProjectUndertakingByGovt", "IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING is mandatory in plan info.");
+			pl.addError("isProjectUndertakingByGovt",
+					"IS_THE_PROJECT_BY_STATE_GOVT_OR_CENTRAL_GOVT_OR_GOVT_UNDERTAKING is mandatory in plan info.");
+		}
+
+		// NUMBER_OF_TEMPORARY_STRUCTURES_IF_PRESENT_AT_THE_SITE
+
+		String numberOfTemporaryStructures = pl.getPlanInfoProperties()
+				.get(NUMBER_OF_TEMPORARY_STRUCTURES_IF_PRESENT_AT_THE_SITE);
+		if (numberOfTemporaryStructures == null) {
+			pl.addError("numberOfTemporaryStructures",
+					"NUMBER_OF_TEMPORARY_STRUCTURES_IF_PRESENT_AT_THE_SITE is mandatory in plan info.");
+		} else if (NA.equals(numberOfTemporaryStructures)) {
+			pl.getPlanInformation().setIsRetentionFeeApplicable(Boolean.FALSE);
+			pl.getPlanInformation().setNumberOfTemporaryStructures(BigDecimal.ZERO);
+		} else {
+			BigDecimal count = new BigDecimal(numberOfTemporaryStructures);
+			if (count.compareTo(BigDecimal.ZERO) > 0) {
+				pl.getPlanInformation().setIsRetentionFeeApplicable(Boolean.TRUE);
+				pl.getPlanInformation().setNumberOfTemporaryStructures(count);
+			} else {
+				pl.getPlanInformation().setIsRetentionFeeApplicable(Boolean.FALSE);
+				pl.getPlanInformation().setNumberOfTemporaryStructures(BigDecimal.ZERO);
+			}
 		}
 	}
 
@@ -705,7 +728,7 @@ public class PlanService {
 		edcrApplication.getEdcrApplicationDetails().get(0).setPlanInformation(planInformation);
 		edcrApplicationDetailService.saveAll(edcrApplication.getEdcrApplicationDetails());
 	}
-
+	
 	public void buildDocuments(EdcrApplication edcrApplication, FileStoreMapper dxfFile, FileStoreMapper reportOutput,
 			Plan plan) {
 

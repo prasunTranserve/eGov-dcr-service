@@ -101,7 +101,7 @@ public class FireTenderMovement extends FeatureProcess {
 					BigDecimal minWidth = widths.stream().reduce(BigDecimal::min).get();
 					BigDecimal providedWidth = minWidth.setScale(DcrConstants.DECIMALDIGITS_MEASUREMENTS,
 							DcrConstants.ROUNDMODE_MEASUREMENTS);
-					BigDecimal requiredWidth=getRequiredWidth(plan, block);
+					BigDecimal requiredWidth = getRequiredWidth(plan, block);
 					Boolean isAccepted = providedWidth.compareTo(requiredWidth) >= 0;
 
 					Map<String, String> details = new HashMap<>();
@@ -124,7 +124,7 @@ public class FireTenderMovement extends FeatureProcess {
 //                                + yardNames.toString().substring(0, yardNames.length() - 2) + ".");
 //                        plan.addErrors(errors);
 //                    }
-				} else if(isMandatory){
+				} else if (isMandatory) {
 					errors.put("BLK_FTM_" + block.getNumber(),
 							"Vehicular access within Site not defined for Block " + block.getNumber());
 					plan.addErrors(errors);
@@ -134,10 +134,11 @@ public class FireTenderMovement extends FeatureProcess {
 
 		return plan;
 	}
-	
+
 	private boolean isVehicularAccessMandatory(Plan pl) {
-		long blockCount = pl.getBlocks().stream().filter(block -> !block.isOutHouse()).filter(block -> !block.isPublicWashroom()).count();
-		if(blockCount > 1)
+		long blockCount = pl.getBlocks().stream().filter(block -> !block.isOutHouse())
+				.filter(block -> !block.isPublicWashroom()).count();
+		if (blockCount > 1)
 			return true;
 		else
 			return false;
@@ -148,10 +149,11 @@ public class FireTenderMovement extends FeatureProcess {
 		BigDecimal openParking = OdishaUtill.getOpenParking(pl);
 		if (openParking.compareTo(BigDecimal.ZERO) > 0)
 			flage = true;
-		
-		if(DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(DxfFileConstants.IS_DRIVEWAY_PROVIDING_ACCESS_TO_REAR_SIDE_OR_ANY_OTHER_SIDE_OTHER_THAN_FRONT_OF_THE_BUILDING)))
+
+		if (DxfFileConstants.YES.equals(pl.getPlanInfoProperties().get(
+				DxfFileConstants.IS_DRIVEWAY_PROVIDING_ACCESS_TO_REAR_SIDE_OR_ANY_OTHER_SIDE_OTHER_THAN_FRONT_OF_THE_BUILDING)))
 			flage = true;
-		
+
 		return flage;
 	}
 
@@ -169,7 +171,15 @@ public class FireTenderMovement extends FeatureProcess {
 					required = new BigDecimal("1.5");
 			}
 		} else {
-			if (block.getBuilding().getBuildingHeight().compareTo(new BigDecimal("15")) <= 0) {
+			BigDecimal buildingHeight = BigDecimal.ZERO;
+			buildingHeight = block.getBuilding().getBuildingHeight();
+			if (buildingHeight.compareTo(new BigDecimal("15")) < 0) {
+				required = new BigDecimal("6");
+			} else if (buildingHeight.compareTo(new BigDecimal("15")) >= 0
+					&& buildingHeight.compareTo(new BigDecimal("18")) <= 0) {
+				required = new BigDecimal("4.5");
+			} else if (buildingHeight.compareTo(new BigDecimal("18")) > 0
+					&& buildingHeight.compareTo(new BigDecimal("40")) <= 0) {
 				required = new BigDecimal("6");
 			} else {
 				required = new BigDecimal("7.5");

@@ -58,7 +58,6 @@ public class ProvisionService extends FeatureProcess {
 	public static final String SHOP_CUM_RESIDENTIAL_GROUND_FLOOR_DESC = "Entire ground floor is not allowed as residential in block %s";
 	public static final String SHOP_CUM_RESIDENTIAL_GROUND_FLOOR_DEPTH_DESC = "Depth below 10 meters are nt allowed in shop-cum-residetial ground floor";
 	private static final String COMMERCIAL_ACTIVITY_DEPTH_DESC = "Depth allow till 10 meters from the front setback line in block %s";
-	
 
 	@Override
 	public Map<String, Date> getAmendments() {
@@ -83,7 +82,8 @@ public class ProvisionService extends FeatureProcess {
 
 		if (DxfFileConstants.OC_COMMERCIAL.equals(occupancyTypeHelper.getType().getCode())) {
 			provisionForCommercial(pl);
-		} else if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL.equals(occupancyTypeHelper.getType().getCode())) {
+		} else if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL
+				.equals(occupancyTypeHelper.getType().getCode())) {
 			provisionsForPublicSemiOrInstitutional(pl);
 		} else if (DxfFileConstants.OC_AGRICULTURE.equals(occupancyTypeHelper.getType().getCode())) {
 			provisionsForAgriculture(pl);
@@ -100,7 +100,8 @@ public class ProvisionService extends FeatureProcess {
 			maxAccomodation = MAX_ACCOMODATION_FOR_COUNTRY_HOMES;
 		}
 
-		BigDecimal providedAccomodation = calculateBuildUpArea(pl,Arrays.asList(DxfFileConstants.ACCOMODATION_OF_WATCH_AND_WARD_MAINTENANCE_STAFF));
+		BigDecimal providedAccomodation = calculateBuildUpArea(pl,
+				Arrays.asList(DxfFileConstants.ACCOMODATION_OF_WATCH_AND_WARD_MAINTENANCE_STAFF));
 		if (maxAccomodation.compareTo(providedAccomodation) < 0) {
 		}
 	}
@@ -109,13 +110,15 @@ public class ProvisionService extends FeatureProcess {
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		if (DxfFileConstants.CINEMA.equals(occupancyTypeHelper.getSubtype().getCode())) {
 			BigDecimal cinemaBUA = calculateBuildUpArea(pl, Arrays.asList(DxfFileConstants.CINEMA));
-			BigDecimal cinemaPercentage = cinemaBUA.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4).multiply(BigDecimal.valueOf(100)).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+			BigDecimal cinemaPercentage = cinemaBUA.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4)
+					.multiply(BigDecimal.valueOf(100)).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
 			if (BigDecimal.valueOf(90).compareTo(cinemaPercentage) > 0) {
 				// less than 90%. considered as Mixed use building
 			}
 
 			BigDecimal commercialBua = calculateBuildUpArea(pl, getCommercialSubOccupancies());
-			BigDecimal commercialPercentage = commercialBua.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4).multiply(BigDecimal.valueOf(100)).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+			BigDecimal commercialPercentage = commercialBua.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4)
+					.multiply(BigDecimal.valueOf(100)).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
 			if (BigDecimal.valueOf(10).compareTo(commercialPercentage) < 0) {
 				// More than 10%. considered as Mixed use building
 			}
@@ -131,13 +134,16 @@ public class ProvisionService extends FeatureProcess {
 			for (Block b : pl.getBlocks()) {
 				for (Floor fl : b.getBuilding().getFloors()) {
 					for (Occupancy type : fl.getOccupancies()) {
-						if (!getOtherAllowedSubOccupanciesInOcCommercial().contains(type.getTypeHelper().getSubtype().getCode())
+						if (!getOtherAllowedSubOccupanciesInOcCommercial()
+								.contains(type.getTypeHelper().getSubtype().getCode())
 								&& !(DxfFileConstants.HOTEL.equals(type.getTypeHelper().getSubtype().getCode())
-										|| DxfFileConstants.FIVE_STAR_HOTEL.equals(type.getTypeHelper().getSubtype().getCode()))) {
-							/* Other than allowed occupancy present. considered as Mixed use building*/
+										|| DxfFileConstants.FIVE_STAR_HOTEL
+												.equals(type.getTypeHelper().getSubtype().getCode()))) {
+							/* Other than allowed occupancy present. considered as Mixed use building */
 						}
 
-						if (getCommercialOfficeAndRetailServiceList().contains(type.getTypeHelper().getSubtype().getCode())) {
+						if (getCommercialOfficeAndRetailServiceList()
+								.contains(type.getTypeHelper().getSubtype().getCode())) {
 							comOfcAndRetAndSerShopFloorArea = comOfcAndRetAndSerShopFloorArea.add(type.getFloorArea());
 						}
 					}
@@ -151,9 +157,10 @@ public class ProvisionService extends FeatureProcess {
 				// More than 20%. Considered as Mixed use building
 			}
 		} else if (DxfFileConstants.SHOP_CUM_RESIDENTIAL.equals(occupancyTypeHelper.getSubtype().getCode())) {
-			BigDecimal shopCumResidentialFloorArea = calculateTotalDeductedBuildupArea(pl, Arrays.asList(DxfFileConstants.SHOP_CUM_RESIDENTIAL));
-			if (pl.getVirtualBuilding().getTotalFloorArea().multiply(BigDecimal.valueOf(2)).divide(BigDecimal.valueOf(3), 4)
-					.compareTo(shopCumResidentialFloorArea) < 0) {
+			BigDecimal shopCumResidentialFloorArea = calculateTotalDeductedBuildupArea(pl,
+					Arrays.asList(DxfFileConstants.SHOP_CUM_RESIDENTIAL));
+			if (pl.getVirtualBuilding().getTotalFloorArea().multiply(BigDecimal.valueOf(2))
+					.divide(BigDecimal.valueOf(3), 4).compareTo(shopCumResidentialFloorArea) < 0) {
 				pl.addError(SHOP_CUM_RESIDENTIAL_FLOOR_AREA, String.format(SHOP_CUM_RESIDENTIAL_FLOOR_AREA_DESC));
 			}
 
@@ -180,14 +187,17 @@ public class ProvisionService extends FeatureProcess {
 					}
 					if (entireFloorResidential) {
 						// Error
-						pl.addError(SHOP_CUM_RESIDENTIAL_GROUND_FLOOR, String.format(SHOP_CUM_RESIDENTIAL_GROUND_FLOOR_DESC, b.getNumber()));
+						pl.addError(SHOP_CUM_RESIDENTIAL_GROUND_FLOOR,
+								String.format(SHOP_CUM_RESIDENTIAL_GROUND_FLOOR_DESC, b.getNumber()));
 					} else if (!entireFloorShopCumResidential) {
 						// Layer mandate
 						BigDecimal commercialDepth = b.getBuilding().getDistanceFromSetBackToBuildingLine().isEmpty()
-								? BigDecimal.ZERO : Collections.max(b.getBuilding().getDistanceFromSetBackToBuildingLine());
+								? BigDecimal.ZERO
+								: Collections.max(b.getBuilding().getDistanceFromSetBackToBuildingLine());
 						if (BigDecimal.valueOf(10).compareTo(commercialDepth) < 0) {
 							// Error
-							pl.addError(SHOP_CUM_RESIDENTIAL_GROUND_FLOOR, String.format(SHOP_CUM_RESIDENTIAL_GROUND_FLOOR_DEPTH_DESC));
+							pl.addError(SHOP_CUM_RESIDENTIAL_GROUND_FLOOR,
+									String.format(SHOP_CUM_RESIDENTIAL_GROUND_FLOOR_DEPTH_DESC));
 						}
 					}
 				}
@@ -216,7 +226,7 @@ public class ProvisionService extends FeatureProcess {
 	private void validateCommercialActivity(Plan pl) {
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 
-		if(occupancyTypeHelper!=null) {
+		if (occupancyTypeHelper != null) {
 			if (DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())
 					&& (DxfFileConstants.APARTMENT_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
 							|| DxfFileConstants.HOUSING_PROJECT.equals(occupancyTypeHelper.getSubtype().getCode()))) {
@@ -228,7 +238,7 @@ public class ProvisionService extends FeatureProcess {
 				if (COMERCIAL_ACTIVITY_MAX_PERCENTAGE.compareTo(commercialActivityPercentage) <= 0) {
 					// Mixed Use
 				}
-				
+
 				ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 				scrutinyDetail.addColumnHeading(1, RULE_NO);
 				scrutinyDetail.addColumnHeading(2, DESCRIPTION);
@@ -275,16 +285,23 @@ public class ProvisionService extends FeatureProcess {
 					if (DxfFileConstants.HOTEL.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.FIVE_STAR_HOTEL.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.MOTELS.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.SERVICES_FOR_HOUSEHOLDS.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.SERVICES_FOR_HOUSEHOLDS
+									.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.SHOP_CUM_RESIDENTIAL.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.BANK.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.RESORTS.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.LAGOONS_AND_LAGOON_RESORT.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.AMUSEMENT_BUILDING_OR_PARK_AND_WATER_SPORTS.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.FINANCIAL_SERVICES_AND_STOCK_EXCHANGES.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.COLD_STORAGE_AND_ICE_FACTORY.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.CONVENIENCE_AND_NEIGHBORHOOD_SHOPPING.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.LAGOONS_AND_LAGOON_RESORT
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.AMUSEMENT_BUILDING_OR_PARK_AND_WATER_SPORTS
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.FINANCIAL_SERVICES_AND_STOCK_EXCHANGES
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.COLD_STORAGE_AND_ICE_FACTORY
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.CONVENIENCE_AND_NEIGHBORHOOD_SHOPPING
+									.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.PROFESSIONAL_OFFICES.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.DEPARTMENTAL_STORE.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.GAS_GODOWN.equals(type.getTypeHelper().getSubtype().getCode())
@@ -292,18 +309,25 @@ public class ProvisionService extends FeatureProcess {
 							|| DxfFileConstants.GOOD_STORAGE.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.GUEST_HOUSES.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.HOLIDAY_RESORT.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.BOARDING_AND_LODGING_HOUSES.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.BOARDING_AND_LODGING_HOUSES
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION
+									.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.CNG_MOTHER_STATION.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.RESTAURANT.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.LOCAL_RETAIL_SHOPPING.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.LOCAL_RETAIL_SHOPPING
+									.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.SHOPPING_CENTER.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.SHOPPING_MALL.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.SHOWROOM.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE.equals(type.getTypeHelper().getSubtype().getCode())
-							|| DxfFileConstants.STORAGE_OR_HANGERS_OR_TERMINAL_DEPOT.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE
+									.equals(type.getTypeHelper().getSubtype().getCode())
+							|| DxfFileConstants.STORAGE_OR_HANGERS_OR_TERMINAL_DEPOT
+									.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.SUPERMARKETS.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.WARE_HOUSE.equals(type.getTypeHelper().getSubtype().getCode())
 							|| DxfFileConstants.WHOLESALE_MARKET.equals(type.getTypeHelper().getSubtype().getCode())
@@ -315,14 +339,17 @@ public class ProvisionService extends FeatureProcess {
 					}
 				}
 				if (hasCommercialOccupancy && allowedTillFloor < ALL_FLOOR && allowedTillFloor < fl.getNumber()) {
-					pl.addError(COMMERCIAL_ACTIVITY,String.format(COMMERCIAL_ACTIVITY_NOT_ALLOWED, b.getNumber(), fl.getNumber()));
+					pl.addError(COMMERCIAL_ACTIVITY,
+							String.format(COMMERCIAL_ACTIVITY_NOT_ALLOWED, b.getNumber(), fl.getNumber()));
 				}
 			}
 			if (needDepthCheck) {
 				BigDecimal commercialDepth = b.getBuilding().getDistanceFromSetBackToBuildingLine().isEmpty()
-						? BigDecimal.ZERO : Collections.max(b.getBuilding().getDistanceFromSetBackToBuildingLine());
+						? BigDecimal.ZERO
+						: Collections.max(b.getBuilding().getDistanceFromSetBackToBuildingLine());
 				if (BigDecimal.valueOf(10).compareTo(commercialDepth) < 0) {
-					pl.addError(COMMERCIAL_ACTIVITY_DEPTH, String.format(COMMERCIAL_ACTIVITY_DEPTH_DESC, b.getNumber()));
+					pl.addError(COMMERCIAL_ACTIVITY_DEPTH,
+							String.format(COMMERCIAL_ACTIVITY_DEPTH_DESC, b.getNumber()));
 				}
 			}
 		}
@@ -347,32 +374,42 @@ public class ProvisionService extends FeatureProcess {
 
 			if (pl != null && pl.getPlanInformation().getPlotArea().compareTo(MIN_PLOT_SIZE_FOR_EWS) >= 0) {
 
-				BigDecimal plotAreaInAcre = pl.getPlanInformation().getPlotArea()
-						.divide(ACRE_TO_SQ_MT, DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
+				BigDecimal plotArea = pl.getPlanInformation().getPlotArea();
+				BigDecimal plotAreaInAcre = pl.getPlanInformation().getPlotArea().divide(ACRE_TO_SQ_MT,
+						DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
 
 				BigDecimal totalBua = calculateTotalDeductedBuildupArea(pl, getSubOccupanciesForEWS());
-				BigDecimal mandatoryEWSBUA = totalBua.multiply(MIN_EWS_BUA_PERCENTAGE).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+				BigDecimal mandatoryEWSBUA = totalBua.multiply(MIN_EWS_BUA_PERCENTAGE).setScale(SCALE,
+						BigDecimal.ROUND_HALF_UP);
 
 				boolean status = false;
 				boolean hasProvidevEWSWithin5Km = false;
-				if (plotAreaInAcre.compareTo(PLOT_AREA_FOUR_ACRE) > 0) {
+				boolean isShelterFeeRequired = false;
+				if (plotArea.compareTo(new BigDecimal("2000")) > 0
+						&& plotAreaInAcre.compareTo(PLOT_AREA_FOUR_ACRE) <= 0) {
 					if (pl.getTotalEWSAreaInPlot().compareTo(mandatoryEWSBUA) >= 0) {
 						status = true;
 					} else if (DxfFileConstants.YES.equalsIgnoreCase(pl.getPlanInfoProperties().get(
 							DxfFileConstants.HAS_PROJECT_PROVIDED_MIN_10_PER_BUA_FOR_EWS_WITHIN_5_KM_FROM_PROJECT_SITE))) {
 						hasProvidevEWSWithin5Km = true;
 						status = true;
+					} else {
+						status = true;
+						isShelterFeeRequired = true;
 					}
-				} else {
-					BigDecimal mandateNsAndCf = pl.getTotalEWSAreaInPlot().multiply(MIN_RESERVE_NS_AND_CF_PERCENTAGE).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
-					BigDecimal mandateNs = pl.getTotalEWSAreaInPlot().multiply(MIN_RESERVE_NS_PERCENTAGE).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+				} else if (plotAreaInAcre.compareTo(PLOT_AREA_FOUR_ACRE) > 0) {
+					BigDecimal mandateNsAndCf = pl.getTotalEWSAreaInPlot().multiply(MIN_RESERVE_NS_AND_CF_PERCENTAGE)
+							.setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+					BigDecimal mandateNs = pl.getTotalEWSAreaInPlot().multiply(MIN_RESERVE_NS_PERCENTAGE)
+							.setScale(SCALE, BigDecimal.ROUND_HALF_UP);
 					BigDecimal providedNsAndCf = calculateTotalDeductedBuildupArea(pl, get5PercentSubOccupancyList());
 					BigDecimal providedNs = calculateTotalDeductedBuildupArea(pl, get3PercentSubOccupancyList());
 
 					if (pl.getTotalEWSAreaInPlot().compareTo(mandatoryEWSBUA) >= 0) {
 						status = true;
 					} else {
-						status = false;
+						status = true;
+						isShelterFeeRequired = true;
 					}
 
 					Map<String, String> detailNsCf = new HashMap<>();
@@ -419,7 +456,18 @@ public class ProvisionService extends FeatureProcess {
 				details.put(RULE_NO, "");
 				details.put(DESCRIPTION, "Mandatory 10% of Buildup Area");
 				details.put(REQUIRED, mandatoryEWSBUA.toString());
-				details.put(PROVIDED, hasProvidevEWSWithin5Km ? PROVIDED_WITHIN_5KM : pl.getTotalEWSAreaInPlot().toString());
+
+				String provided = null;
+				if (hasProvidevEWSWithin5Km)
+					provided = PROVIDED_WITHIN_5KM;
+				else if (isShelterFeeRequired) {
+					provided = "Shelter Fee Applicable (Provided - " + pl.getTotalEWSAreaInPlot().toString() + " )";
+				} else {
+					provided = pl.getTotalEWSAreaInPlot().toString();
+				}
+
+//				details.put(PROVIDED, hasProvidevEWSWithin5Km ? PROVIDED_WITHIN_5KM : pl.getTotalEWSAreaInPlot().toString());
+				details.put(PROVIDED, provided);
 				details.put(STATUS, status ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
 				scrutinyDetail.getDetail().add(details);
 

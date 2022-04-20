@@ -47,7 +47,10 @@ public class GeneralStair extends FeatureProcess {
 		OccupancyTypeHelper occupancyTypeHelper = plan.getVirtualBuilding().getMostRestrictiveFarHelper();
 		for (Block block : plan.getBlocks()) {
 			int requiredGenralStairPerFloor =requiredGenralStairPerFloor(plan, block);
-			if(block.getBuilding().getFloors().size()>1)
+			if(block.getBuilding().getFloors().size()>1 && !(DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.SEMI_DETACHED.equals(occupancyTypeHelper.getSubtype().getCode())
+					|| DxfFileConstants.ROW_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
+					))
 				requiredGenralStairPerFloor = 1 +requiredGenralStairPerFloor;
 			for (Floor floor : block.getBuilding().getFloors()) {
 				boolean flageForStair2=false;
@@ -58,7 +61,7 @@ public class GeneralStair extends FeatureProcess {
 				}
 				
 				if (floor.getNumber() < 0) {
-					if (floor.getGeneralStairs() == null || !flageForStair2) {
+					if ((floor.getGeneralStairs() == null || !flageForStair2) && is2GenralStairRequired(floor.getNumber(), block)) {
 						plan.addError("MINIMUM_TWO_STAIR_Required" + block.getNumber() + "f" + floor.getNumber(),
 								"Minimum two GeneralStair are required in blook " + block.getNumber() + " floor "
 										+ floor.getNumber() + " but provided " + floor.getGeneralStairs().size());
@@ -80,6 +83,17 @@ public class GeneralStair extends FeatureProcess {
 		return plan;
 	}
 
+	public boolean is2GenralStairRequired(int floorNumber,Block block) {
+		boolean flage=true;
+		Floor floor=block.getBuilding().getFloorNumber(floorNumber+1);
+		
+		if(floor.getVehicleRamps().size()>0) {
+			flage=false;
+		}
+		
+		return flage;
+	}
+	
 	private int requiredGenralStairPerFloor(Plan pl, Block block) {
 		int required = 0;
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();

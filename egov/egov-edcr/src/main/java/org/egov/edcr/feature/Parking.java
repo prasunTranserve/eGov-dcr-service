@@ -371,6 +371,9 @@ public class Parking extends FeatureProcess {
 						helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 								.multiply(new BigDecimal("0.30")).setScale(2, BigDecimal.ROUND_HALF_UP);
 
+					}else if(DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(subType)) {
+						helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
+								.multiply(new BigDecimal("0.25")).setScale(2, BigDecimal.ROUND_HALF_UP);
 					}
 				}
 			}
@@ -394,13 +397,15 @@ public class Parking extends FeatureProcess {
 
 			// MIG
 			if (DxfFileConstants.APARTMENT_BUILDING.equals(subType) || DxfFileConstants.HOUSING_PROJECT.equals(subType)
-					|| DxfFileConstants.STUDIO_APARTMENTS.equals(subType)
-					|| DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(subType)) {
+					|| DxfFileConstants.STUDIO_APARTMENTS.equals(subType)) {
 				BigDecimal totalMigAndEWS = getTotalAreaOfMIG1AndMIG2(pl);
 				if (totalMigAndEWS.compareTo(BigDecimal.ZERO) > 0) {
 					helper.mIGParkingRequired = totalMigAndEWS.multiply(new BigDecimal("0.25")).setScale(2,
 							BigDecimal.ROUND_HALF_UP);
 				}
+			}else if(DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(subType)) {
+				helper.mIGParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
+						.multiply(new BigDecimal("0.25")).setScale(2, BigDecimal.ROUND_HALF_UP);
 			}
 
 			// DA parking
