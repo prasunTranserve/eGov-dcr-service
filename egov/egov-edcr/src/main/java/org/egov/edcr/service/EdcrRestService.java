@@ -273,7 +273,7 @@ public class EdcrRestService {
 			edcrDetail.setShortenedPlanReport(format(getFileDownloadUrl(edcrApplnDtl.getShortenedreportOutputId().getFileStoreId(),
 					ApplicationThreadLocals.getTenantID())));
 		}else {
-			 edcrDetail.setPlanReport(edcrDetail.getUpdatedDxfFile());
+			 edcrDetail.setShortenedPlanReport(edcrDetail.getPlanReport());
 		}
 
         File file = edcrApplnDtl.getPlanDetailFileStore() != null ? fileStoreService.fetch(
