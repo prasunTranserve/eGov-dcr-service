@@ -100,6 +100,10 @@ public class EdcrApplicationDetail extends AbstractAuditable {
      * @OneToMany(mappedBy = "edcrApplicationDetail", fetch = LAZY, cascade = ALL)
      * @OrderBy("id DESC ") private List<EdcrPdfDetail> edcrPdfDetails;
      */
+    
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "shortenedreportoutputid")
+    private FileStoreMapper shortenedreportOutputId;
 
     @Transient
     private Long noOfErrors;
@@ -215,5 +219,13 @@ public class EdcrApplicationDetail extends AbstractAuditable {
     public void setComparisonDcrNumber(String comparisonDcrNumber) {
         this.comparisonDcrNumber = comparisonDcrNumber;
     }
+
+	public FileStoreMapper getShortenedreportOutputId() {
+		return shortenedreportOutputId;
+	}
+
+	public void setShortenedreportOutputId(FileStoreMapper shortenedreportOutputId) {
+		this.shortenedreportOutputId = shortenedreportOutputId;
+	}
 
 }
