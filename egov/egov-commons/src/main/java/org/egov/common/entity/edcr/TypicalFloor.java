@@ -87,7 +87,7 @@ public class TypicalFloor implements Serializable {
                 i++;
             }
         } catch (NumberFormatException e) {
-
+        	e.printStackTrace();
         }
 
     }
