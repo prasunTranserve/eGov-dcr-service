@@ -71,8 +71,12 @@ public class TypicalFloor implements Serializable {
     public void setRepetitiveFloorNos(List<Integer> repetitiveFloorNos) {
         this.repetitiveFloorNos = repetitiveFloorNos;
     }
+    
+    public TypicalFloor() {
+		
+	}
 
-    public TypicalFloor(String s) {
+	public TypicalFloor(String s) {
         try {
             String[] floorNos = s.split("=")[1].split(",");
             int i = 0;
