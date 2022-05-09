@@ -787,4 +787,6 @@ public class DxfFileConstants {
 	public static final String NUMBER_OF_TEMPORARY_STRUCTURES_IF_PRESENT_AT_THE_SITE="NUMBER_OF_TEMPORARY_STRUCTURES_IF_PRESENT_AT_THE_SITE";
 	
 	public static final String SHORTENED_SCRUTINY_REPORT = "shortenedReport";
+	
+	public static final String ADDITIONAL_TDR_IF_APPLICABLE_M2="ADDITIONAL_TDR_IF_APPLICABLE_M2";
 }

@@ -270,6 +270,8 @@ public class PlanInformation implements Serializable {
     
     private String shortenedReportFileStoreId;
     
+    private BigDecimal additionalTdr;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -1094,4 +1096,13 @@ public class PlanInformation implements Serializable {
 		this.shortenedReportFileStoreId = shortenedReportFileStoreId;
 	}
 
+	public BigDecimal getAdditionalTdr() {
+		return additionalTdr;
+	}
+
+	public void setAdditionalTdr(BigDecimal additionalTdr) {
+		this.additionalTdr = additionalTdr;
+	}
+
+	
 }

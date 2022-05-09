@@ -64,6 +64,7 @@ public class FarDetails implements Serializable {
 	private Double permissableFar;
 	private Double providedFar;
 	private Double baseFar;
+	private Double tdrFarRelaxation;
 
 	public Double getPermissableFar() {
 		return permissableFar;
@@ -87,6 +88,14 @@ public class FarDetails implements Serializable {
 
 	public void setBaseFar(Double baseFar) {
 		this.baseFar = baseFar;
+	}
+
+	public Double getTdrFarRelaxation() {
+		return tdrFarRelaxation;
+	}
+
+	public void setTdrFarRelaxation(Double tdrFarRelaxation) {
+		this.tdrFarRelaxation = tdrFarRelaxation;
 	}
 
 	

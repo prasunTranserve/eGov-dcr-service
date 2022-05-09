@@ -569,7 +569,27 @@ public class PlanService {
 				pl.getPlanInformation().setNumberOfTemporaryStructures(BigDecimal.ZERO);
 			}
 		}
+		
+		//ADDITIONAL_TDR_IF_APPLICABLE
+		String additionalTdr=pl.getPlanInfoProperties()
+				.get(ADDITIONAL_TDR_IF_APPLICABLE_M2);
+		if(additionalTdr==null) {
+			pl.addError(ADDITIONAL_TDR_IF_APPLICABLE_M2, "ADDITIONAL_TDR_IF_APPLICABLE_M2 is mandatory in plan info.");
+		}else if(NA.equals(additionalTdr)) {
+			pl.getPlanInformation().setAdditionalTdr(BigDecimal.ZERO);
+		}else {
+			BigDecimal count = BigDecimal.ZERO;
+			try {
+				count = new BigDecimal(additionalTdr);
+			}catch (Exception e) {
+				pl.addError(ADDITIONAL_TDR_IF_APPLICABLE_M2, "ADDITIONAL_TDR_IF_APPLICABLE_M2 value is not accepted.");
+			}
+			if (count.compareTo(BigDecimal.ZERO) > 0) {
+				pl.getPlanInformation().setAdditionalTdr(count);
+			}
+		}
 	}
+	
 
 	public void savePlanDetail(Plan plan, EdcrApplicationDetail detail) {
 
