@@ -179,7 +179,8 @@ public class Parking extends FeatureProcess {
 				case COLOR_LAYER_SPECIAL_PARKING_MIG_PARKING:
 					helper.mIGParkingProvided = helper.mIGParkingProvided.add(measurement.getArea()).setScale(2,
 							BigDecimal.ROUND_HALF_UP);
-					// totalParking=totalParking.add(measurement.getArea());
+					if(DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode()))
+					 totalParking=totalParking.add(measurement.getArea());
 					break;
 				case COLOR_LAYER_SPECIAL_PARKING_STILT_PARKING:
 					helper.stiltParkingProvided = helper.stiltParkingProvided.add(measurement.getArea()).setScale(2,
