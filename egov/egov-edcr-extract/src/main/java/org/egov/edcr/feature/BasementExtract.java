@@ -26,9 +26,13 @@ public class BasementExtract extends FeatureExtract {
                     && !b.getBuilding().getFloors().isEmpty())
                 for (Floor f : b.getBuilding().getFloors())
                     if (f.getNumber() == -1) {
-                        String basementFootPrint = layerNames.getLayerName("LAYER_NAME_BLOCK_NAME_PREFIX") + b.getNumber()
-                                + "_"+ layerNames.getLayerName("LAYER_NAME_LEVEL_NAME_PREFIX") + f.getNumber()
-                                + "_"+ layerNames.getLayerName("LAYER_NAME_BSMNT_FOOT_PRINT");
+//                        String basementFootPrint = layerNames.getLayerName("LAYER_NAME_BLOCK_NAME_PREFIX") + b.getNumber()
+//                                + "_"+ layerNames.getLayerName("LAYER_NAME_LEVEL_NAME_PREFIX") + f.getNumber()
+//                                + "_"+ layerNames.getLayerName("LAYER_NAME_BSMNT_FOOT_PRINT");
+                    	String basementFootPrint = layerNames.getLayerName("LAYER_NAME_BLOCK_NAME_PREFIX")
+								//+ b.getNumber() + "_" + layerNames.getLayerName("LAYER_NAME_LEVEL_NAME_PREFIX")
+								+ b.getNumber() + "_" + layerNames.getLayerName("LAYER_NAME_FLOOR_NAME_PREFIX")
+								+ f.getNumber() + "_BLDG_FOOTPRINT";
                         /*
                          * height from the floor to the soffit of the roof slab or ceiling
                          */
