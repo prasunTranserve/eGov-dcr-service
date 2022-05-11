@@ -1711,7 +1711,7 @@ public class Far extends FeatureProcess {
 		BigDecimal tdrFarRelaxation= pl.getVirtualBuilding().getTotalFloorArea().divide(giftedArea.add(pl.getPlot().getArea()), 3,
 				ROUNDMODE_MEASUREMENTS);
 		tdrFarRelaxation= giftedArea.divide(pl.getPlot().getArea(),3,ROUNDMODE_MEASUREMENTS);
-		
+		pl.getFarDetails().setTdrFarRelaxation(tdrFarRelaxation.doubleValue());
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, "TDR Area");
