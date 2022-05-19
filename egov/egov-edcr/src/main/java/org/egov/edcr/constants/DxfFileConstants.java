@@ -753,7 +753,7 @@ public class DxfFileConstants {
 	public static final String BPA_PO_MODULE_CODE = "BPA2";
 	public static final String BPA_PM_MODULE_CODE = "BPA3";
 	public static final String BPA_DP_BP_MODULE_CODE = "BPA4";
-	
+	public static final String BPA_APPROVAL_BY_AN_ACCREDITED_PERSON="BPA5";
 	
 	public static final String BPA_OC_PA_MODULE_CODE = "BPA_OC1";
 	public static final String BPA_OC_PO_MODULE_CODE = "BPA_OC2";
