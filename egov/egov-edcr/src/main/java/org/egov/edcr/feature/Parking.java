@@ -345,10 +345,10 @@ public class Parking extends FeatureProcess {
 		if (typeHelper != null && typeHelper.getSubtype() != null)
 			subType = typeHelper.getSubtype().getCode();
 
+		BigDecimal plotArea = pl.getPlot().getArea();
 		if (DxfFileConstants.OC_RESIDENTIAL.equals(ocType)) {
 			// Total required
 			long totalNumberOfDu = pl.getPlanInformation().getTotalNoOfDwellingUnits();
-			BigDecimal plotArea = pl.getPlot().getArea();
 			BigDecimal totalStiltArea = totalStiltArea(pl);
 			BigDecimal totalStiltParkingArea = helper.stiltParkingProvided;
 
@@ -410,6 +410,7 @@ public class Parking extends FeatureProcess {
 			}
 
 			// DA parking
+			if(plotArea.compareTo(new BigDecimal("2000"))>0)
 			if (totalNumberOfDu > 4) {
 				helper.daPARKINGCountRequired = 2;
 				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");
@@ -434,8 +435,9 @@ public class Parking extends FeatureProcess {
 					|| DxfFileConstants.WARE_HOUSE.equals(subType)) {
 				helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 						.multiply(new BigDecimal("0.20")).setScale(2, BigDecimal.ROUND_HALF_UP);
+				if(plotArea.compareTo(new BigDecimal("2000"))>0) {
 				helper.daPARKINGCountRequired = 2;
-				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");
+				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");}
 				helper.staffParkingRequired = helper.totalParkingRequired.divide(new BigDecimal("3"), 2,
 						BigDecimal.ROUND_HALF_UP);
 				helper.twoWheelerParkingRequired = helper.totalParkingRequired.multiply(new BigDecimal("0.15"))
@@ -479,8 +481,9 @@ public class Parking extends FeatureProcess {
 					|| DxfFileConstants.SMALL_FACTORIES_AND_ETC_FALLS_IN_INDUSTRIAL.equals(subType)) {
 				helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 						.multiply(new BigDecimal("0.30")).setScale(2, BigDecimal.ROUND_HALF_UP);
+				if(plotArea.compareTo(new BigDecimal("2000"))>0) {
 				helper.daPARKINGCountRequired = 2;
-				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");
+				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");}
 				helper.staffParkingRequired = helper.totalParkingRequired.divide(new BigDecimal("3"), 2,
 						BigDecimal.ROUND_HALF_UP);
 				helper.twoWheelerParkingRequired = helper.totalParkingRequired.multiply(new BigDecimal("0.15"))
@@ -509,8 +512,9 @@ public class Parking extends FeatureProcess {
 					|| DxfFileConstants.IT_ITES_BUILDINGS.equals(subType)) {
 				helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 						.multiply(new BigDecimal("0.40")).setScale(2, BigDecimal.ROUND_HALF_UP);
+				if(plotArea.compareTo(new BigDecimal("2000"))>0) {
 				helper.daPARKINGCountRequired = 2;
-				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");
+				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");}
 				helper.staffParkingRequired = helper.totalParkingRequired.divide(new BigDecimal("3"), 2,
 						BigDecimal.ROUND_HALF_UP);
 				helper.twoWheelerParkingRequired = helper.totalParkingRequired.multiply(new BigDecimal("0.15"))
@@ -527,8 +531,9 @@ public class Parking extends FeatureProcess {
 					|| DxfFileConstants.THEATRE.equals(subType)) {
 				helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 						.multiply(new BigDecimal("0.50")).setScale(2, BigDecimal.ROUND_HALF_UP);
+				if(plotArea.compareTo(new BigDecimal("2000"))>0) {
 				helper.daPARKINGCountRequired = 2;
-				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");
+				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");}
 				helper.staffParkingRequired = helper.totalParkingRequired.divide(new BigDecimal("3"), 2,
 						BigDecimal.ROUND_HALF_UP);
 				helper.twoWheelerParkingRequired = helper.totalParkingRequired.multiply(new BigDecimal("0.15"))
@@ -876,6 +881,8 @@ public class Parking extends FeatureProcess {
 		String required = DxfFileConstants.NA;
 		if (helper.distFromDAToMainEntranceRequired.compareTo(BigDecimal.ZERO) > 0)
 			required = helper.distFromDAToMainEntranceRequired.toString();
+		else
+			return;
 		if (helper.distFromDAToMainEntranceProvided.compareTo(helper.distFromDAToMainEntranceRequired) <= 0)
 			setReport(SUB_RULE_40, DA_PARKING_MAX_DISTANCE_DESC, required,
 					helper.distFromDAToMainEntranceProvided.toString(), Result.Accepted, scrutinyDetail);

@@ -311,6 +311,9 @@ public class LiftService extends FeatureProcess {
 	private void validateSpecial(Plan pl, Block block, ScrutinyDetail scrutinyDetail) {
 		boolean isMandatory = false;
 		OccupancyTypeHelper typeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		BigDecimal plotArea=pl.getPlot().getArea();
+		if(plotArea.compareTo(new BigDecimal("2000"))<=0)
+			return;
 		if (DxfFileConstants.OC_RESIDENTIAL.equals(typeHelper.getType().getCode())) {
 			int totalDu = getTotalDU(block);
 			int ewsAndLIGDu = getTotalEWSAndLIGDU(block);

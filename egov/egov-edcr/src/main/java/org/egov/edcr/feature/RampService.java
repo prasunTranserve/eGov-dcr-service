@@ -167,6 +167,10 @@ public class RampService extends FeatureProcess {
     private boolean isDaRampMandatory(Plan pl) {
     	OccupancyTypeHelper occupancyTypeHelper=pl.getVirtualBuilding().getMostRestrictiveFarHelper();
     	boolean flage=false;
+    	BigDecimal plotArea=pl.getPlot().getArea();
+    	
+    	if(plotArea.compareTo(new BigDecimal("2000"))<=0)//Changes as per 20/05/2022 request
+    		return false;
     	
     	if(DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL.equals(occupancyTypeHelper.getType().getCode())
     		|| DxfFileConstants.OC_EDUCATION.equals(occupancyTypeHelper.getType().getCode())
@@ -175,7 +179,7 @@ public class RampService extends FeatureProcess {
     		flage=true;
     	}
     	
-    	if(DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())) {
+    	if( DxfFileConstants.OC_RESIDENTIAL.equals(occupancyTypeHelper.getType().getCode())) {
     		long totalNumberOfDu = pl.getPlanInformation().getTotalNoOfDwellingUnits();
     		if(totalNumberOfDu>4)
     			flage=true;
