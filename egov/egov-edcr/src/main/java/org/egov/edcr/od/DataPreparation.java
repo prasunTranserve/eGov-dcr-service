@@ -162,6 +162,9 @@ public class DataPreparation {
 			if (!isSpecialBuilding) {
 				if ((buildingHeight <= 10) || (plotArea <= 500)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PA_MODULE_CODE);
+//					if(isPlanApplicableForAccreditedWorkflow(pl, buildingHeight, plotArea)) {
+//						pl.getPlanInformation().setBusinessService(pl.getPlanInformation().getBusinessService().concat("|"+DxfFileConstants.BPA_APPROVAL_BY_AN_ACCREDITED_PERSON));
+//					}
 				}
 				if ((buildingHeight > 10 && buildingHeight <= 15) || (plotArea > 500 && plotArea <= 4047)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PO_MODULE_CODE);
@@ -192,4 +195,19 @@ public class DataPreparation {
 			pl.getPlanInformation().setSubOccupancy(occupancyTypeHelper.getSubtype().getName());
 	}
 	
+	private static boolean isPlanApplicableForAccreditedWorkflow(Plan pl, Double buildingHeight, Double plotArea) {
+		boolean flage=false;
+		if(DxfFileConstants.YES.equals(pl.getPlanInformation().getApprovedLayoutDeclaration()) && (buildingHeight <= 10) && (plotArea <= 500) && !isBasmentPersent(pl)) {
+			flage=true;
+		}
+		return flage;
+	}
+	
+	private static boolean isBasmentPersent(Plan pl) {
+		for(Block block:pl.getBlocks()) {
+			if(block.getBuilding().getFloorNumber(-1)!=null)
+				return true;
+		}
+		return false;
+	}
 }

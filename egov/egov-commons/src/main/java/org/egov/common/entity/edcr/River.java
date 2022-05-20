@@ -71,7 +71,11 @@ public class River implements Serializable {
 	/**
 	 * This field will be used to capture distance from river as default value.
 	 */
-	
+	//Color code used to identify river type
+    private Integer colorCode;
+    
+    private List<BigDecimal> distancesFromRiver = new ArrayList<>();
+    
 	private List<BigDecimal> distancesFromRiverEdge = new ArrayList<>();
 	private List<BigDecimal> distancesFromProtectionWall = new ArrayList<>();
 	private List<BigDecimal> distancesFromEmbankment = new ArrayList<>();
@@ -108,4 +112,21 @@ public class River implements Serializable {
 		this.distancesFromEmbankment = distancesFromEmbankment;
 	}
 
+	public Integer getColorCode() {
+		return colorCode;
+	}
+
+	public void setColorCode(Integer colorCode) {
+		this.colorCode = colorCode;
+	}
+
+	public List<BigDecimal> getDistancesFromRiver() {
+		return distancesFromRiver;
+	}
+
+	public void setDistancesFromRiver(List<BigDecimal> distancesFromRiver) {
+		this.distancesFromRiver = distancesFromRiver;
+	}
+
+	
 }

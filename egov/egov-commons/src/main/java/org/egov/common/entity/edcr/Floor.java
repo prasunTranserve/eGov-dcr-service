@@ -88,6 +88,7 @@ public class Floor extends Measurement {
 	private Room bathRoomWaterClosets;
 	private List<BigDecimal> heightFromTheFloorToCeiling;
 	private List<BigDecimal> heightOfTheCeilingOfUpperBasement;
+	 private List<BigDecimal> levelOfBasementUnderGround;
 	private InteriorOpenSpace interiorOpenSpace = new InteriorOpenSpace();
 	private MeasurementWithHeight verandah = new MeasurementWithHeight();
 	private MeasurementWithHeight lightAndVentilation = new MeasurementWithHeight();
@@ -129,6 +130,9 @@ public class Floor extends Measurement {
 	
 	 // Doors for version 1.1.1
     private List<Door> doors = new ArrayList<>();
+    
+    // From 2.0.0 version
+    private List<BigDecimal> heightFromFloorToBottomOfBeam;
 	
 	public List<FireStair> getFireStairs() {
 		return fireStairs;
@@ -533,6 +537,14 @@ public class Floor extends Measurement {
 	public void setHeightOfTheCeilingOfUpperBasement(List<BigDecimal> heightOfTheCeilingOfUpperBasement) {
 		this.heightOfTheCeilingOfUpperBasement = heightOfTheCeilingOfUpperBasement;
 	}
+	
+	public List<BigDecimal> getLevelOfBasementUnderGround() {
+		return levelOfBasementUnderGround;
+	}
+
+	public void setLevelOfBasementUnderGround(List<BigDecimal> levelOfBasementUnderGround) {
+		this.levelOfBasementUnderGround = levelOfBasementUnderGround;
+	}
 
 	public List<VehicleRamp> getVehicleRamps() {
 		return vehicleRamps;
@@ -720,6 +732,14 @@ public class Floor extends Measurement {
 
 	public void setDoors(List<Door> doors) {
 		this.doors = doors;
+	}
+
+	public List<BigDecimal> getHeightFromFloorToBottomOfBeam() {
+		return heightFromFloorToBottomOfBeam;
+	}
+
+	public void setHeightFromFloorToBottomOfBeam(List<BigDecimal> heightFromFloorToBottomOfBeam) {
+		this.heightFromFloorToBottomOfBeam = heightFromFloorToBottomOfBeam;
 	}
 
 	

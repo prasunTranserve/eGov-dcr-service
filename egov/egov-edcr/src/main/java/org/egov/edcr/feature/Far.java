@@ -1281,6 +1281,11 @@ public class Far extends FeatureProcess {
 		String occupancyName = occupancyType.getType().getName();
 		buildResult(pl, occupancyName, far, typeOfArea, roadWidth, expectedResult, isAccepted);
 		checkFarBanchMarkValue(pl);
+		
+		// TDR calculation
+		if(pl.getPlanInformation().getAdditionalTdr() != null && pl.getPlanInformation().getAdditionalTdr().compareTo(BigDecimal.ZERO) > 0) {
+			updateAdditionalTdr(pl);
+		}
 	}
 	
 
@@ -1698,5 +1703,27 @@ public class Far extends FeatureProcess {
 	@Override
 	public Map<String, Date> getAmendments() {
 		return new LinkedHashMap<>();
+	}
+	
+	public void updateAdditionalTdr(Plan pl) {
+		BigDecimal giftedArea=pl.getPlanInformation().getAdditionalTdr();
+		//calculate tdrFar
+		BigDecimal tdrFarRelaxation= pl.getVirtualBuilding().getTotalFloorArea().divide(giftedArea.add(pl.getPlot().getArea()), 3,
+				ROUNDMODE_MEASUREMENTS);
+		tdrFarRelaxation= giftedArea.divide(pl.getPlot().getArea(),3,ROUNDMODE_MEASUREMENTS);
+		pl.getFarDetails().setTdrFarRelaxation(tdrFarRelaxation.doubleValue());
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, "TDR Area");
+		scrutinyDetail.addColumnHeading(3, "TDR Far");
+		scrutinyDetail.addColumnHeading(4, STATUS);
+		scrutinyDetail.setKey("Common_FAR TDR");
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, RULE_38);
+		details.put("TDR Area", giftedArea.toString());
+		details.put("TDR Far", tdrFarRelaxation.toString());
+		details.put(STATUS, Result.Verify.getResultVal());
+		scrutinyDetail.getDetail().add(details);
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 	}
 }
