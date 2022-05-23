@@ -162,9 +162,9 @@ public class DataPreparation {
 			if (!isSpecialBuilding) {
 				if ((buildingHeight <= 10) || (plotArea <= 500)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PA_MODULE_CODE);
-//					if(isPlanApplicableForAccreditedWorkflow(pl, buildingHeight, plotArea)) {
-//						pl.getPlanInformation().setBusinessService(pl.getPlanInformation().getBusinessService().concat("|"+DxfFileConstants.BPA_APPROVAL_BY_AN_ACCREDITED_PERSON));
-//					}
+					if(isPlanApplicableForAccreditedWorkflow(pl, buildingHeight, plotArea)) {
+						pl.getPlanInformation().setBusinessService(pl.getPlanInformation().getBusinessService().concat("|"+DxfFileConstants.BPA_APPROVAL_BY_AN_ACCREDITED_PERSON));
+					}
 				}
 				if ((buildingHeight > 10 && buildingHeight <= 15) || (plotArea > 500 && plotArea <= 4047)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PO_MODULE_CODE);
