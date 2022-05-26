@@ -81,6 +81,8 @@ public abstract class FeatureProcess {
 	public static final String ROOM="ROOM";
 	public static final String TYPE="TYPE";
 	public static final String BLOCK="Block";
+	public static final String EXISTING_AREA="Existing Area";
+	public static final String APPROVED_AREA="Approved Area";
 	
 
 	public abstract Map<String, Date> getAmendments();

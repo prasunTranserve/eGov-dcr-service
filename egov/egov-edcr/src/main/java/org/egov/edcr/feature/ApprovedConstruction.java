@@ -53,62 +53,89 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.egov.common.entity.edcr.AccessoryBlock;
-import org.egov.common.entity.edcr.CulDeSacRoad;
-import org.egov.common.entity.edcr.Lane;
-import org.egov.common.entity.edcr.NonNotifiedRoad;
-import org.egov.common.entity.edcr.NotifiedRoad;
+import org.egov.common.entity.edcr.Block;
+import org.egov.common.entity.edcr.Floor;
+import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
-import org.egov.edcr.utility.DcrConstants;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ApprovedConstruction extends FeatureProcess {
-
-	private static final String SUBRULE_88_1_DESC = "Maximum area of accessory block %s";
-	private static final String SUBRULE_88_3_DESC = "Maximum height of accessory block %s";
-
+	private static String APPROVED_ERROR_MSG = "Approved Area is not equal to existing area in plan. Unauthorised area found in drawing, kindly regularise the area before applying for building permit - addition and alteration service.";
 	private static final String SUBRULE_88_1 = "88-1";
-	private static final String SUBULE_88_3 = "88-3";
-	private static final String SUBRULE_88_4 = "88-4";
-	private static final String SUBRULE_88_5 = "88-5";
-
-	private static final String MIN_DIS_NOTIFIED_ROAD_FROM_ACC_BLDG = "Minimum distance from accessory block to notified road";
-	private static final String MIN_DIS_NON_NOTIFIED_ROAD_FROM_ACC_BLDG = "Minimum distance from accessory building to non notified road";
-	private static final String MIN_DIS_CULDESAC_ROAD_FROM_ACC_BLDG = "Minimum distance from accessory building to culdesac road";
-	private static final String MIN_DIS_LANE_ROAD_FROM_ACC_BLDG = "Minimum distance from accessory building to lane road";
-	private static final String SUBRULE_88_5_DESC = "Minimum distance from accessory block %s to plot boundary";
 
 	@Override
-	public Plan validate(Plan plan) {
-		return plan;
+	public Plan validate(Plan pl) {
+		return pl;
 	}
 
+	private BigDecimal getexistingBuiltUpArea(Floor f) {
+		BigDecimal existingBuiltUpArea = BigDecimal.ZERO;
 
-
+		for (Occupancy oc : f.getOccupancies()) {
+			existingBuiltUpArea = existingBuiltUpArea.add(oc.getExistingBuiltUpArea());
+		}
+		existingBuiltUpArea = existingBuiltUpArea.setScale(2, BigDecimal.ROUND_HALF_UP);
+		return existingBuiltUpArea;
+	}
 
 	@Override
-	public Plan process(Plan plan) {
-		return plan;
-	}
+	public Plan process(Plan pl) {
 
-	private void setReportOutputDetails(Plan plan, String ruleNo, String ruleDesc, String expected, String actual,
-			String status, ScrutinyDetail scrutinyDetail) {
-		Map<String, String> details = new HashMap<>();
-		details.put(RULE_NO, ruleNo);
-		details.put(DESCRIPTION, ruleDesc);
-		details.put(REQUIRED, expected);
-		details.put(PROVIDED, actual);
-		details.put(STATUS, status);
-		scrutinyDetail.getDetail().add(details);
-		plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		String serviceType = pl.getPlanInformation().getServiceType();
+		if (!DxfFileConstants.ALTERATION.equals(serviceType))
+			return pl;
+
+		ScrutinyDetail scrutinyDetail3 = new ScrutinyDetail();
+		scrutinyDetail3.setKey("Common_Approved Area Detail");
+		scrutinyDetail3.addColumnHeading(1, RULE_NO);
+		scrutinyDetail3.addColumnHeading(2, BLOCK);
+		scrutinyDetail3.addColumnHeading(3, FLOOR);
+		scrutinyDetail3.addColumnHeading(4, EXISTING_AREA);
+		scrutinyDetail3.addColumnHeading(5, APPROVED_AREA);
+		scrutinyDetail3.addColumnHeading(6, STATUS);
+		String errorMsg = null;
+		for (Block block : pl.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				BigDecimal existingBuiltUpArea = getexistingBuiltUpArea(floor);
+				BigDecimal approvedConstructionArea = floor.getApprovedConstruction().stream().map(app -> app.getArea())
+						.reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_HALF_UP);
+				if (existingBuiltUpArea.compareTo(BigDecimal.ZERO) > 0
+						|| approvedConstructionArea.compareTo(BigDecimal.ZERO) > 0) {
+					boolean isAccepted = existingBuiltUpArea.compareTo(approvedConstructionArea) == 0 ? true : false;
+					setReportOutputDetails(SUBRULE_88_1, block.getName(), floor.getNumber().toString(),
+							existingBuiltUpArea.toString(), approvedConstructionArea.toString(), isAccepted,
+							scrutinyDetail3);
+					if (!isAccepted) {
+						errorMsg = APPROVED_ERROR_MSG;
+					}
+				}
+			}
+		}
+		if (errorMsg != null) {
+			pl.addError("ApprovedRejected", errorMsg);
+		}
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail3);
+		return pl;
 	}
 
 	@Override
 	public Map<String, Date> getAmendments() {
 		return new LinkedHashMap<>();
+	}
+
+	private void setReportOutputDetails(String ruleNo, String block, String floor, String existingArea,
+			String approvedArea, boolean isAccepted, ScrutinyDetail scrutinyDetail) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, ruleNo);
+		details.put(BLOCK, block);
+		details.put(FLOOR, floor);
+		details.put(EXISTING_AREA, existingArea);
+		details.put(APPROVED_AREA, approvedArea);
+		details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+		scrutinyDetail.getDetail().add(details);
 	}
 }

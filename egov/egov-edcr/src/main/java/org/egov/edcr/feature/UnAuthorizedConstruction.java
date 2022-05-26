@@ -59,7 +59,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UnAuthorizedConstruction extends FeatureProcess {
 
-	private static final String UNAUTHORIZED_CONSTRUCTION_MSG = "Unauthorised area found in drawing, kindly regularise the area before applying for building permit - addition and alteration service";
+	private static final String UNAUTHORIZED_CONSTRUCTION_MSG = "Unauthorised area found in drawing, kindly regularise the area before applying for building permit - addition and alteration service.";
 
 	@Override
 	public Plan validate(Plan pl) {
