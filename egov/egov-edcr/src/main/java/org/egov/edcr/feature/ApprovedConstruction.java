@@ -64,8 +64,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ApprovedConstruction extends FeatureProcess {
-	private static String APPROVED_ERROR_MSG = "Approved Area is not equal to existing area in plan. Unauthorised area found in drawing, kindly regularise the area before applying for building permit - addition and alteration service.";
+	private static final String APPROVED_ERROR_MSG = "Approved Area is not equal to existing area in plan. Unauthorised area found in drawing, kindly regularise the area before applying for building permit - addition and alteration service.";
 	private static final String SUBRULE_88_1 = "88-1";
+	private static final String DEMOLITION_ERROR_MSG = "Demolition area in plan info should be equal to total demolition polygon area.";
+	private static final String TOTAL_BUILD_UP_AREA = "Total Built Up Area";
+	private static final String DEMOLITION_AREA = "Demolition Area";
+	private static final String BUILT_UP_AREA_AFTER_DEMOLITION = "Built Up Area After Demolition";
 
 	@Override
 	public Plan validate(Plan pl) {
@@ -84,6 +88,7 @@ public class ApprovedConstruction extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
+		processDemolition(pl);
 
 		String serviceType = pl.getPlanInformation().getServiceType();
 		if (!DxfFileConstants.ALTERATION.equals(serviceType))
@@ -122,6 +127,48 @@ public class ApprovedConstruction extends FeatureProcess {
 		return pl;
 	}
 
+	private Plan processDemolition(Plan pl) {
+		String serviceType = pl.getPlanInformation().getServiceType();
+		if (!DxfFileConstants.ALTERATION.equals(serviceType))
+			return pl;
+		ScrutinyDetail scrutinyDetail3 = new ScrutinyDetail();
+		scrutinyDetail3.setKey("Common_Demolition Area Detail");
+		scrutinyDetail3.addColumnHeading(1, RULE_NO);
+		scrutinyDetail3.addColumnHeading(2, BLOCK);
+		scrutinyDetail3.addColumnHeading(3, FLOOR);
+		scrutinyDetail3.addColumnHeading(4, TOTAL_BUILD_UP_AREA);
+		scrutinyDetail3.addColumnHeading(5, DEMOLITION_AREA);
+		scrutinyDetail3.addColumnHeading(6, BUILT_UP_AREA_AFTER_DEMOLITION);
+
+		BigDecimal totalDemolitionArea = BigDecimal.ZERO;
+		for (Block block : pl.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+
+				BigDecimal existingBuiltUpArea = floor.getOccupancies().stream()
+						.map(occ -> occ.getExistingBuiltUpArea()).reduce(BigDecimal::add).orElse(BigDecimal.ZERO)
+						.setScale(2, BigDecimal.ROUND_HALF_UP);
+				BigDecimal demolitionArea = floor.getDemolitionArea().stream().map(m -> m.getArea())
+						.reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_HALF_UP);
+				totalDemolitionArea = totalDemolitionArea.add(demolitionArea);
+
+				BigDecimal totalBuildUpArea = existingBuiltUpArea.add(demolitionArea).setScale(2,
+						BigDecimal.ROUND_HALF_UP);
+
+				if (demolitionArea.compareTo(BigDecimal.ZERO) > 0) {
+					setReportOutputDetails(SUBRULE_88_1, block.getName(), floor.getNumber()+"", totalBuildUpArea.toString(), demolitionArea.toString(), existingBuiltUpArea.toString(), scrutinyDetail3);
+				}
+
+			}
+		}
+		
+		if(totalDemolitionArea.compareTo(pl.getPlanInformation().getDemolitionArea()) != 0) {
+			pl.addError("totalDemolitionAreaError", DEMOLITION_ERROR_MSG);
+		}
+		
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail3);
+		return pl;
+	}
+
 	@Override
 	public Map<String, Date> getAmendments() {
 		return new LinkedHashMap<>();
@@ -136,6 +183,18 @@ public class ApprovedConstruction extends FeatureProcess {
 		details.put(EXISTING_AREA, existingArea);
 		details.put(APPROVED_AREA, approvedArea);
 		details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+		scrutinyDetail.getDetail().add(details);
+	}
+
+	private void setReportOutputDetails(String ruleNo, String block, String floor, String totalBuildUpArea,
+			String demolitionArea, String buildUpAreaAfterDemolition, ScrutinyDetail scrutinyDetail) {
+		Map<String, String> details = new HashMap<>();
+		details.put(RULE_NO, ruleNo);
+		details.put(BLOCK, block);
+		details.put(FLOOR, floor);
+		details.put(TOTAL_BUILD_UP_AREA, totalBuildUpArea);
+		details.put(DEMOLITION_AREA, demolitionArea);
+		details.put(BUILT_UP_AREA_AFTER_DEMOLITION, buildUpAreaAfterDemolition);
 		scrutinyDetail.getDetail().add(details);
 	}
 }
