@@ -188,5 +188,5 @@ public class DxfFileConstants {
     public static final int DIMENSION_WIDTH_COLOR_CODE = 2;
     public static final int DIMENSION_HEIGHT_COLOR_CODE = 3;
     public static final int PORTICO_EXTERIOR_WALL_COLOR = 4;
-
+    public static final String FEATURE_RESTRICTED_AREA = "Restricted area";
 }

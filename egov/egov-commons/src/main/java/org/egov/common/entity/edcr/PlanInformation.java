@@ -124,6 +124,10 @@ public class PlanInformation implements Serializable {
     private transient String leaseHoldLand;
     //Extracted from Plan info. Road width declared in the plan.
     private BigDecimal roadWidth = BigDecimal.ZERO;
+    //Extracted from AffectedLandArea layer.
+    private BigDecimal surrenderRoadWidth = BigDecimal.ZERO;
+    //Total roadWidth roadWidth + surrenderRoadWidth
+    private BigDecimal totalRoadWidth = BigDecimal.ZERO;
     //Extracted from Plan info. Road length declared in the plan.
     private BigDecimal roadLength = BigDecimal.ZERO;
     //Extracted from Plan info. Type of area. Whether old or new area.
@@ -269,6 +273,8 @@ public class PlanInformation implements Serializable {
     private BigDecimal numberOfTemporaryStructures=BigDecimal.ZERO;
     
     private String shortenedReportFileStoreId;
+    
+    private BigDecimal totalPlotArea = BigDecimal.ZERO;
     
     private BigDecimal additionalTdr;
     
@@ -541,10 +547,28 @@ public class PlanInformation implements Serializable {
     }
 
     public void setRoadWidth(BigDecimal roadWidth) {
+    	if(this.totalRoadWidth==null && this.totalRoadWidth.compareTo(BigDecimal.ZERO)<=0)
+    		this.totalRoadWidth=roadWidth;
         this.roadWidth = roadWidth;
     }
+    
+	public BigDecimal getSurrenderRoadWidth() {
+		return surrenderRoadWidth;
+	}
 
-    public String getTypeOfArea() {
+	public void setSurrenderRoadWidth(BigDecimal surrenderRoadWidth) {
+		this.surrenderRoadWidth = surrenderRoadWidth;
+	}
+
+	public BigDecimal getTotalRoadWidth() {
+		return totalRoadWidth;
+	}
+
+	public void setTotalRoadWidth(BigDecimal totalRoadWidth) {
+		this.totalRoadWidth = totalRoadWidth;
+	}
+
+	public String getTypeOfArea() {
         return typeOfArea;
     }
 
@@ -1102,6 +1126,14 @@ public class PlanInformation implements Serializable {
 
 	public void setAdditionalTdr(BigDecimal additionalTdr) {
 		this.additionalTdr = additionalTdr;
+	}
+
+	public BigDecimal getTotalPlotArea() {
+		return totalPlotArea;
+	}
+
+	public void setTotalPlotArea(BigDecimal totalPlotArea) {
+		this.totalPlotArea = totalPlotArea;
 	}
 
 	

@@ -607,7 +607,7 @@ public class Far extends FeatureProcess {
 		pl.setFarDetails(new FarDetails());
 		pl.getFarDetails().setProvidedFar(providedFar.doubleValue());
 		String typeOfArea = pl.getPlanInformation().getTypeOfArea();
-		BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
+		BigDecimal roadWidth = pl.getPlanInformation().getTotalRoadWidth();
 
 //		if (mostRestrictiveOccupancyType != null && StringUtils.isNotBlank(typeOfArea) && roadWidth != null
 //				&& !processFarForSpecialOccupancy(pl, mostRestrictiveOccupancyType, providedFar, typeOfArea, roadWidth,

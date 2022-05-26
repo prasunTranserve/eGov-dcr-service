@@ -289,10 +289,10 @@ public class FrontYardService extends GeneralRule {
                 || A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
                 || A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
                         && block.getBuilding().getFloorsAboveGround().compareTo(BigDecimal.valueOf(5)) <= 0) {
-			if (pl.getPlanInformation() != null && pl.getPlanInformation().getRoadWidth() != null
+			if (pl.getPlanInformation() != null && pl.getPlanInformation().getTotalRoadWidth() != null
 					&& StringUtils.isNotBlank(pl.getPlanInformation().getLandUseZone())
 					&& DxfFileConstants.COMMERCIAL.equalsIgnoreCase(pl.getPlanInformation().getLandUseZone())
-					&& pl.getPlanInformation().getRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+					&& pl.getPlanInformation().getTotalRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
 				valid = commercialUptoSixteenMts(level, block.getName(), min, mean, mostRestrictiveOccupancy,
 						frontYardResult, valid, DxfFileConstants.RULE_28, rule, minVal, meanVal, depthOfPlot);
 			} else {
@@ -460,10 +460,10 @@ public class FrontYardService extends GeneralRule {
 		if (mostRestrictiveOccupancy.getSubtype() != null && (A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
 				|| A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
 				|| A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode()))) {
-			if (pl.getPlanInformation() != null && pl.getPlanInformation().getRoadWidth() != null
+			if (pl.getPlanInformation() != null && pl.getPlanInformation().getTotalRoadWidth() != null
 					&& StringUtils.isNotBlank(pl.getPlanInformation().getLandUseZone())
 					&& DxfFileConstants.COMMERCIAL.equalsIgnoreCase(pl.getPlanInformation().getLandUseZone())
-					&& pl.getPlanInformation().getRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+					&& pl.getPlanInformation().getTotalRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
 				valid = commercialUptoSixteenMts(level, blockName, min, mean, mostRestrictiveOccupancy, frontYardResult,
 						valid, DxfFileConstants.RULE_28, rule, minVal, meanVal, depthOfPlot);
 			} else {
@@ -616,10 +616,10 @@ public class FrontYardService extends GeneralRule {
 		if (mostRestrictiveOccupancy.getSubtype() != null && A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
 				|| A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
 				|| A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())) {
-			if (pl.getPlanInformation() != null && pl.getPlanInformation().getRoadWidth() != null
+			if (pl.getPlanInformation() != null && pl.getPlanInformation().getTotalRoadWidth() != null
 					&& StringUtils.isNotBlank(pl.getPlanInformation().getLandUseZone())
 					&& DxfFileConstants.COMMERCIAL.equalsIgnoreCase(pl.getPlanInformation().getLandUseZone())
-					&& pl.getPlanInformation().getRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+					&& pl.getPlanInformation().getTotalRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
 				valid = commercialUptoSixteenMts(level, blockName, min, mean, mostRestrictiveOccupancy, frontYardResult,
 						valid, DxfFileConstants.RULE_28, rule, minVal, meanVal, depthOfPlot);
 			} else {

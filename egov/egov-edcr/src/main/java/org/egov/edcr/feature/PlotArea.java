@@ -112,7 +112,7 @@ public class PlotArea extends FeatureProcess {
 				BigDecimal minimumDistanceFromTheRoadIntersectionsRequired=BigDecimal.ZERO;
 				BigDecimal minimumDistanceOfPropertyLineFromCentreLineOfTheRoadRequired=BigDecimal.ZERO;
 				
-				BigDecimal roadWith=pl.getPlanInformation().getRoadWidth();
+				BigDecimal roadWith=pl.getPlanInformation().getTotalRoadWidth();
 				
 				switch (typeHelper.getSubtype().getCode()) {
 				case DxfFileConstants.ROW_HOUSING:

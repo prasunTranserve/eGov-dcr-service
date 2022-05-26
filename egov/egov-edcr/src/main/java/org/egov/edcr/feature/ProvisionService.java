@@ -264,7 +264,7 @@ public class ProvisionService extends FeatureProcess {
 
 	private void validateCommercialActivityWithRoadWidth(Plan pl) {
 
-		BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
+		BigDecimal roadWidth = pl.getPlanInformation().getTotalRoadWidth();
 		int allowedTillFloor = -1;
 		boolean needDepthCheck = false;
 		if (THIRTY.compareTo(roadWidth) < 0) {

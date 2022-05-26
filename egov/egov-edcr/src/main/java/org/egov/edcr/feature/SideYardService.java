@@ -392,10 +392,10 @@ public class SideYardService extends GeneralRule {
         if (mostRestrictiveOccupancy.getSubtype() != null && (A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
                 || A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
                 || A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode()))) {
-            if (pl.getPlanInformation() != null && pl.getPlanInformation().getRoadWidth() != null
+            if (pl.getPlanInformation() != null && pl.getPlanInformation().getTotalRoadWidth() != null
                     && StringUtils.isNotBlank(pl.getPlanInformation().getLandUseZone())
                     && DxfFileConstants.COMMERCIAL.equalsIgnoreCase(pl.getPlanInformation().getLandUseZone())
-                    && pl.getPlanInformation().getRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+                    && pl.getPlanInformation().getTotalRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
                 checkCommercialUptoSixteen(blockName, level, min, max, minMeanlength, maxMeanLength,
                         mostRestrictiveOccupancy, sideYard1Result, sideYard2Result, rule, DxfFileConstants.RULE_28,
                         valid2, valid1, side2val, side1val, widthOfPlot);
@@ -641,10 +641,10 @@ public class SideYardService extends GeneralRule {
         if (mostRestrictiveOccupancy.getSubtype() != null && A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
                 || A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
                 || A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())) {
-            if (pl.getPlanInformation() != null && pl.getPlanInformation().getRoadWidth() != null
+            if (pl.getPlanInformation() != null && pl.getPlanInformation().getTotalRoadWidth() != null
                     && StringUtils.isNotBlank(pl.getPlanInformation().getLandUseZone())
                     && DxfFileConstants.COMMERCIAL.equalsIgnoreCase(pl.getPlanInformation().getLandUseZone())
-                    && pl.getPlanInformation().getRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+                    && pl.getPlanInformation().getTotalRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
                 checkCommercialUptoSixteen(blockName, level, min, max, minMeanlength, maxMeanLength,
                         mostRestrictiveOccupancy, sideYard1Result, sideYard2Result, rule, DxfFileConstants.RULE_28,
                         valid2, valid1, side2val, side1val, widthOfPlot);
@@ -725,10 +725,10 @@ public class SideYardService extends GeneralRule {
         if (mostRestrictiveOccupancy.getSubtype() != null && A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
                 || A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())
                 || A_R.equalsIgnoreCase(mostRestrictiveOccupancy.getSubtype().getCode())) {
-            if (pl.getPlanInformation() != null && pl.getPlanInformation().getRoadWidth() != null
+            if (pl.getPlanInformation() != null && pl.getPlanInformation().getTotalRoadWidth() != null
                     && StringUtils.isNotBlank(pl.getPlanInformation().getLandUseZone())
                     && DxfFileConstants.COMMERCIAL.equalsIgnoreCase(pl.getPlanInformation().getLandUseZone())
-                    && pl.getPlanInformation().getRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
+                    && pl.getPlanInformation().getTotalRoadWidth().compareTo(ROAD_WIDTH_TWELVE_POINTTWO) < 0) {
                 checkCommercialUptoSixteen(blockName, level, min, max, minMeanlength, maxMeanLength,
                         mostRestrictiveOccupancy, sideYard1Result, sideYard2Result, rule, DxfFileConstants.RULE_28,
                         valid2, valid1, side2val, side1val, widthOfPlot);

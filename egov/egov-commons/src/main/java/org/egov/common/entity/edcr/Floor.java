@@ -133,6 +133,12 @@ public class Floor extends Measurement {
     
     // From 2.0.0 version
     private List<BigDecimal> heightFromFloorToBottomOfBeam;
+    
+    private List<Measurement> approvedConstruction = new ArrayList<>();
+    
+    private List<Measurement> unauthorizedConstruction = new ArrayList<>();
+    
+    private List<Measurement> demolitionArea = new ArrayList<>();
 	
 	public List<FireStair> getFireStairs() {
 		return fireStairs;
@@ -740,6 +746,30 @@ public class Floor extends Measurement {
 
 	public void setHeightFromFloorToBottomOfBeam(List<BigDecimal> heightFromFloorToBottomOfBeam) {
 		this.heightFromFloorToBottomOfBeam = heightFromFloorToBottomOfBeam;
+	}
+
+	public List<Measurement> getApprovedConstruction() {
+		return approvedConstruction;
+	}
+
+	public void setApprovedConstruction(List<Measurement> approvedConstruction) {
+		this.approvedConstruction = approvedConstruction;
+	}
+
+	public List<Measurement> getUnauthorizedConstruction() {
+		return unauthorizedConstruction;
+	}
+
+	public void setUnauthorizedConstruction(List<Measurement> unauthorizedConstruction) {
+		this.unauthorizedConstruction = unauthorizedConstruction;
+	}
+
+	public List<Measurement> getDemolitionArea() {
+		return demolitionArea;
+	}
+
+	public void setDemolitionArea(List<Measurement> demolitionArea) {
+		this.demolitionArea = demolitionArea;
 	}
 
 	

@@ -789,4 +789,5 @@ public class DxfFileConstants {
 	public static final String SHORTENED_SCRUTINY_REPORT = "shortenedReport";
 	
 	public static final String ADDITIONAL_TDR_IF_APPLICABLE_M2="ADDITIONAL_TDR_IF_APPLICABLE_M2";
+	public static final String FEATURE_RESTRICTED_AREA = "Restricted area";
 }

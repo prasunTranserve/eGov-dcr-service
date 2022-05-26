@@ -89,8 +89,8 @@ public class RoadWidth extends FeatureProcess {
     @Override
     public Plan process(Plan pl) {
        
-        if (pl.getPlanInformation() != null && pl.getPlanInformation().getRoadWidth() != null) {
-            BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
+        if (pl.getPlanInformation() != null && pl.getPlanInformation().getTotalRoadWidth() != null) {
+            BigDecimal roadWidth = pl.getPlanInformation().getTotalRoadWidth();
             String typeOfArea = pl.getPlanInformation().getTypeOfArea();
             if (typeOfArea != null && NEW.equalsIgnoreCase(typeOfArea)) {
                 ScrutinyDetail scrutinyDetail = new ScrutinyDetail();

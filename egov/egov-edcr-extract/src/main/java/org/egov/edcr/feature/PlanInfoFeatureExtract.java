@@ -447,6 +447,7 @@ public class PlanInfoFeatureExtract extends FeatureExtract {
 			roadWidth = roadWidth.replaceAll(digitsRegex, "");
 			BigDecimal roadWidthValue = getNumericValue(roadWidth, pl, DxfFileConstants.ROAD_WIDTH);
 			pi.setRoadWidth(roadWidthValue);
+			pi.setTotalRoadWidth(roadWidthValue);
 		} else
 			pl.addError(DxfFileConstants.ROAD_WIDTH,
 					getLocaleMessage(OBJECTNOTDEFINED, DxfFileConstants.ROAD_WIDTH + " of PLAN_INFO layer"));

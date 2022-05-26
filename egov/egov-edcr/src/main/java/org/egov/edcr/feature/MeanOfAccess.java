@@ -113,7 +113,7 @@ public class MeanOfAccess extends FeatureProcess {
 		BigDecimal expectedValue = BigDecimal.ZERO;
 
 		boolean isAssemblyBuilding = OdishaUtill.isAssemblyBuildingCriteria(pl);
-		BigDecimal provided = pl.getPlanInformation().getRoadWidth();
+		BigDecimal provided = pl.getPlanInformation().getTotalRoadWidth();
 
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 

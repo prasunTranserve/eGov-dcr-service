@@ -102,7 +102,7 @@ public class LandUse extends FeatureProcess {
             scrutinyDetail.addColumnHeading(6, STATUS);
             scrutinyDetail.setKey("Block_" + blkNo + "_" + "Land Use");
 
-            BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
+            BigDecimal roadWidth = pl.getPlanInformation().getTotalRoadWidth();
             if (pl.getPlanInformation() != null && roadWidth != null
                     && StringUtils.isNotBlank(pl.getPlanInformation().getLandUseZone())
                     && DxfFileConstants.COMMERCIAL.equalsIgnoreCase(pl.getPlanInformation().getLandUseZone())
@@ -134,7 +134,7 @@ public class LandUse extends FeatureProcess {
                 Map<String, String> details = new HashMap<>();
                 details.put(RULE_NO, RULE_28);
                 details.put(DESCRIPTION, "Land use Zone");
-                details.put(ROAD_WIDTH, pl.getPlanInformation().getRoadWidth().toString());
+                details.put(ROAD_WIDTH, pl.getPlanInformation().getTotalRoadWidth().toString());
                 details.put(REQUIRED, "Atleast one floor should be commercial");
                 details.put(PROVIDED, floorNos.length() == 0 ? "commercial floor is not present"
                         : floorNos.toString().substring(0, floorNos.length() - 1) + " floors are commercial");

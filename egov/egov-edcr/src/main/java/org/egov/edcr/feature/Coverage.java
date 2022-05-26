@@ -162,7 +162,7 @@ public class Coverage extends FeatureProcess {
 			pl.getVirtualBuilding().setTotalCoverageArea(totalCoverageArea);
 		}
 
-		BigDecimal roadWidth = pl.getPlanInformation().getRoadWidth();
+		BigDecimal roadWidth = pl.getPlanInformation().getTotalRoadWidth();
 
 		BigDecimal requiredCoverage = getPermissibleGroundCoverage(pl);
 		// if(requiredCoverage.compareTo(BigDecimal.ZERO)>0)

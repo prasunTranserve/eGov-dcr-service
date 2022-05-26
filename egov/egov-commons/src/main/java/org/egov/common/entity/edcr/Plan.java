@@ -230,6 +230,9 @@ public class Plan implements Serializable {
 	
 	private Ammenity ammenity;
 	
+	//AffectedLandArea area in plot
+	private  List<AffectedLandArea> affectedLandAreas=new ArrayList<>();
+	
 	public List<BigDecimal> getCanopyDistanceFromPlotBoundary() {
 		return canopyDistanceFromPlotBoundary;
 	}
@@ -747,7 +750,15 @@ public class Plan implements Serializable {
 	public void setApplicationType(ApplicationType applicationType) {
 		this.applicationType = applicationType;
 	}
-	
+
+	public List<AffectedLandArea> getAffectedLandAreas() {
+		return affectedLandAreas;
+	}
+
+	public void setAffectedLandAreas(List<AffectedLandArea> affectedLandAreas) {
+		this.affectedLandAreas = affectedLandAreas;
+	}
+
 	
 	
 }

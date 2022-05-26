@@ -75,6 +75,8 @@ public class Plot extends Measurement {
     private Boolean smallPlot = false;
 
     private BigDecimal plotBndryArea;
+    
+    private BigDecimal plotBndryDeductionArea = BigDecimal.ZERO;
 
     public SetBack getLevelZeroSetBack() {
         SetBack setBack = null;
@@ -181,4 +183,13 @@ public class Plot extends Measurement {
     public void setPlotBndryArea(BigDecimal plotBndryArea) {
         this.plotBndryArea = plotBndryArea;
     }
+
+	public BigDecimal getPlotBndryDeductionArea() {
+		return plotBndryDeductionArea;
+	}
+
+	public void setPlotBndryDeductionArea(BigDecimal plotBndryDeductionArea) {
+		this.plotBndryDeductionArea = plotBndryDeductionArea;
+	}
+    
 }
