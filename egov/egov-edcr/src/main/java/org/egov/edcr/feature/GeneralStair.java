@@ -45,31 +45,35 @@ public class GeneralStair extends FeatureProcess {
 	@Override
 	public Plan validate(Plan plan) {
 		OccupancyTypeHelper occupancyTypeHelper = plan.getVirtualBuilding().getMostRestrictiveFarHelper();
+		String serviceType = plan.getPlanInformation().getServiceType();
 		for (Block block : plan.getBlocks()) {
-			int requiredGenralStairPerFloor =requiredGenralStairPerFloor(plan, block);
-			if(block.getBuilding().getFloors().size()>1 && !(DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
-					|| DxfFileConstants.SEMI_DETACHED.equals(occupancyTypeHelper.getSubtype().getCode())
-					|| DxfFileConstants.ROW_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
-					))
-				requiredGenralStairPerFloor = 1 +requiredGenralStairPerFloor;
+			int requiredGenralStairPerFloor = requiredGenralStairPerFloor(plan, block);
+			if (block.getBuilding().getFloors().size() > 1
+					&& !(DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING
+							.equals(occupancyTypeHelper.getSubtype().getCode())
+							|| DxfFileConstants.SEMI_DETACHED.equals(occupancyTypeHelper.getSubtype().getCode())
+							|| DxfFileConstants.ROW_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())))
+				requiredGenralStairPerFloor = 1 + requiredGenralStairPerFloor;
 			for (Floor floor : block.getBuilding().getFloors()) {
-				boolean flageForStair2=false;
-				
-				for(org.egov.common.entity.edcr.GeneralStair generalStair:floor.getGeneralStairs()) {
-					if(Integer.parseInt(generalStair.getNumber())==2)
-						flageForStair2=true;
+				boolean flageForStair2 = false;
+				boolean isPerposedAreaPersent = isPerposedAreaPersent(floor, serviceType);
+				for (org.egov.common.entity.edcr.GeneralStair generalStair : floor.getGeneralStairs()) {
+					if (Integer.parseInt(generalStair.getNumber()) == 2)
+						flageForStair2 = true;
 				}
-				
+
 				if (floor.getNumber() < 0) {
-					if ((floor.getGeneralStairs() == null || !flageForStair2) && is2GenralStairRequired(floor.getNumber(), block)) {
+					if ((floor.getGeneralStairs() == null || !flageForStair2)
+							&& is2GenralStairRequired(floor.getNumber(), block) && isPerposedAreaPersent) {
 						plan.addError("MINIMUM_TWO_STAIR_Required" + block.getNumber() + "f" + floor.getNumber(),
 								"Minimum two GeneralStair are required in blook " + block.getNumber() + " floor "
 										+ floor.getNumber() + " but provided " + floor.getGeneralStairs().size());
 					}
 				} else {
 					if (!floor.getTerrace()) {
-						if (floor.getGeneralStairs() == null
-								|| floor.getGeneralStairs().size() < requiredGenralStairPerFloor) {
+						if ((floor.getGeneralStairs() == null
+								|| floor.getGeneralStairs().size() < requiredGenralStairPerFloor)
+								&& isPerposedAreaPersent) {
 							plan.addError("MINIMUM_STAIR_Required" + block.getNumber() + "f" + floor.getNumber(),
 									"Minimum " + requiredGenralStairPerFloor + " GeneralStair are required in blook "
 											+ block.getNumber() + " floor " + floor.getNumber() + " but provided "
@@ -83,17 +87,17 @@ public class GeneralStair extends FeatureProcess {
 		return plan;
 	}
 
-	public boolean is2GenralStairRequired(int floorNumber,Block block) {
-		boolean flage=true;
-		Floor floor=block.getBuilding().getFloorNumber(floorNumber+1);
-		
-		if(floor.getVehicleRamps().size()>0) {
-			flage=false;
+	public boolean is2GenralStairRequired(int floorNumber, Block block) {
+		boolean flage = true;
+		Floor floor = block.getBuilding().getFloorNumber(floorNumber + 1);
+
+		if (floor.getVehicleRamps().size() > 0) {
+			flage = false;
 		}
-		
+
 		return flage;
 	}
-	
+
 	private int requiredGenralStairPerFloor(Plan pl, Block block) {
 		int required = 0;
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
@@ -164,11 +168,11 @@ public class GeneralStair extends FeatureProcess {
 	public Plan process(Plan plan) {
 		validate(plan);
 		HashMap<String, String> errors = new HashMap<>();
-		
+
 		blk: for (Block block : plan.getBlocks()) {
 			int generalStairCount = 0;
 			if (block.getBuilding() != null) {
-				if(OdishaUtill.isStairRequired(plan, block))
+				if (OdishaUtill.isStairRequired(plan, block))
 					continue;
 				/*
 				 * if (Util.checkExemptionConditionForBuildingParts(block) ||
@@ -262,10 +266,8 @@ public class GeneralStair extends FeatureProcess {
 													mostRestrictiveOccupancyType, floor, typicalFloorValues,
 													generalStair, landings, errors);
 										} else {
-											errors.put(
-													"General Stair landing not defined in block " + block.getNumber()
-															+ "" + floor.getNumber() + " stair "
-															+ generalStair.getNumber(),
+											errors.put("General Stair landing not defined in block " + block.getNumber()
+													+ "" + floor.getNumber() + " stair " + generalStair.getNumber(),
 													"General Stair landing not defined in block " + block.getNumber()
 															+ "" + floor.getNumber() + " stair "
 															+ generalStair.getNumber());
@@ -338,24 +340,35 @@ public class GeneralStair extends FeatureProcess {
 							? (String) typicalFloorValues.get("typicalFloors")
 							: "" + floor.getNumber();
 
-					if (valid) {
-						setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
-								String.format(WIDTH_LANDING_DESCRIPTION, generalStair.getNumber(), landing.getNumber()),
-								minimumWidth.toString(), minWidth.toString(), Result.Accepted.getResultVal(),
-								scrutinyDetailLanding);
+					boolean isPerposedAreaPersent = isPerposedAreaPersent(floor,
+							plan.getPlanInformation().getServiceType());
+					if (isPerposedAreaPersent) {
+						if (valid) {
+							setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
+									String.format(WIDTH_LANDING_DESCRIPTION, generalStair.getNumber(),
+											landing.getNumber()),
+									minimumWidth.toString(), minWidth.toString(), Result.Accepted.getResultVal(),
+									scrutinyDetailLanding);
+						} else {
+							setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
+									String.format(WIDTH_LANDING_DESCRIPTION, generalStair.getNumber(),
+											landing.getNumber()),
+									minimumWidth.toString(), minWidth.toString(), Result.Not_Accepted.getResultVal(),
+									scrutinyDetailLanding);
+						}
 					} else {
 						setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
 								String.format(WIDTH_LANDING_DESCRIPTION, generalStair.getNumber(), landing.getNumber()),
-								minimumWidth.toString(), minWidth.toString(), Result.Not_Accepted.getResultVal(),
+								minimumWidth.toString(), minWidth.toString(), Result.Verify.getResultVal(),
 								scrutinyDetailLanding);
 					}
 				}
 			} else {
-				errors.put("General Stair landing width not defined in block " + block.getNumber() + ""
-						+ floor.getNumber() + " stair " + generalStair.getNumber() + " Landing " + landing.getNumber(),
-						"General Stair landing width not defined in block " + block.getNumber() + ""
-								+ floor.getNumber() + " stair " + generalStair.getNumber() + " Landing "
-								+ landing.getNumber());
+				errors.put(
+						"General Stair landing width not defined in block " + block.getNumber() + "" + floor.getNumber()
+								+ " stair " + generalStair.getNumber() + " Landing " + landing.getNumber(),
+						"General Stair landing width not defined in block " + block.getNumber() + "" + floor.getNumber()
+								+ " stair " + generalStair.getNumber() + " Landing " + landing.getNumber());
 				plan.addErrors(errors);
 			}
 		}
@@ -375,8 +388,8 @@ public class GeneralStair extends FeatureProcess {
 			BigDecimal raiserHeightProvided = BigDecimal.ZERO;
 
 			if (totalNoOfRaiser.compareTo(BigDecimal.ZERO) <= 0) {
-				pl.addError("STAIRCASE", " Raiser not defined Block " + block.getNumber() + ""
-						+ floor.getNumber() + " stair " + generalStair.getNumber());
+				pl.addError("STAIRCASE", " Raiser not defined Block " + block.getNumber() + "" + floor.getNumber()
+						+ " stair " + generalStair.getNumber());
 				return;
 			}
 
@@ -386,10 +399,11 @@ public class GeneralStair extends FeatureProcess {
 			}
 
 			if (generalStair.getFloorHeight().compareTo(BigDecimal.ZERO) > 0)
-				raiserHeightProvided = generalStair.getFloorHeight().divide(totalNoOfRaiser, 2,BigDecimal.ROUND_HALF_UP);
+				raiserHeightProvided = generalStair.getFloorHeight().divide(totalNoOfRaiser, 2,
+						BigDecimal.ROUND_HALF_UP);
 			else
-				pl.addError("STAIRCASE", " Floor Hight not defined Block " + block.getNumber() + ""
-						+ floor.getNumber() + " stair " + generalStair.getNumber());
+				pl.addError("STAIRCASE", " Floor Hight not defined Block " + block.getNumber() + "" + floor.getNumber()
+						+ " stair " + generalStair.getNumber());
 			BigDecimal raiserHeightexpected = requiredRaiserHeight(block, occupancyTypeHelper);
 
 //			if(pl.getDrawingPreference().getInFeets()) {
@@ -400,17 +414,24 @@ public class GeneralStair extends FeatureProcess {
 			boolean valid = false;
 			if (raiserHeightProvided.compareTo(raiserHeightexpected) <= 0)
 				valid = true;
-
-			if (valid)
+			boolean isPerposedAreaPersent = isPerposedAreaPersent(floor, pl.getPlanInformation().getServiceType());
+			if (isPerposedAreaPersent) {
+				if (valid)
+					setReportOutputDetailsFloorStairWise(pl, RULE42_5_II, floor.getNumber().toString(),
+							String.format(HEIGHT_OF_RISER_DESCRIPTION, generalStair.getNumber()),
+							raiserHeightexpected.toString(), raiserHeightProvided.toString(),
+							Result.Accepted.getResultVal(), scrutinyDetailHeightRise);
+				else
+					setReportOutputDetailsFloorStairWise(pl, RULE42_5_II, floor.getNumber().toString(),
+							String.format(HEIGHT_OF_RISER_DESCRIPTION, generalStair.getNumber()),
+							raiserHeightexpected.toString(), raiserHeightProvided.toString(),
+							Result.Not_Accepted.getResultVal(), scrutinyDetailHeightRise);
+			} else {
 				setReportOutputDetailsFloorStairWise(pl, RULE42_5_II, floor.getNumber().toString(),
 						String.format(HEIGHT_OF_RISER_DESCRIPTION, generalStair.getNumber()),
-						raiserHeightexpected.toString(), raiserHeightProvided.toString(),
-						Result.Accepted.getResultVal(), scrutinyDetailHeightRise);
-			else
-				setReportOutputDetailsFloorStairWise(pl, RULE42_5_II, floor.getNumber().toString(),
-						String.format(HEIGHT_OF_RISER_DESCRIPTION, generalStair.getNumber()),
-						raiserHeightexpected.toString(), raiserHeightProvided.toString(),
-						Result.Not_Accepted.getResultVal(), scrutinyDetailHeightRise);
+						raiserHeightexpected.toString(), raiserHeightProvided.toString(), Result.Verify.getResultVal(),
+						scrutinyDetailHeightRise);
+			}
 
 		}
 
@@ -455,8 +476,8 @@ public class GeneralStair extends FeatureProcess {
 				List<BigDecimal> flightLengths = flight.getLengthOfFlights();
 				List<BigDecimal> flightWidths = flight.getWidthOfFlights();
 				BigDecimal noOfRises = flight.getNoOfRises();
-				//Boolean flightPolyLineClosed = flight.getFlightClosed();
-				Boolean flightPolyLineClosed = true; 
+				// Boolean flightPolyLineClosed = flight.getFlightClosed();
+				Boolean flightPolyLineClosed = true;
 
 				BigDecimal minTread = BigDecimal.ZERO;
 				BigDecimal minFlightWidth = BigDecimal.ZERO;
@@ -551,15 +572,24 @@ public class GeneralStair extends FeatureProcess {
 					? (String) typicalFloorValues.get("typicalFloors")
 					: "" + floor.getNumber();
 
-			if (valid) {
-				setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
-						String.format(WIDTH_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
-						minimumWidth.toString(), minFlightWidth.toString(), Result.Accepted.getResultVal(),
-						scrutinyDetail2);
+			boolean isPerposedAreaPersent = isPerposedAreaPersent(floor, plan.getPlanInformation().getServiceType());
+
+			if (isPerposedAreaPersent) {
+				if (valid) {
+					setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
+							String.format(WIDTH_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
+							minimumWidth.toString(), minFlightWidth.toString(), Result.Accepted.getResultVal(),
+							scrutinyDetail2);
+				} else {
+					setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
+							String.format(WIDTH_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
+							minimumWidth.toString(), minFlightWidth.toString(), Result.Not_Accepted.getResultVal(),
+							scrutinyDetail2);
+				}
 			} else {
 				setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
 						String.format(WIDTH_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
-						minimumWidth.toString(), minFlightWidth.toString(), Result.Not_Accepted.getResultVal(),
+						minimumWidth.toString(), minFlightWidth.toString(), Result.Verify.getResultVal(),
 						scrutinyDetail2);
 			}
 		}
@@ -655,11 +685,20 @@ public class GeneralStair extends FeatureProcess {
 					String value = typicalFloorValues.get("typicalFloors") != null
 							? (String) typicalFloorValues.get("typicalFloors")
 							: "" + floor.getNumber();
-					if (valid) {
-						setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
-								String.format(TREAD_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
-								requiredTread.toString(), minTread.toString(), Result.Accepted.getResultVal(),
-								scrutinyDetail3);
+					boolean isPerposedAreaPersent = isPerposedAreaPersent(floor,
+							plan.getPlanInformation().getServiceType());
+					if (isPerposedAreaPersent) {
+						if (valid) {
+							setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
+									String.format(TREAD_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
+									requiredTread.toString(), minTread.toString(), Result.Accepted.getResultVal(),
+									scrutinyDetail3);
+						} else {
+							setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
+									String.format(TREAD_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
+									requiredTread.toString(), minTread.toString(), Result.Not_Accepted.getResultVal(),
+									scrutinyDetail3);
+						}
 					} else {
 						setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
 								String.format(TREAD_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
@@ -724,16 +763,25 @@ public class GeneralStair extends FeatureProcess {
 			String value = typicalFloorValues.get("typicalFloors") != null
 					? (String) typicalFloorValues.get("typicalFloors")
 					: "" + floor.getNumber();
-			if (valid) {
-				setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
-						String.format(NO_OF_RISER_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
-						EXPECTED_NO_OF_RISER, String.valueOf(noOfRises), Result.Accepted.getResultVal(),
-						scrutinyDetail3);
+
+			boolean isPerposedAreaPersent = isPerposedAreaPersent(floor, plan.getPlanInformation().getServiceType());
+
+			if (isPerposedAreaPersent) {
+				if (valid) {
+					setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
+							String.format(NO_OF_RISER_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
+							EXPECTED_NO_OF_RISER, String.valueOf(noOfRises), Result.Accepted.getResultVal(),
+							scrutinyDetail3);
+				} else {
+					setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
+							String.format(NO_OF_RISER_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
+							EXPECTED_NO_OF_RISER, String.valueOf(noOfRises), Result.Not_Accepted.getResultVal(),
+							scrutinyDetail3);
+				}
 			} else {
 				setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
 						String.format(NO_OF_RISER_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
-						EXPECTED_NO_OF_RISER, String.valueOf(noOfRises), Result.Not_Accepted.getResultVal(),
-						scrutinyDetail3);
+						EXPECTED_NO_OF_RISER, String.valueOf(noOfRises), Result.Verify.getResultVal(), scrutinyDetail3);
 			}
 		}
 	}
@@ -778,4 +826,18 @@ public class GeneralStair extends FeatureProcess {
 		return new LinkedHashMap<>();
 	}
 
+	private boolean isPerposedAreaPersent(Floor floor, String serviceType) {
+		boolean isPerposedAreaPersent = true;
+		if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+			BigDecimal totalBuildUpArea = floor.getOccupancies().stream().map(oc -> oc.getBuiltUpArea())
+					.reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+			BigDecimal totalExistingArea = floor.getOccupancies().stream().map(oc -> oc.getExistingBuiltUpArea())
+					.reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+			BigDecimal totalPropusedArea = totalBuildUpArea.subtract(totalExistingArea).setScale(2,
+					BigDecimal.ROUND_HALF_UP);
+			if (totalPropusedArea.compareTo(BigDecimal.ZERO) > 0)
+				isPerposedAreaPersent = true;
+		}
+		return isPerposedAreaPersent;
+	}
 }
