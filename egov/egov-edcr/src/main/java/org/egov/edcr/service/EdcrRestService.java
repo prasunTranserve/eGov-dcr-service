@@ -53,6 +53,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -66,6 +67,7 @@ import javax.persistence.PersistenceContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.egov.common.entity.dcr.helper.EdcrApplicationInfo;
 import org.egov.common.entity.dcr.helper.ErrorDetail;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.PlanInformation;
@@ -74,6 +76,7 @@ import org.egov.edcr.config.properties.EdcrApplicationSettings;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.contract.EdcrDetail;
 import org.egov.edcr.contract.EdcrRequest;
+import org.egov.edcr.contract.PermitOrderRequest;
 import org.egov.edcr.entity.ApplicationType;
 import org.egov.edcr.entity.EdcrApplication;
 import org.egov.edcr.entity.EdcrApplicationDetail;
@@ -152,6 +155,15 @@ public class EdcrRestService {
     
     @Autowired
     private EdcrApplicationDetailService applicationDetailService;
+    
+    @Autowired
+    private EdcrExternalService edcrExternalService;
+    
+    @Autowired
+    private PermitOrderServiceV1 permitOrderServiceV1;
+    
+    @Autowired
+    private PermitOrderServiceV2 permitOrderServiceV2;
     
     @Value("${download.url.support.flage}")
     private boolean downloadUrlSupportFlage;
@@ -699,5 +711,40 @@ public class EdcrRestService {
        }
     	return dUrl;
     }
+    
+	
+	/**
+	 * generate permit order pdf using jasper
+	 * 
+	 * @param permitOrderRequest
+	 * @param requestInfoWrapper TODO
+	 * @return
+	 */
+	public void generatePermitOrderV3Short(PermitOrderRequest permitOrderRequest) {
+		String edcrNo = permitOrderRequest.getBpaList().get(0).get("edcrNumber").toString();
+		
+		EdcrApplicationInfo edcrApplicationInfo=edcrExternalService.loadEdcrApplicationDetails(edcrNo);
+		Plan plan=edcrApplicationInfo.getPlan();
+		
+		InputStream reportStream = permitOrderServiceV1.generateReport(plan, permitOrderRequest.getBpaList().get(0),
+				permitOrderRequest.getRequestInfo());
+//		createPdfPermitOrder(permitOrderRequest);
+	}
+	
+	/**
+	 * generate permit order pdf using jasper
+	 * 
+	 * @param permitOrderRequest
+	 * @return
+	 */
+	public void generatePermitOrderV3Long(PermitOrderRequest permitOrderRequest) {
+		String edcrNo = permitOrderRequest.getBpaList().get(0).get("edcrNumber").toString();
+		
+		EdcrApplicationInfo edcrApplicationInfo=edcrExternalService.loadEdcrApplicationDetails(edcrNo);
+		Plan plan=edcrApplicationInfo.getPlan();
+		
+		InputStream reportStream = permitOrderServiceV2.generateReport(plan, permitOrderRequest.getBpaList().get(0),
+				permitOrderRequest.getRequestInfo());
+	}
 
 }

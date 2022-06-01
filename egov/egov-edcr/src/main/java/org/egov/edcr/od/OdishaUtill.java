@@ -836,4 +836,40 @@ public class OdishaUtill {
 			}
 		}
 	}
+	
+	public static BigDecimal getStiltArea(Plan plan) {
+		BigDecimal area = BigDecimal.ZERO;
+		for (Block block : plan.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				if (floor.getIsStiltFloor())
+					area = area.add(floor.getArea());
+			}
+		}
+		area = area.setScale(2, BigDecimal.ROUND_HALF_UP);
+		return area;
+	}
+	
+	public static Map<String, BigDecimal> getSetBackData(Plan plan) {
+		//these are provided setbacks-
+		BigDecimal frontSetbackProvided = BigDecimal.ZERO;
+		BigDecimal rearSetbackProvided = BigDecimal.ZERO;
+		BigDecimal leftSetbackProvided = BigDecimal.ZERO;
+		BigDecimal rightSetbackProvided = BigDecimal.ZERO;
+		Map<String, BigDecimal> setBackData = new HashMap<>();
+		setBackData.put("frontSetbackProvided", frontSetbackProvided);
+		setBackData.put("rearSetbackProvided", rearSetbackProvided);
+		setBackData.put("leftSetbackProvided", leftSetbackProvided);
+		setBackData.put("rightSetbackProvided", rightSetbackProvided);
+
+		// these are required setbacks-
+		BigDecimal frontSetbackRequired = BigDecimal.ZERO;
+		BigDecimal rearSetbackRequired = BigDecimal.ZERO;
+		BigDecimal leftSetbackRequired = BigDecimal.ZERO;
+		BigDecimal rightSetbackRequired = BigDecimal.ZERO;
+		setBackData.put("frontSetbackRequired", frontSetbackRequired);
+		setBackData.put("rearSetbackRequired", rearSetbackRequired);
+		setBackData.put("leftSetbackRequired", leftSetbackRequired);
+		setBackData.put("rightSetbackRequired", rightSetbackRequired);
+		return setBackData;
+	}
 }

@@ -68,6 +68,7 @@ import org.egov.edcr.contract.ComparisonResponse;
 import org.egov.edcr.contract.EdcrDetail;
 import org.egov.edcr.contract.EdcrRequest;
 import org.egov.edcr.contract.EdcrResponse;
+import org.egov.edcr.contract.PermitOrderRequest;
 import org.egov.edcr.contract.PlanResponse;
 import org.egov.edcr.entity.ApplicationType;
 import org.egov.edcr.service.EdcrRestService;
@@ -356,4 +357,18 @@ public class RestEdcrApplicationController {
 
     }
 
+    
+    @PostMapping(value = "/generatePermitOrderV3Short", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> generatePermitOrderV3Short(@RequestBody @Valid PermitOrderRequest permitOrderRequest) {
+		edcrRestService.generatePermitOrderV3Short(permitOrderRequest);
+		return new ResponseEntity<>(null, HttpStatus.OK);
+	}
+	
+	@PostMapping(value = "/generatePermitOrderV3Long", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> generatePermitOrderV3Long(@RequestBody @Valid PermitOrderRequest permitOrderRequest) {
+		edcrRestService.generatePermitOrderV3Long(permitOrderRequest);
+		return new ResponseEntity<>(null, HttpStatus.OK);
+	}
 }
