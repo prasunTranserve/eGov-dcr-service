@@ -32,7 +32,7 @@ public class ProvisionService extends FeatureProcess {
 	public static final BigDecimal MIN_RESERVE_NS_AND_CF_PERCENTAGE = BigDecimal.valueOf(0.05);
 	public static final BigDecimal MIN_RESERVE_NS_PERCENTAGE = BigDecimal.valueOf(0.03);
 	public static final BigDecimal MIN_PLOT_SIZE_FOR_EWS = BigDecimal.valueOf(2000);
-	public static final BigDecimal MAX_FAR_ALLOWED = BigDecimal.valueOf(3.5);
+//	public static final BigDecimal MAX_FAR_ALLOWED = BigDecimal.valueOf(3.5);
 	public static final BigDecimal COMERCIAL_ACTIVITY_MAX_PERCENTAGE = BigDecimal.valueOf(5);
 	public static final BigDecimal MAX_ACCOMODATION_FOR_FARM_HOUSE = BigDecimal.valueOf(100);
 	public static final BigDecimal MAX_ACCOMODATION_FOR_COUNTRY_HOMES = BigDecimal.valueOf(100);
@@ -439,13 +439,15 @@ public class ProvisionService extends FeatureProcess {
 				}
 
 				// FAR calculation with EWS
-				BigDecimal far = calculateFar(pl);
+				Double farWithEWS = calculateFar(pl);
+				Double deltaFar = farWithEWS - pl.getFarDetails().getProvidedFar() ;
+				Double maxAllowed = pl.getFarDetails().getPermissableFar() + deltaFar;
 				Map<String, String> detailsFar = new HashMap<>();
 				detailsFar.put(RULE_NO, "");
 				detailsFar.put(DESCRIPTION, "FAR including EWS provision");
-				detailsFar.put(REQUIRED, "Max " + MAX_FAR_ALLOWED.toString());
-				detailsFar.put(PROVIDED, far.toString());
-				if (MAX_FAR_ALLOWED.compareTo(far) >= 0) {
+				detailsFar.put(REQUIRED, "Max " + maxAllowed.toString());
+				detailsFar.put(PROVIDED, farWithEWS.toString());
+				if (farWithEWS <= maxAllowed) {
 					detailsFar.put(STATUS, Result.Accepted.getResultVal());
 				} else {
 					detailsFar.put(STATUS, Result.Not_Accepted.getResultVal());
@@ -481,11 +483,11 @@ public class ProvisionService extends FeatureProcess {
 
 	}
 
-	private BigDecimal calculateFar(Plan pl) {
+	private Double calculateFar(Plan pl) {
 		BigDecimal surrenderRoadArea = pl.getTotalSurrenderRoadArea();
 		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea().add(surrenderRoadArea) : BigDecimal.ZERO;
 		BigDecimal totalBuaArea = pl.getVirtualBuilding().getTotalFloorArea().add(pl.getTotalEWSAreaInPlot());
-		return totalBuaArea.divide(plotArea, 1, ROUNDMODE_MEASUREMENTS);
+		return totalBuaArea.divide(plotArea, 3, ROUNDMODE_MEASUREMENTS).doubleValue();
 	}
 
 	private BigDecimal calculateTotalDeductedBuildupArea(Plan pl, List<String> subOccupancies) {
