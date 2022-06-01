@@ -53,7 +53,7 @@ public class LiftServiceExtract extends FeatureExtract {
                                 return;
                             }
         String liftRegex = String.format(layerNames.getLayerName("LAYER_NAME_LIFT"), block.getNumber(), floor.getNumber())
-                + "_+\\d";
+                + "_+\\d+$";
         List<String> liftLayer = Util.getLayerNamesLike(doc, liftRegex);
         if (!liftLayer.isEmpty())
             for (String lftLayer : liftLayer) {

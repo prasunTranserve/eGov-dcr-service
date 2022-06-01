@@ -485,7 +485,7 @@ public class ProvisionService extends FeatureProcess {
 		BigDecimal surrenderRoadArea = pl.getTotalSurrenderRoadArea();
 		BigDecimal plotArea = pl.getPlot() != null ? pl.getPlot().getArea().add(surrenderRoadArea) : BigDecimal.ZERO;
 		BigDecimal totalBuaArea = pl.getVirtualBuilding().getTotalFloorArea().add(pl.getTotalEWSAreaInPlot());
-		return totalBuaArea.divide(plotArea, 3, ROUNDMODE_MEASUREMENTS);
+		return totalBuaArea.divide(plotArea, 1, ROUNDMODE_MEASUREMENTS);
 	}
 
 	private BigDecimal calculateTotalDeductedBuildupArea(Plan pl, List<String> subOccupancies) {

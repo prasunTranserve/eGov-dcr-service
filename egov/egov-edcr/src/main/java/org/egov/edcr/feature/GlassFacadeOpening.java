@@ -61,6 +61,7 @@ import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -73,7 +74,7 @@ public class GlassFacadeOpening extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-		
+		String serviceType = pl.getPlanInformation().getServiceType();
 		for (Block b : pl.getBlocks()) {
 			if (b.isGlassFacadeOpening()) {
 				ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
@@ -86,7 +87,8 @@ public class GlassFacadeOpening extends FeatureProcess {
 				scrutinyDetail.addColumnHeading(6, STATUS);
 
 				for (Floor floor : b.getBuilding().getFloors()) {
-					if (floor.getNumber() < 0)
+					boolean isPerposedAreaPersent = isPerposedAreaPersent(floor, serviceType);
+					if (floor.getNumber() < 0 && !isPerposedAreaPersent)
 						continue;
 
 					// Height
@@ -166,5 +168,21 @@ public class GlassFacadeOpening extends FeatureProcess {
 	public Map<String, Date> getAmendments() {
 		return new LinkedHashMap<>();
 	}
-
+	
+	private boolean isPerposedAreaPersent(Floor floor, String serviceType) {
+		boolean isPerposedAreaPersent = true;
+		if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+			BigDecimal totalBuildUpArea = floor.getOccupancies().stream().map(oc -> oc.getBuiltUpArea())
+					.reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+			BigDecimal totalExistingArea = floor.getOccupancies().stream().map(oc -> oc.getExistingBuiltUpArea())
+					.reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+			BigDecimal totalPropusedArea = totalBuildUpArea.subtract(totalExistingArea).setScale(2,
+					BigDecimal.ROUND_HALF_UP);
+			if (totalPropusedArea.compareTo(BigDecimal.ZERO) > 0)
+				isPerposedAreaPersent = true;
+			else
+				isPerposedAreaPersent = false;
+		}
+		return isPerposedAreaPersent;
+	}
 }

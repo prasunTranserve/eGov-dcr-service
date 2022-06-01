@@ -837,6 +837,8 @@ public class GeneralStair extends FeatureProcess {
 					BigDecimal.ROUND_HALF_UP);
 			if (totalPropusedArea.compareTo(BigDecimal.ZERO) > 0)
 				isPerposedAreaPersent = true;
+			else
+				isPerposedAreaPersent = false;
 		}
 		return isPerposedAreaPersent;
 	}
