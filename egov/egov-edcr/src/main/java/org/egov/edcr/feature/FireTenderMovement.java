@@ -83,6 +83,7 @@ public class FireTenderMovement extends FeatureProcess {
 	public Plan process(Plan plan) {
 		HashMap<String, String> errors = new HashMap<>();
 		boolean isMandatory = isVehicularAccessMandatory(plan);
+		String serviceType = plan.getPlanInformation().getServiceType();
 		for (Block block : plan.getBlocks()) {
 
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
@@ -109,8 +110,14 @@ public class FireTenderMovement extends FeatureProcess {
 					details.put(DESCRIPTION, "Width of vehicular access within Site");
 					details.put(PERMISSIBLE, ">= " + requiredWidth.toString());
 					details.put(PROVIDED, providedWidth.toString());
+					String status = Result.Not_Accepted.getResultVal();
+					if(DxfFileConstants.ALTERATION.equals(serviceType)) {
+						status = Result.Verify.getResultVal();
+					}else {
+						status = isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal();
+					}
 					details.put(STATUS,
-							isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+							status);
 					scrutinyDetail.getDetail().add(details);
 					plan.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
