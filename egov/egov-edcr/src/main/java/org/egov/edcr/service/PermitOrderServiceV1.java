@@ -114,7 +114,7 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 //				new FileOutputStream("C:\\Temp\\Odisha\\permitFile\\001_V3ShortPermit_20220525.pdf"));
 		ByteArrayOutputStream outputBytes;
 		outputBytes = new ByteArrayOutputStream();
-		PdfWriter.getInstance(document,outputBytes);
+		PdfWriter.getInstance(document, outputBytes);
 		document.open();
 
 		Image logo = getLogo(imageUrl2);
