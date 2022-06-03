@@ -1,5 +1,7 @@
 package org.egov.edcr.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -40,42 +42,42 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
-public class PermitOrderServiceV2 extends PermitOrderAbstractService{
-	
+public class PermitOrderServiceV2 extends PermitOrderService {
+
 	public static String PARAGRAPH_ONE = "Permission Under Sub-Section (3) of the Section-16 of the Orissa Development Authorities Act’1982(Orissa Act,1982) is hereby granted in favour of ";
 	public static String PARAGRAPH_ONE_BOLD = " KRJ PROJECT LLP authorized representated by Sri Sachin Kumar Singh (Authorized signatory) and SRI HARI INFRACON PVT.LTD authorized Representative Binod Kumar Agrawalla.";
-	
+
 	public static String PARAGRAPH_TWO_I = "for %s of ";
 	public static String PARAGRAPH_TWO_II = "%s %s over Plot No. %s pertaining to Khata No. %s in Mouza-%s ";
 	public static String PARAGRAPH_TWO_III = "in the Development Plan area of ";
-	public static String PARAGRAPH_TWO_IV =	"Bhubaneswar ";	 
+	public static String PARAGRAPH_TWO_IV = "Bhubaneswar ";
 	public static String PARAGRAPH_TWO_V = " with the following parameters and conditions;";
-	
+
 	public static String PARAGRAPH_THREE_I = "The building shall be used exclusively for ";
 	public static String PARAGRAPH_THREE_II = "MultistoriedResidential Apartment with Community building ";
 	public static String PARAGRAPH_THREE_III = "purpose and the use shall not be changed to any other use without prior approval of this Authority.\n\n";
-	
+
 	public static String PARAGRAPH_FOUR = "The development shall be undertaken strictly according to plans enclosed with necessary permission endorsement.\n\n";
-	
+
 	public static String PARAGRAPH_FIVE_I = "Total Parking space measuring ";
 	public static String PARAGRAPH_FIVE_II = "6798.03Sqm (in Basement/ Ground and Open) ";
 	public static String PARAGRAPH_FIVE_III = " as shown in the approved plan shall be left for parking of vehicles and no part of it will be used for any other purpose.\n\n";
-	
+
 	public static String PARAGRAPH_SIX_I = "The land over which construction is proposed is accessible by an approved means of access of ";
 	public static String PARAGRAPH_SIX_II = "%s Mtr. ";
 	public static String PARAGRAPH_SIX_III = "in width.\n\n";
-	
+
 	public static String PARAGRAPH_SEVEN = "The land in question must be in lawful ownership and peaceful possession of the applicant.\n\n";
-	
+
 	public static String PARAGRAPH_EIGHT_I = "The applicant shall free gift ";
 	public static String PARAGRAPH_EIGHT_II = "143.41sqm ";
-	public static String PARAGRAPH_EIGHT_III= " wide strip of land to Bhubaneswar Development Authority/ULB for further widening of the road to the standard width as per ";
+	public static String PARAGRAPH_EIGHT_III = " wide strip of land to Bhubaneswar Development Authority/ULB for further widening of the road to the standard width as per ";
 	public static String PARAGRAPH_EIGHT_IV = "CDP-2010, BDA.\n\n";
-	
+
 	public static String PARAGRAPH_NINE_I = "The permission granted under these regulations shall remain valid upto ";
 	public static String PARAGRAPH_NINE_II = "three years ";
 	public static String PARAGRAPH_NINE_III = "from the date of issue.However the permission shall have to be revalidated before the expiry of the above period on payment of such fee as may be prescribed under rules and such revalidation shall be valid for one year.\n\n";
-	
+
 	public static String PARAGRAPH_TEN_I = "Approval of plans and acceptance of any statement or document pertaining to such plan shall not exempt the owner or person or persons under whose supervision the building is constructed from their responsibilities imposed under ODA (Planning & Building Standards) Rules 2020, or under any other law for the time being in force.\n\n";
 	public static String PARAGRAPH_TEN_II = "Approval of plan would mean granting of permission to construct under these regulations in force only and shall not mean among other things-\n\n";
 	public static String PARAGRAPH_TEN_II_A = "The title over the land or building\n\n";
@@ -86,34 +88,34 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 	public static String PARAGRAPH_TEN_II_F = "Quality of building services and amenities in the construction of the building,\n\n";
 	public static String PARAGRAPH_TEN_II_G = "The site/area liable to flooding as a result of not taking proper drainage arrangement as per the natural lay of the land, etc and\n\n";
 	public static String PARAGRAPH_TEN_II_H = "Other requirements or licenses or clearances required to be obtained for the site /premises or activity under various other laws.\n\n";
-	
+
 	public static String PARAGRAPH_ELEVEN = "In case of any dispute arising out of land record or in respect of right, title, interest after this permission is granted, the permission so granted shall be treated as automatically cancelled during the period of dispute.\n\n";
 
 	public static String PARAGRAPH_TWELEVE = "Neither granting of the permit nor the approval of the drawing and specifications, nor inspections made by the Authority during erection of the building shall in any way relieve the owner of such building from full responsibility for carrying out the work in accordance with the requirements of NBC 2005 and these regulations.\n\n";
-	
+
 	public static String PARAGRAPH_THIRTEEN_I = "The owner /applicant shall:\n\n";
 	public static String PARAGRAPH_THIRTEEN_I_A = "Permit the Authority to enter the building or premises, for which the permission has been granted at any reasonable time for the purpose of enforcing the regulations;\n\n";
 	public static String PARAGRAPH_THIRTEEN_I_B = "Obtain, wherever applicable, from the competent Authority permissions/clearance required in connection with the proposed work;\n\n";
 	public static String PARAGRAPH_THIRTEEN_I_C = "Give written notice to the Authority before commencement of work on building site in Form-V,periodic progress report in Form-VIII, notice of completion in Form-VI and notice in case of termination of services of Technical persons engaged by him.\n\n";
 	public static String PARAGRAPH_THIRTEEN_I_D = "Obtain an Occupancy Certificate from the Authority prior to occupation of building in full or part.\n\n";
-	
+
 	public static String PARAGRAPH_FOURTEEN = "The applicant shall abide by the provisions of Rule no.15 of ODA (P&BS) Rules, 2020 with regard to third party verification at plinth level, ground level & roof level. Any deviation to the above shall attract penalty as per the provision of the same.\n\n";
-	
+
 	public static String PARAGRAPH_FIFTEEN_A = "In case the full plot or part thereof on which permission is accorded is agricultural kisam, the same may be converted to non-agricultural kisam under section- 8 of OLR Act before commencement of construction.\n\n";
 	public static String PARAGRAPH_FIFTEEN_B = "The owner/applicant shall get the structural plan and design vetted by the institutions identified by the Authority for buildings more than 30 mtr height before commencement of construction.\n\n";
-	
+
 	public static String PARAGRAPH_SIXTEEN = "Wherever tests of any material are made to ensure conformity of the requirements of the regulations in force,records of the test data shall be kept available for inspection during the construction of building and for such period thereafter as required by the Authority.\n\n";
 
 	public static String PARAGRAPH_SEVENTEEN_I = "The persons to whom a permit is issued during construction shall keep pasted in a conspicuous place on the property in respect of which the permit was issued;\n\n";
 	public static String PARAGRAPH_SEVENTEEN_I_A = "A copy of the building permit; and\n\n";
 	public static String PARAGRAPH_SEVENTEEN_I_B = "A copy of approved drawings and specifications.\n\n";
-	
+
 	public static String PARAGRAPH_EIGHTEEN_I = "If the Authority finds at any stage that the construction is not being carried on according to the sanctioned plan or is in violations of any of the provisions of these regulations, it shall notify the owner and no further construction shall beallowed until necessary corrections in the plan are made and the corrected plan is approved. ";
 	public static String PARAGRAPH_EIGHTEEN_II = "The applicant during the course of construction and till issue of occupancy certificate shall place a display board on his site with details and declaration.\n\n";
-	
+
 	public static String PARAGRAPH_NINETEEN = "This permission is accorded on deposit /submission of the following:\n\n";
 	public static String PARAGRAPH_NINETEEN_II = "If not paid within such time as mentioned above, then interest rate of SBI PLR shall be Imposed and occupancy certificate shall not be issued without realizing the total amount including interest.";
-	 
+
 	public static String PARAGRAPH_TWENTY_I = "Other conditions to be complied by the applicant are as per the following;\n\n";
 	public static String PARAGRAPH_TWENTY_I_A = "The owner/applicant/Technical Person shall strictly adhere to the terms and conditions imposed in the NOC/Clearances given by Fire Prevention officer/National Airport Authority/SEIAA, Ministry of Forest & Environment/PHED etc wherever applicable.";
 	public static String PARAGRAPH_TWENTY_I_B = "Storm water from the premises of roof top shall be conveyed and discharged to the rain water recharging pits as per Rule 47 of ODA (Planning & Building Standards) Rules 2020.";
@@ -141,576 +143,567 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 	@Override
 	public InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) {
 		try {
-			createPdf(plan, bpaApplication, requestInfo);
+			return createPdf(plan, bpaApplication, requestInfo);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new ApplicationRuntimeException("Error while generating permit order pdf", e);
 		}
-		return null;
 	}
-	
-	public void createPdf(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) throws Exception {
-		String imageUrl = "https://digitaldesksujog051120.blob.core.windows.net" 
-							+ "/assets/Logos/odlogo.png";
 
-		
+	public InputStream createPdf(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) throws Exception {
+		String imageUrl = "https://digitaldesksujog051120.blob.core.windows.net" + "/assets/Logos/odlogo.png";
+
 		String applicationNo = getValue(bpaApplication, "applicationNo");
-		
-		
+
 		Document document = new Document();
-		PdfWriter.getInstance(document, new FileOutputStream("C:\\Temp\\Odisha\\permitFile\\001_V3LongPermit_20220525.pdf"));
-		document.open(); 
-		
-		Image logo=getLogo(imageUrl);
+		ByteArrayOutputStream outputBytes;
+		outputBytes = new ByteArrayOutputStream();
+		PdfWriter.getInstance(document,outputBytes);
+//		PdfWriter.getInstance(document,
+//				new FileOutputStream("C:\\Temp\\Odisha\\permitFile\\001_V3LongPermit_20220525.pdf"));
+		document.open();
+
+		Image logo = getLogo(imageUrl);
 		Parking parking = new Parking();
 		OdishaParkingHelper parkingData = parking.prepareParkingData(plan);
-		
+
 		Font font = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLD);
 		String[] ulbGradeNameAndUlbArray = getUlbNameAndGradeFromMdms(requestInfo, "od.cuttack");
-		String ulbGradeNameAndUlb = (ulbGradeNameAndUlbArray[0]+" "+ulbGradeNameAndUlbArray[1]);
-	    Paragraph para = new Paragraph(ulbGradeNameAndUlb, font);
-	    para.setAlignment(Paragraph.ALIGN_CENTER);
-	    Font font1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
-	    Font fontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+		String ulbGradeNameAndUlb = (ulbGradeNameAndUlbArray[0] + " " + ulbGradeNameAndUlbArray[1]);
+		Paragraph para = new Paragraph(ulbGradeNameAndUlb, font);
+		para.setAlignment(Paragraph.ALIGN_CENTER);
+		Font font1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
+		Font fontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
 		Font fontBoldUnderlined = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.UNDERLINE);
-	    Paragraph para1 = new Paragraph("Form-II (Order for Grant of Permission)", font1);
-	    para1.setAlignment(Paragraph.ALIGN_CENTER);
-	    
+		Paragraph para1 = new Paragraph("Form-II (Order for Grant of Permission)", font1);
+		para1.setAlignment(Paragraph.ALIGN_CENTER);
 
-	    String tenantIdActual =getValue(bpaApplication, "tenantId");; 
-	    String tenantId =StringUtils.capitalize(tenantIdActual.split("\\.")[1]) ;
-	    @SuppressWarnings("deprecation")
+		String tenantIdActual = getValue(bpaApplication, "tenantId");
+		;
+		String tenantId = StringUtils.capitalize(tenantIdActual.split("\\.")[1]);
+		@SuppressWarnings("deprecation")
 		Date date = new Date(Long.valueOf(getValue(bpaApplication, "approvalDate")));
-        DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        String approvalDate = format.format(date);
+		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		String approvalDate = format.format(date);
 		Paragraph para12 = new Paragraph(
 				"Letter No. " + getValue(bpaApplication, "approvalNo") + ", " + tenantId + ", Dated: " + approvalDate,
 				fontBold);
-	    para12.setAlignment(Paragraph.ALIGN_CENTER);	
-	    Paragraph para13 = new Paragraph("E-BPAS APPLICATION NO. "+applicationNo, fontBoldUnderlined);
-	    para13.setAlignment(Paragraph.ALIGN_CENTER);
-	    
-	    
-	    Font fontPara1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
-	    Font fontPara1Bold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
-	    Chunk chunk1 = new Chunk(PARAGRAPH_ONE, fontPara1);
-	    String ownersCsv = getValue(bpaApplication, "$.landInfo.owners.*.name").replace("[", "").replace("]", "")
+		para12.setAlignment(Paragraph.ALIGN_CENTER);
+		Paragraph para13 = new Paragraph("E-BPAS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
+		para13.setAlignment(Paragraph.ALIGN_CENTER);
+
+		Font fontPara1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
+		Font fontPara1Bold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+		Chunk chunk1 = new Chunk(PARAGRAPH_ONE, fontPara1);
+		String ownersCsv = getValue(bpaApplication, "$.landInfo.owners.*.name").replace("[", "").replace("]", "")
 				.replace("\"", "");
-	    Chunk chunk2 = new Chunk(ownersCsv, fontPara1Bold);
-	    Phrase phrasePara1 = new Phrase();
-	    phrasePara1.add(chunk1);
-	    phrasePara1.add(chunk2);
+		Chunk chunk2 = new Chunk(ownersCsv, fontPara1Bold);
+		Phrase phrasePara1 = new Phrase();
+		phrasePara1.add(chunk1);
+		phrasePara1.add(chunk2);
 		String serviceType = plan.getPlanInformation().getServiceType().equals("NEW_CONSTRUCTION") ? "new construction"
 				: "addition or alteration in the existing building";
-		Chunk chunk21 = new Chunk(String.format(PARAGRAPH_TWO_I, serviceType),
-				fontPara1);
-	    String floorInfo = plan.getPlanInformation().getFloorInfo()+" ";
-	    String subOccupancy = plan.getPlanInformation().getSubOccupancy()+" ";
-	    String plotNo = plan.getPlanInformation().getPlotNo()+" ";
-	    String khataNo = plan.getPlanInformation().getKhataNo()+" ";
-	    String localityName=getValue(bpaApplication, "$.landInfo.address.locality.name");
-	    
+		Chunk chunk21 = new Chunk(String.format(PARAGRAPH_TWO_I, serviceType), fontPara1);
+		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
+		String subOccupancy = plan.getPlanInformation().getSubOccupancy() + " ";
+		String plotNo = plan.getPlanInformation().getPlotNo() + " ";
+		String khataNo = plan.getPlanInformation().getKhataNo() + " ";
+		String localityName = getValue(bpaApplication, "$.landInfo.address.locality.name");
+
 		Chunk chunk22 = new Chunk(
 				String.format(PARAGRAPH_TWO_II, floorInfo, subOccupancy, plotNo, khataNo, localityName), fontPara1Bold);
-	    Chunk chunk23 = new Chunk(PARAGRAPH_TWO_III, fontPara1);
-	    
-	    Chunk chunk24 = new Chunk(tenantId, fontPara1Bold);
-	    Chunk chunk25 = new Chunk(PARAGRAPH_TWO_V, fontPara1);
-	    Phrase phrasePara2 = new Phrase();
-	    phrasePara2.add(chunk21);
-	    phrasePara2.add(chunk22);	
-	    phrasePara2.add(chunk23);
-	    phrasePara2.add(chunk24);
-	    phrasePara2.add(chunk25);
-	    
-	    BigDecimal plotArea = plan.getPlot().getArea();
-	    BigDecimal totalRoadSurrenderArea = plan.getTotalSurrenderRoadArea();
-	    //As observed in format provided by BDA, net plot area =(total plot area-road affected area)
-	    BigDecimal netPlotArea = plotArea.subtract(totalRoadSurrenderArea);
-	    BigDecimal roadWidth = plan.getPlanInformation().getRoadWidth();
-	    Font fontList1 = FontFactory.getFont("Bold", 12, Font.UNDERLINE);
-	    Phrase list1 = new Phrase("Parameters:\n", fontList1);
+		Chunk chunk23 = new Chunk(PARAGRAPH_TWO_III, fontPara1);
+
+		Chunk chunk24 = new Chunk(tenantId, fontPara1Bold);
+		Chunk chunk25 = new Chunk(PARAGRAPH_TWO_V, fontPara1);
+		Phrase phrasePara2 = new Phrase();
+		phrasePara2.add(chunk21);
+		phrasePara2.add(chunk22);
+		phrasePara2.add(chunk23);
+		phrasePara2.add(chunk24);
+		phrasePara2.add(chunk25);
+
+		BigDecimal plotArea = plan.getPlot().getArea();
+		BigDecimal totalRoadSurrenderArea = plan.getTotalSurrenderRoadArea();
+		// As observed in format provided by BDA, net plot area =(total plot area-road
+		// affected area)
+		BigDecimal netPlotArea = plotArea.subtract(totalRoadSurrenderArea);
+		BigDecimal roadWidth = plan.getPlanInformation().getRoadWidth();
+		Font fontList1 = FontFactory.getFont("Bold", 12, Font.UNDERLINE);
+		Phrase list1 = new Phrase("Parameters:\n", fontList1);
 //	    Chunk chunk31 = new Chunk(Chunk.TABBING);
-	    Chunk chunk31 = new Chunk(Chunk.TAB);
-	    Chunk chunk32 = new Chunk("	- Total plot area: Ac1.830Dec. ("+plotArea+" Sqm.)\n", fontPara1Bold);
-	    Chunk chunk33 = new Chunk("	- CDP road affected area: "+totalRoadSurrenderArea+" Sqm.\n", fontPara1Bold);
-	    Chunk chunk34 = new Chunk("	- Net plot area: "+netPlotArea+" Sqm.\n", fontPara1Bold);
-	    Chunk chunk35 = new Chunk("	- Abutting road width: "+roadWidth+" Mtr\n", fontPara1Bold);
-	    
-	    Phrase list11 = new Phrase();
-	    list11.add(chunk31);
-	    list11.add(chunk32);
-	    Phrase list12 = new Phrase();
-	    list11.add(chunk31);
-	    list11.add(chunk33);
-	    Phrase list13 = new Phrase();
-	    list11.add(chunk31);
-	    list11.add(chunk34);
-	    Phrase list14 = new Phrase();
-	    list11.add(chunk31);
-	    list11.add(chunk35);
+		Chunk chunk31 = new Chunk(Chunk.TAB);
+		Chunk chunk32 = new Chunk("	- Total plot area: Ac1.830Dec. (" + plotArea + " Sqm.)\n", fontPara1Bold);
+		Chunk chunk33 = new Chunk("	- CDP road affected area: " + totalRoadSurrenderArea + " Sqm.\n", fontPara1Bold);
+		Chunk chunk34 = new Chunk("	- Net plot area: " + netPlotArea + " Sqm.\n", fontPara1Bold);
+		Chunk chunk35 = new Chunk("	- Abutting road width: " + roadWidth + " Mtr\n", fontPara1Bold);
 
-	    PdfPTable table1 = new PdfPTable(4);
-	    table1.setWidthPercentage(100f);
-	    
-	    java.util.List<DcrReportBlockDetail> blockDetails = buildBlockWiseProposedInfo(plan); 		
-		for(DcrReportBlockDetail block: blockDetails) {
-		    BigDecimal totalFloorArea = BigDecimal.ZERO;
+		Phrase list11 = new Phrase();
+		list11.add(chunk31);
+		list11.add(chunk32);
+		Phrase list12 = new Phrase();
+		list11.add(chunk31);
+		list11.add(chunk33);
+		Phrase list13 = new Phrase();
+		list11.add(chunk31);
+		list11.add(chunk34);
+		Phrase list14 = new Phrase();
+		list11.add(chunk31);
+		list11.add(chunk35);
 
-			addTableHeader1(table1,block);
+		PdfPTable table1 = new PdfPTable(4);
+		table1.setWidthPercentage(100f);
+
+		java.util.List<DcrReportBlockDetail> blockDetails = buildBlockWiseProposedInfo(plan);
+		for (DcrReportBlockDetail block : blockDetails) {
+			BigDecimal totalFloorArea = BigDecimal.ZERO;
+
+			addTableHeader1(table1, block);
 			java.util.List<DcrReportFloorDetail> floorDetails = block.getDcrReportFloorDetails();
-			for(DcrReportFloorDetail floor: floorDetails) {
+			for (DcrReportFloorDetail floor : floorDetails) {
 				totalFloorArea = addRowsPerFloorAndAggregateFlrAreas(table1, floor, totalFloorArea);
 
 			}
-			addTotalRow(table1,totalFloorArea);
-			
+			addTotalRow(table1, totalFloorArea);
+
 		}
 
-	    PdfPTable table3 = new PdfPTable(1);
-	    table3.setWidthPercentage(100f);
-	    addRows31(table3, plan);
-	    
-	    PdfPTable table5 = new PdfPTable(3);
-	    table5.setWidthPercentage(100f);
-	    addTableRow5(table5);
-	       
-	    PdfPTable table6 = new PdfPTable(3);
-	    table6.setWidthPercentage(100f);
-	    addTableHeader6(table6, plan, parkingData);
-	    
-	    
-	    PdfPTable table10 = new PdfPTable(1);
-	    table10.setWidthPercentage(100f);
-	    addTableHeader10(table10, plan);
-	    
-	    
-	    PdfPTable table11 = new PdfPTable(1);
-	    table11.setWidthPercentage(100f);
-	    addTableHeader11(table11,plan);
-	    
-	    PdfPTable table12 = new PdfPTable(3);
-	    table12.setWidthPercentage(100f);
-	    addRows121(table12,plan);
-	    
-	    PdfPTable table13 = new PdfPTable(2);
-	    table13.setWidthPercentage(100f);
-	    addRows131(table13,plan);
-	    
-	    PdfPTable table14 = new PdfPTable(2);
-	    table14.setWidthPercentage(100f);
+		PdfPTable table3 = new PdfPTable(1);
+		table3.setWidthPercentage(100f);
+		addRows31(table3, plan);
+
+		PdfPTable table5 = new PdfPTable(3);
+		table5.setWidthPercentage(100f);
+		addTableRow5(table5);
+
+		PdfPTable table6 = new PdfPTable(3);
+		table6.setWidthPercentage(100f);
+		addTableHeader6(table6, plan, parkingData);
+
+		PdfPTable table10 = new PdfPTable(1);
+		table10.setWidthPercentage(100f);
+		addTableHeader10(table10, plan);
+
+		PdfPTable table11 = new PdfPTable(1);
+		table11.setWidthPercentage(100f);
+		addTableHeader11(table11, plan);
+
+		PdfPTable table12 = new PdfPTable(3);
+		table12.setWidthPercentage(100f);
+		addRows121(table12, plan);
+
+		PdfPTable table13 = new PdfPTable(2);
+		table13.setWidthPercentage(100f);
+		addRows131(table13, plan);
+
+		PdfPTable table14 = new PdfPTable(2);
+		table14.setWidthPercentage(100f);
 		addRows141(table14, parkingData);
-	    
-	    
-	    PdfPTable table15 = new PdfPTable(3);
-	    table15.setWidthPercentage(100f);
-	    addTableHeader151(table15);
-	    addTableHeader152(table15,plan);
-	    
-	    Chunk chunk41 = new Chunk("	- Set backs approved to be provided", fontPara1Bold);
-	    Phrase list21 = new Phrase();
-	    list21.add(chunk31);
-	    list21.add(chunk41);
-	    
-	    
-	    Font fontList3 = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
-	    Phrase list3 = new Phrase("- NOCs/ Clearances submitted:\n", fontList3);
-	    
-	    List topLevel = new List(List.ORDERED);
-	    ListItem item1 = new ListItem();
-	    Phrase list4 = new Phrase();
-	    Chunk chunk51 = new Chunk(PARAGRAPH_THREE_I,fontPara1);
-	    Chunk chunk52 = new Chunk(subOccupancy,fontPara1Bold);
-	    Chunk chunk53 = new Chunk(PARAGRAPH_THREE_III,fontPara1);
-	    list4.add(chunk51);
-	    list4.add(chunk52);
-	    list4.add(chunk53);
-	    item1.add(list4);
-	    ListItem item2 = new ListItem();
-	    Phrase list5 = new Phrase();
-	    Chunk chunk54 = new Chunk(PARAGRAPH_FOUR,fontPara1);
-	    list5.add(chunk54);
-	    item2.add(list5);
-	    ListItem item3 = new ListItem();
-	    Phrase list6 = new Phrase();
-	    Chunk chunk55 = new Chunk(PARAGRAPH_FIVE_I,fontPara1);
-	    Chunk chunk56 = new Chunk(parkingData.totalParkingProvided+" Sqm. ",fontPara1Bold);
-	    Chunk chunk57 = new Chunk(PARAGRAPH_FIVE_III,fontPara1);
-	    list6.add(chunk55);
-	    list6.add(chunk56);
-	    list6.add(chunk57);
-	    item3.add(list6);
-	    ListItem item4 = new ListItem();
-	    Phrase list7 = new Phrase();
-	    Chunk chunk58 = new Chunk(PARAGRAPH_SIX_I,fontPara1);
+
+		PdfPTable table15 = new PdfPTable(3);
+		table15.setWidthPercentage(100f);
+		addTableHeader151(table15);
+		addTableHeader152(table15, plan);
+
+		Chunk chunk41 = new Chunk("	- Set backs approved to be provided", fontPara1Bold);
+		Phrase list21 = new Phrase();
+		list21.add(chunk31);
+		list21.add(chunk41);
+
+		Font fontList3 = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+		Phrase list3 = new Phrase("- NOCs/ Clearances submitted:\n", fontList3);
+
+		List topLevel = new List(List.ORDERED);
+		ListItem item1 = new ListItem();
+		Phrase list4 = new Phrase();
+		Chunk chunk51 = new Chunk(PARAGRAPH_THREE_I, fontPara1);
+		Chunk chunk52 = new Chunk(subOccupancy, fontPara1Bold);
+		Chunk chunk53 = new Chunk(PARAGRAPH_THREE_III, fontPara1);
+		list4.add(chunk51);
+		list4.add(chunk52);
+		list4.add(chunk53);
+		item1.add(list4);
+		ListItem item2 = new ListItem();
+		Phrase list5 = new Phrase();
+		Chunk chunk54 = new Chunk(PARAGRAPH_FOUR, fontPara1);
+		list5.add(chunk54);
+		item2.add(list5);
+		ListItem item3 = new ListItem();
+		Phrase list6 = new Phrase();
+		Chunk chunk55 = new Chunk(PARAGRAPH_FIVE_I, fontPara1);
+		Chunk chunk56 = new Chunk(parkingData.totalParkingProvided + " Sqm. ", fontPara1Bold);
+		Chunk chunk57 = new Chunk(PARAGRAPH_FIVE_III, fontPara1);
+		list6.add(chunk55);
+		list6.add(chunk56);
+		list6.add(chunk57);
+		item3.add(list6);
+		ListItem item4 = new ListItem();
+		Phrase list7 = new Phrase();
+		Chunk chunk58 = new Chunk(PARAGRAPH_SIX_I, fontPara1);
 		Chunk chunk59 = new Chunk(String.format(PARAGRAPH_SIX_II, roadWidth + ""), fontPara1Bold);
-	    Chunk chunk60 = new Chunk(PARAGRAPH_SIX_III,fontPara1);
-	    list7.add(chunk58);
-	    list7.add(chunk59);
-	    list7.add(chunk60);
-	    item4.add(list7);
-	    ListItem item5 = new ListItem();
-	    Phrase list8 = new Phrase();
-	    Chunk chunk61 = new Chunk(PARAGRAPH_SEVEN,fontPara1);
-	    list8.add(chunk61);
-	    item5.add(list8);
-	    ListItem item6 = new ListItem();
-	    Phrase list9 = new Phrase();
-	    Chunk chunk62 = new Chunk(PARAGRAPH_EIGHT_I,fontPara1);
-	    Chunk chunk63 = new Chunk(totalRoadSurrenderArea+"",fontPara1Bold);
-	    Chunk chunk64 = new Chunk(PARAGRAPH_EIGHT_III,fontPara1);
-	    Chunk chunk65 = new Chunk(PARAGRAPH_EIGHT_IV,fontPara1Bold);
-	    list9.add(chunk62);
-	    list9.add(chunk63);
-	    list9.add(chunk64);
-	    list9.add(chunk65);
-	    item6.add(list9);
-	    ListItem item7 = new ListItem();
-	    Phrase list10 = new Phrase();
-	    Chunk chunk66 = new Chunk(PARAGRAPH_NINE_I,fontPara1);
-	    Chunk chunk67 = new Chunk(PARAGRAPH_NINE_II,fontPara1Bold);
-	    Chunk chunk68 = new Chunk(PARAGRAPH_NINE_III,fontPara1);
-	    list10.add(chunk66);
-	    list10.add(chunk67);
-	    list10.add(chunk68);
-	    item7.add(list10);
-	    ListItem item8 = new ListItem();
-	    Phrase list111 = new Phrase();
-	    Chunk chunk69 = new Chunk(" ",fontPara1);
-	    list111.add(chunk69);
-	    item8.add(list111);
-	    List secondLevel = new List(List.ORDERED, List.ALPHABETICAL);
-	    secondLevel.setPreSymbol("(");
-	    secondLevel.setPostSymbol(") ");
-	    ListItem item9 = new ListItem();
-	    Phrase chunk70 = new Phrase(PARAGRAPH_TEN_I,fontPara1);
-	    item9.add(chunk70);
-	    Phrase chunk71 = new Phrase(PARAGRAPH_TEN_II,fontPara1);
-	    ListItem item10 = new ListItem();
-	    item10.add(chunk71);
-	    List ThirdLevel = new List(List.ORDERED, List.NUMERICAL);
-	    Phrase chunk72 = new Phrase(PARAGRAPH_TEN_II_A,fontPara1);
-	    ListItem item11 = new ListItem();
-	    item11.add(chunk72);
-	    Phrase chunk73 = new Phrase(PARAGRAPH_TEN_II_B,fontPara1);
-	    ListItem item12 = new ListItem();
-	    item12.add(chunk73);
-	    Phrase chunk74 = new Phrase(PARAGRAPH_TEN_II_C,fontPara1);
-	    ListItem item13 = new ListItem();
-	    item13.add(chunk74);
-	    Phrase chunk75 = new Phrase(PARAGRAPH_TEN_II_D,fontPara1);
-	    ListItem item14 = new ListItem();
-	    item14.add(chunk75);
-	    Phrase chunk76 = new Phrase(PARAGRAPH_TEN_II_E,fontPara1);
-	    ListItem item15 = new ListItem();
-	    item15.add(chunk76);
-	    Phrase chunk77 = new Phrase(PARAGRAPH_TEN_II_F,fontPara1);
-	    ListItem item16 = new ListItem();
-	    item16.add(chunk77);
-	    Phrase chunk78 = new Phrase(PARAGRAPH_TEN_II_G,fontPara1);
-	    ListItem item17 = new ListItem();
-	    item17.add(chunk78);
-	    Phrase chunk79 = new Phrase(PARAGRAPH_TEN_II_H,fontPara1);
-	    ListItem item18 = new ListItem();
-	    item18.add(chunk79);
-	    ThirdLevel.add(item11);
-	    ThirdLevel.add(item12);
-	    ThirdLevel.add(item13);
-	    ThirdLevel.add(item14);
-	    ThirdLevel.add(item15);
-	    ThirdLevel.add(item16);
-	    ThirdLevel.add(item17);
-	    ThirdLevel.add(item18);
-	    item10.add(ThirdLevel); 
-	    secondLevel.add(item9);
-	    secondLevel.add(item10);
-	    item8.add(secondLevel);
-	    ListItem item19 = new ListItem();
-	    Phrase list112 = new Phrase();
-	    Chunk chunk80 = new Chunk(PARAGRAPH_ELEVEN,fontPara1);
-	    list112.add(chunk80);
-	    item19.add(list112);
-	    ListItem item20 = new ListItem();
-	    Phrase list113 = new Phrase();
-	    Chunk chunk81 = new Chunk(PARAGRAPH_TWELEVE,fontPara1);
-	    list113.add(chunk81);
-	    item20.add(list113);
-	    ListItem item21 = new ListItem();
-	    Phrase list114 = new Phrase();
-	    Chunk chunk82 = new Chunk(PARAGRAPH_THIRTEEN_I,fontPara1Bold);
-	    list114.add(chunk82);
-	    item21.add(list114);
-	    List secondLevel1 = new List(List.ORDERED, List.ALPHABETICAL);
-	    ListItem item22 = new ListItem();
-	    Chunk chunk83 = new Chunk(PARAGRAPH_THIRTEEN_I_A,fontPara1);
-	    item22.add(chunk83);
-	    ListItem item23 = new ListItem();
-	    Chunk chunk84 = new Chunk(PARAGRAPH_THIRTEEN_I_B,fontPara1);
-	    item23.add(chunk84);
-	    ListItem item24 = new ListItem();
-	    Chunk chunk85 = new Chunk(PARAGRAPH_THIRTEEN_I_C,fontPara1);
-	    item24.add(chunk85);
-	    ListItem item25 = new ListItem();
-	    Chunk chunk86 = new Chunk(PARAGRAPH_THIRTEEN_I_D,fontPara1);
-	    item25.add(chunk86);
-	    secondLevel1.add(item22);
-	    secondLevel1.add(item23);
-	    secondLevel1.add(item24);
-	    secondLevel1.add(item25);
-	    item21.add(secondLevel1);
-	    ListItem item26 = new ListItem();
-	    Chunk chunk87 = new Chunk(PARAGRAPH_FOURTEEN,fontPara1Bold);
-	    item26.add(chunk87);
-	    ListItem item27 = new ListItem();
-	    Chunk chunk88 = new Chunk(" ",fontPara1);
-	    item27.add(chunk88);
-	    List secondLevel2 = new List(List.ORDERED, List.ALPHABETICAL);
-	    ListItem item28 = new ListItem();
-	    Chunk chunk89 = new Chunk(PARAGRAPH_FIFTEEN_A,fontPara1);
-	    item28.add(chunk89);
-	    ListItem item29 = new ListItem();
-	    Chunk chunk90 = new Chunk(PARAGRAPH_FIFTEEN_B,fontPara1);
-	    item29.add(chunk90);
-	    secondLevel2.add(item28);
-	    secondLevel2.add(item29);
-	    item27.add(secondLevel2);
-	    ListItem item30 = new ListItem();
-	    Chunk chunk91 = new Chunk(PARAGRAPH_SIXTEEN,fontPara1);
-	    item30.add(chunk91);
-	    ListItem item31 = new ListItem();
-	    Chunk chunk92 = new Chunk(PARAGRAPH_SEVENTEEN_I,fontPara1);
-	    item31.add(chunk92);
-	    List secondLevel3 = new List(List.ORDERED, List.ALPHABETICAL);
-	    ListItem item32 = new ListItem();
-	    Chunk chunk93 = new Chunk(PARAGRAPH_SEVENTEEN_I_A,fontPara1);
-	    item32.add(chunk93);
-	    ListItem item33 = new ListItem();
-	    Chunk chunk94 = new Chunk(PARAGRAPH_SEVENTEEN_I_B,fontPara1);
-	    item33.add(chunk94);
-	    secondLevel3.add(item32);
-	    secondLevel3.add(item33);
-	    item31.add(secondLevel3);
-	    ListItem item34 = new ListItem();
-	    Phrase list115 = new Phrase();
-	    Chunk chunk95 = new Chunk(PARAGRAPH_EIGHTEEN_I,fontPara1);
-	    Chunk chunk96 = new Chunk(PARAGRAPH_EIGHTEEN_II,fontPara1Bold);
-	    list115.add(chunk95);
-	    list115.add(chunk96);
-	    item34.add(list115);
-	    ListItem item35 = new ListItem();
-	    Chunk chunk97 = new Chunk(PARAGRAPH_NINETEEN,fontPara1Bold);
-	    item35.add(chunk97);
-	    topLevel.add(item1);
-	    topLevel.add(item2);
-	    topLevel.add(item3);
-	    topLevel.add(item4);
-	    topLevel.add(item5);
-	    topLevel.add(item6);
-	    topLevel.add(item7);
-	    topLevel.add(item8);
-	    topLevel.add(item19);
-	    topLevel.add(item20);
-	    topLevel.add(item21);
-	    topLevel.add(item26);
-	    topLevel.add(item27);
-	    topLevel.add(item30);
-	    topLevel.add(item31);
-	    topLevel.add(item34);
-	    topLevel.add(item35);
-	    
-	    boolean isInstallment = false;
+		Chunk chunk60 = new Chunk(PARAGRAPH_SIX_III, fontPara1);
+		list7.add(chunk58);
+		list7.add(chunk59);
+		list7.add(chunk60);
+		item4.add(list7);
+		ListItem item5 = new ListItem();
+		Phrase list8 = new Phrase();
+		Chunk chunk61 = new Chunk(PARAGRAPH_SEVEN, fontPara1);
+		list8.add(chunk61);
+		item5.add(list8);
+		ListItem item6 = new ListItem();
+		Phrase list9 = new Phrase();
+		Chunk chunk62 = new Chunk(PARAGRAPH_EIGHT_I, fontPara1);
+		Chunk chunk63 = new Chunk(totalRoadSurrenderArea + "", fontPara1Bold);
+		Chunk chunk64 = new Chunk(PARAGRAPH_EIGHT_III, fontPara1);
+		Chunk chunk65 = new Chunk(PARAGRAPH_EIGHT_IV, fontPara1Bold);
+		list9.add(chunk62);
+		list9.add(chunk63);
+		list9.add(chunk64);
+		list9.add(chunk65);
+		item6.add(list9);
+		ListItem item7 = new ListItem();
+		Phrase list10 = new Phrase();
+		Chunk chunk66 = new Chunk(PARAGRAPH_NINE_I, fontPara1);
+		Chunk chunk67 = new Chunk(PARAGRAPH_NINE_II, fontPara1Bold);
+		Chunk chunk68 = new Chunk(PARAGRAPH_NINE_III, fontPara1);
+		list10.add(chunk66);
+		list10.add(chunk67);
+		list10.add(chunk68);
+		item7.add(list10);
+		ListItem item8 = new ListItem();
+		Phrase list111 = new Phrase();
+		Chunk chunk69 = new Chunk(" ", fontPara1);
+		list111.add(chunk69);
+		item8.add(list111);
+		List secondLevel = new List(List.ORDERED, List.ALPHABETICAL);
+		secondLevel.setPreSymbol("(");
+		secondLevel.setPostSymbol(") ");
+		ListItem item9 = new ListItem();
+		Phrase chunk70 = new Phrase(PARAGRAPH_TEN_I, fontPara1);
+		item9.add(chunk70);
+		Phrase chunk71 = new Phrase(PARAGRAPH_TEN_II, fontPara1);
+		ListItem item10 = new ListItem();
+		item10.add(chunk71);
+		List ThirdLevel = new List(List.ORDERED, List.NUMERICAL);
+		Phrase chunk72 = new Phrase(PARAGRAPH_TEN_II_A, fontPara1);
+		ListItem item11 = new ListItem();
+		item11.add(chunk72);
+		Phrase chunk73 = new Phrase(PARAGRAPH_TEN_II_B, fontPara1);
+		ListItem item12 = new ListItem();
+		item12.add(chunk73);
+		Phrase chunk74 = new Phrase(PARAGRAPH_TEN_II_C, fontPara1);
+		ListItem item13 = new ListItem();
+		item13.add(chunk74);
+		Phrase chunk75 = new Phrase(PARAGRAPH_TEN_II_D, fontPara1);
+		ListItem item14 = new ListItem();
+		item14.add(chunk75);
+		Phrase chunk76 = new Phrase(PARAGRAPH_TEN_II_E, fontPara1);
+		ListItem item15 = new ListItem();
+		item15.add(chunk76);
+		Phrase chunk77 = new Phrase(PARAGRAPH_TEN_II_F, fontPara1);
+		ListItem item16 = new ListItem();
+		item16.add(chunk77);
+		Phrase chunk78 = new Phrase(PARAGRAPH_TEN_II_G, fontPara1);
+		ListItem item17 = new ListItem();
+		item17.add(chunk78);
+		Phrase chunk79 = new Phrase(PARAGRAPH_TEN_II_H, fontPara1);
+		ListItem item18 = new ListItem();
+		item18.add(chunk79);
+		ThirdLevel.add(item11);
+		ThirdLevel.add(item12);
+		ThirdLevel.add(item13);
+		ThirdLevel.add(item14);
+		ThirdLevel.add(item15);
+		ThirdLevel.add(item16);
+		ThirdLevel.add(item17);
+		ThirdLevel.add(item18);
+		item10.add(ThirdLevel);
+		secondLevel.add(item9);
+		secondLevel.add(item10);
+		item8.add(secondLevel);
+		ListItem item19 = new ListItem();
+		Phrase list112 = new Phrase();
+		Chunk chunk80 = new Chunk(PARAGRAPH_ELEVEN, fontPara1);
+		list112.add(chunk80);
+		item19.add(list112);
+		ListItem item20 = new ListItem();
+		Phrase list113 = new Phrase();
+		Chunk chunk81 = new Chunk(PARAGRAPH_TWELEVE, fontPara1);
+		list113.add(chunk81);
+		item20.add(list113);
+		ListItem item21 = new ListItem();
+		Phrase list114 = new Phrase();
+		Chunk chunk82 = new Chunk(PARAGRAPH_THIRTEEN_I, fontPara1Bold);
+		list114.add(chunk82);
+		item21.add(list114);
+		List secondLevel1 = new List(List.ORDERED, List.ALPHABETICAL);
+		ListItem item22 = new ListItem();
+		Chunk chunk83 = new Chunk(PARAGRAPH_THIRTEEN_I_A, fontPara1);
+		item22.add(chunk83);
+		ListItem item23 = new ListItem();
+		Chunk chunk84 = new Chunk(PARAGRAPH_THIRTEEN_I_B, fontPara1);
+		item23.add(chunk84);
+		ListItem item24 = new ListItem();
+		Chunk chunk85 = new Chunk(PARAGRAPH_THIRTEEN_I_C, fontPara1);
+		item24.add(chunk85);
+		ListItem item25 = new ListItem();
+		Chunk chunk86 = new Chunk(PARAGRAPH_THIRTEEN_I_D, fontPara1);
+		item25.add(chunk86);
+		secondLevel1.add(item22);
+		secondLevel1.add(item23);
+		secondLevel1.add(item24);
+		secondLevel1.add(item25);
+		item21.add(secondLevel1);
+		ListItem item26 = new ListItem();
+		Chunk chunk87 = new Chunk(PARAGRAPH_FOURTEEN, fontPara1Bold);
+		item26.add(chunk87);
+		ListItem item27 = new ListItem();
+		Chunk chunk88 = new Chunk(" ", fontPara1);
+		item27.add(chunk88);
+		List secondLevel2 = new List(List.ORDERED, List.ALPHABETICAL);
+		ListItem item28 = new ListItem();
+		Chunk chunk89 = new Chunk(PARAGRAPH_FIFTEEN_A, fontPara1);
+		item28.add(chunk89);
+		ListItem item29 = new ListItem();
+		Chunk chunk90 = new Chunk(PARAGRAPH_FIFTEEN_B, fontPara1);
+		item29.add(chunk90);
+		secondLevel2.add(item28);
+		secondLevel2.add(item29);
+		item27.add(secondLevel2);
+		ListItem item30 = new ListItem();
+		Chunk chunk91 = new Chunk(PARAGRAPH_SIXTEEN, fontPara1);
+		item30.add(chunk91);
+		ListItem item31 = new ListItem();
+		Chunk chunk92 = new Chunk(PARAGRAPH_SEVENTEEN_I, fontPara1);
+		item31.add(chunk92);
+		List secondLevel3 = new List(List.ORDERED, List.ALPHABETICAL);
+		ListItem item32 = new ListItem();
+		Chunk chunk93 = new Chunk(PARAGRAPH_SEVENTEEN_I_A, fontPara1);
+		item32.add(chunk93);
+		ListItem item33 = new ListItem();
+		Chunk chunk94 = new Chunk(PARAGRAPH_SEVENTEEN_I_B, fontPara1);
+		item33.add(chunk94);
+		secondLevel3.add(item32);
+		secondLevel3.add(item33);
+		item31.add(secondLevel3);
+		ListItem item34 = new ListItem();
+		Phrase list115 = new Phrase();
+		Chunk chunk95 = new Chunk(PARAGRAPH_EIGHTEEN_I, fontPara1);
+		Chunk chunk96 = new Chunk(PARAGRAPH_EIGHTEEN_II, fontPara1Bold);
+		list115.add(chunk95);
+		list115.add(chunk96);
+		item34.add(list115);
+		ListItem item35 = new ListItem();
+		Chunk chunk97 = new Chunk(PARAGRAPH_NINETEEN, fontPara1Bold);
+		item35.add(chunk97);
+		topLevel.add(item1);
+		topLevel.add(item2);
+		topLevel.add(item3);
+		topLevel.add(item4);
+		topLevel.add(item5);
+		topLevel.add(item6);
+		topLevel.add(item7);
+		topLevel.add(item8);
+		topLevel.add(item19);
+		topLevel.add(item20);
+		topLevel.add(item21);
+		topLevel.add(item26);
+		topLevel.add(item27);
+		topLevel.add(item30);
+		topLevel.add(item31);
+		topLevel.add(item34);
+		topLevel.add(item35);
+
+		boolean isInstallment = false;
 		String[] feeDetails = getAllFeeDetails(requestInfo, applicationNo, "od.cuttack");
 
-	    PdfPTable table16 = new PdfPTable(3);
-	    PdfPTable table17 = new PdfPTable(3);
-	    PdfPTable table18 = new PdfPTable(1);
-	    PdfPTable table19 = new PdfPTable(3);
-	    PdfPTable table20 = new PdfPTable(2);
-	    PdfPTable table21 = new PdfPTable(3);
-	    PdfPTable table22 = new PdfPTable(1);
-	    PdfPTable table23 = new PdfPTable(3);
-	    PdfPTable table24 = new PdfPTable(2);
-	    PdfPTable table25 = new PdfPTable(1);
-	    PdfPTable table26 = new PdfPTable(3);
-	    PdfPTable table27 = new PdfPTable(2);
-	    PdfPTable table28 = new PdfPTable(1);
-	    PdfPTable table29 = new PdfPTable(3);
-	    PdfPTable table30 = new PdfPTable(2);
-	    PdfPTable table31 = new PdfPTable(2);
-	    PdfPTable table32 = new PdfPTable(2);
-	    PdfPTable table33 = new PdfPTable(2);
-	    PdfPTable table34 = new PdfPTable(2);
+		PdfPTable table16 = new PdfPTable(3);
+		PdfPTable table17 = new PdfPTable(3);
+		PdfPTable table18 = new PdfPTable(1);
+		PdfPTable table19 = new PdfPTable(3);
+		PdfPTable table20 = new PdfPTable(2);
+		PdfPTable table21 = new PdfPTable(3);
+		PdfPTable table22 = new PdfPTable(1);
+		PdfPTable table23 = new PdfPTable(3);
+		PdfPTable table24 = new PdfPTable(2);
+		PdfPTable table25 = new PdfPTable(1);
+		PdfPTable table26 = new PdfPTable(3);
+		PdfPTable table27 = new PdfPTable(2);
+		PdfPTable table28 = new PdfPTable(1);
+		PdfPTable table29 = new PdfPTable(3);
+		PdfPTable table30 = new PdfPTable(2);
+		PdfPTable table31 = new PdfPTable(2);
+		PdfPTable table32 = new PdfPTable(2);
+		PdfPTable table33 = new PdfPTable(2);
+		PdfPTable table34 = new PdfPTable(2);
 
-	    //Not Insatllment
+		// Not Insatllment
 		PdfPTable table35 = new PdfPTable(3);
 
+		if (isInstallment)
 
-
-		if(isInstallment)
-
-	    {
-	    table16.setWidthPercentage(100f);
-	    addTableHeader16(table16);
-	    table17.setWidthPercentage(100f);
-	    addTableHeader171(table17);
-	    addTableHeader172(table17);
-	    addTableHeader173(table17);
-	    table18.setWidthPercentage(100f);
-	    addTableHeader18(table18);
-	    table19.setWidthPercentage(100f);
-	    addTableHeader191(table19);
-	    addTableHeader192(table19);
-	    addTableHeader193(table19);
-	    table20.setWidthPercentage(100f);
-	    addTableHeader20(table20);
-	    table21.setWidthPercentage(100f);
-	    addTableHeader21(table21);
-	    table22.setWidthPercentage(100f);
-	    addTableHeader22(table22);
-	    table23.setWidthPercentage(100f);
-	    addTableHeader231(table23);
-	    addTableHeader232(table23);
-	    addTableHeader233(table23);
-	    addTableHeader234(table23);
-	    table24.setWidthPercentage(100f);
-	    addTableHeader24(table24);
-	    table25.setWidthPercentage(100f);
-	    addTableHeader25(table25);
-	    table26.setWidthPercentage(100f);
-	    addTableHeader261(table26);
-	    addTableHeader262(table26);
-	    addTableHeader263(table26);
-	    addTableHeader264(table26);
-	    table27.setWidthPercentage(100f);
-	    addTableHeader27(table27);
-	    table28.setWidthPercentage(100f);
-	    addTableHeader28(table28);
-	    table29.setWidthPercentage(100f);
-	    addTableHeader291(table29);
-	    addTableHeader292(table29);
-	    addTableHeader293(table29);
-	    addTableHeader294(table29);
-	    table30.setWidthPercentage(100f);
-	    addTableHeader30(table30);
-	    table31.setWidthPercentage(100f);
-	    addTableHeader31(table31, feeDetails);
-	    table32.setWidthPercentage(100f);
-	    addTableHeader32(table32);
-	    table33.setWidthPercentage(100f);
-	    addTableHeader33(table33);
-	    table34.setWidthPercentage(100f);
-	    addTableHeader34(table34);
-	    }
-		else {
+		{
 			table16.setWidthPercentage(100f);
-		    addTableHeader16(table16);
-		    table35.setWidthPercentage(100f);
-		    addTableRow35(table35, feeDetails);
-		    table31.setWidthPercentage(100f);
-		    addTableHeader31(table31, feeDetails);
-		    
+			addTableHeader16(table16);
+			table17.setWidthPercentage(100f);
+			addTableHeader171(table17);
+			addTableHeader172(table17);
+			addTableHeader173(table17);
+			table18.setWidthPercentage(100f);
+			addTableHeader18(table18);
+			table19.setWidthPercentage(100f);
+			addTableHeader191(table19);
+			addTableHeader192(table19);
+			addTableHeader193(table19);
+			table20.setWidthPercentage(100f);
+			addTableHeader20(table20);
+			table21.setWidthPercentage(100f);
+			addTableHeader21(table21);
+			table22.setWidthPercentage(100f);
+			addTableHeader22(table22);
+			table23.setWidthPercentage(100f);
+			addTableHeader231(table23);
+			addTableHeader232(table23);
+			addTableHeader233(table23);
+			addTableHeader234(table23);
+			table24.setWidthPercentage(100f);
+			addTableHeader24(table24);
+			table25.setWidthPercentage(100f);
+			addTableHeader25(table25);
+			table26.setWidthPercentage(100f);
+			addTableHeader261(table26);
+			addTableHeader262(table26);
+			addTableHeader263(table26);
+			addTableHeader264(table26);
+			table27.setWidthPercentage(100f);
+			addTableHeader27(table27);
+			table28.setWidthPercentage(100f);
+			addTableHeader28(table28);
+			table29.setWidthPercentage(100f);
+			addTableHeader291(table29);
+			addTableHeader292(table29);
+			addTableHeader293(table29);
+			addTableHeader294(table29);
+			table30.setWidthPercentage(100f);
+			addTableHeader30(table30);
+			table31.setWidthPercentage(100f);
+			addTableHeader31(table31, feeDetails);
+			table32.setWidthPercentage(100f);
+			addTableHeader32(table32);
+			table33.setWidthPercentage(100f);
+			addTableHeader33(table33);
+			table34.setWidthPercentage(100f);
+			addTableHeader34(table34);
+		} else {
+			table16.setWidthPercentage(100f);
+			addTableHeader16(table16);
+			table35.setWidthPercentage(100f);
+			addTableRow35(table35, feeDetails);
+			table31.setWidthPercentage(100f);
+			addTableHeader31(table31, feeDetails);
+
 		}
-	    
-	    Phrase para3 = new Phrase(PARAGRAPH_NINETEEN_II, fontPara1Bold);
-	    		
+
+		Phrase para3 = new Phrase(PARAGRAPH_NINETEEN_II, fontPara1Bold);
+
 		List toplevel2 = new List(List.ORDERED);
 		toplevel2.setFirst(18);
 		ListItem item36 = new ListItem();
-	    Chunk chunk98 = new Chunk(PARAGRAPH_TWENTY_I,fontPara1Bold);
-	    item36.add(chunk98);
-	    List secondlevel4 = new List(List.ORDERED, List.ALPHABETICAL);
-	    ListItem item37 = new ListItem();
-	    Chunk chunk99 = new Chunk(PARAGRAPH_TWENTY_I_A,fontPara1);
-	    item37.add(chunk99);
-	    ListItem item38 = new ListItem();
-	    Chunk chunk100 = new Chunk(PARAGRAPH_TWENTY_I_B,fontPara1);
-	    item38.add(chunk100);
-	    ListItem item39 = new ListItem();
-	    Chunk chunk101 = new Chunk(PARAGRAPH_TWENTY_I_C,fontPara1);
-	    item39.add(chunk101);
-	    ListItem item40 = new ListItem();
-	    Chunk chunk102 = new Chunk(PARAGRAPH_TWENTY_I_D,fontPara1);
-	    item40.add(chunk102);
-	    ListItem item41 = new ListItem();
-	    Chunk chunk103 = new Chunk(PARAGRAPH_TWENTY_I_E,fontPara1);
-	    item41.add(chunk103);
-	    ListItem item42 = new ListItem();
-	    Chunk chunk104 = new Chunk(PARAGRAPH_TWENTY_I_F,fontPara1);
-	    item42.add(chunk104);
-	    ListItem item43 = new ListItem();
-	    Chunk chunk105 = new Chunk(PARAGRAPH_TWENTY_I_G,fontPara1);
-	    item43.add(chunk105);
-	    ListItem item44 = new ListItem();
-	    Chunk chunk106 = new Chunk(PARAGRAPH_TWENTY_I_H,fontPara1);
-	    item44.add(chunk106);
-	    ListItem item45 = new ListItem();
-	    Chunk chunk107 = new Chunk(PARAGRAPH_TWENTY_I_I,fontPara1);
-	    item45.add(chunk107);
-	    ListItem item46 = new ListItem();
-	    Chunk chunk108 = new Chunk(PARAGRAPH_TWENTY_I_J,fontPara1);
-	    item46.add(chunk108);
-	    ListItem item47 = new ListItem();
-	    Chunk chunk109 = new Chunk(PARAGRAPH_TWENTY_I_K,fontPara1Bold);
-	    item47.add(chunk109);
-	    ListItem item48 = new ListItem();
-	    Chunk chunk110 = new Chunk(PARAGRAPH_TWENTY_I_L,fontPara1Bold);
-	    item48.add(chunk110);
-	    ListItem item49 = new ListItem();
-	    Chunk chunk111 = new Chunk(PARAGRAPH_TWENTY_I_M,fontPara1Bold);
-	    item49.add(chunk111);
-	    ListItem item50 = new ListItem();
-	    Chunk chunk112 = new Chunk(PARAGRAPH_TWENTY_I_N,fontPara1Bold);
-	    item50.add(chunk112);
-	    ListItem item51 = new ListItem();
-	    Chunk chunk113 = new Chunk(PARAGRAPH_TWENTY_I_O,fontPara1Bold);
-	    item51.add(chunk113);
-	    ListItem item52 = new ListItem();
-	    Chunk chunk114 = new Chunk(PARAGRAPH_TWENTY_I_P,fontPara1Bold);
-	    item52.add(chunk114);
-	    ListItem item53 = new ListItem();
-	    Chunk chunk115 = new Chunk(PARAGRAPH_TWENTY_I_Q,fontPara1Bold);
-	    item53.add(chunk115);
-	    ListItem item54 = new ListItem();
-	    Chunk chunk116 = new Chunk(PARAGRAPH_TWENTY_I_R,fontPara1Bold);
-	    item54.add(chunk116);
-	    ListItem item55 = new ListItem();
-	    Chunk chunk117 = new Chunk(PARAGRAPH_TWENTY_I_S,fontPara1Bold);
-	    item55.add(chunk117);
-	    ListItem item56 = new ListItem();
-	    Chunk chunk118 = new Chunk(PARAGRAPH_TWENTY_I_T,fontPara1Bold);
-	    item56.add(chunk118);
-	    ListItem item57 = new ListItem();
-	    Chunk chunk119 = new Chunk(PARAGRAPH_TWENTY_I_U,fontPara1Bold);
-	    item57.add(chunk119);
-	    ListItem item58 = new ListItem();
-	    Chunk chunk120 = new Chunk(PARAGRAPH_TWENTY_I_V,fontPara1Bold);
-	    item58.add(chunk120);
-	    secondlevel4.add(item37);
-	    secondlevel4.add(item38);
-	    secondlevel4.add(item39);
-	    secondlevel4.add(item40);
-	    secondlevel4.add(item41);
-	    secondlevel4.add(item42);
-	    secondlevel4.add(item43);
-	    secondlevel4.add(item44);
-	    secondlevel4.add(item45);
-	    secondlevel4.add(item46);
-	    secondlevel4.add(item47);
-	    secondlevel4.add(item48);
-	    secondlevel4.add(item49);
-	    secondlevel4.add(item50);
-	    secondlevel4.add(item51);
-	    secondlevel4.add(item52);
-	    secondlevel4.add(item53);
-	    secondlevel4.add(item54);
-	    secondlevel4.add(item55);
-	    secondlevel4.add(item56);
-	    secondlevel4.add(item57);
-	    secondlevel4.add(item58);
-	    item36.add(secondlevel4);
-	    toplevel2.add(item36);
-  
+		Chunk chunk98 = new Chunk(PARAGRAPH_TWENTY_I, fontPara1Bold);
+		item36.add(chunk98);
+		List secondlevel4 = new List(List.ORDERED, List.ALPHABETICAL);
+		ListItem item37 = new ListItem();
+		Chunk chunk99 = new Chunk(PARAGRAPH_TWENTY_I_A, fontPara1);
+		item37.add(chunk99);
+		ListItem item38 = new ListItem();
+		Chunk chunk100 = new Chunk(PARAGRAPH_TWENTY_I_B, fontPara1);
+		item38.add(chunk100);
+		ListItem item39 = new ListItem();
+		Chunk chunk101 = new Chunk(PARAGRAPH_TWENTY_I_C, fontPara1);
+		item39.add(chunk101);
+		ListItem item40 = new ListItem();
+		Chunk chunk102 = new Chunk(PARAGRAPH_TWENTY_I_D, fontPara1);
+		item40.add(chunk102);
+		ListItem item41 = new ListItem();
+		Chunk chunk103 = new Chunk(PARAGRAPH_TWENTY_I_E, fontPara1);
+		item41.add(chunk103);
+		ListItem item42 = new ListItem();
+		Chunk chunk104 = new Chunk(PARAGRAPH_TWENTY_I_F, fontPara1);
+		item42.add(chunk104);
+		ListItem item43 = new ListItem();
+		Chunk chunk105 = new Chunk(PARAGRAPH_TWENTY_I_G, fontPara1);
+		item43.add(chunk105);
+		ListItem item44 = new ListItem();
+		Chunk chunk106 = new Chunk(PARAGRAPH_TWENTY_I_H, fontPara1);
+		item44.add(chunk106);
+		ListItem item45 = new ListItem();
+		Chunk chunk107 = new Chunk(PARAGRAPH_TWENTY_I_I, fontPara1);
+		item45.add(chunk107);
+		ListItem item46 = new ListItem();
+		Chunk chunk108 = new Chunk(PARAGRAPH_TWENTY_I_J, fontPara1);
+		item46.add(chunk108);
+		ListItem item47 = new ListItem();
+		Chunk chunk109 = new Chunk(PARAGRAPH_TWENTY_I_K, fontPara1Bold);
+		item47.add(chunk109);
+		ListItem item48 = new ListItem();
+		Chunk chunk110 = new Chunk(PARAGRAPH_TWENTY_I_L, fontPara1Bold);
+		item48.add(chunk110);
+		ListItem item49 = new ListItem();
+		Chunk chunk111 = new Chunk(PARAGRAPH_TWENTY_I_M, fontPara1Bold);
+		item49.add(chunk111);
+		ListItem item50 = new ListItem();
+		Chunk chunk112 = new Chunk(PARAGRAPH_TWENTY_I_N, fontPara1Bold);
+		item50.add(chunk112);
+		ListItem item51 = new ListItem();
+		Chunk chunk113 = new Chunk(PARAGRAPH_TWENTY_I_O, fontPara1Bold);
+		item51.add(chunk113);
+		ListItem item52 = new ListItem();
+		Chunk chunk114 = new Chunk(PARAGRAPH_TWENTY_I_P, fontPara1Bold);
+		item52.add(chunk114);
+		ListItem item53 = new ListItem();
+		Chunk chunk115 = new Chunk(PARAGRAPH_TWENTY_I_Q, fontPara1Bold);
+		item53.add(chunk115);
+		ListItem item54 = new ListItem();
+		Chunk chunk116 = new Chunk(PARAGRAPH_TWENTY_I_R, fontPara1Bold);
+		item54.add(chunk116);
+		ListItem item55 = new ListItem();
+		Chunk chunk117 = new Chunk(PARAGRAPH_TWENTY_I_S, fontPara1Bold);
+		item55.add(chunk117);
+		ListItem item56 = new ListItem();
+		Chunk chunk118 = new Chunk(PARAGRAPH_TWENTY_I_T, fontPara1Bold);
+		item56.add(chunk118);
+		ListItem item57 = new ListItem();
+		Chunk chunk119 = new Chunk(PARAGRAPH_TWENTY_I_U, fontPara1Bold);
+		item57.add(chunk119);
+		ListItem item58 = new ListItem();
+		Chunk chunk120 = new Chunk(PARAGRAPH_TWENTY_I_V, fontPara1Bold);
+		item58.add(chunk120);
+		secondlevel4.add(item37);
+		secondlevel4.add(item38);
+		secondlevel4.add(item39);
+		secondlevel4.add(item40);
+		secondlevel4.add(item41);
+		secondlevel4.add(item42);
+		secondlevel4.add(item43);
+		secondlevel4.add(item44);
+		secondlevel4.add(item45);
+		secondlevel4.add(item46);
+		secondlevel4.add(item47);
+		secondlevel4.add(item48);
+		secondlevel4.add(item49);
+		secondlevel4.add(item50);
+		secondlevel4.add(item51);
+		secondlevel4.add(item52);
+		secondlevel4.add(item53);
+		secondlevel4.add(item54);
+		secondlevel4.add(item55);
+		secondlevel4.add(item56);
+		secondlevel4.add(item57);
+		secondlevel4.add(item58);
+		item36.add(secondlevel4);
+		toplevel2.add(item36);
 
 		document.add(logo);
 		document.add(para);
@@ -718,7 +711,7 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		document.add(Chunk.NEWLINE);
 		document.add(para12);
 		document.add(para13);
-        document.add(Chunk.NEWLINE);
+		document.add(Chunk.NEWLINE);
 		document.add(phrasePara1);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
@@ -745,7 +738,7 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		document.add(Chunk.NEWLINE);
 		document.add(table15);
 		document.add(Chunk.NEWLINE);
-		document.add(Chunk.NEWLINE); 
+		document.add(Chunk.NEWLINE);
 		document.add(list3);
 		document.add(Chunk.NEWLINE);
 		addNocs(document, requestInfo, tenantIdActual, applicationNo);
@@ -772,16 +765,15 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		document.add(table31);
 		document.add(table32);
 		document.add(table33);
-		document.add(table34);		
+		document.add(table34);
 		document.add(Chunk.NEWLINE);
 		document.add(para3);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
 		document.add(toplevel2);
-		
 
 		document.close();
-		
+		return new ByteArrayInputStream(outputBytes.toByteArray());
 	}
 
 	private void addTableRow35(PdfPTable table35, String[] feeDetails) {
@@ -794,615 +786,551 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		BaseColor yellow = new BaseColor(255, 231, 154);
 		BaseColor deepYellow = new BaseColor(255, 255, 0);
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("A. (i) Development Fees", feeDetails[6], "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(orange);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table35.addCell(header);
-	      });
-		Stream.of("A (ii) Fee for building operation", feeDetails[7], "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(orange);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table35.addCell(header);
-	      });
-		Stream.of("B. Sanction fees", feeDetails[0], "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(lime);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table35.addCell(header);
-	      });
-		Stream.of("C. Construction worker welfare Cess (CWWC)", feeDetails[1], "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(blue);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table35.addCell(header);
-	      });
-		Stream.of("D. Temporary Retention Fee", feeDetails[10], "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(pink);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table35.addCell(header);
-	      });
-		Stream.of("E. Shelter Fees for mandatory 10% EWS Housing (carpet area) @ 25% of construction cost of EWS housing ", feeDetails[2], "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(green);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table35.addCell(header);
-	      });
-		Stream.of("F. Charges for Purchasable FAR Area", feeDetails[3], "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(yellow);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table35.addCell(header);
-	      });
-		Stream.of("G. EIDP Fees ", feeDetails[4], "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(orange);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table35.addCell(header);
-	      });
+		Stream.of("A. (i) Development Fees", feeDetails[6], "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(orange);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table35.addCell(header);
+		});
+		Stream.of("A (ii) Fee for building operation", feeDetails[7], "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(orange);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table35.addCell(header);
+		});
+		Stream.of("B. Sanction fees", feeDetails[0], "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(lime);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table35.addCell(header);
+		});
+		Stream.of("C. Construction worker welfare Cess (CWWC)", feeDetails[1], "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(blue);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table35.addCell(header);
+		});
+		Stream.of("D. Temporary Retention Fee", feeDetails[10], "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(pink);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table35.addCell(header);
+		});
+		Stream.of(
+				"E. Shelter Fees for mandatory 10% EWS Housing (carpet area) @ 25% of construction cost of EWS housing ",
+				feeDetails[2], "Paid").forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(green);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table35.addCell(header);
+				});
+		Stream.of("F. Charges for Purchasable FAR Area", feeDetails[3], "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(yellow);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table35.addCell(header);
+		});
+		Stream.of("G. EIDP Fees ", feeDetails[4], "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(orange);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table35.addCell(header);
+		});
 	}
 
 	private void addTableHeader34(PdfPTable table34) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("Remaining Fees Payable at DRDA, Khurda as per above", "30,33,750")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.YELLOW);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table34.addCell(header);
-	      });	
+		Stream.of("Remaining Fees Payable at DRDA, Khurda as per above", "30,33,750").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.YELLOW);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table34.addCell(header);
+		});
 	}
-
 
 	private void addTableHeader33(PdfPTable table33) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("Remaining Fees Payable at BDA as per above", "1,34,50,448")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.YELLOW);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table33.addCell(header);
-	      });	
+		Stream.of("Remaining Fees Payable at BDA as per above", "1,34,50,448").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.YELLOW);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table33.addCell(header);
+		});
 	}
-
 
 	private void addTableHeader32(PdfPTable table32) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		BaseColor deepYellow = new BaseColor(255, 255, 0);
-		Stream.of("TOTAL FEES PAID AT DRDA, KHURDA", "10,11,250")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(deepYellow);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table32.addCell(header);
-	      });	
+		Stream.of("TOTAL FEES PAID AT DRDA, KHURDA", "10,11,250").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(deepYellow);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table32.addCell(header);
+		});
 	}
-
 
 	private void addTableHeader31(PdfPTable table31, String[] feeDetails) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		BaseColor deepYellow = new BaseColor(255, 255, 0);
-		Stream.of("TOTAL FEES PAID ", feeDetails[9])
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(deepYellow);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table31.addCell(header);
-	      });	
-		
-	}
+		Stream.of("TOTAL FEES PAID ", feeDetails[9]).forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(deepYellow);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table31.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader30(PdfPTable table30) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("Total payable fees towards EIDP", "40,45,000")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.PINK);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table30.addCell(header);
-	      });	
-		
-	}
+		Stream.of("Total payable fees towards EIDP", "40,45,000").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.PINK);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table30.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader294(PdfPTable table29) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("4th installment", "10,11,250", "To be paid at At DRDA, Khurda At the time of application of occupancy certificate")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.PINK);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table29.addCell(header);
-	      });	
+		Stream.of("4th installment", "10,11,250",
+				"To be paid at At DRDA, Khurda At the time of application of occupancy certificate")
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.PINK);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table29.addCell(header);
+				});
 	}
-
 
 	private void addTableHeader293(PdfPTable table29) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("3rd installment", "10,11,250", "To be paid at At DRDA, KhurdaAt the time of Ground Floor Roof Casting")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.PINK);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table29.addCell(header);
-	      });	
+		Stream.of("3rd installment", "10,11,250",
+				"To be paid at At DRDA, KhurdaAt the time of Ground Floor Roof Casting").forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.PINK);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table29.addCell(header);
+				});
 	}
-
 
 	private void addTableHeader292(PdfPTable table29) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("2nd installment", "10,11,250", "To be paid at At DRDA, Khurda At the time of Plinth level")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.PINK);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table29.addCell(header);
-	      });	
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.PINK);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table29.addCell(header);
+				});
 	}
-
 
 	private void addTableHeader291(PdfPTable table29) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("1st installment", "10,11,250", "Paid at At DRDA, Khurda")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.PINK);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table29.addCell(header);
-	      });	
-		
-	}
+		Stream.of("1st installment", "10,11,250", "Paid at At DRDA, Khurda").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.PINK);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table29.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader28(PdfPTable table28) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("G. EIDP Fees")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.PINK);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table28.addCell(header);
-	      });	
-		
-	}
+		Stream.of("G. EIDP Fees").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.PINK);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table28.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader27(PdfPTable table27) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("Total payable fees for purchasable FAR", "64,94,984")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table27.addCell(header);
-	      });		
+		Stream.of("Total payable fees for purchasable FAR", "64,94,984").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table27.addCell(header);
+		});
 	}
-
 
 	private void addTableHeader264(PdfPTable table26) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("4th installment", "16,23,746", "To be paid At the time of application of occupancy certificate")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table26.addCell(header);
-	      });
-		
-	}
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table26.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader263(PdfPTable table26) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("3rd installment", "16,23,746", "To be paid At the time of Ground Floor Roof Casting")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table26.addCell(header);
-	      });
-		
-	}
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table26.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader262(PdfPTable table26) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("2nd installment", "16,23,746", "To be paid At the time of Plinth level")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table26.addCell(header);
-	      });
-		
-	}
+		Stream.of("2nd installment", "16,23,746", "To be paid At the time of Plinth level").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table26.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader261(PdfPTable table26) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("1st installment", "16,23,746", "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table26.addCell(header);
-	      });
-		
-	}
+		Stream.of("1st installment", "16,23,746", "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table26.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader25(PdfPTable table25) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("F. Charges for Purchasable FAR Area")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table25.addCell(header);
-	      });
-		
-	}
+		Stream.of("F. Charges for Purchasable FAR Area").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table25.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader24(PdfPTable table24) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("Total Payable Shelter Fees", "68,42,390")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.GREEN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table24.addCell(header);
-	      });
+		Stream.of("Total Payable Shelter Fees", "68,42,390").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.GREEN);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table24.addCell(header);
+		});
 	}
-
 
 	private void addTableHeader234(PdfPTable table23) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("4th installment", "17,10,597", "To be paid before three years of issue of permission letter")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.GREEN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table23.addCell(header);
-	      });
-		
-	}
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.GREEN);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table23.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader233(PdfPTable table23) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("3rd installment", "17,10,597", "To be paid before two years of issue of permission letter")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.GREEN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table23.addCell(header);
-	      });
-		
-	}
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.GREEN);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table23.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader232(PdfPTable table23) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("2nd installment", "17,10,597", "To be paid before one year of issue of permission letter")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.GREEN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table23.addCell(header);
-	      });
-		
-	}
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.GREEN);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table23.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader231(PdfPTable table23) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("1st installment", "17,10,597", "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.GREEN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table23.addCell(header);
-	      });
-		
-	}
+		Stream.of("1st installment", "17,10,597", "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.GREEN);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table23.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader22(PdfPTable table22) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("E. Shelter Fees for mandatory 10% EWS Housing (carpetarea) @ 25% of construction cost of EWS housing")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.GREEN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table22.addCell(header);
-	      });
-		
-	}
+		Stream.of(
+				"E. Shelter Fees for mandatory 10% EWS Housing (carpetarea) @ 25% of construction cost of EWS housing")
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.GREEN);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table22.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader21(PdfPTable table21) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("D. Rates of Compounding Charges for Unauthorized	Layouts", "5,82,270", "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.PINK);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table21.addCell(header);
-	      });
-		
-	}
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.PINK);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table21.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader20(PdfPTable table20) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("Total Payable CWWC Fees", "51,71,126")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.CYAN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table20.addCell(header);
-	      });
-		
-	}
+		Stream.of("Total Payable CWWC Fees", "51,71,126").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.CYAN);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table20.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader193(PdfPTable table19) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("3rd installment", "17,23,709", "To be paid before two years of issue of permission letter")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.CYAN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table19.addCell(header);
-	      });
-		
-	}
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.CYAN);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table19.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader192(PdfPTable table19) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		Stream.of("2nd installment", "17,23,709", "To be paid before one year of issue of permission letter")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.CYAN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table19.addCell(header);
-	      });
-		
-	}
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.CYAN);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table19.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader191(PdfPTable table19) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("1st installment", "17,23,709", "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.CYAN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table19.addCell(header);
-	      });
-		
-	}
+		Stream.of("1st installment", "17,23,709", "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.CYAN);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table19.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader18(PdfPTable table18) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("C. Construction worker welfare Cess (CWWC)")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.CYAN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table18.addCell(header);
-	      });
-		
-	}
+		Stream.of("C. Construction worker welfare Cess (CWWC)").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.CYAN);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table18.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader173(PdfPTable table17) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("B. Sanction fees", "13,72,598", "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.GREEN);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table17.addCell(header);
-	      });
-		
-	}
+		Stream.of("B. Sanction fees", "13,72,598", "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.GREEN);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table17.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader172(PdfPTable table17) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("A (ii) Fee for building operation", "2,61,068", "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.ORANGE);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table17.addCell(header);
-	      });
-		
-	}
+		Stream.of("A (ii) Fee for building operation", "2,61,068", "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.ORANGE);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table17.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader171(PdfPTable table17) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("A. (i) Development Fees", "50,731", "Paid")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.ORANGE);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table17.addCell(header);
-	      });
-		
-	}
+		Stream.of("A. (i) Development Fees", "50,731", "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.ORANGE);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table17.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader16(PdfPTable table16) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		BaseColor grey = new BaseColor(216, 216, 216);
-		Stream.of("Details of Fees and Charges", "Amount in Rupees", "Payment Status")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(grey);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table16.addCell(header);
-	      });
-		
+		Stream.of("Details of Fees and Charges", "Amount in Rupees", "Payment Status").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(grey);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table16.addCell(header);
+		});
+
 	}
 
-
-
-	private void addTableHeader152(PdfPTable table15,Plan plan) {
+	private void addTableHeader152(PdfPTable table15, Plan plan) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		
-		Map<String, BigDecimal> setBackData =OdishaUtill.getSetBackData(plan);
+
+		Map<String, BigDecimal> setBackData = OdishaUtill.getSetBackData(plan);
 		BigDecimal frontSetbackProvided = setBackData.get("frontSetbackProvided");
 		BigDecimal rearSetbackProvided = setBackData.get("rearSetbackProvided");
 		BigDecimal leftSetbackProvided = setBackData.get("leftSetbackProvided");
 		BigDecimal rightSetbackProvided = setBackData.get("rightSetbackProvided");
-		
+
 		BigDecimal frontSetbackRequired = setBackData.get("frontSetbackRequired");
 		BigDecimal rearSetbackRequired = setBackData.get("rearSetbackRequired");
 		BigDecimal leftSetbackRequired = setBackData.get("leftSetbackRequired");
 		BigDecimal rightSetbackRequired = setBackData.get("rightSetbackRequired");
-		
-		Stream.of("Front Set back", frontSetbackRequired+"", frontSetbackProvided+"")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table15.addCell(header);
-	      });
-		Stream.of("Rear Set back", rearSetbackRequired+"", rearSetbackProvided+"")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table15.addCell(header);
-	      });
-		Stream.of("Left side", leftSetbackRequired+"", leftSetbackProvided+"")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table15.addCell(header);
-	      });
-		Stream.of("Right side", rightSetbackRequired+"", rightSetbackProvided+"")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table15.addCell(header);
-	      });
-	}
 
+		Stream.of("Front Set back", frontSetbackRequired + "", frontSetbackProvided + "").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table15.addCell(header);
+		});
+		Stream.of("Rear Set back", rearSetbackRequired + "", rearSetbackProvided + "").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table15.addCell(header);
+		});
+		Stream.of("Left side", leftSetbackRequired + "", leftSetbackProvided + "").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table15.addCell(header);
+		});
+		Stream.of("Right side", rightSetbackRequired + "", rightSetbackProvided + "").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table15.addCell(header);
+		});
+	}
 
 	private void addTableHeader151(PdfPTable table15) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		Stream.of("Item", "Required(in Mtr)", "Provided (in Mtr)")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table15.addCell(header);
-	      });
+		Stream.of("Item", "Required(in Mtr)", "Provided (in Mtr)").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table15.addCell(header);
+		});
 	}
 
-
-	private void addRows141(PdfPTable table14,OdishaParkingHelper parkingData) {
+	private void addRows141(PdfPTable table14, OdishaParkingHelper parkingData) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
 		PdfPCell pdfWordCell1 = new PdfPCell();
 		Phrase firstLine = new Phrase("Parking", fontPara1Bold);
@@ -1411,38 +1339,35 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		pdfWordCell1.setBorderWidth(2);
 		table14.addCell(pdfWordCell1);
 		PdfPCell pdfWordCell3 = new PdfPCell();
-		
-		BigDecimal stiltParking =  parkingData.stiltParkingProvided;
+
+		BigDecimal stiltParking = parkingData.stiltParkingProvided;
 		BigDecimal basementParking = parkingData.basementParkingProvided;
 		BigDecimal openParking = parkingData.openParkingProvided;
 		BigDecimal totalParking = parkingData.totalParkingProvided;
 		Chunk chunk1 = new Chunk("Basement-" + basementParking + "+	  Stilt- " + stiltParking
 				+ " + Ground (Open Parking )-" + openParking);
-		Chunk chunk2 = new Chunk("   Total ="+totalParking+" Sqm.",fontPara1Bold);
+		Chunk chunk2 = new Chunk("   Total =" + totalParking + " Sqm.", fontPara1Bold);
 		Phrase thirdLine = new Phrase();
 		thirdLine.add(chunk1);
 		thirdLine.add(chunk2);
 		pdfWordCell3.addElement(thirdLine);
 		pdfWordCell3.setBorderWidth(2);
 		table14.addCell(pdfWordCell3);
-		
+
 	}
 
-
-	private void addRows131(PdfPTable table13,Plan plan) {
+	private void addRows131(PdfPTable table13, Plan plan) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		//TODO what height
-		Stream.of("Height", getHeight(plan))
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table13.addCell(header);
-	      });
-		
-	}
+		// TODO what height
+		Stream.of("Height", getHeight(plan)).forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table13.addCell(header);
+		});
 
+	}
 
 	private void addRows121(PdfPTable table12, Plan plan) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
@@ -1462,8 +1387,8 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		PdfPCell pdfWordCell3 = new PdfPCell();
 		BigDecimal deltaFAR = (BigDecimal.valueOf(plan.getFarDetails().getProvidedFar())
 				.subtract(BigDecimal.valueOf(plan.getFarDetails().getBaseFar()))).setScale(2, BigDecimal.ROUND_HALF_UP);
-		
-		//tdr relaxation- decrease deltaFar based on tdrFarRelaxation-
+
+		// tdr relaxation- decrease deltaFar based on tdrFarRelaxation-
 		if (null != plan.getFarDetails().getTdrFarRelaxation()) {
 			deltaFAR = deltaFAR.subtract(new BigDecimal(plan.getFarDetails().getTdrFarRelaxation())).setScale(2,
 					BigDecimal.ROUND_UP);
@@ -1481,144 +1406,127 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		table12.addCell(pdfWordCell3);
 	}
 
-
 	private void addTableHeader11(PdfPTable table11, Plan plan) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 		BigDecimal grandTotalBuiltupArea = plan.getVirtualBuilding() != null
 				? plan.getVirtualBuilding().getTotalBuitUpArea().setScale(2, BigDecimal.ROUND_UP)
 				: BigDecimal.ZERO;
-		Stream.of("Grand Total BUA - "+grandTotalBuiltupArea+""+ " Sqm.")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table11.addCell(header);
-	      });
-		
-	}
+		Stream.of("Grand Total BUA - " + grandTotalBuiltupArea + "" + " Sqm.").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table11.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader10(PdfPTable table10, Plan plan) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
-		
-		BigDecimal providedFar = BigDecimal.valueOf(plan.getFarDetails().getProvidedFar());
-		String grandTotalFarArea = plan.getPlot().getArea().multiply(providedFar).setScale(2,BigDecimal.ROUND_UP)+"";
-		Stream.of("Grand Total FAR Area - "+grandTotalFarArea+" Sqm.")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table10.addCell(header);
-	      });
-		
-		
-	}
 
+		BigDecimal providedFar = BigDecimal.valueOf(plan.getFarDetails().getProvidedFar());
+		String grandTotalFarArea = plan.getPlot().getArea().multiply(providedFar).setScale(2, BigDecimal.ROUND_UP) + "";
+		Stream.of("Grand Total FAR Area - " + grandTotalFarArea + " Sqm.").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table10.addCell(header);
+		});
+
+	}
 
 	private void addTableHeader9(PdfPTable table4) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
-		Stream.of("Plantation(no of tree per 80Sqm.)", "91Nos", "93Nos.")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-		
-	}
+		Stream.of("Plantation(no of tree per 80Sqm.)", "91Nos", "93Nos.").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBorderWidth(2);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table4.addCell(header);
+		});
 
+	}
 
 	private void addTableHeader8(PdfPTable table4, OdishaParkingHelper parkingData) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
-		Stream.of("Visitor parking", parkingData.visitorParkingRequired+"",
-				parkingData.visitorParkingProvided+"")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-		
-	}
+		Stream.of("Visitor parking", parkingData.visitorParkingRequired + "", parkingData.visitorParkingProvided + "")
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBorderWidth(2);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table4.addCell(header);
+				});
 
+	}
 
 	private void addTableHeader7(PdfPTable table4) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
-		Stream.of("E-vehicle charging station", "0", "0")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-		
+		Stream.of("E-vehicle charging station", "0", "0").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBorderWidth(2);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table4.addCell(header);
+		});
+
 	}
 
-
-	private void addTableHeader6(PdfPTable table4,Plan plan, OdishaParkingHelper parkingData) {
+	private void addTableHeader6(PdfPTable table4, Plan plan, OdishaParkingHelper parkingData) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
-		
-		Stream.of("Bye Laws Provisions", "Required", "Proposed")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-		Stream.of("No.of staircases", getTotalNoOfStaircasesRequired(plan), getTotalNoOfStaircasesProvided(plan))
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-		Stream.of("No.of Lifts", getTotalNoOfLiftsRequired(plan), getTotalNoOfLiftsProvided(plan))
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-		Stream.of("E-vehicle charging station", getChargingStationsRequired(plan),
-				getChargingStationsProvided(plan))
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-		Stream.of("Visitor parking(in Sqm.)", parkingData.visitorParkingRequired+"",
-				parkingData.visitorParkingProvided+"")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-		Stream.of("Plantation(no of tree per 80Sqm.)", getNoOfTreesRequired(plan), getNoOfTreesProvided(plan))
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBorderWidth(2);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-	      });
-	}
 
+		Stream.of("Bye Laws Provisions", "Required", "Proposed").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBorderWidth(2);
+			header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table4.addCell(header);
+		});
+		Stream.of("No.of staircases", getTotalNoOfStaircasesRequired(plan), getTotalNoOfStaircasesProvided(plan))
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBorderWidth(2);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table4.addCell(header);
+				});
+		Stream.of("No.of Lifts", getTotalNoOfLiftsRequired(plan), getTotalNoOfLiftsProvided(plan))
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBorderWidth(2);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table4.addCell(header);
+				});
+		Stream.of("E-vehicle charging station", getChargingStationsRequired(plan), getChargingStationsProvided(plan))
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBorderWidth(2);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table4.addCell(header);
+				});
+		Stream.of("Visitor parking(in Sqm.)", parkingData.visitorParkingRequired + "",
+				parkingData.visitorParkingProvided + "").forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBorderWidth(2);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table4.addCell(header);
+				});
+		Stream.of("Plantation(no of tree per 80Sqm.)", getNoOfTreesRequired(plan), getNoOfTreesProvided(plan))
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBorderWidth(2);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table4.addCell(header);
+				});
+	}
 
 	private void addTableRow5(PdfPTable table4) {
 		Font fontPara1 = FontFactory.getFont(FontFactory.COURIER, 12);
-		Stream.of("Basement Area (Envelope Basement Area)", "5304.53 Sqm.", "Parking Area =4787.55Sqm. Service Area=516.98 Sqm. ")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setPhrase(new Phrase(columnTitle,fontPara1)); 
-	        table4.addCell(header);
-	      });
-		
-	}
+		Stream.of("Basement Area (Envelope Basement Area)", "5304.53 Sqm.",
+				"Parking Area =4787.55Sqm. Service Area=516.98 Sqm. ").forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setPhrase(new Phrase(columnTitle, fontPara1));
+					table4.addCell(header);
+				});
 
+	}
 
 	private void addRows45(PdfPTable table) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
@@ -1632,64 +1540,57 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		pdfWordCell2.addElement(secondLine);
 		pdfWordCell2.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		table.addCell(pdfWordCell2);
-		
-	}
 
+	}
 
 	private void addRows44(PdfPTable table) {
 		table.addCell("Third Floor");
-	    table.addCell("258.47 Sqm");
-		
-	}
+		table.addCell("258.47 Sqm");
 
+	}
 
 	private void addRows43(PdfPTable table) {
 		table.addCell("Second floor");
-	    table.addCell("258.47 Sqm");
-		
-	}
+		table.addCell("258.47 Sqm");
 
+	}
 
 	private void addRows42(PdfPTable table) {
 		table.addCell("First floor");
-	    table.addCell("258.47 Sqm");		
+		table.addCell("258.47 Sqm");
 	}
-
 
 	private void addRows41(PdfPTable table) {
 		table.addCell("Ground floor");
-	    table.addCell("276.09 Sqm");
-		
-	}
+		table.addCell("276.09 Sqm");
 
+	}
 
 	private void addTableHeader4(PdfPTable table4) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
-		Stream.of("Community Building (B+G+3)", "Covered area approved")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setFixedHeight(25f);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table4.addCell(header);
-		
-	      });
-		
-	}
+		Stream.of("Community Building (B+G+3)", "Covered area approved").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+			header.setBorderWidth(2);
+			header.setFixedHeight(25f);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table4.addCell(header);
 
+		});
+
+	}
 
 	private void addRows31(PdfPTable table, Plan plan) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
 		PdfPCell pdfWordCell1 = new PdfPCell();
-		Phrase firstLine = new Phrase("Total no. of Dwelling Units -" + plan.getPlanInformation().getTotalNoOfDwellingUnits(), fontPara1Bold);
+		Phrase firstLine = new Phrase(
+				"Total no. of Dwelling Units -" + plan.getPlanInformation().getTotalNoOfDwellingUnits(), fontPara1Bold);
 		pdfWordCell1.addElement(firstLine);
 		pdfWordCell1.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		table.addCell(pdfWordCell1);
-		
-	}
 
+	}
 
 	private void addRows25(PdfPTable table) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
@@ -1713,71 +1614,65 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		pdfWordCell4.addElement(fourthLine);
 		pdfWordCell4.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		table.addCell(pdfWordCell4);
-		
-	}
 
+	}
 
 	private void addRows24(PdfPTable table) {
 		table.addCell("Ground floor");
-	    table.addCell("748.62 Sqm");
-	    table.addCell("Parking + Service + Residential");
-	    table.addCell("04(Four) Nos.");
-		
-	}
+		table.addCell("748.62 Sqm");
+		table.addCell("Parking + Service + Residential");
+		table.addCell("04(Four) Nos.");
 
+	}
 
 	private void addRows23(PdfPTable table) {
 		table.addCell("Ground floor");
-	    table.addCell("748.62 Sqm");
-	    table.addCell("Parking + Service + Residential");
-	    table.addCell("04(Four) Nos.");
-		
-	}
+		table.addCell("748.62 Sqm");
+		table.addCell("Parking + Service + Residential");
+		table.addCell("04(Four) Nos.");
 
+	}
 
 	private void addRows22(PdfPTable table) {
 		table.addCell("Ground floor");
-	    table.addCell("748.62 Sqm");
-	    table.addCell("Parking + Service + Residential");
-	    table.addCell("04(Four) Nos.");
-		
-	}
+		table.addCell("748.62 Sqm");
+		table.addCell("Parking + Service + Residential");
+		table.addCell("04(Four) Nos.");
 
+	}
 
 	private void addRows21(PdfPTable table) {
 		table.addCell("Ground floor");
-	    table.addCell("748.62 Sqm");
-	    table.addCell("Parking + Service + Residential");
-	    table.addCell("04(Four) Nos.");
-		
-	}
+		table.addCell("748.62 Sqm");
+		table.addCell("Parking + Service + Residential");
+		table.addCell("04(Four) Nos.");
 
+	}
 
 	private void addTableHeader2(PdfPTable table2) {
 
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
-		Stream.of("Tower-2 (B+G+14 Storied Building )", "Covered area approved", "Proposed use", "No. of Dwelling Units")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table2.addCell(header);
-		
-	      });
-	
-		
+		Stream.of("Tower-2 (B+G+14 Storied Building )", "Covered area approved", "Proposed use",
+				"No. of Dwelling Units").forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table2.addCell(header);
+
+				});
+
 	}
 
-
-	private BigDecimal addRowsPerFloorAndAggregateFlrAreas(PdfPTable table, DcrReportFloorDetail floor, BigDecimal totalFloorArea) {
+	private BigDecimal addRowsPerFloorAndAggregateFlrAreas(PdfPTable table, DcrReportFloorDetail floor,
+			BigDecimal totalFloorArea) {
 		PdfPCell floorNameCell = new PdfPCell();
-		Phrase floorNamephrase = new Phrase("Floor "+floor.getFloorNo());
+		Phrase floorNamephrase = new Phrase("Floor " + floor.getFloorNo());
 		floorNameCell.addElement(floorNamephrase);
 		table.addCell(floorNameCell);
 		PdfPCell floorAreaCell = new PdfPCell();
-		Phrase floorAreaphrase = new Phrase(floor.getBuiltUpArea()+"");
+		Phrase floorAreaphrase = new Phrase(floor.getBuiltUpArea() + "");
 		floorAreaCell.addElement(floorAreaphrase);
 		table.addCell(floorAreaCell);
 		PdfPCell floorOccupancyCell = new PdfPCell();
@@ -1793,24 +1688,28 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		return totalFloorArea;
 
 	}
+
 	private void addTotalRow(PdfPTable table, BigDecimal totalFloorArea) {
 		table.addCell("Total Far Area");
-	    table.addCell(totalFloorArea+"");
-	    table.addCell(" ");
-	    table.addCell("100");
+		table.addCell(totalFloorArea + "");
+		table.addCell(" ");
+		table.addCell("100");
 	}
+
 	private void addRows13(PdfPTable table) {
 		table.addCell("Second floor");
-	    table.addCell("677.55 Sqm");
-	    table.addCell("Residential");
-	    table.addCell("05 (Five) Nos");
+		table.addCell("677.55 Sqm");
+		table.addCell("Residential");
+		table.addCell("05 (Five) Nos");
 	}
+
 	private void addRows14(PdfPTable table) {
 		table.addCell("3rd Floor to 14th Floor");
-	    table.addCell("676.74 * 12 = 8120.88Sqm");
-	    table.addCell("Residential");
-	    table.addCell("05*12 =60(Sixty) Nos.");
+		table.addCell("676.74 * 12 = 8120.88Sqm");
+		table.addCell("Residential");
+		table.addCell("05*12 =60(Sixty) Nos.");
 	}
+
 	private void addRows15(PdfPTable table) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
 		PdfPCell pdfWordCell1 = new PdfPCell();
@@ -1835,26 +1734,25 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 		table.addCell(pdfWordCell4);
 	}
 
-
 	private void addTableHeader1(PdfPTable table1, DcrReportBlockDetail block) {
 
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
 		Stream.of("Block-No." + block.getBlockNo(), "Covered area approved", "Proposed use", "No. of Dwelling Units")
-	      .forEach(columnTitle -> {
-	        PdfPCell header = new PdfPCell();
-	        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-	        header.setBorderWidth(2);
-	        header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-	        header.setPhrase(new Phrase(columnTitle,fontPara1Bold)); 
-	        table1.addCell(header);
-		
-	      });
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table1.addCell(header);
+
+				});
 	}
-	
+
 	private void addNocs(Document document, RequestInfo requestInfo, String tenantId, String applicationNo)
 			throws DocumentException {
 		Set<String> nocNames = getNocsList(requestInfo, tenantId, applicationNo);
-		if(nocNames.isEmpty()) {
+		if (nocNames.isEmpty()) {
 			Phrase phrase = new Phrase();
 //			phrase.add(new Chunk(Chunk.TABBING));
 			phrase.add(new Chunk(Chunk.TAB));
@@ -1869,43 +1767,50 @@ public class PermitOrderServiceV2 extends PermitOrderAbstractService{
 			document.add(phrase);
 		}
 	}
-	
-	//TODO:total no of lifts methods logic-
+
+	// TODO:total no of lifts methods logic-
 	private String getTotalNoOfLiftsRequired(Plan plan) {
 		return "5Nos.";
 	}
-	
+
 	private String getTotalNoOfLiftsProvided(Plan plan) {
 		return "5Nos.(2nos.of 13\npassenger stretcher)";
 	}
-	
+
 	private String getTotalNoOfStaircasesRequired(Plan plan) {
 		return "5Nos.";
 	}
-	
+
 	private String getTotalNoOfStaircasesProvided(Plan plan) {
 		return "5Nos.";
 	}
+
 	private String getChargingStationsRequired(Plan plan) {
 		return "0";
 	}
+
 	private String getChargingStationsProvided(Plan plan) {
 		return "0";
 	}
+
 	private String getNoOfVisitorCarParkingRequired(Plan plan) {
 		return "29.46Nos.";
 	}
+
 	private String getNoOfVisitorCarParkingProvided(Plan plan) {
 		return "30 Nos.";
 	}
+
 	private String getNoOfTreesRequired(Plan plan) {
 		return "91 Nos.";
 	}
+
 	private String getNoOfTreesProvided(Plan plan) {
 		return "93 Nos.";
 	}
+
 	private String getHeight(Plan plan) {
 		return "44.7 Mtr";
 	}
-	
+
 }

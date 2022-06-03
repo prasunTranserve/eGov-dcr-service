@@ -2,22 +2,17 @@ package org.egov.edcr.service;
 
 import static ar.com.fdvs.dj.domain.constants.Stretching.RELATIVE_TO_BAND_HEIGHT;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -31,14 +26,11 @@ import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.OccupancyPercentage;
 import org.egov.common.entity.edcr.OccupancyReport;
 import org.egov.common.entity.edcr.Plan;
-import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.common.entity.edcr.VirtualBuilding;
 import org.egov.common.entity.edcr.VirtualBuildingReport;
-import org.egov.edcr.constants.UlbNameConstants;
 import org.egov.edcr.entity.PaymentTable;
 import org.egov.edcr.feature.AdditionalFeature;
 import org.egov.infra.microservice.models.RequestInfo;
-import org.jfree.util.Log;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -49,7 +41,6 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
 import ar.com.fdvs.dj.core.DJConstants;
-import ar.com.fdvs.dj.core.DynamicJasperHelper;
 import ar.com.fdvs.dj.core.layout.ClassicLayoutManager;
 import ar.com.fdvs.dj.domain.DJCalculation;
 import ar.com.fdvs.dj.domain.DJDataSource;
@@ -59,18 +50,11 @@ import ar.com.fdvs.dj.domain.builders.ColumnBuilder;
 import ar.com.fdvs.dj.domain.builders.ColumnBuilderException;
 import ar.com.fdvs.dj.domain.builders.FastReportBuilder;
 import ar.com.fdvs.dj.domain.constants.Border;
-import ar.com.fdvs.dj.domain.constants.Font;
-import ar.com.fdvs.dj.domain.constants.HorizontalAlign;
 import ar.com.fdvs.dj.domain.constants.Page;
 import ar.com.fdvs.dj.domain.entities.Subreport;
 import ar.com.fdvs.dj.domain.entities.columns.AbstractColumn;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
-public class PermitOrderAbstractService {
+public abstract class PermitOrderService {
 
 	@Autowired
 	private JasperReportService reportService;
@@ -84,7 +68,7 @@ public class PermitOrderAbstractService {
 	@Autowired
 	private NocService nocService;
 
-	private static final Logger LOG = Logger.getLogger(PermitOrderAbstractService.class);
+	private static final Logger LOG = Logger.getLogger(PermitOrderService.class);
 
 	public static final String FRONT_YARD_DESC = "Front Setback";
 	public static final String REAR_YARD_DESC = "Rear Setback";
@@ -106,221 +90,223 @@ public class PermitOrderAbstractService {
 	public static final String BLOCK = "Block";
 	public static final String STATUS = "Status";
 
-	public InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) {
-		FastReportBuilder drb = new FastReportBuilder();
-		StringBuilder reportBuilder = new StringBuilder();
-
-		final Style titleStyle = new Style("titleStyle");
-		titleStyle.setFont(new Font(50, Font._FONT_TIMES_NEW_ROMAN, true));
-		titleStyle.setHorizontalAlign(HorizontalAlign.CENTER);
-
-		titleStyle.setFont(new Font(2, Font._FONT_TIMES_NEW_ROMAN, false));
-
-		if (plan.getVirtualBuilding() != null && !plan.getVirtualBuilding().getOccupancyTypes().isEmpty()) {
-			List<String> occupancies = new ArrayList<>();
-			plan.getVirtualBuilding().getOccupancyTypes().forEach(occ -> {
-				if (occ.getType() != null)
-					occupancies.add(occ.getType().getName());
-			});
-			Set<String> distinctOccupancies = new HashSet<>(occupancies);
-//			plan.getPlanInformation()
-//					.setOccupancy(distinctOccupancies.stream().map(String::new).collect(Collectors.joining(",")));
-			if (plan.getVirtualBuilding().getMostRestrictiveFarHelper() != null
-					&& plan.getVirtualBuilding().getMostRestrictiveFarHelper().getType() != null)
-				plan.getPlanInformation()
-						.setOccupancy(plan.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getName());
-		}
-
-		StringBuilder nocs = new StringBuilder();
-		if (plan.getNoObjectionCertificates() != null && plan.getNoObjectionCertificates().size() > 0) {
-			int i = 1;
-			for (Map.Entry<String, String> entry : plan.getNoObjectionCertificates().entrySet()) {
-				nocs.append(String.valueOf(i)).append(". ");
-				nocs.append(entry.getValue());
-				nocs.append("\n");
-				i++;
-			}
-		}
-
-		drb.setPageSizeAndOrientation(new Page(842, 595, true));
-
-		final JRDataSource ds = new JRBeanCollectionDataSource(Collections.singletonList(plan));
-		final Map<String, Object> valuesMap = new HashMap<>();
-		String ulbName = null;
-//		if (ulbName == null || ulbName.trim().isEmpty())
-		ulbName = UlbNameConstants.ulbName(plan.getThirdPartyUserTenantld());
-		valuesMap.put("ulbName", ulbName);
-		valuesMap.put("nocString", nocs.toString());
-		valuesMap.put("nocs", plan.getNoObjectionCertificates());
-		valuesMap.put("far", plan.getFarDetails() != null ? plan.getFarDetails().getProvidedFar() : "");
-		valuesMap.put("coverage", plan.getCoverage());
-		valuesMap.put("totalFloorArea",
-				plan.getVirtualBuilding() != null ? plan.getVirtualBuilding().getTotalFloorArea()
-						: BigDecimal.valueOf(0));
-		valuesMap.put("totalBuiltUpArea",
-				plan.getVirtualBuilding() != null ? plan.getVirtualBuilding().getTotalBuitUpArea()
-						: BigDecimal.valueOf(0));
-		valuesMap.put("blockCount",
-				plan.getBlocks() != null && !plan.getBlocks().isEmpty() ? plan.getBlocks().size() : 0);
-		valuesMap.put("surrenderRoadArea", plan.getTotalSurrenderRoadArea());
-
-		List<DcrReportBlockDetail> blockDetails = new ArrayList<>();
-
-		List<DcrReportBlockDetail> existingBlockDetails = buildBlockWiseExistingInfo(plan);
-		VirtualBuildingReport virtualBuildingReport = buildVirtualBuilding(plan.getVirtualBuilding());
-		List<OccupancyReport> occupanciesReport = buildSubOccupanciesReport(
-				plan.getPlanInformation().getOccupancyPercentages());
-		List<AdditionalReportDetail> additionalReportDetails = buildAdditionalReport(plan);
-
-		List<DcrReportBlockDetail> proposedBlockDetails = buildBlockWiseProposedInfo(plan);
-
-		// Add proposed block details
-		for (DcrReportBlockDetail dcrReportBlockDetail : proposedBlockDetails) {
-			blockDetails.add(dcrReportBlockDetail);
-			drb.addConcatenatedReport(getBlkDetails(dcrReportBlockDetail, true));
-			valuesMap.put("Block No " + dcrReportBlockDetail.getBlockNo(),
-					dcrReportBlockDetail.getDcrReportFloorDetails());
-		}
-
-		// No of staircases and other details-
-		drb.addConcatenatedReport(getAdditionalDetailsV2());
-		valuesMap.put("AdditionalDetails2", additionalReportDetails);
-
-		drb.addConcatenatedReport(getFarAndParkingDetails());
-		List<Map<String, String>> farAndParkingDetails = new ArrayList<>();
-		Map<String, String> farDetail = new HashMap<>();
-		farDetail.put("key1", "F.A.R.");
-		farDetail.put("key2", "6.00 (Max. Permissible) 2.00(Base FAR )");
-		farDetail.put("key3", "ACHIEVED 2.984(0.984 Purchasable FAR)");
-		farAndParkingDetails.add(farDetail);
-		Map<String, String> heightDetail = new HashMap<>();
-		heightDetail.put("key1", "Height");
-		heightDetail.put("key2", "44.7 Mtr");
-		heightDetail.put("key3", null);
-		farAndParkingDetails.add(heightDetail);
-		Map<String, String> parkingDetail = new HashMap<>();
-		parkingDetail.put("key1", "Parking (30%)");
-		parkingDetail.put("key2", "Basement-4787.55+ Stilt- 456.2 + Ground (Open Parking )-1554.2");
-		parkingDetail.put("key3", "Total =6798.03Sqm");
-		farAndParkingDetails.add(parkingDetail);
-		valuesMap.put("FarAndParkingDetails", farAndParkingDetails);
-
-		drb.addConcatenatedReport(getSetBacks());
-		List<Map<String, String>> setBackDetails = new ArrayList<>();
-		Map<String, String> frontSetBack = new HashMap<>();
-		frontSetBack.put("setBackName", "Front Set back");
-		frontSetBack.put("requiredSetback", "11 & 4");
-		frontSetBack.put("providedSetback", "12.80 & 11");
-		setBackDetails.add(frontSetBack);
-		Map<String, String> rearSetBack = new HashMap<>();
-		rearSetBack.put("setBackName", "Rear Set back");
-		rearSetBack.put("requiredSetback", "11 & 3");
-		rearSetBack.put("providedSetback", "13.00 & 3.20");
-		setBackDetails.add(rearSetBack);
-		Map<String, String> leftSide = new HashMap<>();
-		leftSide.put("setBackName", "Left side");
-		leftSide.put("requiredSetback", "11 & 2.5");
-		leftSide.put("providedSetback", "14.25 & 3.0");
-		setBackDetails.add(leftSide);
-		Map<String, String> rightSide = new HashMap<>();
-		rightSide.put("setBackName", "Right side");
-		rightSide.put("requiredSetback", "11 & 2.5");
-		rightSide.put("providedSetback", "16.8 & 6.66");
-		setBackDetails.add(rightSide);
-		valuesMap.put("SetbackDetails", setBackDetails);
-
-		drb.addConcatenatedReport(getNocs());
-		valuesMap.put("Nocs", Collections.EMPTY_LIST);
-
-		drb.addConcatenatedReport(getConditions());
-		valuesMap.put("Conditions", Collections.EMPTY_LIST);
-
-		List<PaymentTable> applicationFeeDetails = buildApplicationFeeDetails(plan);
-		drb.addConcatenatedReport(getPaymentDetails("Application Fee Components", "Application Fee Details", true));
-		valuesMap.put("Application Fee Details", applicationFeeDetails);
-
-		List<PaymentTable> permitFeeDetails = buildPermitFeeDetails(plan);
-		drb.addConcatenatedReport(getPaymentDetails("Permit Fee Components", "Permit Fee Details", false));
-		valuesMap.put("Permit Fee Details", permitFeeDetails);
-
-		drb.addConcatenatedReport(getPaymentTotal());
-		valuesMap.put("paymentTotal", Collections.EMPTY_LIST);
-
-		drb.addConcatenatedReport(getOtherConditionsDeclaration());
-		valuesMap.put("OtherConditionsDeclaration", Collections.EMPTY_LIST);
-
-		drb.addConcatenatedReport(getOtherConditions());
-		valuesMap.put("OtherConditions", Collections.EMPTY_LIST);
-
-		// recent parameters-
-		valuesMap.put("permitNo", "BP/CTC/000044");
-		valuesMap.put("dated", "10/05/2022");
-		valuesMap.put("applicationNo", "BP-CTC-2022-05-10-000201");
-		valuesMap.put("ulbName", "Cuttack");
-		valuesMap.put("ulbGrade", "Municipal Corporation");
-		valuesMap.put("permissionUnder",
-				"Permission Under Sub-Section (3) of the Section-16 of the Orissa Development Authorities\r\n"
-						+ "Act’1982(Orissa Act,1982) is hereby granted in favour of Smt/Sri");
-		valuesMap.put("ownerName", "Prasun Kumar");
-		valuesMap.put("forConstructionOf", " for construction of");
-		valuesMap.put("noOfFloors", "[G+1]");
-		valuesMap.put("occupancyType", "Residential Plotted building");
-		valuesMap.put("inRespectOf", " in respect of Plot No");
-		valuesMap.put("plotNo", "32/1");
-		valuesMap.put("khataNoText", ", Khata No. ");
-		valuesMap.put("khataNo", "560");
-		valuesMap.put("villageText", ", Village/Mouza");
-		valuesMap.put("village", "Andarpur");
-		valuesMap.put("ofText", "  in the Development Plan area of ");
-		valuesMap.put("subjectTo", " with the following parameters and conditions;");
-		valuesMap.put("totalPlotArea", "4864");
-		valuesMap.put("roadAffectedArea", "0");
-		valuesMap.put("roadWidth", "9.14");
-
-		LOG.info("Generate Report.......");
-		List<ScrutinyDetail> scrutinyDetails = plan.getReportOutput().getScrutinyDetails();
-
-		Set<String> common = new TreeSet<>();
-		Map<String, ScrutinyDetail> allMap = new HashMap<>();
-		Map<String, Set<String>> blocks = new TreeMap<>();
-		for (ScrutinyDetail sd : scrutinyDetails) {
-			LOG.info(sd.getKey());
-			LOG.info(sd.getHeading());
-			String[] split = {};
-			if (sd.getKey() != null)
-				split = sd.getKey().split("_");
-			if (split.length == 2) {
-				common.add(split[1]);
-				allMap.put(split[1], sd);
-
-			} else if (split.length == 3) {
-				if (blocks.get(split[1]) == null) {
-					Set<String> features = new TreeSet<>();
-					features.add(split[2]);
-					blocks.put(split[1], features);
-				} else {
-					blocks.get(split[1]).add(split[2]);
-				}
-				allMap.put(split[1] + split[2], sd);
-			}
-		}
-		int i = 0;
-		drb.setTemplateFile("/reports/templates/002_Merged_BDA_20220519.jrxml");
-		drb.setMargins(0, 0, 60, 55);
-		final DynamicReport dr = drb.build();
-		InputStream exportPdf = null;
-		try {
-			JasperPrint generateJasperPrint = DynamicJasperHelper.generateJasperPrint(dr, new ClassicLayoutManager(),
-					ds, valuesMap);
-			JasperExportManager.exportReportToPdfFile(generateJasperPrint,
-					"C:\\Users\\Prasun.Kumar\\code\\od2\\eGov-dcr-service-edcr_sub_report-Branch\\eGov-dcr-service\\egov\\egov-edcr\\src\\main\\resources\\reports\\templates\\001_LatestPermit_20220520.pdf");
-			exportPdf = reportService.exportPdf(generateJasperPrint);
-		} catch (IOException | JRException e) {
-			LOG.error("Error occurred when generating Jasper report", e);
-		}
-		return exportPdf;
-
-	}
+	public abstract  InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo);
+	
+//	{
+//		FastReportBuilder drb = new FastReportBuilder();
+//		StringBuilder reportBuilder = new StringBuilder();
+//
+//		final Style titleStyle = new Style("titleStyle");
+//		titleStyle.setFont(new Font(50, Font._FONT_TIMES_NEW_ROMAN, true));
+//		titleStyle.setHorizontalAlign(HorizontalAlign.CENTER);
+//
+//		titleStyle.setFont(new Font(2, Font._FONT_TIMES_NEW_ROMAN, false));
+//
+//		if (plan.getVirtualBuilding() != null && !plan.getVirtualBuilding().getOccupancyTypes().isEmpty()) {
+//			List<String> occupancies = new ArrayList<>();
+//			plan.getVirtualBuilding().getOccupancyTypes().forEach(occ -> {
+//				if (occ.getType() != null)
+//					occupancies.add(occ.getType().getName());
+//			});
+//			Set<String> distinctOccupancies = new HashSet<>(occupancies);
+////			plan.getPlanInformation()
+////					.setOccupancy(distinctOccupancies.stream().map(String::new).collect(Collectors.joining(",")));
+//			if (plan.getVirtualBuilding().getMostRestrictiveFarHelper() != null
+//					&& plan.getVirtualBuilding().getMostRestrictiveFarHelper().getType() != null)
+//				plan.getPlanInformation()
+//						.setOccupancy(plan.getVirtualBuilding().getMostRestrictiveFarHelper().getType().getName());
+//		}
+//
+//		StringBuilder nocs = new StringBuilder();
+//		if (plan.getNoObjectionCertificates() != null && plan.getNoObjectionCertificates().size() > 0) {
+//			int i = 1;
+//			for (Map.Entry<String, String> entry : plan.getNoObjectionCertificates().entrySet()) {
+//				nocs.append(String.valueOf(i)).append(". ");
+//				nocs.append(entry.getValue());
+//				nocs.append("\n");
+//				i++;
+//			}
+//		}
+//
+//		drb.setPageSizeAndOrientation(new Page(842, 595, true));
+//
+//		final JRDataSource ds = new JRBeanCollectionDataSource(Collections.singletonList(plan));
+//		final Map<String, Object> valuesMap = new HashMap<>();
+//		String ulbName = null;
+////		if (ulbName == null || ulbName.trim().isEmpty())
+//		ulbName = UlbNameConstants.ulbName(plan.getThirdPartyUserTenantld());
+//		valuesMap.put("ulbName", ulbName);
+//		valuesMap.put("nocString", nocs.toString());
+//		valuesMap.put("nocs", plan.getNoObjectionCertificates());
+//		valuesMap.put("far", plan.getFarDetails() != null ? plan.getFarDetails().getProvidedFar() : "");
+//		valuesMap.put("coverage", plan.getCoverage());
+//		valuesMap.put("totalFloorArea",
+//				plan.getVirtualBuilding() != null ? plan.getVirtualBuilding().getTotalFloorArea()
+//						: BigDecimal.valueOf(0));
+//		valuesMap.put("totalBuiltUpArea",
+//				plan.getVirtualBuilding() != null ? plan.getVirtualBuilding().getTotalBuitUpArea()
+//						: BigDecimal.valueOf(0));
+//		valuesMap.put("blockCount",
+//				plan.getBlocks() != null && !plan.getBlocks().isEmpty() ? plan.getBlocks().size() : 0);
+//		valuesMap.put("surrenderRoadArea", plan.getTotalSurrenderRoadArea());
+//
+//		List<DcrReportBlockDetail> blockDetails = new ArrayList<>();
+//
+//		List<DcrReportBlockDetail> existingBlockDetails = buildBlockWiseExistingInfo(plan);
+//		VirtualBuildingReport virtualBuildingReport = buildVirtualBuilding(plan.getVirtualBuilding());
+//		List<OccupancyReport> occupanciesReport = buildSubOccupanciesReport(
+//				plan.getPlanInformation().getOccupancyPercentages());
+//		List<AdditionalReportDetail> additionalReportDetails = buildAdditionalReport(plan);
+//
+//		List<DcrReportBlockDetail> proposedBlockDetails = buildBlockWiseProposedInfo(plan);
+//
+//		// Add proposed block details
+//		for (DcrReportBlockDetail dcrReportBlockDetail : proposedBlockDetails) {
+//			blockDetails.add(dcrReportBlockDetail);
+//			drb.addConcatenatedReport(getBlkDetails(dcrReportBlockDetail, true));
+//			valuesMap.put("Block No " + dcrReportBlockDetail.getBlockNo(),
+//					dcrReportBlockDetail.getDcrReportFloorDetails());
+//		}
+//
+//		// No of staircases and other details-
+//		drb.addConcatenatedReport(getAdditionalDetailsV2());
+//		valuesMap.put("AdditionalDetails2", additionalReportDetails);
+//
+//		drb.addConcatenatedReport(getFarAndParkingDetails());
+//		List<Map<String, String>> farAndParkingDetails = new ArrayList<>();
+//		Map<String, String> farDetail = new HashMap<>();
+//		farDetail.put("key1", "F.A.R.");
+//		farDetail.put("key2", "6.00 (Max. Permissible) 2.00(Base FAR )");
+//		farDetail.put("key3", "ACHIEVED 2.984(0.984 Purchasable FAR)");
+//		farAndParkingDetails.add(farDetail);
+//		Map<String, String> heightDetail = new HashMap<>();
+//		heightDetail.put("key1", "Height");
+//		heightDetail.put("key2", "44.7 Mtr");
+//		heightDetail.put("key3", null);
+//		farAndParkingDetails.add(heightDetail);
+//		Map<String, String> parkingDetail = new HashMap<>();
+//		parkingDetail.put("key1", "Parking (30%)");
+//		parkingDetail.put("key2", "Basement-4787.55+ Stilt- 456.2 + Ground (Open Parking )-1554.2");
+//		parkingDetail.put("key3", "Total =6798.03Sqm");
+//		farAndParkingDetails.add(parkingDetail);
+//		valuesMap.put("FarAndParkingDetails", farAndParkingDetails);
+//
+//		drb.addConcatenatedReport(getSetBacks());
+//		List<Map<String, String>> setBackDetails = new ArrayList<>();
+//		Map<String, String> frontSetBack = new HashMap<>();
+//		frontSetBack.put("setBackName", "Front Set back");
+//		frontSetBack.put("requiredSetback", "11 & 4");
+//		frontSetBack.put("providedSetback", "12.80 & 11");
+//		setBackDetails.add(frontSetBack);
+//		Map<String, String> rearSetBack = new HashMap<>();
+//		rearSetBack.put("setBackName", "Rear Set back");
+//		rearSetBack.put("requiredSetback", "11 & 3");
+//		rearSetBack.put("providedSetback", "13.00 & 3.20");
+//		setBackDetails.add(rearSetBack);
+//		Map<String, String> leftSide = new HashMap<>();
+//		leftSide.put("setBackName", "Left side");
+//		leftSide.put("requiredSetback", "11 & 2.5");
+//		leftSide.put("providedSetback", "14.25 & 3.0");
+//		setBackDetails.add(leftSide);
+//		Map<String, String> rightSide = new HashMap<>();
+//		rightSide.put("setBackName", "Right side");
+//		rightSide.put("requiredSetback", "11 & 2.5");
+//		rightSide.put("providedSetback", "16.8 & 6.66");
+//		setBackDetails.add(rightSide);
+//		valuesMap.put("SetbackDetails", setBackDetails);
+//
+//		drb.addConcatenatedReport(getNocs());
+//		valuesMap.put("Nocs", Collections.EMPTY_LIST);
+//
+//		drb.addConcatenatedReport(getConditions());
+//		valuesMap.put("Conditions", Collections.EMPTY_LIST);
+//
+//		List<PaymentTable> applicationFeeDetails = buildApplicationFeeDetails(plan);
+//		drb.addConcatenatedReport(getPaymentDetails("Application Fee Components", "Application Fee Details", true));
+//		valuesMap.put("Application Fee Details", applicationFeeDetails);
+//
+//		List<PaymentTable> permitFeeDetails = buildPermitFeeDetails(plan);
+//		drb.addConcatenatedReport(getPaymentDetails("Permit Fee Components", "Permit Fee Details", false));
+//		valuesMap.put("Permit Fee Details", permitFeeDetails);
+//
+//		drb.addConcatenatedReport(getPaymentTotal());
+//		valuesMap.put("paymentTotal", Collections.EMPTY_LIST);
+//
+//		drb.addConcatenatedReport(getOtherConditionsDeclaration());
+//		valuesMap.put("OtherConditionsDeclaration", Collections.EMPTY_LIST);
+//
+//		drb.addConcatenatedReport(getOtherConditions());
+//		valuesMap.put("OtherConditions", Collections.EMPTY_LIST);
+//
+//		// recent parameters-
+//		valuesMap.put("permitNo", "BP/CTC/000044");
+//		valuesMap.put("dated", "10/05/2022");
+//		valuesMap.put("applicationNo", "BP-CTC-2022-05-10-000201");
+//		valuesMap.put("ulbName", "Cuttack");
+//		valuesMap.put("ulbGrade", "Municipal Corporation");
+//		valuesMap.put("permissionUnder",
+//				"Permission Under Sub-Section (3) of the Section-16 of the Orissa Development Authorities\r\n"
+//						+ "Act’1982(Orissa Act,1982) is hereby granted in favour of Smt/Sri");
+//		valuesMap.put("ownerName", "Prasun Kumar");
+//		valuesMap.put("forConstructionOf", " for construction of");
+//		valuesMap.put("noOfFloors", "[G+1]");
+//		valuesMap.put("occupancyType", "Residential Plotted building");
+//		valuesMap.put("inRespectOf", " in respect of Plot No");
+//		valuesMap.put("plotNo", "32/1");
+//		valuesMap.put("khataNoText", ", Khata No. ");
+//		valuesMap.put("khataNo", "560");
+//		valuesMap.put("villageText", ", Village/Mouza");
+//		valuesMap.put("village", "Andarpur");
+//		valuesMap.put("ofText", "  in the Development Plan area of ");
+//		valuesMap.put("subjectTo", " with the following parameters and conditions;");
+//		valuesMap.put("totalPlotArea", "4864");
+//		valuesMap.put("roadAffectedArea", "0");
+//		valuesMap.put("roadWidth", "9.14");
+//
+//		LOG.info("Generate Report.......");
+//		List<ScrutinyDetail> scrutinyDetails = plan.getReportOutput().getScrutinyDetails();
+//
+//		Set<String> common = new TreeSet<>();
+//		Map<String, ScrutinyDetail> allMap = new HashMap<>();
+//		Map<String, Set<String>> blocks = new TreeMap<>();
+//		for (ScrutinyDetail sd : scrutinyDetails) {
+//			LOG.info(sd.getKey());
+//			LOG.info(sd.getHeading());
+//			String[] split = {};
+//			if (sd.getKey() != null)
+//				split = sd.getKey().split("_");
+//			if (split.length == 2) {
+//				common.add(split[1]);
+//				allMap.put(split[1], sd);
+//
+//			} else if (split.length == 3) {
+//				if (blocks.get(split[1]) == null) {
+//					Set<String> features = new TreeSet<>();
+//					features.add(split[2]);
+//					blocks.put(split[1], features);
+//				} else {
+//					blocks.get(split[1]).add(split[2]);
+//				}
+//				allMap.put(split[1] + split[2], sd);
+//			}
+//		}
+//		int i = 0;
+//		drb.setTemplateFile("/reports/templates/002_Merged_BDA_20220519.jrxml");
+//		drb.setMargins(0, 0, 60, 55);
+//		final DynamicReport dr = drb.build();
+//		InputStream exportPdf = null;
+//		try {
+//			JasperPrint generateJasperPrint = DynamicJasperHelper.generateJasperPrint(dr, new ClassicLayoutManager(),
+//					ds, valuesMap);
+//			JasperExportManager.exportReportToPdfFile(generateJasperPrint,
+//					"C:\\Users\\Prasun.Kumar\\code\\od2\\eGov-dcr-service-edcr_sub_report-Branch\\eGov-dcr-service\\egov\\egov-edcr\\src\\main\\resources\\reports\\templates\\001_LatestPermit_20220520.pdf");
+//			exportPdf = reportService.exportPdf(generateJasperPrint);
+//		} catch (IOException | JRException e) {
+//			LOG.error("Error occurred when generating Jasper report", e);
+//		}
+//		return exportPdf;
+//
+//	}
 
 	public Image getLogo(String imageUrl) throws Exception {
 		Image logo1 = Image.getInstance(new URL(imageUrl));

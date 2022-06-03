@@ -23,7 +23,7 @@ public class NocService {
 	}
 
 	public StringBuilder getNocSearchUrl() {
-		return new StringBuilder().append("http://localhost:8083/").append("noc-services/v1/noc").append("/_search");
+		return new StringBuilder().append("https://sujog-dev.odisha.gov.in/").append("noc-services/v1/noc").append("/_search");
 	}
 
 	public Object fetchNocs(RequestInfo requestInfo,String tenantId,String bpaApplicationNo) {

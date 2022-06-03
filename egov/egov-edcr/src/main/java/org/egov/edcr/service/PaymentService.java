@@ -22,7 +22,7 @@ public class PaymentService {
 	}
 
 	public StringBuilder getPaymentsSearchUrl(String businessservice) {
-		return new StringBuilder().append("http://localhost:8083/").append("collection-services/payments/")
+		return new StringBuilder().append("https://sujog-dev.odisha.gov.in/").append("collection-services/payments/")
 				.append(businessservice).append("/_search");
 	}
 
