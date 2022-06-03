@@ -232,8 +232,8 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		BigDecimal roadWidth = plan.getPlanInformation().getRoadWidth();
 		Font fontList1 = FontFactory.getFont("Bold", 12, Font.UNDERLINE);
 		Phrase list1 = new Phrase("Parameters:\n", fontList1);
-//	    Chunk chunk31 = new Chunk(Chunk.TABBING);
-		Chunk chunk31 = new Chunk(Chunk.TAB);
+	    Chunk chunk31 = new Chunk(Chunk.TABBING);
+//		Chunk chunk31 = new Chunk(Chunk.TAB);
 		Chunk chunk32 = new Chunk("	- Total plot area: Ac1.830Dec. (" + plotArea + " Sqm.)\n", fontPara1Bold);
 		Chunk chunk33 = new Chunk("	- CDP road affected area: " + totalRoadSurrenderArea + " Sqm.\n", fontPara1Bold);
 		Chunk chunk34 = new Chunk("	- Net plot area: " + netPlotArea + " Sqm.\n", fontPara1Bold);
@@ -1754,15 +1754,15 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		Set<String> nocNames = getNocsList(requestInfo, tenantId, applicationNo);
 		if (nocNames.isEmpty()) {
 			Phrase phrase = new Phrase();
-//			phrase.add(new Chunk(Chunk.TABBING));
-			phrase.add(new Chunk(Chunk.TAB));
+			phrase.add(new Chunk(Chunk.TABBING));
+//			phrase.add(new Chunk(Chunk.TAB));
 			phrase.add(new Chunk("NA\n", FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD)));
 			document.add(phrase);
 		}
 		for (String nocName : nocNames) {
 			Phrase phrase = new Phrase();
-//			phrase.add(new Chunk(Chunk.TABBING));
-			phrase.add(new Chunk(Chunk.TAB));
+			phrase.add(new Chunk(Chunk.TABBING));
+//			phrase.add(new Chunk(Chunk.TAB));
 			phrase.add(new Chunk("	- " + nocName + ".\n", FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD)));
 			document.add(phrase);
 		}
