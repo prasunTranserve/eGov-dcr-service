@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -17,8 +18,11 @@ import org.apache.commons.lang.StringUtils;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.DcrReportBlockDetail;
 import org.egov.common.entity.edcr.DcrReportFloorDetail;
+import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.OdishaParkingHelper;
 import org.egov.common.entity.edcr.Plan;
+import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.feature.AdditionalFeature;
 import org.egov.edcr.feature.Parking;
 import org.egov.edcr.od.OdishaUtill;
 import org.egov.infra.exception.ApplicationRuntimeException;
@@ -159,7 +163,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		Document document = new Document();
 		ByteArrayOutputStream outputBytes;
 		outputBytes = new ByteArrayOutputStream();
-		PdfWriter.getInstance(document,outputBytes);
+		PdfWriter.getInstance(document, outputBytes);
 //		PdfWriter.getInstance(document,
 //				new FileOutputStream("C:\\Temp\\Odisha\\permitFile\\001_V3LongPermit_20220525.pdf"));
 		document.open();
@@ -190,7 +194,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 				"Letter No. " + getValue(bpaApplication, "approvalNo") + ", " + tenantId + ", Dated: " + approvalDate,
 				fontBold);
 		para12.setAlignment(Paragraph.ALIGN_CENTER);
-		Paragraph para13 = new Paragraph("E-BPAS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
+		Paragraph para13 = new Paragraph("Sujog-OBPS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
 		para13.setAlignment(Paragraph.ALIGN_CENTER);
 
 		Font fontPara1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
@@ -206,13 +210,14 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 				: "addition or alteration in the existing building";
 		Chunk chunk21 = new Chunk(String.format(PARAGRAPH_TWO_I, serviceType), fontPara1);
 		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
+		String occupancy = plan.getPlanInformation().getOccupancy();
 		String subOccupancy = plan.getPlanInformation().getSubOccupancy() + " ";
 		String plotNo = plan.getPlanInformation().getPlotNo() + " ";
 		String khataNo = plan.getPlanInformation().getKhataNo() + " ";
 		String localityName = getValue(bpaApplication, "$.landInfo.address.locality.name");
 
 		Chunk chunk22 = new Chunk(
-				String.format(PARAGRAPH_TWO_II, floorInfo, subOccupancy, plotNo, khataNo, localityName), fontPara1Bold);
+				String.format(PARAGRAPH_TWO_II, floorInfo, occupancy+", "+subOccupancy, plotNo, khataNo, localityName), fontPara1Bold);
 		Chunk chunk23 = new Chunk(PARAGRAPH_TWO_III, fontPara1);
 
 		Chunk chunk24 = new Chunk(tenantId, fontPara1Bold);
@@ -228,15 +233,16 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		BigDecimal totalRoadSurrenderArea = plan.getTotalSurrenderRoadArea();
 		// As observed in format provided by BDA, net plot area =(total plot area-road
 		// affected area)
-		BigDecimal netPlotArea = plotArea.subtract(totalRoadSurrenderArea);
-		BigDecimal roadWidth = plan.getPlanInformation().getRoadWidth();
+		BigDecimal netPlotArea = plan.getPlot().getPlotBndryArea();
+		BigDecimal roadWidth = plan.getPlanInformation().getTotalRoadWidth();
 		Font fontList1 = FontFactory.getFont("Bold", 12, Font.UNDERLINE);
 		Phrase list1 = new Phrase("Parameters:\n", fontList1);
-	    Chunk chunk31 = new Chunk(Chunk.TABBING);
+		Chunk chunk31 = new Chunk(Chunk.TABBING);
 //		Chunk chunk31 = new Chunk(Chunk.TAB);
-		Chunk chunk32 = new Chunk("	- Total plot area: Ac1.830Dec. (" + plotArea + " Sqm.)\n", fontPara1Bold);
+		Chunk chunk32 = new Chunk(getTotalPlotAreaValueV2(plan)+"\n", fontPara1Bold);
 		Chunk chunk33 = new Chunk("	- CDP road affected area: " + totalRoadSurrenderArea + " Sqm.\n", fontPara1Bold);
-		Chunk chunk34 = new Chunk("	- Net plot area: " + netPlotArea + " Sqm.\n", fontPara1Bold);
+		java.util.List<Chunk> affectedArea = getTotalCDPRoadAffectedArea(plan);
+		Chunk chunk34 = new Chunk("	- Net plot area: " + netPlotArea +DxfFileConstants.SQM +"\n", fontPara1Bold);
 		Chunk chunk35 = new Chunk("	- Abutting road width: " + roadWidth + " Mtr\n", fontPara1Bold);
 
 		Phrase list11 = new Phrase();
@@ -244,7 +250,9 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		list11.add(chunk32);
 		Phrase list12 = new Phrase();
 		list11.add(chunk31);
-		list11.add(chunk33);
+		//list11.add(chunk33);
+		if(!affectedArea.isEmpty())
+			list11.addAll(affectedArea);
 		Phrase list13 = new Phrase();
 		list11.add(chunk31);
 		list11.add(chunk34);
@@ -258,14 +266,15 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		java.util.List<DcrReportBlockDetail> blockDetails = buildBlockWiseProposedInfo(plan);
 		for (DcrReportBlockDetail block : blockDetails) {
 			BigDecimal totalFloorArea = BigDecimal.ZERO;
-
-			addTableHeader1(table1, block);
+			Block planBlock = plan.getBlockByName(block.getBlockNo());
+			//Block planBlock = plan.getBlocks().get(Integer.parseInt(block.getBlockNo()));
+			addTableHeader1(table1, block,plan);
 			java.util.List<DcrReportFloorDetail> floorDetails = block.getDcrReportFloorDetails();
 			for (DcrReportFloorDetail floor : floorDetails) {
-				totalFloorArea = addRowsPerFloorAndAggregateFlrAreas(table1, floor, totalFloorArea);
+				totalFloorArea = addRowsPerFloorAndAggregateFlrAreas(table1, floor, totalFloorArea,planBlock.getBuilding().getFloorNumber(Integer.parseInt(floor.getFloorNo())));
 
 			}
-			addTotalRow(table1, totalFloorArea);
+			addTotalRow(table1, totalFloorArea,planBlock);
 
 		}
 
@@ -606,7 +615,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 
 		}
 
-		Phrase para3 = new Phrase(PARAGRAPH_NINETEEN_II, fontPara1Bold);
+		//Phrase para3 = new Phrase(PARAGRAPH_NINETEEN_II, fontPara1Bold);
 
 		List toplevel2 = new List(List.ORDERED);
 		toplevel2.setFirst(18);
@@ -767,7 +776,8 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		document.add(table33);
 		document.add(table34);
 		document.add(Chunk.NEWLINE);
-		document.add(para3);
+		// disabled till installment will go live
+//		document.add(para3);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
 		document.add(toplevel2);
@@ -786,6 +796,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		BaseColor yellow = new BaseColor(255, 231, 154);
 		BaseColor deepYellow = new BaseColor(255, 255, 0);
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
+		if(feeDetails[6]!=null && !feeDetails[6].isEmpty() && !feeDetails[6].equals("0.0"))
 		Stream.of("A. (i) Development Fees", feeDetails[6], "Paid").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
 			header.setBackgroundColor(orange);
@@ -794,6 +805,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 			table35.addCell(header);
 		});
+		if(feeDetails[7]!=null && !feeDetails[7].isEmpty() && !feeDetails[7].equals("0.0"))
 		Stream.of("A (ii) Fee for building operation", feeDetails[7], "Paid").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
 			header.setBackgroundColor(orange);
@@ -802,6 +814,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 			table35.addCell(header);
 		});
+		if(feeDetails[0]!=null && !feeDetails[0].isEmpty() && !feeDetails[0].equals("0.0"))
 		Stream.of("B. Sanction fees", feeDetails[0], "Paid").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
 			header.setBackgroundColor(lime);
@@ -810,6 +823,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 			table35.addCell(header);
 		});
+		if(feeDetails[1]!=null && !feeDetails[1].isEmpty() && !feeDetails[1].equals("0.0"))
 		Stream.of("C. Construction worker welfare Cess (CWWC)", feeDetails[1], "Paid").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
 			header.setBackgroundColor(blue);
@@ -818,6 +832,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 			table35.addCell(header);
 		});
+		if(feeDetails[10]!=null && !feeDetails[10].isEmpty() && !feeDetails[10].equals("0.0"))
 		Stream.of("D. Temporary Retention Fee", feeDetails[10], "Paid").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
 			header.setBackgroundColor(pink);
@@ -826,6 +841,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 			table35.addCell(header);
 		});
+		if(feeDetails[2]!=null && !feeDetails[2].isEmpty() && !feeDetails[2].equals("0.0"))
 		Stream.of(
 				"E. Shelter Fees for mandatory 10% EWS Housing (carpet area) @ 25% of construction cost of EWS housing ",
 				feeDetails[2], "Paid").forEach(columnTitle -> {
@@ -836,6 +852,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 					table35.addCell(header);
 				});
+		if(feeDetails[3]!=null && !feeDetails[3].isEmpty() && !feeDetails[3].equals("0.0"))
 		Stream.of("F. Charges for Purchasable FAR Area", feeDetails[3], "Paid").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
 			header.setBackgroundColor(yellow);
@@ -844,6 +861,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 			table35.addCell(header);
 		});
+		if(feeDetails[4]!=null && !feeDetails[4].isEmpty() && !feeDetails[4].equals("0.0"))
 		Stream.of("G. EIDP Fees ", feeDetails[4], "Paid").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
 			header.setBackgroundColor(orange);
@@ -1282,7 +1300,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 	private void addTableHeader152(PdfPTable table15, Plan plan) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
 
-		Map<String, BigDecimal> setBackData = OdishaUtill.getSetBackData(plan);
+		Map<String, BigDecimal> setBackData = getSetBackData(plan);
 		BigDecimal frontSetbackProvided = setBackData.get("frontSetbackProvided");
 		BigDecimal rearSetbackProvided = setBackData.get("rearSetbackProvided");
 		BigDecimal leftSetbackProvided = setBackData.get("leftSetbackProvided");
@@ -1649,24 +1667,9 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 
 	}
 
-	private void addTableHeader2(PdfPTable table2) {
-
-		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
-		Stream.of("Tower-2 (B+G+14 Storied Building )", "Covered area approved", "Proposed use",
-				"No. of Dwelling Units").forEach(columnTitle -> {
-					PdfPCell header = new PdfPCell();
-					header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-					header.setBorderWidth(2);
-					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
-					table2.addCell(header);
-
-				});
-
-	}
 
 	private BigDecimal addRowsPerFloorAndAggregateFlrAreas(PdfPTable table, DcrReportFloorDetail floor,
-			BigDecimal totalFloorArea) {
+			BigDecimal totalFloorArea,Floor planFloor) {
 		PdfPCell floorNameCell = new PdfPCell();
 		Phrase floorNamephrase = new Phrase("Floor " + floor.getFloorNo());
 		floorNameCell.addElement(floorNamephrase);
@@ -1680,7 +1683,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		floorOccupancyCell.addElement(floorOccupancyphrase);
 		table.addCell(floorOccupancyCell);
 		PdfPCell floorUnitsCell = new PdfPCell();
-		Phrase floorUnitsphrase = new Phrase("10");
+		Phrase floorUnitsphrase = new Phrase(totalDU(planFloor)+"");
 		floorUnitsCell.addElement(floorUnitsphrase);
 		table.addCell(floorUnitsCell);
 
@@ -1688,12 +1691,20 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		return totalFloorArea;
 
 	}
+	
+	private int totalDU(Floor floor) {
+		return floor.getEwsUnit().size()+floor.getLigUnit().size()+floor.getMig1Unit().size()+floor.getMig2Unit().size()+floor.getOthersUnit().size()+floor.getRoomUnit().size();
+	}
 
-	private void addTotalRow(PdfPTable table, BigDecimal totalFloorArea) {
+	private void addTotalRow(PdfPTable table, BigDecimal totalFloorArea,Block planBlock) {
+		int totalDuInBlock = 0;
+		for(Floor floor:planBlock.getBuilding().getFloors()) {
+			totalDuInBlock +=totalDU(floor);
+		}
 		table.addCell("Total Far Area");
 		table.addCell(totalFloorArea + "");
 		table.addCell(" ");
-		table.addCell("100");
+		table.addCell(totalDuInBlock+"");
 	}
 
 	private void addRows13(PdfPTable table) {
@@ -1733,11 +1744,12 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		pdfWordCell4.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		table.addCell(pdfWordCell4);
 	}
-
-	private void addTableHeader1(PdfPTable table1, DcrReportBlockDetail block) {
+	AdditionalFeature additionalFeature = new AdditionalFeature();
+	private void addTableHeader1(PdfPTable table1, DcrReportBlockDetail block,Plan plan) {
 
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
-		Stream.of("Block-No." + block.getBlockNo(), "Covered area approved", "Proposed use", "No. of Dwelling Units")
+		String noOfFloor = additionalFeature.getNoOfFloor(plan.getBlockByName(block.getBlockNo()));
+		Stream.of("Block-No." + block.getBlockNo()+ " (" + noOfFloor + " NA)", "Covered area approved", "Proposed use", "No. of Dwelling Units")
 				.forEach(columnTitle -> {
 					PdfPCell header = new PdfPCell();
 					header.setBackgroundColor(BaseColor.LIGHT_GRAY);
@@ -1813,4 +1825,31 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 		return "44.7 Mtr";
 	}
 
+	public Map<String, BigDecimal> getSetBackData(Plan plan) {
+
+		// these are provided setbacks-
+		BigDecimal frontSetbackProvided = new BigDecimal("7.99");
+		BigDecimal rearSetbackProvided =  new BigDecimal("7.88");
+		BigDecimal leftSetbackProvided = new BigDecimal("8.08");
+		BigDecimal rightSetbackProvided = new BigDecimal("7.93");
+		Map<String, BigDecimal> setBackData = new HashMap<>();
+		setBackData.put("frontSetbackProvided", frontSetbackProvided);
+		setBackData.put("rearSetbackProvided", rearSetbackProvided);
+		setBackData.put("leftSetbackProvided", leftSetbackProvided);
+		setBackData.put("rightSetbackProvided", rightSetbackProvided);
+
+		// these are required setbacks-
+		BigDecimal frontSetbackRequired = new BigDecimal("6");
+		BigDecimal rearSetbackRequired = new BigDecimal("6");
+		BigDecimal leftSetbackRequired = new BigDecimal("6");
+		BigDecimal rightSetbackRequired = new BigDecimal("6");
+		setBackData.put("frontSetbackRequired", frontSetbackRequired);
+		setBackData.put("rearSetbackRequired", rearSetbackRequired);
+		setBackData.put("leftSetbackRequired", leftSetbackRequired);
+		setBackData.put("rightSetbackRequired", rightSetbackRequired);
+		return setBackData;
+	}
+	
+	
+	
 }

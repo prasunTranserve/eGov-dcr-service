@@ -1,7 +1,5 @@
 package org.egov.edcr.service;
 
-import static ar.com.fdvs.dj.domain.constants.Stretching.RELATIVE_TO_BAND_HEIGHT;
-
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -15,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.AdditionalReportDetail;
 import org.egov.common.entity.edcr.Block;
@@ -23,36 +22,23 @@ import org.egov.common.entity.edcr.DcrReportBlockDetail;
 import org.egov.common.entity.edcr.DcrReportFloorDetail;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Occupancy;
-import org.egov.common.entity.edcr.OccupancyPercentage;
-import org.egov.common.entity.edcr.OccupancyReport;
 import org.egov.common.entity.edcr.Plan;
-import org.egov.common.entity.edcr.VirtualBuilding;
-import org.egov.common.entity.edcr.VirtualBuildingReport;
-import org.egov.edcr.entity.PaymentTable;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.feature.AdditionalFeature;
 import org.egov.infra.microservice.models.RequestInfo;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.BarcodeQRCode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-
-import ar.com.fdvs.dj.core.DJConstants;
-import ar.com.fdvs.dj.core.layout.ClassicLayoutManager;
-import ar.com.fdvs.dj.domain.DJCalculation;
-import ar.com.fdvs.dj.domain.DJDataSource;
-import ar.com.fdvs.dj.domain.DynamicReport;
-import ar.com.fdvs.dj.domain.Style;
-import ar.com.fdvs.dj.domain.builders.ColumnBuilder;
-import ar.com.fdvs.dj.domain.builders.ColumnBuilderException;
-import ar.com.fdvs.dj.domain.builders.FastReportBuilder;
-import ar.com.fdvs.dj.domain.constants.Border;
-import ar.com.fdvs.dj.domain.constants.Page;
-import ar.com.fdvs.dj.domain.entities.Subreport;
-import ar.com.fdvs.dj.domain.entities.columns.AbstractColumn;
 
 public abstract class PermitOrderService {
 
@@ -363,7 +349,8 @@ public abstract class PermitOrderService {
 					DcrReportBlockDetail dcrReportBlockDetail = new DcrReportBlockDetail();
 					String noOfFloor = additionalFeature.getNoOfFloor(block);
 					// TODO: NA to be replaced by sub occupancy of that block-
-					dcrReportBlockDetail.setBlockNo(block.getNumber() + " (" + noOfFloor + " NA)");
+					dcrReportBlockDetail.setBlockNo(block.getNumber());
+					//dcrReportBlockDetail.setBlockNo(block.getNumber() + " (" + noOfFloor + " NA)");//raza
 					dcrReportBlockDetail.setCoverageArea(building.getCoverageArea());
 					dcrReportBlockDetail.setBuildingHeight(building.getBuildingHeight());
 					dcrReportBlockDetail.setDeclaredBuildingHeight(building.getDeclaredBuildingHeight());
@@ -433,5 +420,46 @@ public abstract class PermitOrderService {
 
 		}
 		return dcrReportBlockDetails;
+	}
+
+	public Image getQrCode(String ownersCsv, String permitNo, String approvalDate, String edcrNo) {
+		String qrCodeInformation = "Applicant Name: %s, Permit Order Number : %s, Permit Order Date : %s, eDCR Scrutiny Number: %s";
+		qrCodeInformation = String.format(qrCodeInformation, ownersCsv, permitNo, approvalDate, edcrNo);
+		BarcodeQRCode qrCode = new BarcodeQRCode(qrCodeInformation, 1, 1, null);
+		Image codeQrImage = null;
+		try {
+			codeQrImage = qrCode.getImage();
+		} catch (BadElementException e) {
+			LOG.error("BadElementException while generating qr code image", e);
+		}
+		codeQrImage.scaleToFit(90, 90);
+		codeQrImage.setAlignment(Image.MIDDLE);
+		codeQrImage.setAlignment(Image.TOP);
+		codeQrImage.setAlignment(Image.ALIGN_JUSTIFIED);
+		return codeQrImage;
+	}
+
+	public String getTotalPlotAreaValueV2(Plan pl) {
+		// " - Total plot area: Ac1.830Dec. (" + plotArea + " Sqm.)\n", fontPara1Bold
+		StringBuilder result = new StringBuilder(" - Total plot area: ");
+		BigDecimal totalPlotArea = pl.getPlanInformation().getTotalPlotArea();
+		BigDecimal totalPlotAreaInAcr = totalPlotArea.divide(new BigDecimal("4046.2"), 3, BigDecimal.ROUND_HALF_UP);
+		result.append(totalPlotAreaInAcr + " Acre ( " + totalPlotArea + DxfFileConstants.SQM + " ) ");
+		return result.toString();
+	}
+
+	public List<Chunk> getTotalCDPRoadAffectedArea(Plan pl) {
+		List<Chunk> affectedAreas = new ArrayList<>();
+		Font fontPara1Bold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+		for (org.egov.common.entity.edcr.AffectedLandArea affectedLandArea : pl.getAffectedLandAreas()) {
+			// affected area
+			if (affectedLandArea.getMeasurements() != null && !affectedLandArea.getMeasurements().isEmpty()) {
+				BigDecimal area = affectedLandArea.getMeasurements().stream().map(l -> l.getArea())
+						.reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_HALF_UP);
+				Chunk chunk = new Chunk(" - "+affectedLandArea.getName()+" affected area: " + area +DxfFileConstants.SQM +"\n", fontPara1Bold);
+				affectedAreas.add(chunk);
+			}
+		}
+		return affectedAreas;
 	}
 }

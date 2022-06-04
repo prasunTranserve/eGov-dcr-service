@@ -21,7 +21,9 @@ import org.egov.common.entity.edcr.DcrReportBlockDetail;
 import org.egov.common.entity.edcr.DcrReportFloorDetail;
 import org.egov.common.entity.edcr.OdishaParkingHelper;
 import org.egov.common.entity.edcr.Plan;
+import org.egov.common.entity.edcr.SetBack;
 import org.egov.common.entity.edcr.TypicalFloor;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.feature.Parking;
 import org.egov.edcr.od.OdishaUtill;
 import org.egov.infra.exception.ApplicationRuntimeException;
@@ -52,21 +54,21 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 	public static String ADDRESS1 = "INJANA,";
 
 	public static String PARAGRAPH_1_1 = "For construction of a ";
-	public static String PARAGRAPH_1_2 = "S+2 ";
+//	public static String PARAGRAPH_1_2 = "S+2 ";
 	public static String PARAGRAPH_1_3 = "storeyed ";
-	public static String PARAGRAPH_1_4 = "Residential ";
+//	public static String PARAGRAPH_1_4 = "Residential ";
 	public static String PARAGRAPH_1_5 = "Building in respect of plot No.";
-	public static String PARAGRAPH_1_6 = "1337, ";
+//	public static String PARAGRAPH_1_6 = "1337, ";
 	public static String PARAGRAPH_1_7 = "Khata No.";
-	public static String PARAGRAPH_1_8 = "180 ";
+//	public static String PARAGRAPH_1_8 = "180 ";
 	public static String PARAGRAPH_1_9 = "Village/Mouza.";
-	public static String PARAGRAPH_1_10 = "Injana ";
+//	public static String PARAGRAPH_1_10 = "Injana ";
 	public static String PARAGRAPH_1_11 = "of %s within the Development Plan Area subject to following conditions/ restrictions: ";
 
 	public static String PARAGRAPH_2_1 = "The land/ Building shall be used exclusively for Others purpose and the uses shall not be changed to any other use without prior approval of this Authority.\n\n";
 	public static String PARAGRAPH_2_2 = "The development shall be undertaken strictly according to plans enclosed with necessary permission endorsement.\n\n";
 	public static String PARAGRAPH_2_3_1 = "Parking space measuring ";
-	public static String PARAGRAPH_2_3_2 = "134.51 ";
+//	public static String PARAGRAPH_2_3_2 = "134.51 ";
 	public static String PARAGRAPH_2_3_3 = "sq. mtr. as shown in the approved plan shall be exclusively used for parking and no part of it will be used for any other purpose.\n\n";
 	public static String PARAGRAPH_2_4 = "The land over which construction is proposed is accessible by an approved means of access of 6.09mtr. width.\n\n";
 	public static String PARAGRAPH_2_5 = "The land in question must be in lawful ownership and peaceful possession of the applicant.\n\n";
@@ -78,20 +80,21 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 	public static String PARAGRAPH_2_9 = "If any dispute arises with respect to right, title interest on the land on which the permission has been granted, the permission so granted shall be automatically treated as canceled during the period of dispute.\n\n";
 	public static String PARAGRAPH_2_10 = "Any construction and development made by the applicant or owner on the disputed land will be at his risk without any legal or financial liability on the Authority.\n\n";
 	public static String PARAGRAPH_2_11_1 = "The ";
-	public static String PARAGRAPH_2_11_2 = "S+2 residential building ";
+//	public static String PARAGRAPH_2_11_2 = "S+2 residential building ";
 	public static String PARAGRAPH_2_11_3 = "is approved on payment following fees:\n\n";
-	public static String PARAGRAPH_2_11_3_A = "Sanction fee : Rs 6,689.00/-only";
-	public static String PARAGRAPH_2_11_3_B = "Construction Workers Welfare Cess : Rs 83,967.00/-only";
+//	public static String PARAGRAPH_2_11_3_A = "Sanction fee : Rs 6,689.00/-only";
+	// public static String PARAGRAPH_2_11_3_B = "Construction Workers Welfare Cess
+	// : Rs 83,967.00/-only";
 	public static String PARAGRAPH_3_1 = "Total plot area (As per document) : ";
-	public static String PARAGRAPH_3_2 = "607.24 sqmt.";
+	// public static String PARAGRAPH_3_2 = "607.24 sqmt.";
 	public static String PARAGRAPH_4_1 = "Total plot area (As per Possession) : ";
-	public static String PARAGRAPH_4_2 = "563.11 sqmt.";
+	// public static String PARAGRAPH_4_2 = "563.11 sqmt.";
 	public static String PARAGRAPH_5_1 = "Total built up area : ";
-	public static String PARAGRAPH_5_2 = "445.92 sqmt.";
+	// public static String PARAGRAPH_5_2 = "445.92 sqmt.";
 	public static String PARAGRAPH_6_1 = "Total FAR area : ";
-	public static String PARAGRAPH_6_2 = "311.41 sqmt.";
+	// public static String PARAGRAPH_6_2 = "311.41 sqmt.";
 	public static String PARAGRAPH_7_1 = "FAR : ";
-	public static String PARAGRAPH_7_2 = "0.55";
+	// public static String PARAGRAPH_7_2 = "0.55";
 
 	@Override
 	public InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) {
@@ -117,7 +120,6 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 		PdfWriter.getInstance(document, outputBytes);
 		document.open();
 
-		Image logo = getLogo(imageUrl2);
 		Image logo1 = getLogo(imageUrl1);
 
 		Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLD);
@@ -143,7 +145,7 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 				fontBold);
 		para2.setAlignment(Paragraph.ALIGN_CENTER);
 		String applicationNo = getValue(bpaApplication, "applicationNo");
-		Paragraph para3 = new Paragraph("E-BPAS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
+		Paragraph para3 = new Paragraph("Sujog-OBPS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
 		para3.setAlignment(Paragraph.ALIGN_CENTER);
 
 		Paragraph intro = new Paragraph(PARAGRAPH_ONE, font1);
@@ -284,7 +286,7 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 
 		BigDecimal plotAreaAsPerDeclaration = plan.getPlot().getArea();
 		Chunk chunk35 = new Chunk(PARAGRAPH_3_1, font1);
-		Chunk chunk36 = new Chunk(plotAreaAsPerDeclaration.toString(), fontBold);
+		Chunk chunk36 = new Chunk(plotAreaAsPerDeclaration + DxfFileConstants.SQM, fontBold);
 		Paragraph chunk37 = new Paragraph();
 		chunk37.add(chunk35);
 		chunk37.add(chunk36);
@@ -292,14 +294,14 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 		BigDecimal plotAreaAsPerPossession = plotAreaAsPerDeclaration;
 		Chunk chunk38 = new Chunk(PARAGRAPH_4_1, font1);
 		// TODO: to check which parameter in scrutiny gives occupied plot area
-		Chunk chunk39 = new Chunk(plotAreaAsPerPossession + "", fontBold);
+		Chunk chunk39 = new Chunk(plotAreaAsPerPossession + DxfFileConstants.SQM, fontBold);
 		Paragraph chunk40 = new Paragraph();
 		chunk40.add(chunk38);
 		chunk40.add(chunk39);
 
 		Chunk chunk41 = new Chunk(PARAGRAPH_5_1, font1);
 		Chunk chunk42 = new Chunk(plan.getVirtualBuilding() != null
-				? plan.getVirtualBuilding().getTotalBuitUpArea().setScale(2, BigDecimal.ROUND_UP) + ""
+				? plan.getVirtualBuilding().getTotalBuitUpArea().setScale(2, BigDecimal.ROUND_UP) + DxfFileConstants.SQM
 				: "0", fontBold);
 		Paragraph chunk43 = new Paragraph();
 		chunk43.add(chunk41);
@@ -307,7 +309,8 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 
 		Chunk chunk44 = new Chunk(PARAGRAPH_6_1, font1);
 		BigDecimal providedFar = BigDecimal.valueOf(plan.getFarDetails().getProvidedFar());
-		Chunk chunk45 = new Chunk(plan.getPlot().getArea().multiply(providedFar).setScale(2, BigDecimal.ROUND_UP) + "",
+		Chunk chunk45 = new Chunk(
+				plan.getPlot().getArea().multiply(providedFar).setScale(2, BigDecimal.ROUND_UP) + DxfFileConstants.SQM,
 				fontBold);
 		Paragraph chunk46 = new Paragraph();
 		chunk46.add(chunk44);
@@ -325,7 +328,9 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 		addTableHeader1(table1);
 		addRows1(table1, plan);
 
-		document.add(logo);
+		Image qrCode = getQrCode(ownersCsv, getValue(bpaApplication, "approvalNo"), approvalDate, getValue(bpaApplication, "edcrNumber"));
+
+		document.add(qrCode);
 		document.add(logo1);
 		document.add(para);
 		document.add(Chunk.NEWLINE);
@@ -391,7 +396,7 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 		PdfPCell cell3 = new PdfPCell();
 		// TODO SetBackData is private class, cannot provide static method in
 		// OdishaUtil.java
-		Map<String, BigDecimal> setBackData = OdishaUtill.getSetBackData(plan);
+		Map<String, BigDecimal> setBackData = getSetBackData(plan);
 		BigDecimal frontSetbackProvided = setBackData.get("frontSetbackProvided");
 		BigDecimal rearSetbackProvided = setBackData.get("rearSetbackProvided");
 		BigDecimal leftSetbackProvided = setBackData.get("leftSetbackProvided");
@@ -463,5 +468,46 @@ public class PermitOrderServiceV1 extends PermitOrderService {
 					table1.addCell(header);
 
 				});
+	}
+
+	public static Map<String, BigDecimal> getSetBackData(Plan plan) {
+		SetBack setBack = null;
+		for (Block block : plan.getBlocks()) {
+			setBack = block.getSetBacks().get(0);
+		}
+
+		// these are provided setbacks-
+		BigDecimal frontSetbackProvided = BigDecimal.ZERO;
+		BigDecimal rearSetbackProvided = BigDecimal.ZERO;
+		BigDecimal leftSetbackProvided = BigDecimal.ZERO;
+		BigDecimal rightSetbackProvided = BigDecimal.ZERO;
+
+		if (setBack != null) {
+			frontSetbackProvided = setBack.getFrontYard() != null ? setBack.getFrontYard().getMinimumDistance()
+					: BigDecimal.ZERO;
+			rearSetbackProvided = setBack.getRearYard() != null ? setBack.getRearYard().getMinimumDistance()
+					: BigDecimal.ZERO;
+			leftSetbackProvided = setBack.getSideYard1() != null ? setBack.getSideYard1().getMinimumDistance()
+					: BigDecimal.ZERO;
+			rightSetbackProvided = setBack.getSideYard2() != null ? setBack.getSideYard2().getMinimumDistance()
+					: BigDecimal.ZERO;
+		}
+
+		Map<String, BigDecimal> setBackData = new HashMap<>();
+		setBackData.put("frontSetbackProvided", frontSetbackProvided);
+		setBackData.put("rearSetbackProvided", rearSetbackProvided);
+		setBackData.put("leftSetbackProvided", leftSetbackProvided);
+		setBackData.put("rightSetbackProvided", rightSetbackProvided);
+
+		// these are required setbacks-
+		BigDecimal frontSetbackRequired = BigDecimal.ZERO;
+		BigDecimal rearSetbackRequired = BigDecimal.ZERO;
+		BigDecimal leftSetbackRequired = BigDecimal.ZERO;
+		BigDecimal rightSetbackRequired = BigDecimal.ZERO;
+		setBackData.put("frontSetbackRequired", frontSetbackRequired);
+		setBackData.put("rearSetbackRequired", rearSetbackRequired);
+		setBackData.put("leftSetbackRequired", leftSetbackRequired);
+		setBackData.put("rightSetbackRequired", rightSetbackRequired);
+		return setBackData;
 	}
 }
