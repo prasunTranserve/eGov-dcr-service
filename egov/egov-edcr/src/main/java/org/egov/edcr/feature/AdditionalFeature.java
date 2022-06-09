@@ -453,7 +453,7 @@ public class AdditionalFeature extends FeatureProcess {
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 	}
 
-	private String getNoOfFloor(Block block) {
+	public String getNoOfFloor(Block block) {
 		StringBuilder noOfFloor = new StringBuilder();
 		int B = 0, G = 0, S = 0, F = 0;
 

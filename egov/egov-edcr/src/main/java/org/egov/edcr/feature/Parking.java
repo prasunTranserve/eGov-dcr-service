@@ -164,7 +164,7 @@ public class Parking extends FeatureProcess {
 	private static final int COLOR_LAYER_TWO_WHEELER_PARKING_TWO_WHEELER_PARKING = 1;
 	private static final int COLOR_LAYER_TWO_WHEELER_PARKING_BICYCLE_PARKING = 2;
 
-	private OdishaParkingHelper prepareParkingData(Plan pl) {
+	public OdishaParkingHelper prepareParkingData(Plan pl) {
 		OdishaParkingHelper helper = new OdishaParkingHelper();
 		ParkingDetails details = pl.getParkingDetails();
 		BigDecimal totalParking = BigDecimal.ZERO;

@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.egov.common.entity.dcr.helper.OccupancyHelperDetail;
 import org.egov.common.entity.edcr.AccessoryBlock;
@@ -28,6 +29,7 @@ import org.egov.common.entity.edcr.ParkingDetails;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Room;
 import org.egov.common.entity.edcr.RoomHeight;
+import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.feature.Parking;
 
@@ -267,7 +269,7 @@ public class OdishaUtill {
 	}
 
 	public static void validateHeightOfTheCeilingOfUpperBasementDeduction(Plan pl, Block b, Floor f) {
-		if(isBasementParesent(b)) {
+		if (isBasementParesent(b)) {
 			if (f != null && f.getNumber() == -1) {
 				BigDecimal maxLength = BigDecimal.ZERO;
 				try {
@@ -277,7 +279,7 @@ public class OdishaUtill {
 				}
 				b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(maxLength));
 			}
-		}else {
+		} else {
 			if (f != null && f.getNumber() == 0) {
 				BigDecimal maxLength = BigDecimal.ZERO;
 				try {
@@ -289,11 +291,11 @@ public class OdishaUtill {
 			}
 		}
 	}
-	
+
 	public static boolean isBasementParesent(Block blk) {
-		boolean flage=false;
-		if(blk.getBuilding().getFloorNumber(-1)!=null)
-			flage=true;
+		boolean flage = false;
+		if (blk.getBuilding().getFloorNumber(-1) != null)
+			flage = true;
 		return flage;
 	}
 
@@ -377,7 +379,6 @@ public class OdishaUtill {
 		}
 		pl.getPlanInformation().setTotalNoOfDwellingUnits(totalDU);
 	}
-	
 
 	public static BigDecimal getTotalTopMostRoofArea(Plan pl) {
 		BigDecimal totalArea = BigDecimal.ZERO;
@@ -476,10 +477,10 @@ public class OdishaUtill {
 		}
 		return spcRoom;
 	}
-	
-	public static Map<Integer, String> getRoomColorCodesMaster(Plan pl){
-		Map<Integer,String> result=new HashMap<>();
-		Set<String> allowedRooms=new HashSet<>();
+
+	public static Map<Integer, String> getRoomColorCodesMaster(Plan pl) {
+		Map<Integer, String> result = new HashMap<>();
+		Set<String> allowedRooms = new HashSet<>();
 		allowedRooms.add(DxfFileConstants.COLOR_STUDY_ROOM);
 		allowedRooms.add(DxfFileConstants.COLOR_LIBRARY_ROOM);
 		allowedRooms.add(DxfFileConstants.COLOR_GAME_ROOM);
@@ -496,13 +497,13 @@ public class OdishaUtill {
 		allowedRooms.add(DxfFileConstants.COLOR_SERVICE_FLOOR);
 		allowedRooms.add(DxfFileConstants.COLOR_LAUNDRY_ROOM);
 		allowedRooms.add(DxfFileConstants.COLOR_GENERATOR_ROOM);
-		
+
 		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_NATURALLY_VENTILATED);
 		allowedRooms.add(DxfFileConstants.COLOR_RESIDENTIAL_ROOM_MECHANICALLY_VENTILATED);
 		allowedRooms.add(DxfFileConstants.COLOR_PUBLIC_WASHROOM);
-		
-		for(Map.Entry<String, Integer> entry:pl.getSubFeatureColorCodesMaster().get("HeightOfRoom").entrySet()) {
-			if(allowedRooms.contains(entry.getKey())) {
+
+		for (Map.Entry<String, Integer> entry : pl.getSubFeatureColorCodesMaster().get("HeightOfRoom").entrySet()) {
+			if (allowedRooms.contains(entry.getKey())) {
 				result.put(entry.getValue(), entry.getKey());
 			}
 		}
@@ -605,16 +606,17 @@ public class OdishaUtill {
 
 		for (Block block : pl.getBlocks()) {
 			boolean outhousesFlage = false;
-			boolean pulicwashroomFlage=false;
+			boolean pulicwashroomFlage = false;
 			for (Floor floor : block.getBuilding().getFloors()) {
 				for (Occupancy occupancy : floor.getOccupancies()) {
 					if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getSubtype() != null
 							&& DxfFileConstants.OUTHOUSE.equals(occupancy.getTypeHelper().getSubtype().getCode())) {
 						outhousesFlage = true;
 					}
-					
+
 					if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getSubtype() != null
-							&& DxfFileConstants.PUBLIC_WASHROOMS.equals(occupancy.getTypeHelper().getSubtype().getCode())) {
+							&& DxfFileConstants.PUBLIC_WASHROOMS
+									.equals(occupancy.getTypeHelper().getSubtype().getCode())) {
 						pulicwashroomFlage = true;
 					}
 				}
@@ -627,11 +629,10 @@ public class OdishaUtill {
 			if (outhousesFlage) {
 				outhouses.add(block);
 				removeSetbackError(pl, block);
-			} else if(pulicwashroomFlage) {
+			} else if (pulicwashroomFlage) {
 				pulicwashroom.add(block);
 				removeSetbackError(pl, block);
-			}
-			else {
+			} else {
 				blocks.add(block);
 			}
 		}
@@ -639,19 +640,19 @@ public class OdishaUtill {
 		pl.setOuthouse(outhouses);
 		pl.setPublicWashroom(pulicwashroom);
 	}
-	
-	private static void removeSetbackError(Plan pl,Block block) {
-		Set<Map.Entry<String, String>> set=pl.getErrors().entrySet();
-		Iterator<Map.Entry<String, String>> iterator=set.iterator();
-		String setbackerror="BLK_%s_LVL_0_FRONT_SETBACK".replace("%s", block.getNumber());
-		while(iterator.hasNext()) {
-			Map.Entry<String, String> entry=iterator.next();
-			String value=entry.getValue();
-			if(value.contains(setbackerror))
+
+	private static void removeSetbackError(Plan pl, Block block) {
+		Set<Map.Entry<String, String>> set = pl.getErrors().entrySet();
+		Iterator<Map.Entry<String, String>> iterator = set.iterator();
+		String setbackerror = "BLK_%s_LVL_0_FRONT_SETBACK".replace("%s", block.getNumber());
+		while (iterator.hasNext()) {
+			Map.Entry<String, String> entry = iterator.next();
+			String value = entry.getValue();
+			if (value.contains(setbackerror))
 				iterator.remove();
 		}
 	}
-	
+
 	public static BigDecimal getNumberOfPerson(Plan pl) {
 		OccupancyTypeHelper mostRestrictiveOccupancyType = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		BigDecimal numberOfPerson = BigDecimal.ZERO;
@@ -738,9 +739,9 @@ public class OdishaUtill {
 	private static final int COLOR_OTHER_AMMENITY = 6;
 
 	public static void updateAmmenity(Plan pl) {
-		Ammenity ammenity=new Ammenity();
+		Ammenity ammenity = new Ammenity();
 		for (AccessoryBlock accessoryBlock : pl.getAccessoryBlocks()) {
-			for(Measurement measurement:accessoryBlock.getAccessoryBuilding().getUnits()) {
+			for (Measurement measurement : accessoryBlock.getAccessoryBuilding().getUnits()) {
 				switch (measurement.getColorCode()) {
 				case COLOR_AMMENITY_GUARD_ROOM:
 					ammenity.getGuardRooms().add(measurement);
@@ -763,37 +764,41 @@ public class OdishaUtill {
 				}
 			}
 		}
-		
+
 		pl.setAmmenity(ammenity);
 
 	}
-	
-	public static boolean isLiftPersent(Block block, List<Integer> colorCodes) {
-		boolean flage=false;
 
-		for(Floor floor:block.getBuilding().getFloors()) {
+	public static boolean isLiftPersent(Block block, List<Integer> colorCodes) {
+		boolean flage = false;
+
+		for (Floor floor : block.getBuilding().getFloors()) {
 			for (Lift lift : floor.getLifts()) {
 				Measurement measurement = lift.getLifts().get(0);
 				if (colorCodes.contains(measurement.getColorCode())) {
-					flage=true;
+					flage = true;
 					break;
 				}
 			}
-			if(flage)break;
+			if (flage)
+				break;
 		}
 
 		return flage;
 	}
-	
+
 	public static void computeOccupancyPercentage(Plan pl) {
 		Map<String, OccupancyPercentage> ocPercentage = new HashMap<>();
-		
-		for(Block bl : pl.getBlocks()) {
-			for(Floor flr : bl.getBuilding().getFloors()) {
-				for(Occupancy oc : flr.getOccupancies()) {
-					OccupancyHelperDetail ohd = oc.getTypeHelper().getSubtype() == null ? oc.getTypeHelper().getType() : oc.getTypeHelper().getSubtype();
-					BigDecimal existingBua = ocPercentage.get(ohd.getName()) != null ? ocPercentage.get(ohd.getName()).getTotalBuildUpArea() : BigDecimal.ZERO;
-					
+
+		for (Block bl : pl.getBlocks()) {
+			for (Floor flr : bl.getBuilding().getFloors()) {
+				for (Occupancy oc : flr.getOccupancies()) {
+					OccupancyHelperDetail ohd = oc.getTypeHelper().getSubtype() == null ? oc.getTypeHelper().getType()
+							: oc.getTypeHelper().getSubtype();
+					BigDecimal existingBua = ocPercentage.get(ohd.getName()) != null
+							? ocPercentage.get(ohd.getName()).getTotalBuildUpArea()
+							: BigDecimal.ZERO;
+
 					OccupancyPercentage ocp = new OccupancyPercentage();
 					ocp.setOccupancy(oc.getTypeHelper().getType().getName());
 					ocp.setSubOccupancy(ohd.getName());
@@ -802,38 +807,60 @@ public class OdishaUtill {
 				}
 			}
 		}
-		
-		for(String oc : ocPercentage.keySet()) {
-			BigDecimal percentage = ocPercentage.get(oc).getTotalBuildUpArea().multiply(BigDecimal.valueOf(100)).divide(pl.getVirtualBuilding().getTotalBuitUpArea(), DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
+
+		for (String oc : ocPercentage.keySet()) {
+			BigDecimal percentage = ocPercentage.get(oc).getTotalBuildUpArea().multiply(BigDecimal.valueOf(100)).divide(
+					pl.getVirtualBuilding().getTotalBuitUpArea(), DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
 			ocPercentage.get(oc).setPercentage(percentage);
-			//ocPercentage.put(oc, percentage);
+			// ocPercentage.put(oc, percentage);
 		}
-		
+
 		pl.getPlanInformation().setOccupancyPercentages(ocPercentage);
 	}
 
 	public static boolean isStairRequired(Plan pl, Block block) {
-		BigDecimal buildingHeight=block.getBuilding().getBuildingHeight();
-		OccupancyTypeHelper occupancyTypeHelper=pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-		boolean flage=false;
-		if((DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
+		BigDecimal buildingHeight = block.getBuilding().getBuildingHeight();
+		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		boolean flage = false;
+		if ((DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING
+				.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.SEMI_DETACHED.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.ROW_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
-					) && buildingHeight.compareTo(new BigDecimal("15"))<0) {
-			flage=true;
+				|| DxfFileConstants.ROW_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode()))
+				&& buildingHeight.compareTo(new BigDecimal("15")) < 0) {
+			flage = true;
 		}
-		
+
 		return flage;
 	}
-	
+
 	public static void additionalValidation(Plan pl) {
-		BigDecimal buildupArea=pl.getVirtualBuilding().getTotalBuitUpArea();
-		
-		if(buildupArea.compareTo(new BigDecimal("500"))>0) {
-			if(pl.getPlanInformation().getProjectValueForEIDP()==null || pl.getPlanInformation().getProjectValueForEIDP().compareTo(BigDecimal.ZERO)<=0) {
+		BigDecimal buildupArea = pl.getVirtualBuilding().getTotalBuitUpArea();
+
+		if (buildupArea.compareTo(new BigDecimal("500")) > 0) {
+			if (pl.getPlanInformation().getProjectValueForEIDP() == null
+					|| pl.getPlanInformation().getProjectValueForEIDP().compareTo(BigDecimal.ZERO) <= 0) {
 				pl.addError("projectValueForEIDP500",
 						"Project value is mandatory for project with more than 500 BuitUpArea.");
 			}
 		}
+	}
+
+	public static BigDecimal getStiltArea(Plan plan) {
+		BigDecimal area = BigDecimal.ZERO;
+		for (Block block : plan.getBlocks()) {
+			for (Floor floor : block.getBuilding().getFloors()) {
+				if (floor.getIsStiltFloor())
+					area = area.add(floor.getArea());
+			}
+		}
+		area = area.setScale(2, BigDecimal.ROUND_HALF_UP);
+		return area;
+	}
+
+	public static List<ScrutinyDetail> getScrutinyDetailsFromPlan(Plan pl, String Key) {
+		List<ScrutinyDetail> details = null;
+		details = pl.getReportOutput().getScrutinyDetails().stream()
+				.filter(s -> (s.getKey() != null && s.getKey().endsWith(Key))).collect(Collectors.toList());
+		return details;
 	}
 }
