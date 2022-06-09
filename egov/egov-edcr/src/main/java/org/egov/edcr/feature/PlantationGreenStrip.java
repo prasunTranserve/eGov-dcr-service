@@ -71,6 +71,7 @@ import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.common.entity.edcr.SetBack;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.OdishaUlbs;
 import org.egov.edcr.utility.DcrConstants;
 import org.springframework.stereotype.Service;
 
@@ -103,6 +104,8 @@ public class PlantationGreenStrip extends FeatureProcess {
 		BigDecimal totalArea = BigDecimal.ZERO;
 		BigDecimal plotArea = BigDecimal.ZERO;
 		BigDecimal plantationPer = BigDecimal.ZERO;
+		//SPARIT
+		OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
 		String type = "";
 		String subType = "";
 
@@ -125,8 +128,14 @@ public class PlantationGreenStrip extends FeatureProcess {
 			plantationPer = totalArea.divide(plotArea, DECIMALDIGITS_MEASUREMENTS, ROUNDMODE_MEASUREMENTS);
 		
 		BigDecimal required=BigDecimal.ZERO;
+		//SPARIT CHANGES
+//		if(ulb.isSparitFlag()) {
+//			required = BigDecimal.ZERO;
+//		} else {
 		if(DxfFileConstants.OPEN_SPACE_USE_ZONE.equals(pl.getPlanInformation().getLandUseZone())) {
-			required=new BigDecimal("0.50");
+			
+			//required=new BigDecimal("0.50");
+			required = BigDecimal.ZERO;
 		}else {
 			if(DxfFileConstants.FARM_HOUSE.equals(subType)
 				|| DxfFileConstants.COUNTRY_HOMES.equals(subType)) {

@@ -68,6 +68,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.OdishaUlbs;
 import org.egov.edcr.utility.DcrConstants;
 import org.springframework.stereotype.Service;
 
@@ -261,12 +262,16 @@ public class BuildingHeight extends FeatureProcess {
 	}
 
 	private BigDecimal getMaxBulHeight(Plan plan) {
+		//SPARIT
+		//OdishaUlbs ulb = OdishaUlbs.getUlb(plan.getThirdPartyUserTenantld());
 		BigDecimal maxPermissibleHeight = BigDecimal.ZERO;
 		OccupancyTypeHelper occupancyTypeHelper = plan.getVirtualBuilding().getMostRestrictiveFarHelper();
 		switch (plan.getPlanInformation().getLandUseZone()) {
 		case OPEN_SPACE_USE_ZONE:
-			maxPermissibleHeight = new BigDecimal("3.5");
-			break;
+			
+				maxPermissibleHeight = new BigDecimal("7.0");
+				break;	
+			
 		case SPECIAL_HERITAGE_ZONE:
 			maxPermissibleHeight = new BigDecimal("15");
 			break;
