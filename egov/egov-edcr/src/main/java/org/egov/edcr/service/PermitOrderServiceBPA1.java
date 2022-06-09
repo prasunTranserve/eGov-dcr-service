@@ -45,7 +45,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
-public class PermitOrderServiceV1 extends PermitOrderService {
+public class PermitOrderServiceBPA1 extends PermitOrderService {
 
 	public static String PARAGRAPH_ONE = "Permission under sub-section (3) of the Section-16 of the Odisha Development Authorities Act, 1982 is hereby granted in favour of;";
 	public static String ADDRESSED = "Smt. /Shri,";

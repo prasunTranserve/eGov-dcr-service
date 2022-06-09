@@ -46,7 +46,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
-public class PermitOrderServiceV2 extends PermitOrderService {
+public class PermitOrderServiceBPA2 extends PermitOrderService {
 
 	public static String PARAGRAPH_ONE = "Permission Under Sub-Section (3) of the Section-16 of the Orissa Development Authorities Act’1982(Orissa Act,1982) is hereby granted in favour of ";
 	public static String PARAGRAPH_ONE_BOLD = " KRJ PROJECT LLP authorized representated by Sri Sachin Kumar Singh (Authorized signatory) and SRI HARI INFRACON PVT.LTD authorized Representative Binod Kumar Agrawalla.";
@@ -1749,7 +1749,7 @@ public class PermitOrderServiceV2 extends PermitOrderService {
 
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
 		String noOfFloor = additionalFeature.getNoOfFloor(plan.getBlockByName(block.getBlockNo()));
-		Stream.of("Block-No." + block.getBlockNo()+ " (" + noOfFloor + " NA)", "Covered area approved", "Proposed use", "No. of Dwelling Units")
+		Stream.of("Block-No." + block.getBlockNo()+ " (" + noOfFloor + ")", "Covered area approved", "Proposed use", "No. of Dwelling Units")
 				.forEach(columnTitle -> {
 					PdfPCell header = new PdfPCell();
 					header.setBackgroundColor(BaseColor.LIGHT_GRAY);

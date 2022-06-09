@@ -351,11 +351,10 @@ public class RestEdcrApplicationController {
 
 	}
 
-	@PostMapping(value = "/generatePermitOrder/{type}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/generatePermitOrder", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> generatePermitOrder(@RequestBody @Valid PermitOrderRequest permitOrderRequest,
-			@PathVariable("type") String permitReportType) {
-		List<String> fileStoreIds = edcrRestService.genratePermitOrder(permitOrderRequest, permitReportType);
+	public ResponseEntity<?> generatePermitOrder(@RequestBody @Valid PermitOrderRequest permitOrderRequest) {
+		List<String> fileStoreIds = edcrRestService.genratePermitOrder(permitOrderRequest);
 		return new ResponseEntity<>(createPermitrderResponce(permitOrderRequest, fileStoreIds), HttpStatus.OK);
 	}
 

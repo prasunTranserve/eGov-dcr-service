@@ -717,14 +717,15 @@ public class EdcrRestService {
 	 * @return
 	 */
 	@Transactional
-	public List<String> genratePermitOrder(PermitOrderRequest permitOrderRequest, String permitReportType) {
+	public List<String> genratePermitOrder(PermitOrderRequest permitOrderRequest) {
 		List<String> fileStoreIds = null;
 		try {
 			String edcrNo = permitOrderRequest.getBpaList().get(0).get("edcrNumber").toString();
 			String bpaApplication = permitOrderRequest.getBpaList().get(0).get("applicationNo").toString();
 			String fileName = bpaApplication + "-" + edcrNo;
 			String bpaAppTenantId = permitOrderRequest.getBpaList().get(0).get("tenantId").toString();
-
+			String businessService = permitOrderRequest.getBpaList().get(0).get("businessService").toString();
+			
 			List<FileStoreMapper> fileStoreMappers = fileStoreMapperRepository.findByFileNameStartsWith(fileName);
 
 			if (fileStoreMappers == null) {
@@ -734,7 +735,7 @@ public class EdcrRestService {
 
 			EdcrApplicationInfo edcrApplicationInfo = edcrExternalService.loadEdcrApplicationDetails(edcrNo);
 			Plan plan = edcrApplicationInfo.getPlan();
-			PermitOrderService permitOrderService = getPermitOrderServiceBean(permitReportType);
+			PermitOrderService permitOrderService = getPermitOrderServiceBean(businessService);
 			InputStream reportStream = permitOrderService.generateReport(plan, permitOrderRequest.getBpaList().get(0),
 					permitOrderRequest.getRequestInfo());
 			FileStoreMapper fileStoreMapper = storePermitOrder(reportStream, fileName, bpaAppTenantId);
@@ -742,15 +743,21 @@ public class EdcrRestService {
 			fileStoreIds = fileStoreMappers.stream()
 					.sorted((fm1, fm2) -> fm2.getCreatedDate().compareTo(fm1.getCreatedDate()))
 					.map(fm -> fm.getFileStoreId()).collect(Collectors.toList());
-		} catch (Exception e) {
+		}catch (ApplicationRuntimeException e) {
+			throw e;
+		} 
+		catch (Exception e) {
 			throw new ApplicationRuntimeException("Error while generating permit order pdf", e);
 		}
 		return fileStoreIds;
 	}
 
-	private PermitOrderService getPermitOrderServiceBean(String permitReportType) {
-		PermitOrderService permitOrderService = (PermitOrderService) specificRuleService
-				.find("permitOrderService" + permitReportType);
+	private PermitOrderService getPermitOrderServiceBean(String businessService) {
+		PermitOrderService permitOrderService = null;
+		permitOrderService = (PermitOrderService) specificRuleService
+				.find("permitOrderService" + businessService);
+		if(permitOrderService == null)
+			throw new ApplicationRuntimeException("Permit order not supported for businessService: "+businessService);
 		return permitOrderService;
 	}
 
