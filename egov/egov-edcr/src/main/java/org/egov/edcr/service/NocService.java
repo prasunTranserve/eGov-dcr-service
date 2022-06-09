@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.egov.commons.mdms.config.MdmsConfiguration;
 import org.egov.commons.service.RestCallService;
+import org.egov.infra.config.core.ApplicationThreadLocals;
 import org.egov.infra.microservice.models.RequestInfo;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
@@ -23,18 +24,21 @@ public class NocService {
 	}
 
 	public StringBuilder getNocSearchUrl() {
-		return new StringBuilder().append("https://sujog-dev.odisha.gov.in/").append("noc-services/v1/noc").append("/_search");
+//		String urlHost=ApplicationThreadLocals.getDomainURL();
+//		return new StringBuilder().append("https://sujog-dev.odisha.gov.in/").append("noc-services/v1/noc").append("/_search");
+		String url = String.format("%s/noc-services/v1/noc/_search", ApplicationThreadLocals.getDomainURL());
+		return new StringBuilder(url);
 	}
 
-	public Object fetchNocs(RequestInfo requestInfo,String tenantId,String bpaApplicationNo) {
+	public Object fetchNocs(RequestInfo requestInfo, String tenantId, String bpaApplicationNo) {
 		StringBuilder searchUrl = getNocSearchUrl().append("?sourceRefId=").append(bpaApplicationNo)
 				.append("&tenantId=").append(tenantId);
-		Map<String,Object> requestInfoPayload = new HashMap<>();
+		Map<String, Object> requestInfoPayload = new HashMap<>();
 		requestInfoPayload.put("RequestInfo", requestInfo);
 		Object result = serviceRequestRepository.fetchResult(searchUrl, requestInfoPayload);
 		return result;
 	}
-	
+
 	public String getValue(Map dataMap, String key) {
 		String jsonString = new JSONObject(dataMap).toString();
 		DocumentContext context = JsonPath.using(Configuration.defaultConfiguration()).parse(jsonString);

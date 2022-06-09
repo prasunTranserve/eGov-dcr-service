@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.egov.commons.service.RestCallService;
+import org.egov.infra.config.core.ApplicationThreadLocals;
 import org.egov.infra.microservice.models.RequestInfo;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,11 @@ public class PaymentService {
 	}
 
 	public StringBuilder getPaymentsSearchUrl(String businessservice) {
-		return new StringBuilder().append("https://sujog-dev.odisha.gov.in/").append("collection-services/payments/")
-				.append(businessservice).append("/_search");
+
+		StringBuilder uri = new StringBuilder().append("%s/collection-services/payments/").append(businessservice)
+				.append("/_search");
+		String url = String.format(uri.toString(), ApplicationThreadLocals.getDomainURL());
+		return new StringBuilder(url);
 	}
 
 	public Object fetchApplicationFeePaymentDetails(RequestInfo requestInfo, String consumerCode, String tenantId) {
