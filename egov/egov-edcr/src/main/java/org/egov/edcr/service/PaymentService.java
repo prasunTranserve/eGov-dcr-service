@@ -4,9 +4,11 @@ package org.egov.edcr.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.egov.commons.service.RestCallService;
 import org.egov.infra.config.core.ApplicationThreadLocals;
 import org.egov.infra.microservice.models.RequestInfo;
+import org.jfree.util.Log;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import com.jayway.jsonpath.JsonPath;
 
 @Service
 public class PaymentService {
+	private static Logger LOG = Logger.getLogger(PaymentService.class);
 	private RestCallService serviceRequestRepository;
 
 	public PaymentService(RestCallService serviceRequestRepository) {
@@ -45,6 +48,7 @@ public class PaymentService {
 		Map<String, Object> requestInfoPayload = new HashMap<>();
 		requestInfoPayload.put("RequestInfo", requestInfo);
 		Object result = serviceRequestRepository.fetchResult(searchUrl, requestInfoPayload);
+		LOG.info(result);
 		return result;
 	}
 
