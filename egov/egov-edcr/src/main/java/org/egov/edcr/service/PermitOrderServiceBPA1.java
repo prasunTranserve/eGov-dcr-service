@@ -72,7 +72,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 	public static String PARAGRAPH_2_3_3 = "sq. mtr. as shown in the approved plan shall be exclusively used for parking and no part of it will be used for any other purpose.\n\n";
 	public static String PARAGRAPH_2_4 = "The land over which construction is proposed is accessible by an approved means of access of 6.09mtr. width.\n\n";
 	public static String PARAGRAPH_2_5 = "The land in question must be in lawful ownership and peaceful possession of the applicant.\n\n";
-	public static String PARAGRAPH_2_6 = "The applicant shall free gift 0 sq.mtr. of located in the Bhubaneswar Development Authority Municipal Corporation/Municipality/ NAC/Grama panchayat for the widening of the road/construction of new roads and other public amenities prior to completion of the development as indicated in the plan.\n\n";
+	public static String PARAGRAPH_2_6 = "The applicant shall free gift %s sq.mtr. of located in the %s for the widening of the road/construction of new roads and other public amenities prior to completion of the development as indicated in the plan.\n\n";
 	public static String PARAGRAPH_2_7_1 = "The permission is valid for period of ";
 	public static String PARAGRAPH_2_7_2 = "three years ";
 	public static String PARAGRAPH_2_7_3 = "with effect from the date of issue.\n\n";
@@ -108,9 +108,8 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 
 	public InputStream createPdf(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) throws Exception {
 		String imageUrl1 = "https://digitaldesksujog051120.blob.core.windows.net/assets/Logos/odlogo.png";
-		String imageUrl2 = "https://www.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market_full/generator/dist/generator/assets/images/websiteQRCode_noFrame.png";
-		// String imageUrl2 =
-		// "https://yemenbarcodes.com/wp-content/uploads/sites/206/2019/05/qr_code_5cdd30e269752-300x300.jpg";
+		String tenantIdActual = getValue(bpaApplication, "tenantId");
+
 
 		Document document = new Document();
 //		PdfWriter.getInstance(document,
@@ -127,14 +126,13 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Font fontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
 		Font fontBoldUnderlined = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.UNDERLINE);
 
-		String[] ulbGradeNameAndUlbArray = getUlbNameAndGradeFromMdms(requestInfo, "od.cuttack");
+		String[] ulbGradeNameAndUlbArray = getUlbNameAndGradeFromMdms(requestInfo, tenantIdActual);
 		String ulbGradeNameAndUlb = (ulbGradeNameAndUlbArray[0] + " " + ulbGradeNameAndUlbArray[1]);
 		Paragraph para = new Paragraph(ulbGradeNameAndUlb, fontHeader);
 		para.setAlignment(Paragraph.ALIGN_CENTER);
 		Paragraph para1 = new Paragraph("Form-II (Order for Grant of Permission)", font1);
 		para1.setAlignment(Paragraph.ALIGN_CENTER);
-		String tenantIdActual = getValue(bpaApplication, "tenantId");
-		;
+		
 		String tenantId = StringUtils.capitalize(tenantIdActual.split("\\.")[1]);
 		@SuppressWarnings("deprecation")
 		Date date = new Date(Long.valueOf(getValue(bpaApplication, "approvalDate")));
@@ -217,7 +215,8 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Phrase chunk20 = new Phrase(PARAGRAPH_2_5, font1);
 		list1Item5.add(chunk20);
 		ListItem list1Item6 = new ListItem();
-		Phrase chunk21 = new Phrase(PARAGRAPH_2_6, font1);
+		String fContent = String.format(PARAGRAPH_2_6, "0",ulbGradeNameAndUlb);
+		Phrase chunk21 = new Phrase(fContent, font1);
 		list1Item6.add(chunk21);
 		ListItem list1Item7 = new ListItem();
 		Chunk chunk22 = new Chunk(PARAGRAPH_2_7_1, font1);
@@ -251,7 +250,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		List subList1 = new List(List.UNORDERED);
 		ListItem subList1item1 = new ListItem();
 		// TODO call collection-services to fetch payment details
-		String[] feeDetails = getSanctionFeeAndCWWC(requestInfo, applicationNo, "od.cuttack");
+		String[] feeDetails = getSanctionFeeAndCWWC(requestInfo, applicationNo, tenantIdActual);
 		Phrase chunk33Phrase = new Phrase();
 		Chunk chunk33Pre = new Chunk("Sanction fee : Rs ", font1);
 		Chunk chunk33 = new Chunk(feeDetails[0], font1);
@@ -310,7 +309,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Chunk chunk44 = new Chunk(PARAGRAPH_6_1, font1);
 		BigDecimal providedFar = BigDecimal.valueOf(plan.getFarDetails().getProvidedFar());
 		Chunk chunk45 = new Chunk(
-				plan.getPlot().getArea().multiply(providedFar).setScale(2, BigDecimal.ROUND_UP) + DxfFileConstants.SQM,
+				plan.getVirtualBuilding().getTotalFloorArea().setScale(2, BigDecimal.ROUND_UP) + DxfFileConstants.SQM,
 				fontBold);
 		Paragraph chunk46 = new Paragraph();
 		chunk46.add(chunk44);
