@@ -26,7 +26,12 @@ public class NocService {
 	public StringBuilder getNocSearchUrl() {
 //		String urlHost=ApplicationThreadLocals.getDomainURL();
 //		return new StringBuilder().append("https://sujog-dev.odisha.gov.in/").append("noc-services/v1/noc").append("/_search");
-		String url = String.format("%s/noc-services/v1/noc/_search", ApplicationThreadLocals.getDomainURL());
+//		String hostUrl = "http://sujog-dev.odisha.gov.in";
+		String hostUrl = ApplicationThreadLocals.getDomainURL();
+		if(hostUrl.startsWith("http:")) {
+			hostUrl = hostUrl.replace("http:", "https:");
+		}
+		String url = String.format("%s/noc-services/v1/noc/_search", hostUrl);
 		return new StringBuilder(url);
 	}
 

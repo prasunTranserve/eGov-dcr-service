@@ -25,6 +25,7 @@ public class RestCallService {
         } catch (HttpClientErrorException e) {
             LOG.error(e.getResponseBodyAsString());
         } catch (Exception e) {
+        	e.printStackTrace();
             LOG.error(e.getStackTrace());
         }
 
