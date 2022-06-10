@@ -159,7 +159,8 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		String imageUrl = "https://digitaldesksujog051120.blob.core.windows.net" + "/assets/Logos/odlogo.png";
 
 		String applicationNo = getValue(bpaApplication, "applicationNo");
-
+		String tenantIdActual = getValue(bpaApplication, "tenantId");
+		
 		Document document = new Document();
 		ByteArrayOutputStream outputBytes;
 		outputBytes = new ByteArrayOutputStream();
@@ -173,7 +174,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		OdishaParkingHelper parkingData = parking.prepareParkingData(plan);
 
 		Font font = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLD);
-		String[] ulbGradeNameAndUlbArray = getUlbNameAndGradeFromMdms(requestInfo, "od.cuttack");
+		String[] ulbGradeNameAndUlbArray = getUlbNameAndGradeFromMdms(requestInfo, tenantIdActual);
 		String ulbGradeNameAndUlb = (ulbGradeNameAndUlbArray[0] + " " + ulbGradeNameAndUlbArray[1]);
 		Paragraph para = new Paragraph(ulbGradeNameAndUlb, font);
 		para.setAlignment(Paragraph.ALIGN_CENTER);
@@ -183,8 +184,8 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		Paragraph para1 = new Paragraph("Form-II (Order for Grant of Permission)", font1);
 		para1.setAlignment(Paragraph.ALIGN_CENTER);
 
-		String tenantIdActual = getValue(bpaApplication, "tenantId");
-		;
+		
+		
 		String tenantId = StringUtils.capitalize(tenantIdActual.split("\\.")[1]);
 		@SuppressWarnings("deprecation")
 		Date date = new Date(Long.valueOf(getValue(bpaApplication, "approvalDate")));
@@ -526,7 +527,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		topLevel.add(item35);
 
 		boolean isInstallment = false;
-		String[] feeDetails = getAllFeeDetails(requestInfo, applicationNo, "od.cuttack");
+		String[] feeDetails = getAllFeeDetails(requestInfo, applicationNo, tenantIdActual);
 
 		PdfPTable table16 = new PdfPTable(3);
 		PdfPTable table17 = new PdfPTable(3);
