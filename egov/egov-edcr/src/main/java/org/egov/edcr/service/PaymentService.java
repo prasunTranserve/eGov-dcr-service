@@ -29,7 +29,12 @@ public class PaymentService {
 
 		StringBuilder uri = new StringBuilder().append("%s/collection-services/payments/").append(businessservice)
 				.append("/_search");
-		String url = String.format(uri.toString(), ApplicationThreadLocals.getDomainURL());
+		//String hostUrl = "http://sujog-dev.odisha.gov.in";
+		String hostUrl = ApplicationThreadLocals.getDomainURL();
+		if(hostUrl.startsWith("http:")) {
+			hostUrl = hostUrl.replace("http:", "https:");
+		}
+		String url = String.format(uri.toString(), hostUrl);
 		return new StringBuilder(url);
 	}
 
