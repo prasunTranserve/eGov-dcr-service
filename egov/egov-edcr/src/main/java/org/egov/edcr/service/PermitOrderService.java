@@ -82,14 +82,22 @@ public abstract class PermitOrderService {
 	public abstract InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo);
 	
 
-	public Image getLogo() throws Exception {
-		Image logo1  = Image.getInstance(ReportUtil.getImageURL("/edcr/resources/app/images/logo-sujog.png"));
+	public static Image getLogo() throws Exception {
+//		Image logo1  = Image.getInstance(ReportUtil.getImageURL("/edcr/resources/app/images/logo-sujog.png"));
+//		Image logo1  = Image.getInstance("http://sujog-dev.odisha.gov.in/edcr/resources/app/images/logo-sujog.png");
 		//Image logo1 = Image.getInstance(new URL(imageUrl));
+//		URL url = new URL("http://sujog-dev.odisha.gov.in/edcr/resources/app/images/logo-sujog.png");
+//	    InputStream is = url.openStream();
+	    Image logo1 = Image.getInstance("logo-sujog.png");
 		logo1.scaleToFit(90, 90);
 		logo1.setAlignment(Image.MIDDLE);
 		logo1.setAlignment(Image.TOP);
 		logo1.setAlignment(Image.ALIGN_JUSTIFIED);
 		return logo1;
+	}
+	
+	public static void main(String[] args)throws Exception {
+		getLogo();
 	}
 
 	/**
