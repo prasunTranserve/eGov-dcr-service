@@ -169,7 +169,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 //				new FileOutputStream("C:\\Temp\\Odisha\\permitFile\\001_V3LongPermit_20220525.pdf"));
 		document.open();
 
-		Image logo = getLogo(imageUrl);
+		Image logo = getLogo();
 		Parking parking = new Parking();
 		OdishaParkingHelper parkingData = parking.prepareParkingData(plan);
 

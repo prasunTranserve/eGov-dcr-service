@@ -107,7 +107,6 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 	}
 
 	public InputStream createPdf(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) throws Exception {
-		String imageUrl1 = "https://digitaldesksujog051120.blob.core.windows.net/assets/Logos/odlogo.png";
 		String tenantIdActual = getValue(bpaApplication, "tenantId");
 
 
@@ -119,7 +118,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		PdfWriter.getInstance(document, outputBytes);
 		document.open();
 
-		Image logo1 = getLogo(imageUrl1);
+		Image logo1 = getLogo();
 
 		Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLD);
 		Font font1 = FontFactory.getFont(FontFactory.HELVETICA, 12);

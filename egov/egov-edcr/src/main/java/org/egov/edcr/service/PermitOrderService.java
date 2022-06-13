@@ -1,9 +1,11 @@
 package org.egov.edcr.service;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -26,6 +28,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.feature.AdditionalFeature;
 import org.egov.infra.microservice.models.RequestInfo;
+import org.egov.infra.reporting.util.ReportUtil;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -75,11 +78,13 @@ public abstract class PermitOrderService {
 	private static final String RULE_NO = "RuleNo";
 	public static final String BLOCK = "Block";
 	public static final String STATUS = "Status";
-
+	
 	public abstract InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo);
+	
 
-	public Image getLogo(String imageUrl) throws Exception {
-		Image logo1 = Image.getInstance(new URL(imageUrl));
+	public Image getLogo() throws Exception {
+		Image logo1  = Image.getInstance(ReportUtil.getImageURL("/egi/resources/global/images/logo-sujog.png"));
+		//Image logo1 = Image.getInstance(new URL(imageUrl));
 		logo1.scaleToFit(90, 90);
 		logo1.setAlignment(Image.MIDDLE);
 		logo1.setAlignment(Image.TOP);
