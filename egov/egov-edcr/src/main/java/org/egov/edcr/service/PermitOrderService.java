@@ -83,7 +83,7 @@ public abstract class PermitOrderService {
 	
 
 	public Image getLogo() throws Exception {
-		Image logo1  = Image.getInstance(ReportUtil.getImageURL("/egi/resources/global/images/logo-sujog.png"));
+		Image logo1  = Image.getInstance(ReportUtil.getImageURL("/edcr/resources/app/images/logo-sujog.png"));
 		//Image logo1 = Image.getInstance(new URL(imageUrl));
 		logo1.scaleToFit(90, 90);
 		logo1.setAlignment(Image.MIDDLE);
