@@ -1,15 +1,8 @@
 package org.egov.edcr.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -20,7 +13,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.AdditionalReportDetail;
 import org.egov.common.entity.edcr.Block;
@@ -30,15 +22,14 @@ import org.egov.common.entity.edcr.DcrReportFloorDetail;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.Plan;
+import org.egov.edcr.config.properties.EdcrApplicationSettings;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.feature.AdditionalFeature;
-import org.egov.infra.config.core.ApplicationThreadLocals;
-import org.egov.infra.exception.ApplicationException;
 import org.egov.infra.exception.ApplicationRuntimeException;
 import org.egov.infra.microservice.models.RequestInfo;
-import org.egov.infra.reporting.util.ReportUtil;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.CollectionUtils;
 
 import com.itextpdf.text.BadElementException;
@@ -88,13 +79,18 @@ public abstract class PermitOrderService {
 	public static final String STATUS = "Status";
 
 	public abstract InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo);
-
+	@Autowired
+	private EdcrApplicationSettings edcrApplicationSettings;
+	
 	public static String image_logo;
 	public Image logo = null;
 	{
 		try {
-			FileInputStream fis = new FileInputStream(getClass().getResource("logo_base64.txt").getFile());
-			String stringTooLong = IOUtils.toString(fis, "UTF-8");
+			ClassPathResource resource = new ClassPathResource("logo_base64.txt");
+			InputStream inputStream = resource.getInputStream();
+			//InputStream is = classloader.getResourceAsStream("logo_base64.txt");
+			//FileInputStream fis = new FileInputStream("classpath:config/logo_base64.txt");
+			String stringTooLong = IOUtils.toString(inputStream, "UTF-8");
 			byte[] b = org.apache.commons.codec.binary.Base64.decodeBase64(stringTooLong);
 			logo = Image.getInstance(b);
 			logo.scaleToFit(90, 90);
