@@ -14,6 +14,12 @@ public class MdmsConfiguration {
 
     @Value("${mdms.enable:false}")
     private Boolean mdmsEnabled;
+    
+    @Value("${egov.bpa.calculator.host:}")
+    private String bpaCalculatorHost;
+    
+    @Value("${egov.noc.service.host:}")
+    private String nocHost;
 
     public String getMdmsHost() {
         return mdmsHost;
@@ -39,4 +45,21 @@ public class MdmsConfiguration {
         this.mdmsEnabled = mdmsEnabled;
     }
 
+	public String getBpaCalculatorHost() {
+		return bpaCalculatorHost;
+	}
+
+	public void setBpaCalculatorHost(String bpaCalculatorHost) {
+		this.bpaCalculatorHost = bpaCalculatorHost;
+	}
+
+	public String getNocHost() {
+		return nocHost;
+	}
+
+	public void setNocHost(String nocHost) {
+		this.nocHost = nocHost;
+	}
+
+    
 }
