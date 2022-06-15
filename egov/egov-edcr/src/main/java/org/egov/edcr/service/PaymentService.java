@@ -31,7 +31,7 @@ public class PaymentService {
 	public StringBuilder getPaymentsSearchUrl(String businessservice) {
 		StringBuilder uri = new StringBuilder().append("%s/collection-services/payments/").append(businessservice)
 				.append("/_search");
-		String hostUrl = mdmsConfiguration.getBpaCalculatorHost();
+		String hostUrl = mdmsConfiguration.getCollectionServiceHost();
 		String url = String.format(uri.toString(), hostUrl);
 		return new StringBuilder(url);
 	}
