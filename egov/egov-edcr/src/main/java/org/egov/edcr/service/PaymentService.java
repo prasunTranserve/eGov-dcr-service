@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.egov.commons.mdms.config.MdmsConfiguration;
 import org.egov.commons.service.RestCallService;
 import org.egov.infra.config.core.ApplicationThreadLocals;
 import org.egov.infra.microservice.models.RequestInfo;
@@ -20,20 +21,17 @@ import com.jayway.jsonpath.JsonPath;
 public class PaymentService {
 	private static Logger LOG = Logger.getLogger(PaymentService.class);
 	private RestCallService serviceRequestRepository;
-
-	public PaymentService(RestCallService serviceRequestRepository) {
+	private MdmsConfiguration mdmsConfiguration;
+	
+	public PaymentService(RestCallService serviceRequestRepository, MdmsConfiguration mdmsConfiguration) {
 		this.serviceRequestRepository = serviceRequestRepository;
+		this.mdmsConfiguration = mdmsConfiguration;
 	}
 
 	public StringBuilder getPaymentsSearchUrl(String businessservice) {
-
 		StringBuilder uri = new StringBuilder().append("%s/collection-services/payments/").append(businessservice)
 				.append("/_search");
-		//String hostUrl = "http://sujog-dev.odisha.gov.in";
-		String hostUrl = ApplicationThreadLocals.getDomainURL();
-		if(hostUrl.startsWith("http:")) {
-			hostUrl = hostUrl.replace("http:", "https:");
-		}
+		String hostUrl = mdmsConfiguration.getBpaCalculatorHost();
 		String url = String.format(uri.toString(), hostUrl);
 		return new StringBuilder(url);
 	}

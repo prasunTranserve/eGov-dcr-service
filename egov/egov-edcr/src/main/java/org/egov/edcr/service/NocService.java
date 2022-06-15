@@ -18,19 +18,18 @@ import com.jayway.jsonpath.JsonPath;
 @Service
 public class NocService {
 	private RestCallService serviceRequestRepository;
-
-	public NocService(RestCallService serviceRequestRepository) {
+	private MdmsConfiguration mdmsConfiguration;
+	
+	public NocService(RestCallService serviceRequestRepository,MdmsConfiguration mdmsConfiguration) {
 		this.serviceRequestRepository = serviceRequestRepository;
+		this.mdmsConfiguration = mdmsConfiguration;
 	}
 
 	public StringBuilder getNocSearchUrl() {
 //		String urlHost=ApplicationThreadLocals.getDomainURL();
 //		return new StringBuilder().append("https://sujog-dev.odisha.gov.in/").append("noc-services/v1/noc").append("/_search");
-//		String hostUrl = "http://sujog-dev.odisha.gov.in";
-		String hostUrl = ApplicationThreadLocals.getDomainURL();
-		if(hostUrl.startsWith("http:")) {
-			hostUrl = hostUrl.replace("http:", "https:");
-		}
+		String hostUrl = mdmsConfiguration.getNocHost();
+		
 		String url = String.format("%s/noc-services/v1/noc/_search", hostUrl);
 		return new StringBuilder(url);
 	}
