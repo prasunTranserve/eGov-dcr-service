@@ -433,6 +433,7 @@ public class Coverage extends FeatureProcess {
 		OdishaUtill.updateAmmenity(pl);
 		OdishaUtill.updateBlock(pl);
 		OdishaUtill.setPlanInfoBlkWise(pl, DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK);
+		OdishaUtill.validateRestricatedOccupancies(pl);
 	}
 
 	private boolean checkLowRiskBuildingCriteria(Plan pl) {

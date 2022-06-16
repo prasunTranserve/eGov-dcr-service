@@ -242,14 +242,15 @@ public class MeanOfAccess extends FeatureProcess {
 				|| DxfFileConstants.OC_AGRICULTURE.equals(occupancyTypeHelper.getType().getCode())
 				|| DxfFileConstants.OC_MIXED_USE.equals(occupancyTypeHelper.getType().getCode())) {
 			//mixed use 
-			System.out.println("Sparit means ");
+		//	System.out.println("Sparit means ");
 			//SPARIT
 			OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
-			System.out.println("Sparit  "+pl.getVirtualBuilding());
+			//System.out.println("Sparit  "+pl.getVirtualBuilding());
+			BigDecimal buildingHeight = OdishaUtill.getMaxBuildingHeight(pl);
 			
-			if(ulb.isSparitFlag())// && pl.getVirtualBuilding().getBuildingHeight().compareTo(new BigDecimal( "15"))>0) {
+			if(ulb.isSparitFlag() && buildingHeight.compareTo(new BigDecimal("15"))<0) 
 			{
-				System.out.println("Sparit  implementation3:");
+				//System.out.println("Sparit  implementation3:");
 				expectedValue = new BigDecimal("9");
 				
 			}else
