@@ -31,6 +31,7 @@ import org.egov.common.entity.edcr.Room;
 import org.egov.common.entity.edcr.RoomHeight;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.OdishaUlbs;
 import org.egov.edcr.feature.Parking;
 
 public class OdishaUtill {
@@ -845,6 +846,21 @@ public class OdishaUtill {
 		}
 	}
 
+	
+	public static void validateRestricatedOccupancies(Plan pl) {
+		//SPARIT Industry Check
+				OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
+				if(ulb.isSparitFlag()) {
+					OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+				System.out.println("occupancy:"+occupancyTypeHelper.getType().getCode());
+				if(DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(occupancyTypeHelper.getType().getCode())) {
+					pl.addError("occupancyError",
+							"Industry is not allowed in this area");
+				}
+					
+				}
+
+
 	public static BigDecimal getStiltArea(Plan plan) {
 		BigDecimal area = BigDecimal.ZERO;
 		for (Block block : plan.getBlocks()) {
@@ -862,5 +878,6 @@ public class OdishaUtill {
 		details = pl.getReportOutput().getScrutinyDetails().stream()
 				.filter(s -> (s.getKey() != null && s.getKey().endsWith(Key))).collect(Collectors.toList());
 		return details;
+
 	}
 }

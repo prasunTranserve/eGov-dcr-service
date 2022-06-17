@@ -47,6 +47,7 @@ import org.egov.common.entity.edcr.VirtualBuildingReport;
 import org.egov.edcr.autonumber.DcrApplicationNumberGenerator;
 import org.egov.edcr.autonumber.OCPlanScrutinyNumberGenerator;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.OdishaUlbs;
 import org.egov.edcr.constants.UlbNameConstants;
 import org.egov.edcr.entity.ApplicationType;
 import org.egov.edcr.entity.EdcrApplication;
@@ -94,6 +95,7 @@ public class PlanReportService {
 	private static final Logger LOG = Logger.getLogger(PlanReportService.class);
 	public static final String BLOCK = "Block";
 	public static final String STATUS = "Status";
+	//public static  OdishaUlbs odishaUlbs = null;
 	@Value("${edcr.client.subreport}")
 	private boolean clientSpecificSubReport;
 	@Autowired
@@ -588,6 +590,8 @@ public class PlanReportService {
 	}
 
 	public InputStream generateReport(Plan plan, EdcrApplication dcrApplication) {
+		
+		//dcrApplic
 
 		FastReportBuilder drb = new FastReportBuilder();
 		StringBuilder reportBuilder = new StringBuilder();
@@ -660,9 +664,13 @@ public class PlanReportService {
 		final Map<String, Object> valuesMap = new HashMap<>();
 //		String ulbName = ApplicationThreadLocals.getMunicipalityName();
 		String ulbName = null;
-//		if (ulbName == null || ulbName.trim().isEmpty())
-		ulbName = UlbNameConstants.ulbName(plan.getThirdPartyUserTenantld());
-		valuesMap.put("ulbName", ulbName);
+		OdishaUlbs odishaUlbs= null;
+		if (ulbName == null || ulbName.trim().isEmpty())
+		//ulbName = UlbNameConstants.ulbName(plan.getThirdPartyUserTenantld());
+		LOG.info(OdishaUlbs.getUlb(plan.getThirdPartyUserTenantld()));
+		 odishaUlbs = OdishaUlbs.getUlb(plan.getThirdPartyUserTenantld());
+		 LOG.info("odisha ulbs:"+odishaUlbs.getUlbName());
+		valuesMap.put("ulbName",odishaUlbs.getUlbName());
 		valuesMap.put("applicantName", dcrApplication.getApplicantName());
 		valuesMap.put("licensee", plan.getArchitectInformation());
 		valuesMap.put("applicationNumber", applicationNumber);

@@ -10,6 +10,7 @@ import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.OdishaUlbs;
 
 public class DataPreparation {
 
@@ -129,6 +130,8 @@ public class DataPreparation {
 	}
 
 	private static void setBusinessService(Plan pl, Double buildingHeight, Double plotArea, boolean isSpecialBuilding) {
+		OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
+
 		if (null != buildingHeight && null != plotArea) {
 			if (!isSpecialBuilding) {
 				if ((buildingHeight <= 10) || (plotArea <= 500)) {
@@ -140,12 +143,24 @@ public class DataPreparation {
 				if ((buildingHeight > 10 && buildingHeight <= 15) || (plotArea > 500 && plotArea <= 4047)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PO_MODULE_CODE);
 				}
+				//SPARIT CHANGES
+				if(ulb.isSparitFlag()) {
+					if ((buildingHeight > 15 && buildingHeight <= 30) || (plotArea > 4047 && plotArea <= 20000)) {
+						pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PM_MODULE_CODE);
+					}
+					if ((buildingHeight > 30) || (plotArea > 20000)) {
+						pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_DP_BP_MODULE_CODE);
+					}
+					
+				
+				}
+				else {
 				if ((buildingHeight > 15 && buildingHeight <= 30) || (plotArea > 4047 && plotArea <= 10000)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PM_MODULE_CODE);
 				}
 				if ((buildingHeight > 30) || (plotArea > 10000)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_DP_BP_MODULE_CODE);
-				}
+				} }
 
 			} else {
 				if (buildingHeight <= 15) {

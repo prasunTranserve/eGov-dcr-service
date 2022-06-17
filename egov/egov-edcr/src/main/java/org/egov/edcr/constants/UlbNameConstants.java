@@ -7,7 +7,7 @@ public class UlbNameConstants {
 	private static final Map<String,String> map = new HashMap<String,String>();
 	static {
 		map.put("od.cuttack","Cuttack Municipal Corporation");
-		map.put("ob.banki","Banki");
+		map.put("od.banki","Banki");
 		map.put("od.jatni","Jatni");
 		map.put("od.angul","Angul");
 		map.put("od.berhmpurMouza","Berhampur (Mouza Beyond Municipal Area)");

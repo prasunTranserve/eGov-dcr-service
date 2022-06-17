@@ -76,6 +76,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.OdishaUlbs;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.edcr.utility.Util;
 import org.springframework.stereotype.Service;
@@ -166,6 +167,7 @@ public class Parking extends FeatureProcess {
 
 	public OdishaParkingHelper prepareParkingData(Plan pl) {
 		OdishaParkingHelper helper = new OdishaParkingHelper();
+		
 		ParkingDetails details = pl.getParkingDetails();
 		BigDecimal totalParking = BigDecimal.ZERO;
 		if (details.getSpecial() != null && !details.getSpecial().isEmpty()) {
@@ -338,6 +340,7 @@ public class Parking extends FeatureProcess {
 		String ocType = "";
 		String subType = "";
 		OccupancyTypeHelper typeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
 
 		if (typeHelper != null && typeHelper.getType() != null)
 			ocType = typeHelper.getType().getCode();
@@ -399,12 +402,19 @@ public class Parking extends FeatureProcess {
 			// MIG
 			if (DxfFileConstants.APARTMENT_BUILDING.equals(subType) || DxfFileConstants.HOUSING_PROJECT.equals(subType)
 					|| DxfFileConstants.STUDIO_APARTMENTS.equals(subType)) {
+//				if(ulb.isSparitFlag()) {
+//					System.out.println("Sparit  implementation2:");
+//					helper.mIGParkingRequired=BigDecimal.ZERO; 
+//				}
+//				else {	
 				BigDecimal totalMigAndEWS = getTotalAreaOfMIG1AndMIG2(pl);
 				if (totalMigAndEWS.compareTo(BigDecimal.ZERO) > 0) {
 					helper.mIGParkingRequired = totalMigAndEWS.multiply(new BigDecimal("0.25")).setScale(2,
 							BigDecimal.ROUND_HALF_UP);
 				}
 			}else if(DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(subType)) {
+				
+
 				helper.mIGParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 						.multiply(new BigDecimal("0.25")).setScale(2, BigDecimal.ROUND_HALF_UP);
 			}
@@ -479,8 +489,14 @@ public class Parking extends FeatureProcess {
 					|| DxfFileConstants.LOADING_OR_UNLOADING_SPACES.equals(subType)
 					|| DxfFileConstants.FLATTED_FACTORY.equals(subType)
 					|| DxfFileConstants.SMALL_FACTORIES_AND_ETC_FALLS_IN_INDUSTRIAL.equals(subType)) {
+				if(ulb.isSparitFlag()) {
+					System.out.println("Sparit  implementation2:");
+					helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
+							.multiply(new BigDecimal("0.25")).setScale(2, BigDecimal.ROUND_HALF_UP);
+				
+				}else {
 				helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
-						.multiply(new BigDecimal("0.30")).setScale(2, BigDecimal.ROUND_HALF_UP);
+						.multiply(new BigDecimal("0.30")).setScale(2, BigDecimal.ROUND_HALF_UP);}
 				if(plotArea.compareTo(new BigDecimal("2000"))>0) {
 				helper.daPARKINGCountRequired = 2;
 				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");}
@@ -510,8 +526,14 @@ public class Parking extends FeatureProcess {
 					|| DxfFileConstants.SCULPTURE_COMPLEX.equals(subType)
 					|| DxfFileConstants.EXHIBITION_CENTER.equals(subType)
 					|| DxfFileConstants.IT_ITES_BUILDINGS.equals(subType)) {
+				if(ulb.isSparitFlag()) {
+					System.out.println("Sparit  implementation2:");
+					helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
+							.multiply(new BigDecimal("0.30")).setScale(2, BigDecimal.ROUND_HALF_UP);
+				
+				}else {
 				helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
-						.multiply(new BigDecimal("0.40")).setScale(2, BigDecimal.ROUND_HALF_UP);
+						.multiply(new BigDecimal("0.40")).setScale(2, BigDecimal.ROUND_HALF_UP); }
 				if(plotArea.compareTo(new BigDecimal("2000"))>0) {
 				helper.daPARKINGCountRequired = 2;
 				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");}
@@ -529,8 +551,15 @@ public class Parking extends FeatureProcess {
 					|| DxfFileConstants.MARRIAGE_HALL_OR_KALYAN_MANDAP.equals(subType)
 					|| DxfFileConstants.SPORTS_COMPLEX.equals(subType) || DxfFileConstants.STADIUM.equals(subType)
 					|| DxfFileConstants.THEATRE.equals(subType)) {
+				if(ulb.isSparitFlag()) {
+					System.out.println("Sparit  implementation2:");
+					helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
+							.multiply(new BigDecimal("0.40")).setScale(2, BigDecimal.ROUND_HALF_UP);
+				}
+				else {	
 				helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 						.multiply(new BigDecimal("0.50")).setScale(2, BigDecimal.ROUND_HALF_UP);
+				}
 				if(plotArea.compareTo(new BigDecimal("2000"))>0) {
 				helper.daPARKINGCountRequired = 2;
 				helper.distFromDAToMainEntranceRequired = new BigDecimal("30");}

@@ -67,6 +67,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.OdishaUlbs;
 import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.service.ProcessHelper;
 import org.egov.edcr.utility.DcrConstants;
@@ -162,7 +163,9 @@ public class MeanOfAccess extends FeatureProcess {
 				|| DxfFileConstants.MERCENTILE.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.COUNTRY_HOMES.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			
 			expectedValue = new BigDecimal("6");
+			
 		} else if (DxfFileConstants.APARTMENT_BUILDING.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.HOUSING_PROJECT.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.STUDIO_APARTMENTS.equals(occupancyTypeHelper.getSubtype().getCode())
@@ -170,7 +173,9 @@ public class MeanOfAccess extends FeatureProcess {
 				|| DxfFileConstants.NURSERY_SCHOOL.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.PLAY_SCHOOL.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.CRECHE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			
 			expectedValue = new BigDecimal("9");
+			
 		} else if (DxfFileConstants.HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX
@@ -236,16 +241,34 @@ public class MeanOfAccess extends FeatureProcess {
 				|| DxfFileConstants.OC_TRANSPORTATION.equals(occupancyTypeHelper.getType().getCode())
 				|| DxfFileConstants.OC_AGRICULTURE.equals(occupancyTypeHelper.getType().getCode())
 				|| DxfFileConstants.OC_MIXED_USE.equals(occupancyTypeHelper.getType().getCode())) {
+			//mixed use 
+		//	System.out.println("Sparit means ");
+			//SPARIT
+			OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
+			//System.out.println("Sparit  "+pl.getVirtualBuilding());
+			BigDecimal buildingHeight = OdishaUtill.getMaxBuildingHeight(pl);
+			
+			if(ulb.isSparitFlag() && buildingHeight.compareTo(new BigDecimal("15"))<0) 
+			{
+				//System.out.println("Sparit  implementation3:");
+				expectedValue = new BigDecimal("9");
+				
+			}else
 			expectedValue = new BigDecimal("12");
+		
 		} else if (DxfFileConstants.PETROL_PUMP_FILLING_STATION_AND_SERVICE_STATION
 				.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.PETROL_PUMP_ONLY_FILLING_STATION
 						.equals(occupancyTypeHelper.getSubtype().getCode())) {
-			expectedValue = new BigDecimal("30");
+			
+				expectedValue = new BigDecimal("30");
+			
 		} else {
 			if (isAssemblyBuilding) {
 				expectedValue = new BigDecimal("18");
+				
 			} else {
+				
 				expectedValue = new BigDecimal("12");
 			}
 		}

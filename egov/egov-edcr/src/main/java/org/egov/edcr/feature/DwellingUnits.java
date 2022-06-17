@@ -15,6 +15,7 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.constants.OdishaUlbs;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -97,14 +98,26 @@ public class DwellingUnits extends FeatureProcess {
 
 			int multiplicand = 0;
 			BigDecimal plotArea = pl.getPlot().getArea();
-			if (plotArea.compareTo(new BigDecimal("4000")) < 0) {
-				multiplicand = 300;
-			} else if (plotArea.compareTo(new BigDecimal("4000")) >= 0
-					&& plotArea.compareTo(new BigDecimal("10000")) < 0) {
-				multiplicand = 250;
-			} else {
-				multiplicand = 200;
-			}
+			//SPARIT
+			//OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
+			
+			
+//			if(ulb.isSparitFlag() && pl.getVirtualBuilding().getBuildingHeight().compareTo(new BigDecimal( "15"))>0) {
+//				System.out.println("Sparit  implementation3:");
+//				multiplicand=0;
+//			}
+//			else {
+//				
+//			if (plotArea.compareTo(new BigDecimal("4000")) < 0) {
+//				
+//				multiplicand = 300;
+//			} else if (plotArea.compareTo(new BigDecimal("4000")) >= 0
+//					&& plotArea.compareTo(new BigDecimal("10000")) < 0) {
+//				multiplicand = 250;
+//			} else {
+//				multiplicand = 200;
+//			}
+//			  }
 
 			BigDecimal perArchSqm = new BigDecimal("4046");
 			int archcount = 0;
