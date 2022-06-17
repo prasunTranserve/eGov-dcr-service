@@ -828,7 +828,7 @@ public class GeneralStair extends FeatureProcess {
 
 	private boolean isPerposedAreaPersent(Floor floor, String serviceType) {
 		boolean isPerposedAreaPersent = true;
-		if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+		if (DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
 			BigDecimal totalBuildUpArea = floor.getOccupancies().stream().map(oc -> oc.getBuiltUpArea())
 					.reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
 			BigDecimal totalExistingArea = floor.getOccupancies().stream().map(oc -> oc.getExistingBuiltUpArea())

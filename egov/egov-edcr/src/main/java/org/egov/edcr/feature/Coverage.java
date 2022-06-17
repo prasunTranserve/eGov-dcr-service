@@ -287,13 +287,19 @@ public class Coverage extends FeatureProcess {
 				details.put(PERMISSIBLE, DxfFileConstants.NA);
 				details.put(STATUS, Result.Accepted.getResultVal());
 			}
-		}else if(DxfFileConstants.ALTERATION.equals(serviceType)) {
+		}else if(DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
 			if (upperLimit.compareTo(BigDecimal.ZERO) > 0) {
-				details.put(PERMISSIBLE, upperLimit.toString()+DxfFileConstants.ALTERATION_MSG1);
-			}else {
-				details.put(PERMISSIBLE, DxfFileConstants.NA+DxfFileConstants.ALTERATION_MSG1);
+				details.put(PERMISSIBLE, upperLimit.toString());
+				if (coverage.doubleValue() <= upperLimit.doubleValue()) {
+					details.put(STATUS, Result.Accepted.getResultVal());
+				} else {
+					details.put(STATUS, Result.Not_Accepted.getResultVal());
+				}
+
+			} else {
+				details.put(PERMISSIBLE, DxfFileConstants.NA);
+				details.put(STATUS, Result.Accepted.getResultVal());
 			}
-			details.put(STATUS, Result.Verify.getResultVal());
 		}
 
 		scrutinyDetail.getDetail().add(details);

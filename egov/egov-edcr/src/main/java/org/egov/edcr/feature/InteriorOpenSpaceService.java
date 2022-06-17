@@ -134,75 +134,51 @@ public class InteriorOpenSpaceService extends FeatureProcess {
 				requiredWidth = requiredWidth.add(new BigDecimal(extraIncrement + ""));
 			}
 
-			if (DxfFileConstants.ALTERATION.equals(serviceType)) {
-				if (minInteriorCourtYardArea.compareTo(BigDecimal.ZERO) > 0) {
-					Map<String, String> details = new HashMap<>();
-					details.put(RULE_NO, RULE_43);
-					details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
-					details.put(FLOOR, f.getNumber().toString());
+
+			if (minInteriorCourtYardArea.compareTo(BigDecimal.ZERO) > 0) {
+				Map<String, String> details = new HashMap<>();
+				details.put(RULE_NO, RULE_43);
+				details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
+				details.put(FLOOR, f.getNumber().toString());
+				if (minInteriorCourtYardArea.compareTo(BigDecimal.valueOf(9)) >= 0) {
 					details.put(REQUIRED, "Minimum area 9.0");
 					details.put(PROVIDED, "Area " + minInteriorCourtYardArea);
-					details.put(STATUS, Result.Verify.getResultVal());
+					details.put(STATUS, Result.Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
+				} else {
+					details.put(REQUIRED, "Minimum area 9.0");
+					details.put(PROVIDED, "Area " + minInteriorCourtYardArea);
+					details.put(STATUS, Result.Not_Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
-			} else {
-				if (minInteriorCourtYardArea.compareTo(BigDecimal.ZERO) > 0) {
-					Map<String, String> details = new HashMap<>();
-					details.put(RULE_NO, RULE_43);
-					details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
-					details.put(FLOOR, f.getNumber().toString());
-					if (minInteriorCourtYardArea.compareTo(BigDecimal.valueOf(9)) >= 0) {
-						details.put(REQUIRED, "Minimum area 9.0");
-						details.put(PROVIDED, "Area " + minInteriorCourtYardArea);
-						details.put(STATUS, Result.Accepted.getResultVal());
-						scrutinyDetail.getDetail().add(details);
-						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-
-					} else {
-						details.put(REQUIRED, "Minimum area 9.0");
-						details.put(PROVIDED, "Area " + minInteriorCourtYardArea);
-						details.put(STATUS, Result.Not_Accepted.getResultVal());
-						scrutinyDetail.getDetail().add(details);
-						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-					}
-				}
 			}
+		
 
-			if (DxfFileConstants.ALTERATION.equals(serviceType)) {
-				if (minInteriorCourtYardWidth.compareTo(BigDecimal.ZERO) > 0) {
-					Map<String, String> details = new HashMap<>();
-					details.put(RULE_NO, RULE_43A);
-					details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
-					details.put(FLOOR, f.getNumber().toString());
+
+			if (minInteriorCourtYardWidth.compareTo(BigDecimal.ZERO) > 0) {
+				Map<String, String> details = new HashMap<>();
+				details.put(RULE_NO, RULE_43A);
+				details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
+				details.put(FLOOR, f.getNumber().toString());
+				if (minInteriorCourtYardWidth.compareTo(requiredWidth) >= 0) {
 					details.put(REQUIRED, "Minimum width " + requiredWidth);
 					details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
-					details.put(STATUS, Result.Verify.getResultVal());
+					details.put(STATUS, Result.Accepted.getResultVal());
+					scrutinyDetail.getDetail().add(details);
+					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
+				} else {
+					details.put(REQUIRED, "Minimum width " + requiredWidth);
+					details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
+					details.put(STATUS, Result.Not_Accepted.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
-			} else {
-				if (minInteriorCourtYardWidth.compareTo(BigDecimal.ZERO) > 0) {
-					Map<String, String> details = new HashMap<>();
-					details.put(RULE_NO, RULE_43A);
-					details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
-					details.put(FLOOR, f.getNumber().toString());
-					if (minInteriorCourtYardWidth.compareTo(requiredWidth) >= 0) {
-						details.put(REQUIRED, "Minimum width " + requiredWidth);
-						details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
-						details.put(STATUS, Result.Accepted.getResultVal());
-						scrutinyDetail.getDetail().add(details);
-						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-
-					} else {
-						details.put(REQUIRED, "Minimum width " + requiredWidth);
-						details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
-						details.put(STATUS, Result.Not_Accepted.getResultVal());
-						scrutinyDetail.getDetail().add(details);
-						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-					}
-				}
 			}
+		
 
 		}
 	}

@@ -91,7 +91,7 @@ public class ApprovedConstruction extends FeatureProcess {
 		processDemolition(pl);
 
 		String serviceType = pl.getPlanInformation().getServiceType();
-		if (!DxfFileConstants.ALTERATION.equals(serviceType))
+		if (!DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType))
 			return pl;
 
 		ScrutinyDetail scrutinyDetail3 = new ScrutinyDetail();
@@ -129,7 +129,7 @@ public class ApprovedConstruction extends FeatureProcess {
 
 	private Plan processDemolition(Plan pl) {
 		String serviceType = pl.getPlanInformation().getServiceType();
-		if (!DxfFileConstants.ALTERATION.equals(serviceType))
+		if (!DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType))
 			return pl;
 		ScrutinyDetail scrutinyDetail3 = new ScrutinyDetail();
 		scrutinyDetail3.setKey("Common_Demolition Area Detail");

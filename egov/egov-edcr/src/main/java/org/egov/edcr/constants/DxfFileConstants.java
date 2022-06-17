@@ -646,12 +646,12 @@ public class DxfFileConstants {
 	private static final Map<String, String> SERVICE_TYPE = new ConcurrentHashMap<>();
 	static {
 		SERVICE_TYPE.put("NEW_CONSTRUCTION", "New Construction");
-		SERVICE_TYPE.put("ALTERATION", "Alteration");
+		SERVICE_TYPE.put("ADDITION_AND_ALTERATION", "Addition and Alteration");
 	}
 	
 	//from api
 	public static final String NEW_CONSTRUCTION="NEW_CONSTRUCTION";
-	public static final String ALTERATION="ALTERATION";
+	public static final String ADDITION_AND_ALTERATION="ADDITION_AND_ALTERATION";
 	public static final String ALTERATION_MSG1=" (According to ODA (P&BS) Rules 2020)";
 	
 	

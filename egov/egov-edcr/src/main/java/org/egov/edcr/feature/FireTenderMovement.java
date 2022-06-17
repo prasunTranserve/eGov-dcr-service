@@ -111,8 +111,8 @@ public class FireTenderMovement extends FeatureProcess {
 					details.put(PERMISSIBLE, ">= " + requiredWidth.toString());
 					details.put(PROVIDED, providedWidth.toString());
 					String status = Result.Not_Accepted.getResultVal();
-					if(DxfFileConstants.ALTERATION.equals(serviceType)) {
-						status = Result.Verify.getResultVal();
+					if(DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
+						status = isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal();
 					}else {
 						status = isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal();
 					}

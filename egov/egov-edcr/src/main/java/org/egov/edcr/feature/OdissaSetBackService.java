@@ -510,10 +510,13 @@ public class OdissaSetBackService extends FeatureProcess {
 			else
 				setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
 						data.minFrontProvided.toString(), Result.Not_Accepted, scrutinyDetail);
-		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
-			setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(),
-					data.minFrontExpected.toString() + DxfFileConstants.ALTERATION_MSG1,
-					data.minFrontProvided.toString(), Result.Verify, scrutinyDetail);
+		} else if (DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
+			if (data.minFrontProvided.compareTo(data.minFrontExpected) >= 0)
+				setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
+						data.minFrontProvided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, MIN_FRONT_DESC, data.level.toString(), data.minFrontExpected.toString(),
+						data.minFrontProvided.toString(), Result.Not_Accepted, scrutinyDetail);
 		}
 
 	}
@@ -529,9 +532,13 @@ public class OdissaSetBackService extends FeatureProcess {
 			else
 				setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected,
 						data.minRearProvided.toString(), Result.Not_Accepted, scrutinyDetail);
-		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
-			setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected + DxfFileConstants.ALTERATION_MSG1,
-					data.minRearProvided.toString(), Result.Verify, scrutinyDetail);
+		} else if (DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
+			if (data.minRearProvided.compareTo(data.minRearExpected) >= 0)
+				setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected,
+						data.minRearProvided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, MIN_REAR_DESC, data.level.toString(), expected,
+						data.minRearProvided.toString(), Result.Not_Accepted, scrutinyDetail);
 		}
 	}
 
@@ -546,9 +553,13 @@ public class OdissaSetBackService extends FeatureProcess {
 			else
 				setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected,
 						data.minSide1Provided.toString(), Result.Not_Accepted, scrutinyDetail);
-		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
-			setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected + DxfFileConstants.ALTERATION_MSG1,
-					data.minSide1Provided.toString(), Result.Verify, scrutinyDetail);
+		} else if (DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
+			if (data.minSide1Provided.compareTo(data.minSide1Expected) >= 0)
+				setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected,
+						data.minSide1Provided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, MIN_SIDE1_DESC, data.level.toString(), expected,
+						data.minSide1Provided.toString(), Result.Not_Accepted, scrutinyDetail);
 		}
 	}
 
@@ -563,9 +574,13 @@ public class OdissaSetBackService extends FeatureProcess {
 			else
 				setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected,
 						data.minSide2Provided.toString(), Result.Not_Accepted, scrutinyDetail);
-		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
-			setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected + DxfFileConstants.ALTERATION_MSG1,
-					data.minSide2Provided.toString(), Result.Verify, scrutinyDetail);
+		} else if (DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
+			if (data.minSide2Provided.compareTo(data.minSide2Expected) >= 0)
+				setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected,
+						data.minSide2Provided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, MIN_SIDE2_DESC, data.level.toString(), expected,
+						data.minSide2Provided.toString(), Result.Not_Accepted, scrutinyDetail);
 		}
 	}
 
@@ -581,10 +596,13 @@ public class OdissaSetBackService extends FeatureProcess {
 			else
 				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
 						data.totalCumulativeFrontAndRearProvided.toString(), Result.Not_Accepted, scrutinyDetail);
-		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
-			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(),
-					expected + DxfFileConstants.ALTERATION_MSG1, data.totalCumulativeFrontAndRearProvided.toString(),
-					Result.Verify, scrutinyDetail);
+		} else if (DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
+			if (data.totalCumulativeFrontAndRearProvided.compareTo(data.totalCumulativeFrontAndRearExpected) >= 0)
+				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
+						data.totalCumulativeFrontAndRearProvided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_FRONT_AND_REAR_DESC, data.level.toString(), expected,
+						data.totalCumulativeFrontAndRearProvided.toString(), Result.Not_Accepted, scrutinyDetail);
 		}
 
 	}
@@ -602,10 +620,13 @@ public class OdissaSetBackService extends FeatureProcess {
 			else
 				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
 						data.totalCumulativeSideProvided.toString(), Result.Not_Accepted, scrutinyDetail);
-		} else if (DxfFileConstants.ALTERATION.equals(serviceType)) {
-			setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(),
-					expected + DxfFileConstants.ALTERATION_MSG1, data.totalCumulativeSideProvided.toString(),
-					Result.Verify, scrutinyDetail);
+		} else if (DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
+			if (data.totalCumulativeSideProvided.compareTo(data.totalCumulativeSideExpected) >= 0)
+				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
+						data.totalCumulativeSideProvided.toString(), Result.Accepted, scrutinyDetail);
+			else
+				setReport(RULE_37_TWO_B, TOTAL_CUMULATIVA_SIDE_DESC, data.level.toString(), expected,
+						data.totalCumulativeSideProvided.toString(), Result.Not_Accepted, scrutinyDetail);
 		}
 	}
 

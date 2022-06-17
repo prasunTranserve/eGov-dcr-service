@@ -243,7 +243,7 @@ public class DoorWays extends FeatureProcess {
 	
 	private boolean isGeneralDoorwaysRequired(Plan pl,Floor floor,String serviceType) {
 		boolean isGeneralDoorwaysRequired = true;
-		if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+		if (DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
 			isGeneralDoorwaysRequired = false;
 			BigDecimal totalBuildUpArea = floor.getOccupancies().stream().map( oc -> oc.getBuiltUpArea()).reduce(BigDecimal::add).orElse(BigDecimal.ZERO); 
 			BigDecimal totalExistingArea = floor.getOccupancies().stream().map( oc -> oc.getExistingBuiltUpArea()).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
