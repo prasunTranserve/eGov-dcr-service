@@ -846,20 +846,18 @@ public class OdishaUtill {
 		}
 	}
 
-	
 	public static void validateRestricatedOccupancies(Plan pl) {
-		//SPARIT Industry Check
-				OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
-				if(ulb.isSparitFlag()) {
-					OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-				System.out.println("occupancy:"+occupancyTypeHelper.getType().getCode());
-				if(DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(occupancyTypeHelper.getType().getCode())) {
-					pl.addError("occupancyError",
-							"Industry is not allowed in this area");
-				}
-					
-				}
+		// SPARIT Industry Check
+		OdishaUlbs ulb = OdishaUlbs.getUlb(pl.getThirdPartyUserTenantld());
+		if (ulb.isSparitFlag()) {
+			OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+			System.out.println("occupancy:" + occupancyTypeHelper.getType().getCode());
+			if (DxfFileConstants.OC_INDUSTRIAL_ZONE.equals(occupancyTypeHelper.getType().getCode())) {
+				pl.addError("occupancyError", "Industry is not allowed in this area");
+			}
 
+		}
+	}
 
 	public static BigDecimal getStiltArea(Plan plan) {
 		BigDecimal area = BigDecimal.ZERO;
