@@ -974,7 +974,7 @@ public class PlanReportService {
 		//Map<String, String> serviceTypeList = DxfFileConstants.getServiceTypeList();
 		Map<String, String> serviceTypeList = new ConcurrentHashMap<>();
 		serviceTypeList.put("NEW_CONSTRUCTION", "New Construction");
-		serviceTypeList.put("ALTERATION", "Alteration");
+		serviceTypeList.put("ALTERATION", "Addition and Alteration");
 
 		if (StringUtils.isNotBlank(dcrApplication.getServiceType())) {
 			String serviceType = serviceTypeList.get(dcrApplication.getServiceType());

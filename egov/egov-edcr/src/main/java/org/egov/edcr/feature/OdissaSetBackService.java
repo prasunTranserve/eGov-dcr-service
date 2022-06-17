@@ -104,7 +104,11 @@ public class OdissaSetBackService extends FeatureProcess {
 
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		String serviceType = pl.getPlanInformation().getServiceType();
-
+		String scrutinyDetailKey = "Setback";
+		if(DxfFileConstants.ADDITION_AND_ALTERATION.equals(serviceType)) {
+			scrutinyDetailKey = "Setback - Proposed";
+			setbackExisting(pl);
+		}
 		for (Block block : pl.getBlocks()) {
 			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 			scrutinyDetail.addColumnHeading(1, RULE_NO);
@@ -113,7 +117,7 @@ public class OdissaSetBackService extends FeatureProcess {
 			scrutinyDetail.addColumnHeading(3, PERMISSIBLE);
 			scrutinyDetail.addColumnHeading(4, PROVIDED);
 			scrutinyDetail.addColumnHeading(5, STATUS);
-			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + "Setback");
+			scrutinyDetail.setKey("Block_" + block.getNumber() + "_" + scrutinyDetailKey);
 
 			for (SetBack setBack : block.getSetBacks()) {
 				SetBackData data = prepareSetback(pl, block, setBack);
@@ -640,6 +644,73 @@ public class OdissaSetBackService extends FeatureProcess {
 		details.put(PROVIDED, provided);
 		details.put(STATUS, result.getResultVal());
 		scrutinyDetail.getDetail().add(details);
+	}
+	
+	private void setbackExisting(Plan pl) {
+		String scrutinyDetailKey = "Setback - Existing";
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.addColumnHeading(1, RULE_NO);
+		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail.addColumnHeading(3, PROVIDED);
+		scrutinyDetail.addColumnHeading(5, STATUS);
+		for(Block block:pl.getBlocks()) {
+			String blkNumber = block.getNumber();
+			scrutinyDetail.setKey("Block_" + blkNumber + "_" + scrutinyDetailKey);
+			
+			//Front
+			String frontSetBack = getPlanInfoKey(pl, String.format(DxfFileConstants.SETBACK_FRONT_EXISTING, blkNumber));
+			Map<String, String> frontDeatils = new HashMap<>();
+			frontDeatils.put(RULE_NO,RULE_37_TWO_B);
+			frontDeatils.put(DESCRIPTION, "Front setback");
+			frontDeatils.put(PROVIDED, frontSetBack);
+			frontDeatils.put(STATUS, Result.Verify.getResultVal());
+			scrutinyDetail.getDetail().add(frontDeatils);
+			
+			//Rear
+			String rearSetBack = getPlanInfoKey(pl, String.format(DxfFileConstants.SETBACK_REAR_EXISTING, blkNumber));
+			Map<String, String> rearDeatils = new HashMap<>();
+			rearDeatils.put(RULE_NO,RULE_37_TWO_B);
+			rearDeatils.put(DESCRIPTION, "Rear setback");
+			rearDeatils.put(PROVIDED, rearSetBack);
+			rearDeatils.put(STATUS, Result.Verify.getResultVal());
+			scrutinyDetail.getDetail().add(rearDeatils);
+			
+			//Left
+			String leftSetBack = getPlanInfoKey(pl, String.format(DxfFileConstants.SETBACK_LEFT_EXISTING, blkNumber));
+			Map<String, String> leftDeatils = new HashMap<>();
+			leftDeatils.put(RULE_NO,RULE_37_TWO_B);
+			leftDeatils.put(DESCRIPTION, "Left setback");
+			leftDeatils.put(PROVIDED, leftSetBack);
+			leftDeatils.put(STATUS, Result.Verify.getResultVal());
+			scrutinyDetail.getDetail().add(leftDeatils);
+			
+			
+			//Right
+			String rightSetBack = getPlanInfoKey(pl, String.format(DxfFileConstants.SETBACK_RIGHT_EXISTING, blkNumber));
+			Map<String, String> rightDeatils = new HashMap<>();
+			rightDeatils.put(RULE_NO,RULE_37_TWO_B);
+			rightDeatils.put(DESCRIPTION, "Right setback");
+			rightDeatils.put(PROVIDED, rightSetBack);
+			rightDeatils.put(STATUS, Result.Verify.getResultVal());
+			scrutinyDetail.getDetail().add(rightDeatils);
+			
+		}
+		
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+	}
+	
+	private String getPlanInfoKey(Plan pl,String key) {
+		String value = DxfFileConstants.NA;
+		String v = pl.getPlanInfoProperties().get(key);
+		if(!DxfFileConstants.NA.equalsIgnoreCase(v)) {
+			try {
+				value = (new BigDecimal(v)).toString();
+				value = v;
+			}catch (Exception e) {
+				pl.addError(key, key+" is invalid in planinfo layer.");
+			}
+		}
+		return value;
 	}
 
 	@Override
