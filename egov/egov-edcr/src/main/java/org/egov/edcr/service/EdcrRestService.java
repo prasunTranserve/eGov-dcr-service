@@ -53,12 +53,14 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -66,6 +68,7 @@ import javax.persistence.PersistenceContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.egov.common.entity.dcr.helper.EdcrApplicationInfo;
 import org.egov.common.entity.dcr.helper.ErrorDetail;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.PlanInformation;
@@ -74,6 +77,7 @@ import org.egov.edcr.config.properties.EdcrApplicationSettings;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.contract.EdcrDetail;
 import org.egov.edcr.contract.EdcrRequest;
+import org.egov.edcr.contract.PermitOrderRequest;
 import org.egov.edcr.entity.ApplicationType;
 import org.egov.edcr.entity.EdcrApplication;
 import org.egov.edcr.entity.EdcrApplicationDetail;
@@ -81,6 +85,10 @@ import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.admin.master.entity.City;
 import org.egov.infra.admin.master.service.CityService;
 import org.egov.infra.config.core.ApplicationThreadLocals;
+import org.egov.infra.custom.CustomImplProvider;
+import org.egov.infra.exception.ApplicationRuntimeException;
+import org.egov.infra.filestore.entity.FileStoreMapper;
+import org.egov.infra.filestore.repository.FileStoreMapperRepository;
 import org.egov.infra.filestore.service.FileStoreService;
 import org.egov.infra.microservice.contract.RequestInfoWrapper;
 import org.egov.infra.microservice.contract.ResponseInfo;
@@ -107,597 +115,662 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 @Transactional(readOnly = true)
 public class EdcrRestService {
-    private static final String MSG_UNQ_TRANSACTION_NUMBER = "Transaction Number should be unique";
+	private static final String MSG_UNQ_TRANSACTION_NUMBER = "Transaction Number should be unique";
 
-    private static final String REQ_BODY_REQUIRED = "Required request body is missing";
+	private static final String REQ_BODY_REQUIRED = "Required request body is missing";
 
-    private static final String USER_ID_IS_MANDATORY = "User id is mandatory";
+	private static final String USER_ID_IS_MANDATORY = "User id is mandatory";
 
-    private static final String BPA_01 = "BPA-01";
+	private static final String BPA_01 = "BPA-01";
 
-    private static final String BPA_07 = "BPA-07";
+	private static final String BPA_07 = "BPA-07";
 
-    private static final String BPA_05 = "BPA-05";
+	private static final String BPA_05 = "BPA-05";
 
-    private static Logger LOG = Logger.getLogger(EdcrApplicationService.class);
+	private static Logger LOG = Logger.getLogger(EdcrApplicationService.class);
 
-    public static final String FILE_DOWNLOAD_URL = "%s/edcr/rest/dcr/downloadfile/";
+	public static final String FILE_DOWNLOAD_URL = "%s/edcr/rest/dcr/downloadfile/";
 
-    @Autowired
-    protected SecurityUtils securityUtils;
+	@Autowired
+	protected SecurityUtils securityUtils;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+	@PersistenceContext
+	private EntityManager entityManager;
 
-    @Autowired
-    private EdcrApplicationSettings edcrApplicationSettings;
+	@Autowired
+	private EdcrApplicationSettings edcrApplicationSettings;
 
-    @Autowired
-    private EdcrApplicationService edcrApplicationService;
+	@Autowired
+	private EdcrApplicationService edcrApplicationService;
 
-    @Autowired
-    private FileStoreService fileStoreService;
+	@Autowired
+	private FileStoreService fileStoreService;
 
-    @Autowired
-    private TenantUtils tenantUtils;
+	@Autowired
+	private TenantUtils tenantUtils;
 
-    @Autowired
-    private CityService cityService;
+	@Autowired
+	private CityService cityService;
 
-    @Autowired
-    private MdmsConfiguration mdmsConfiguration;
-    
-    @Autowired 
-    private OcComparisonService ocComparisonService;
-    
-    @Autowired
-    private EdcrApplicationDetailService applicationDetailService;
-    
-    @Value("${download.url.support.flage}")
-    private boolean downloadUrlSupportFlage;
-    
-    public Session getCurrentSession() {
-        return entityManager.unwrap(Session.class);
-    }
+	@Autowired
+	private MdmsConfiguration mdmsConfiguration;
 
-    @Transactional
-    public EdcrDetail createEdcr(final EdcrRequest edcrRequest, final MultipartFile file, Map<String, List<Object>> masterData ) {
-        EdcrApplication edcrApplication = new EdcrApplication();
-        edcrApplication.setMdmsMasterData(masterData);
-        EdcrApplicationDetail edcrApplicationDetail = new EdcrApplicationDetail();
-        if (ApplicationType.OCCUPANCY_CERTIFICATE.toString()
-                .equalsIgnoreCase(edcrRequest.getAppliactionType())) {
-            edcrApplicationDetail.setComparisonDcrNumber(edcrRequest.getComparisonEdcrNumber());
-        }
-        List<EdcrApplicationDetail> edcrApplicationDetails = new ArrayList<>();
-        edcrApplicationDetails.add(edcrApplicationDetail);
-        edcrApplication.setTransactionNumber(edcrRequest.getTransactionNumber());
-        if (isNotBlank(edcrRequest.getApplicantName()))
-            edcrApplication.setApplicantName(edcrRequest.getApplicantName());
-        else
-            edcrApplication.setApplicantName(DxfFileConstants.ANONYMOUS_APPLICANT);
-        edcrApplication.setArchitectInformation(DxfFileConstants.ANONYMOUS_APPLICANT);
-        edcrApplication.setServiceType(edcrRequest.getApplicationSubType());
-        if(edcrRequest.getAppliactionType()==null)
-        edcrApplication.setApplicationType(ApplicationType.PERMIT);
-        else
-         edcrApplication.setApplicationType(ApplicationType.valueOf(edcrRequest.getAppliactionType()));
-        if(edcrRequest.getPermitNumber()!=null)
-            edcrApplication.setPlanPermitNumber(edcrRequest.getPermitNumber());
-        
-        
-        if(edcrRequest.getPermitDate()!=null)
-        {
-            edcrApplication.setApplicationDate(edcrRequest.getPermitDate());
-            edcrApplication.setPermitApplicationDate(edcrRequest.getPermitDate());
-        }
-       
-        edcrApplication.setEdcrApplicationDetails(edcrApplicationDetails);
-        edcrApplication.setDxfFile(file);
+	@Autowired
+	private OcComparisonService ocComparisonService;
 
-        if (edcrRequest.getRequestInfo() != null && edcrRequest.getRequestInfo().getUserInfo() != null) {
-            edcrApplication.setThirdPartyUserCode(isNotBlank(edcrRequest.getRequestInfo().getUserInfo().getId())
-                    ? edcrRequest.getRequestInfo().getUserInfo().getId()
-                    : StringUtils.EMPTY);
-            edcrApplication
-                    .setThirdPartyUserTenant(StringUtils.isNotBlank(edcrRequest.getTenantId())
-                            ? edcrRequest.getTenantId()
-                            : edcrRequest.getRequestInfo().getUserInfo().getTenantId());
-        }
+	@Autowired
+	private EdcrApplicationDetailService applicationDetailService;
 
-        edcrApplication = edcrApplicationService.createRestEdcr(edcrApplication);
-        return setEdcrResponse(edcrApplication.getEdcrApplicationDetails().get(0), edcrRequest);
-    }
+	@Autowired
+	private EdcrExternalService edcrExternalService;
 
-    @Transactional
-    public List<EdcrDetail> edcrDetailsResponse(List<EdcrApplicationDetail> edcrApplications, EdcrRequest edcrRequest) {
-        List<EdcrDetail> edcrDetails = new ArrayList<>();
-        for (EdcrApplicationDetail edcrApp : edcrApplications)
-            edcrDetails.add(setEdcrResponse(edcrApp, edcrRequest));
+	@Value("${download.url.support.flage}")
+	private boolean downloadUrlSupportFlage;
 
-        return edcrDetails;
-    }
+	@Autowired
+	private CustomImplProvider specificRuleService;
 
-    public EdcrDetail setEdcrResponse(EdcrApplicationDetail edcrApplnDtl, EdcrRequest edcrRequest) {
-        EdcrDetail edcrDetail = new EdcrDetail();
-        List<String> planPdfs = new ArrayList<>();
-        edcrDetail.setTransactionNumber(edcrApplnDtl.getApplication().getTransactionNumber());
-        LOG.info("edcr number == " + edcrApplnDtl.getDcrNumber());
-        edcrDetail.setEdcrNumber(edcrApplnDtl.getDcrNumber());
-        edcrDetail.setStatus(edcrApplnDtl.getStatus());
-        LOG.info("application number ==" + edcrApplnDtl.getApplication().getApplicationNumber());
-        edcrDetail.setApplicationNumber(edcrApplnDtl.getApplication().getApplicationNumber());
-        edcrDetail.setApplicationDate(edcrApplnDtl.getApplication().getApplicationDate());
+	@Autowired
+	private FileStoreMapperRepository fileStoreMapperRepository;
 
-        if (edcrApplnDtl.getApplication().getPlanPermitNumber() != null) {
-            edcrDetail.setPermitNumber(edcrApplnDtl.getApplication().getPlanPermitNumber());
-        }
-        if (edcrApplnDtl.getApplication().getPermitApplicationDate() != null) {
-            edcrDetail.setPermitDate(edcrApplnDtl.getApplication().getPermitApplicationDate());
-        }
-        ApplicationType applicationType = edcrApplnDtl.getApplication().getApplicationType();
-        if (applicationType != null) {
-            Boolean mdmsEnabled = mdmsConfiguration.getMdmsEnabled();
-            if (mdmsEnabled != null && mdmsEnabled) {
-                if (ApplicationType.PERMIT.getApplicationTypeVal()
-                        .equalsIgnoreCase(edcrApplnDtl.getApplication().getApplicationType().getApplicationTypeVal())) {
-                    edcrDetail.setAppliactionType("BUILDING_PLAN_SCRUTINY");
-                } else {
-                    edcrDetail.setAppliactionType("BUILDING_OC_PLAN_SCRUTINY");
-                }
-            } else
-                edcrDetail.setAppliactionType(applicationType.getApplicationTypeVal());
+	public Session getCurrentSession() {
+		return entityManager.unwrap(Session.class);
+	}
 
-        }
-        if (edcrApplnDtl.getApplication().getServiceType() != null)
-            edcrDetail.setApplicationSubType(edcrApplnDtl.getApplication().getServiceType());
-        
-        if (edcrApplnDtl.getDxfFileId() != null)
-            edcrDetail.setDxfFile(
-                    format(getFileDownloadUrl(
-                            edcrApplnDtl.getDxfFileId().getFileStoreId(),
-                            ApplicationThreadLocals.getTenantID())));
+	@Transactional
+	public EdcrDetail createEdcr(final EdcrRequest edcrRequest, final MultipartFile file,
+			Map<String, List<Object>> masterData) {
+		EdcrApplication edcrApplication = new EdcrApplication();
+		edcrApplication.setMdmsMasterData(masterData);
+		EdcrApplicationDetail edcrApplicationDetail = new EdcrApplicationDetail();
+		if (ApplicationType.OCCUPANCY_CERTIFICATE.toString().equalsIgnoreCase(edcrRequest.getAppliactionType())) {
+			edcrApplicationDetail.setComparisonDcrNumber(edcrRequest.getComparisonEdcrNumber());
+		}
+		List<EdcrApplicationDetail> edcrApplicationDetails = new ArrayList<>();
+		edcrApplicationDetails.add(edcrApplicationDetail);
+		edcrApplication.setTransactionNumber(edcrRequest.getTransactionNumber());
+		if (isNotBlank(edcrRequest.getApplicantName()))
+			edcrApplication.setApplicantName(edcrRequest.getApplicantName());
+		else
+			edcrApplication.setApplicantName(DxfFileConstants.ANONYMOUS_APPLICANT);
+		edcrApplication.setArchitectInformation(DxfFileConstants.ANONYMOUS_APPLICANT);
+		edcrApplication.setServiceType(edcrRequest.getApplicationSubType());
+		if (edcrRequest.getAppliactionType() == null)
+			edcrApplication.setApplicationType(ApplicationType.PERMIT);
+		else
+			edcrApplication.setApplicationType(ApplicationType.valueOf(edcrRequest.getAppliactionType()));
+		if (edcrRequest.getPermitNumber() != null)
+			edcrApplication.setPlanPermitNumber(edcrRequest.getPermitNumber());
 
-        if (edcrApplnDtl.getScrutinizedDxfFileId() != null)
-            edcrDetail.setUpdatedDxfFile(
-                    format(getFileDownloadUrl(
-                            edcrApplnDtl.getScrutinizedDxfFileId().getFileStoreId(),
-                            ApplicationThreadLocals.getTenantID())));
-
-        if (edcrApplnDtl.getReportOutputId() != null)
-            edcrDetail.setPlanReport(format(
-                    getFileDownloadUrl(edcrApplnDtl.getReportOutputId().getFileStoreId(),
-                            ApplicationThreadLocals.getTenantID())));
-        
-        if(edcrApplnDtl.getShortenedreportOutputId() != null) {
-			edcrDetail.setShortenedPlanReport(format(getFileDownloadUrl(edcrApplnDtl.getShortenedreportOutputId().getFileStoreId(),
-					ApplicationThreadLocals.getTenantID())));
-		}else {
-			 edcrDetail.setShortenedPlanReport(edcrDetail.getPlanReport());
+		if (edcrRequest.getPermitDate() != null) {
+			edcrApplication.setApplicationDate(edcrRequest.getPermitDate());
+			edcrApplication.setPermitApplicationDate(edcrRequest.getPermitDate());
 		}
 
-        File file = edcrApplnDtl.getPlanDetailFileStore() != null ? fileStoreService.fetch(
-                edcrApplnDtl.getPlanDetailFileStore().getFileStoreId(),
-                DcrConstants.APPLICATION_MODULE_TYPE) : null;
+		edcrApplication.setEdcrApplicationDetails(edcrApplicationDetails);
+		edcrApplication.setDxfFile(file);
 
-        if (LOG.isInfoEnabled())
-            LOG.info("**************** End - Reading Plan detail file **************" + file);
-        try {
-            if (file == null) {
-                Plan pl1 = new Plan();
-                PlanInformation pi = new PlanInformation();
-                pi.setApplicantName(edcrApplnDtl.getApplication().getApplicantName());
-                pl1.setPlanInformation(pi);
-                edcrDetail.setPlanDetail(pl1);
-            } else {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                Plan pl1 = mapper.readValue(file, Plan.class);
-                pl1.getPlanInformation().setApplicantName(edcrApplnDtl.getApplication().getApplicantName());
-                if (LOG.isInfoEnabled())
-                    LOG.info("**************** Plan detail object **************" + pl1);
-                edcrDetail.setPlanDetail(pl1);
-            }
-        } catch (IOException e) {
-            LOG.log(Level.ERROR, e);
-        }
+		if (edcrRequest.getRequestInfo() != null && edcrRequest.getRequestInfo().getUserInfo() != null) {
+			edcrApplication.setThirdPartyUserCode(isNotBlank(edcrRequest.getRequestInfo().getUserInfo().getId())
+					? edcrRequest.getRequestInfo().getUserInfo().getId()
+					: StringUtils.EMPTY);
+			edcrApplication.setThirdPartyUserTenant(
+					StringUtils.isNotBlank(edcrRequest.getTenantId()) ? edcrRequest.getTenantId()
+							: edcrRequest.getRequestInfo().getUserInfo().getTenantId());
+		}
 
-        if (edcrApplnDtl.getDxfFileId() != null)
-            planPdfs.add(
-                    format(getFileDownloadUrl(
-                            edcrApplnDtl.getDxfFileId().getFileStoreId(),
-                            ApplicationThreadLocals.getTenantID())));
+		edcrApplication = edcrApplicationService.createRestEdcr(edcrApplication);
+		return setEdcrResponse(edcrApplication.getEdcrApplicationDetails().get(0), edcrRequest);
+	}
 
-        if (edcrApplnDtl.getReportOutputId() != null)
-            planPdfs.add(format(
-                    getFileDownloadUrl(edcrApplnDtl.getReportOutputId().getFileStoreId(),
-                            ApplicationThreadLocals.getTenantID())));
+	@Transactional
+	public List<EdcrDetail> edcrDetailsResponse(List<EdcrApplicationDetail> edcrApplications, EdcrRequest edcrRequest) {
+		List<EdcrDetail> edcrDetails = new ArrayList<>();
+		for (EdcrApplicationDetail edcrApp : edcrApplications)
+			edcrDetails.add(setEdcrResponse(edcrApp, edcrRequest));
 
-        edcrDetail.setPlanPdfs(planPdfs);
-        edcrDetail.setTenantId(edcrRequest.getTenantId());
-        
-        if(StringUtils.isNotBlank(edcrRequest.getComparisonEdcrNumber()))
-        edcrDetail.setComparisonEdcrNumber(edcrRequest.getComparisonEdcrNumber());
-        
-        if (!edcrApplnDtl.getStatus().equalsIgnoreCase("Accepted"))
-            edcrDetail.setStatus(edcrApplnDtl.getStatus());
+		return edcrDetails;
+	}
 
-        return edcrDetail;
-    }
+	public EdcrDetail setEdcrResponse(EdcrApplicationDetail edcrApplnDtl, EdcrRequest edcrRequest) {
+		EdcrDetail edcrDetail = new EdcrDetail();
+		List<String> planPdfs = new ArrayList<>();
+		edcrDetail.setTransactionNumber(edcrApplnDtl.getApplication().getTransactionNumber());
+		LOG.info("edcr number == " + edcrApplnDtl.getDcrNumber());
+		edcrDetail.setEdcrNumber(edcrApplnDtl.getDcrNumber());
+		edcrDetail.setStatus(edcrApplnDtl.getStatus());
+		LOG.info("application number ==" + edcrApplnDtl.getApplication().getApplicationNumber());
+		edcrDetail.setApplicationNumber(edcrApplnDtl.getApplication().getApplicationNumber());
+		edcrDetail.setApplicationDate(edcrApplnDtl.getApplication().getApplicationDate());
 
-    public EdcrDetail setEdcrResponseForAcrossTenants(Object[] applnDtls, String stateCityCode) {
-        EdcrDetail edcrDetail = new EdcrDetail();
-        edcrDetail.setTransactionNumber(String.valueOf(applnDtls[1]));
-        edcrDetail.setEdcrNumber(String.valueOf(applnDtls[2]));
-        edcrDetail.setStatus(String.valueOf(applnDtls[3]));
-        edcrDetail.setApplicationDate(new LocalDate(String.valueOf(applnDtls[9])).toDate());
-        edcrDetail.setApplicationNumber(String.valueOf(applnDtls[10]));
+		if (edcrApplnDtl.getApplication().getPlanPermitNumber() != null) {
+			edcrDetail.setPermitNumber(edcrApplnDtl.getApplication().getPlanPermitNumber());
+		}
+		if (edcrApplnDtl.getApplication().getPermitApplicationDate() != null) {
+			edcrDetail.setPermitDate(edcrApplnDtl.getApplication().getPermitApplicationDate());
+		}
+		ApplicationType applicationType = edcrApplnDtl.getApplication().getApplicationType();
+		if (applicationType != null) {
+			Boolean mdmsEnabled = mdmsConfiguration.getMdmsEnabled();
+			if (mdmsEnabled != null && mdmsEnabled) {
+				if (ApplicationType.PERMIT.getApplicationTypeVal()
+						.equalsIgnoreCase(edcrApplnDtl.getApplication().getApplicationType().getApplicationTypeVal())) {
+					edcrDetail.setAppliactionType("BUILDING_PLAN_SCRUTINY");
+				} else {
+					edcrDetail.setAppliactionType("BUILDING_OC_PLAN_SCRUTINY");
+				}
+			} else
+				edcrDetail.setAppliactionType(applicationType.getApplicationTypeVal());
 
-       
-        if (String.valueOf(applnDtls[5]) != null)
-            edcrDetail.setDxfFile(
-                    format(getFileDownloadUrl(String.valueOf(applnDtls[5]), String.valueOf(applnDtls[0]))));
+		}
+		if (edcrApplnDtl.getApplication().getServiceType() != null)
+			edcrDetail.setApplicationSubType(edcrApplnDtl.getApplication().getServiceType());
 
-        if (String.valueOf(applnDtls[6]) != null)
-            edcrDetail.setUpdatedDxfFile(
-                    format(getFileDownloadUrl(String.valueOf(applnDtls[6]), String.valueOf(applnDtls[0]))));
+		if (edcrApplnDtl.getDxfFileId() != null)
+			edcrDetail.setDxfFile(format(getFileDownloadUrl(edcrApplnDtl.getDxfFileId().getFileStoreId(),
+					ApplicationThreadLocals.getTenantID())));
 
-        if (String.valueOf(applnDtls[7]) != null)
-            edcrDetail.setPlanReport(format(
-                    getFileDownloadUrl(String.valueOf(applnDtls[7]), String.valueOf(applnDtls[0]))));
-        Plan pl1 = new Plan();
-        PlanInformation pi = new PlanInformation();
-        pi.setApplicantName(String.valueOf(applnDtls[4]));
-        pl1.setPlanInformation(pi);
-        edcrDetail.setPlanDetail(pl1);
+		if (edcrApplnDtl.getScrutinizedDxfFileId() != null)
+			edcrDetail.setUpdatedDxfFile(format(getFileDownloadUrl(
+					edcrApplnDtl.getScrutinizedDxfFileId().getFileStoreId(), ApplicationThreadLocals.getTenantID())));
 
-        edcrDetail.setTenantId(stateCityCode.concat(".").concat(String.valueOf(applnDtls[0])));
+		if (edcrApplnDtl.getReportOutputId() != null)
+			edcrDetail.setPlanReport(format(getFileDownloadUrl(edcrApplnDtl.getReportOutputId().getFileStoreId(),
+					ApplicationThreadLocals.getTenantID())));
 
-        if (!String.valueOf(applnDtls[3]).equalsIgnoreCase("Accepted"))
-            edcrDetail.setStatus(String.valueOf(applnDtls[3]));
+		if (edcrApplnDtl.getShortenedreportOutputId() != null) {
+			edcrDetail.setShortenedPlanReport(
+					format(getFileDownloadUrl(edcrApplnDtl.getShortenedreportOutputId().getFileStoreId(),
+							ApplicationThreadLocals.getTenantID())));
+		} else {
+			edcrDetail.setShortenedPlanReport(edcrDetail.getPlanReport());
+		}
 
-        return edcrDetail;
-    }
+		File file = edcrApplnDtl.getPlanDetailFileStore() != null
+				? fileStoreService.fetch(edcrApplnDtl.getPlanDetailFileStore().getFileStoreId(),
+						DcrConstants.APPLICATION_MODULE_TYPE)
+				: null;
 
-    public List<EdcrDetail> fetchEdcr(final EdcrRequest edcrRequest, final RequestInfoWrapper reqInfoWrapper) {
-        List<EdcrApplicationDetail> edcrApplications = new ArrayList<>();
-        UserInfo userInfo = reqInfoWrapper.getRequestInfo() == null ? null : reqInfoWrapper.getRequestInfo().getUserInfo();
-        boolean onlyTenantId = edcrRequest != null && isBlank(edcrRequest.getEdcrNumber())
-                && isBlank(edcrRequest.getTransactionNumber())
-                && isBlank(edcrRequest.getAppliactionType())
-                && isBlank(edcrRequest.getApplicationSubType())
-                && isNotBlank(edcrRequest.getTenantId());
-        
-        City stateCity = cityService.fetchStateCityDetails();
-        if (edcrRequest != null && edcrRequest.getTenantId().equalsIgnoreCase(stateCity.getCode())) {
-            final Map<String, String> params = new ConcurrentHashMap<>();
-            Map<String, String> tenants = tenantUtils.tenantsMap();
-            StringBuilder queryStr = new StringBuilder();
-            Iterator<Map.Entry<String, String>> tenantItr = tenants.entrySet().iterator();
-            while (tenantItr.hasNext()) {
-                Map.Entry<String, String> value = tenantItr.next();
-                queryStr.append("(select '")
-                        .append(value.getKey())
-                        .append("' as tenantId,appln.transactionNumber,dtl.dcrNumber,dtl.status,appln.applicantName,dxf.fileStoreId as dxfFileId,scrudxf.fileStoreId as scrutinizedDxfFileId,rofile.fileStoreId as reportOutputId,pdfile.fileStoreId as planDetailFileStore,appln.applicationDate,appln.applicationNumber from ")
-                        .append(value.getKey())
-                        .append(".edcr_application appln, ")
-                        .append(value.getKey())
-                        .append(".edcr_application_detail dtl, ")
-                        .append(value.getKey())
-                        .append(".eg_filestoremap dxf, ")
-                        .append(value.getKey())
-                        .append(".eg_filestoremap scrudxf, ")
-                        .append(value.getKey())
-                        .append(".eg_filestoremap rofile, ")
-                        .append(value.getKey())
-                        .append(".eg_filestoremap pdfile ")
-                        .append("where appln.id = dtl.application and dtl.dxfFileId=dxf.id and dtl.scrutinizedDxfFileId=scrudxf.id and dtl.reportOutputId=rofile.id and dtl.planDetailFileStore=pdfile.id ");
+		if (LOG.isInfoEnabled())
+			LOG.info("**************** End - Reading Plan detail file **************" + file);
+		try {
+			if (file == null) {
+				Plan pl1 = new Plan();
+				PlanInformation pi = new PlanInformation();
+				pi.setApplicantName(edcrApplnDtl.getApplication().getApplicantName());
+				pl1.setPlanInformation(pi);
+				edcrDetail.setPlanDetail(pl1);
+			} else {
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+				Plan pl1 = mapper.readValue(file, Plan.class);
+				pl1.getPlanInformation().setApplicantName(edcrApplnDtl.getApplication().getApplicantName());
+				if (LOG.isInfoEnabled())
+					LOG.info("**************** Plan detail object **************" + pl1);
+				edcrDetail.setPlanDetail(pl1);
+			}
+		} catch (IOException e) {
+			LOG.log(Level.ERROR, e);
+		}
 
-                if (isNotBlank(edcrRequest.getEdcrNumber())) {
-                    queryStr.append("and dtl.dcrNumber=:dcrNumber ");
-                    params.put("dcrNumber", edcrRequest.getEdcrNumber());
-                }
+		if (edcrApplnDtl.getDxfFileId() != null)
+			planPdfs.add(format(getFileDownloadUrl(edcrApplnDtl.getDxfFileId().getFileStoreId(),
+					ApplicationThreadLocals.getTenantID())));
 
-                if (isNotBlank(edcrRequest.getTransactionNumber())) {
-                    queryStr.append("and appln.transactionNumber=:transactionNumber ");
-                    params.put("transactionNumber", edcrRequest.getTransactionNumber());
-                }
+		if (edcrApplnDtl.getReportOutputId() != null)
+			planPdfs.add(format(getFileDownloadUrl(edcrApplnDtl.getReportOutputId().getFileStoreId(),
+					ApplicationThreadLocals.getTenantID())));
 
-                if (onlyTenantId && userInfo != null && isNotBlank(userInfo.getId())) {
-                    queryStr.append("and appln.thirdPartyUserCode=:thirdPartyUserCode ");
-                    params.put("thirdPartyUserCode", userInfo.getId());
-                }
-                
-                String appliactionType = edcrRequest.getAppliactionType();
-                if (isNotBlank(appliactionType)) {
-                    ApplicationType applicationType = null;
-                    if ("BUILDING_PLAN_SCRUTINY".equalsIgnoreCase(appliactionType)) {
-                        applicationType = ApplicationType.PERMIT;
-                    } else if ("BUILDING_OC_PLAN_SCRUTINY".equalsIgnoreCase(appliactionType)) {
-                        applicationType = ApplicationType.OCCUPANCY_CERTIFICATE;
-                    } else if ("Permit".equalsIgnoreCase(appliactionType)) {
-                        applicationType = ApplicationType.PERMIT;
-                    } else if ("Occupancy certificate".equalsIgnoreCase(appliactionType)) {
-                        applicationType = ApplicationType.OCCUPANCY_CERTIFICATE;
-                    }
-                    queryStr.append("and appln.applicationType=:applicationtype ");
-                    params.put("applicationtype", applicationType.toString());
-                }
+		edcrDetail.setPlanPdfs(planPdfs);
+		edcrDetail.setTenantId(edcrRequest.getTenantId());
 
-                if (isNotBlank(edcrRequest.getApplicationSubType())) {
-                    queryStr.append("and appln.serviceType=:servicetype ");
-                    params.put("servicetype", edcrRequest.getApplicationSubType());
-                }
-                
-                queryStr.append(" order by appln.createddate desc)");
-                if (tenantItr.hasNext()) {
-                    queryStr.append(" union ");
-                }
-            }
+		if (StringUtils.isNotBlank(edcrRequest.getComparisonEdcrNumber()))
+			edcrDetail.setComparisonEdcrNumber(edcrRequest.getComparisonEdcrNumber());
 
-            final Query query = getCurrentSession().createSQLQuery(queryStr.toString());
-            for (final Map.Entry<String, String> param : params.entrySet())
-                query.setParameter(param.getKey(), param.getValue());
-            List<Object[]> applns = query.list();
-            if (applns.isEmpty()) {
-                EdcrDetail edcrDetail = new EdcrDetail();
-                edcrDetail.setErrors("No Record Found");
-                return Arrays.asList(edcrDetail);
-            } else {
-                List<EdcrDetail> edcrDetails2 = new ArrayList<>();
-                for (Object[] appln : applns)
-                    edcrDetails2.add(setEdcrResponseForAcrossTenants(appln, stateCity.getCode()));
-                return edcrDetails2;
-            }
-        } else {
-            final Criteria criteria = getCurrentSession().createCriteria(EdcrApplicationDetail.class, "edcrApplicationDetail");
-            criteria.createAlias("edcrApplicationDetail.application", "application");
-            if (edcrRequest != null && isNotBlank(edcrRequest.getEdcrNumber())) {
-                criteria.add(Restrictions.eq("edcrApplicationDetail.dcrNumber", edcrRequest.getEdcrNumber()));
-            }
-            if (edcrRequest != null && isNotBlank(edcrRequest.getTransactionNumber())) {
-                criteria.add(Restrictions.eq("application.transactionNumber", edcrRequest.getTransactionNumber()));
-            }
-            
-            
-            String appliactionType = edcrRequest.getAppliactionType();
-            
-            if (edcrRequest != null && isNotBlank(appliactionType)) {
-                ApplicationType applicationType = null;
-                if ("BUILDING_PLAN_SCRUTINY".equalsIgnoreCase(appliactionType)) {
-                    applicationType = ApplicationType.PERMIT;
-                } else if ("BUILDING_OC_PLAN_SCRUTINY".equalsIgnoreCase(appliactionType)) {
-                    applicationType = ApplicationType.OCCUPANCY_CERTIFICATE;
-                }
-                if ("Permit".equalsIgnoreCase(appliactionType)) {
-                    applicationType = ApplicationType.PERMIT;
-                } else if ("Occupancy certificate".equalsIgnoreCase(appliactionType)) {
-                    applicationType = ApplicationType.OCCUPANCY_CERTIFICATE;
-                }
-                criteria.add(Restrictions.eq("application.applicationType", applicationType));
-            }
+		if (!edcrApplnDtl.getStatus().equalsIgnoreCase("Accepted"))
+			edcrDetail.setStatus(edcrApplnDtl.getStatus());
 
-            if (edcrRequest != null && isNotBlank(edcrRequest.getApplicationSubType())) {
-                criteria.add(Restrictions.eq("application.serviceType", edcrRequest.getApplicationSubType()));
-            }
-            
-                if (onlyTenantId && userInfo != null && isNotBlank(userInfo.getId())) {
-                    criteria.add(Restrictions.eq("application.thirdPartyUserCode", userInfo.getId()));
-                }
-            
-            criteria.addOrder(Order.asc("edcrApplicationDetail.createdDate"));
-            criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-            edcrApplications = criteria.list();
-        }
-        
-        LOG.info("The number of records = " + edcrApplications.size());
-        if (edcrApplications.isEmpty()) {
-            EdcrDetail edcrDetail = new EdcrDetail();
-            edcrDetail.setErrors("No Record Found");
-            return Arrays.asList(edcrDetail);
-        } else {
-            return edcrDetailsResponse(edcrApplications, edcrRequest);
-        }
-    }
+		return edcrDetail;
+	}
 
-    public ErrorDetail validatePlanFile(final MultipartFile file) {
-        List<String> dcrAllowedExtenstions = new ArrayList<>(
-                Arrays.asList(edcrApplicationSettings.getValue("dcr.dxf.allowed.extenstions").split(",")));
+	public EdcrDetail setEdcrResponseForAcrossTenants(Object[] applnDtls, String stateCityCode) {
+		EdcrDetail edcrDetail = new EdcrDetail();
+		edcrDetail.setTransactionNumber(String.valueOf(applnDtls[1]));
+		edcrDetail.setEdcrNumber(String.valueOf(applnDtls[2]));
+		edcrDetail.setStatus(String.valueOf(applnDtls[3]));
+		edcrDetail.setApplicationDate(new LocalDate(String.valueOf(applnDtls[9])).toDate());
+		edcrDetail.setApplicationNumber(String.valueOf(applnDtls[10]));
 
-        
-        String fileSize = edcrApplicationSettings.getValue("dcr.dxf.max.size");
-        final String maxAllowSizeInMB = fileSize;
-        String extension;
-        if (file != null && !file.isEmpty()) {
-            extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
-            if (extension != null && !extension.isEmpty()) {
-               
-                if (!dcrAllowedExtenstions.contains(extension.toLowerCase())) {
-                    return new ErrorDetail("BPA-02", "Please upload " + dcrAllowedExtenstions + " format file only");
-                } else if (file.getSize() > (Long.valueOf(maxAllowSizeInMB) * 1024 * 1024)) {
-                    return new ErrorDetail("BPA-04", "File size should not exceed 300 MB");
-                } /*
-                   * else if (allowedExtenstions.contains(extension.toLowerCase()) && (!mimeTypes.contains(mimeType) ||
-                   * StringUtils.countMatches(file.getOriginalFilename(), ".") > 1 || file.getOriginalFilename().contains("%00")))
-                   * { return new ErrorDetail("BPA-03", "Malicious file upload"); }
-                   */
-            }
-        } else {
-            return new ErrorDetail(BPA_05, "Please upload plan file, It is mandatory");
-        }
-        
-        return null;
-    }
+		if (String.valueOf(applnDtls[5]) != null)
+			edcrDetail
+					.setDxfFile(format(getFileDownloadUrl(String.valueOf(applnDtls[5]), String.valueOf(applnDtls[0]))));
 
-    public ErrorDetail validateEdcrRequest(final EdcrRequest edcrRequest, final MultipartFile planFile) {
-        if (edcrRequest.getRequestInfo() == null)
-            return new ErrorDetail(BPA_07, REQ_BODY_REQUIRED);
-        else if (edcrRequest.getRequestInfo().getUserInfo() == null || (edcrRequest.getRequestInfo().getUserInfo() != null && isBlank(edcrRequest.getRequestInfo().getUserInfo().getId())))
-            return new ErrorDetail(BPA_07, USER_ID_IS_MANDATORY);
-        
-        if (isBlank(edcrRequest.getTransactionNumber()))
-            return new ErrorDetail(BPA_07, "Please enter transaction number");
-        if (isNotBlank(edcrRequest.getTransactionNumber())
-                && edcrApplicationService.findByTransactionNumber(edcrRequest.getTransactionNumber()) != null) {
-            return new ErrorDetail(BPA_01, MSG_UNQ_TRANSACTION_NUMBER);
-        }
-        
-        return validatePlanFile(planFile);
-    }
-    
-    public ErrorDetail validateEdcrOcRequest(final EdcrRequest edcrRequest, final MultipartFile planFile) {
-        if (edcrRequest.getRequestInfo() == null)
-            return new ErrorDetail(BPA_07, REQ_BODY_REQUIRED);
-        else if (edcrRequest.getRequestInfo().getUserInfo() == null || (edcrRequest.getRequestInfo().getUserInfo() != null && isBlank(edcrRequest.getRequestInfo().getUserInfo().getId())))
-            return new ErrorDetail(BPA_07, USER_ID_IS_MANDATORY);
-        
-        if (isBlank(edcrRequest.getTransactionNumber()))
-            return new ErrorDetail(BPA_07, "Transaction number is mandatory");
-        
-        if (null==edcrRequest.getPermitDate())
-            return new ErrorDetail("BPA-08", "Permit Date is mandatory");
-        if (isNotBlank(edcrRequest.getTransactionNumber())
-                && edcrApplicationService.findByTransactionNumber(edcrRequest.getTransactionNumber()) != null) {
-            return new ErrorDetail(BPA_01, MSG_UNQ_TRANSACTION_NUMBER);
-            
-        }
-        
-        return validatePlanFile(planFile);
-    }
-    
-    public List<ErrorDetail> validateScrutinizeOcRequest(final EdcrRequest edcrRequest, final MultipartFile planFile) {
-        List<ErrorDetail> errorDetails = new ArrayList<>();
+		if (String.valueOf(applnDtls[6]) != null)
+			edcrDetail.setUpdatedDxfFile(
+					format(getFileDownloadUrl(String.valueOf(applnDtls[6]), String.valueOf(applnDtls[0]))));
 
-        if (edcrRequest.getRequestInfo() == null)
-            errorDetails.add(new ErrorDetail(BPA_07, REQ_BODY_REQUIRED));
-        else if (edcrRequest.getRequestInfo().getUserInfo() == null || (edcrRequest.getRequestInfo().getUserInfo() != null
-                && isBlank(edcrRequest.getRequestInfo().getUserInfo().getId())))
-            errorDetails.add(new ErrorDetail("BPA-08", USER_ID_IS_MANDATORY));
+		if (String.valueOf(applnDtls[7]) != null)
+			edcrDetail.setPlanReport(
+					format(getFileDownloadUrl(String.valueOf(applnDtls[7]), String.valueOf(applnDtls[0]))));
+		Plan pl1 = new Plan();
+		PlanInformation pi = new PlanInformation();
+		pi.setApplicantName(String.valueOf(applnDtls[4]));
+		pl1.setPlanInformation(pi);
+		edcrDetail.setPlanDetail(pl1);
 
-        if (isBlank(edcrRequest.getTransactionNumber()))
-            errorDetails.add(new ErrorDetail("BPA-09", "Transaction number is mandatory"));
+		edcrDetail.setTenantId(stateCityCode.concat(".").concat(String.valueOf(applnDtls[0])));
 
-        if (null == edcrRequest.getPermitDate())
-            errorDetails.add(new ErrorDetail("BPA-10", "Permit Date is mandatory"));
-        if (isNotBlank(edcrRequest.getTransactionNumber())
-                && edcrApplicationService.findByTransactionNumber(edcrRequest.getTransactionNumber()) != null) {
-            errorDetails.add(new ErrorDetail("BPA-11", MSG_UNQ_TRANSACTION_NUMBER));
+		if (!String.valueOf(applnDtls[3]).equalsIgnoreCase("Accepted"))
+			edcrDetail.setStatus(String.valueOf(applnDtls[3]));
 
-        }
+		return edcrDetail;
+	}
 
-        String dcrNo = edcrRequest.getComparisonEdcrNumber();
-        if (StringUtils.isBlank(dcrNo)) {
-            errorDetails.add(new ErrorDetail("BPA-29", "Comparison eDcr number is mandatory"));
-        } else {
-            EdcrApplicationDetail permitDcr = applicationDetailService.findByDcrNumberAndTPUserTenant(dcrNo,
-                    edcrRequest.getTenantId());
+	public List<EdcrDetail> fetchEdcr(final EdcrRequest edcrRequest, final RequestInfoWrapper reqInfoWrapper) {
+		List<EdcrApplicationDetail> edcrApplications = new ArrayList<>();
+		UserInfo userInfo = reqInfoWrapper.getRequestInfo() == null ? null
+				: reqInfoWrapper.getRequestInfo().getUserInfo();
+		boolean onlyTenantId = edcrRequest != null && isBlank(edcrRequest.getEdcrNumber())
+				&& isBlank(edcrRequest.getTransactionNumber()) && isBlank(edcrRequest.getAppliactionType())
+				&& isBlank(edcrRequest.getApplicationSubType()) && isNotBlank(edcrRequest.getTenantId());
 
-            if (permitDcr != null && permitDcr.getApplication() != null
-                    && StringUtils.isBlank(permitDcr.getApplication().getServiceType())) {
-                errorDetails.add(new ErrorDetail("BPA-26", "No service type found for dcr number " + dcrNo));
-            }
+		City stateCity = cityService.fetchStateCityDetails();
+		if (edcrRequest != null && edcrRequest.getTenantId().equalsIgnoreCase(stateCity.getCode())) {
+			final Map<String, String> params = new ConcurrentHashMap<>();
+			Map<String, String> tenants = tenantUtils.tenantsMap();
+			StringBuilder queryStr = new StringBuilder();
+			Iterator<Map.Entry<String, String>> tenantItr = tenants.entrySet().iterator();
+			while (tenantItr.hasNext()) {
+				Map.Entry<String, String> value = tenantItr.next();
+				queryStr.append("(select '").append(value.getKey()).append(
+						"' as tenantId,appln.transactionNumber,dtl.dcrNumber,dtl.status,appln.applicantName,dxf.fileStoreId as dxfFileId,scrudxf.fileStoreId as scrutinizedDxfFileId,rofile.fileStoreId as reportOutputId,pdfile.fileStoreId as planDetailFileStore,appln.applicationDate,appln.applicationNumber from ")
+						.append(value.getKey()).append(".edcr_application appln, ").append(value.getKey())
+						.append(".edcr_application_detail dtl, ").append(value.getKey())
+						.append(".eg_filestoremap dxf, ").append(value.getKey()).append(".eg_filestoremap scrudxf, ")
+						.append(value.getKey()).append(".eg_filestoremap rofile, ").append(value.getKey())
+						.append(".eg_filestoremap pdfile ")
+						.append("where appln.id = dtl.application and dtl.dxfFileId=dxf.id and dtl.scrutinizedDxfFileId=scrudxf.id and dtl.reportOutputId=rofile.id and dtl.planDetailFileStore=pdfile.id ");
 
-            if (permitDcr == null) {
-                errorDetails.add(new ErrorDetail("BPA-24", "No record found with dcr number " + dcrNo));
-            }
+				if (isNotBlank(edcrRequest.getEdcrNumber())) {
+					queryStr.append("and dtl.dcrNumber=:dcrNumber ");
+					params.put("dcrNumber", edcrRequest.getEdcrNumber());
+				}
 
-            if (permitDcr != null && permitDcr.getApplication() != null
-                    && edcrRequest.getAppliactionType()
-                            .equalsIgnoreCase(permitDcr.getApplication().getApplicationType().toString())) {
-                errorDetails.add(new ErrorDetail("BPA-27", "Application types are same"));
-            }
+				if (isNotBlank(edcrRequest.getTransactionNumber())) {
+					queryStr.append("and appln.transactionNumber=:transactionNumber ");
+					params.put("transactionNumber", edcrRequest.getTransactionNumber());
+				}
 
-            if (permitDcr != null && permitDcr.getApplication() != null
-                    && !edcrRequest.getApplicationSubType().equalsIgnoreCase(permitDcr.getApplication().getServiceType())) {
-                errorDetails.add(new ErrorDetail("BPA-28", "Service types are not mathing"));
-            }
-        }
+				if (onlyTenantId && userInfo != null && isNotBlank(userInfo.getId())) {
+					queryStr.append("and appln.thirdPartyUserCode=:thirdPartyUserCode ");
+					params.put("thirdPartyUserCode", userInfo.getId());
+				}
 
-        ErrorDetail validatePlanFile = validatePlanFile(planFile);
-        if (validatePlanFile != null)
-            errorDetails.add(validatePlanFile);
+				String appliactionType = edcrRequest.getAppliactionType();
+				if (isNotBlank(appliactionType)) {
+					ApplicationType applicationType = null;
+					if ("BUILDING_PLAN_SCRUTINY".equalsIgnoreCase(appliactionType)) {
+						applicationType = ApplicationType.PERMIT;
+					} else if ("BUILDING_OC_PLAN_SCRUTINY".equalsIgnoreCase(appliactionType)) {
+						applicationType = ApplicationType.OCCUPANCY_CERTIFICATE;
+					} else if ("Permit".equalsIgnoreCase(appliactionType)) {
+						applicationType = ApplicationType.PERMIT;
+					} else if ("Occupancy certificate".equalsIgnoreCase(appliactionType)) {
+						applicationType = ApplicationType.OCCUPANCY_CERTIFICATE;
+					}
+					queryStr.append("and appln.applicationType=:applicationtype ");
+					params.put("applicationtype", applicationType.toString());
+				}
 
-        return errorDetails;
-    }
-        
-    public List<ErrorDetail> validateEdcrMandatoryFields(final EdcrRequest edcrRequest) {
-        List<ErrorDetail> errors = new ArrayList<>();
-        if (StringUtils.isBlank(edcrRequest.getAppliactionType())) {
-            errors.add(new ErrorDetail("BPA-10", "Application type is missing"));
-        }
+				if (isNotBlank(edcrRequest.getApplicationSubType())) {
+					queryStr.append("and appln.serviceType=:servicetype ");
+					params.put("servicetype", edcrRequest.getApplicationSubType());
+				}
 
-        if (StringUtils.isBlank(edcrRequest.getApplicationSubType())) {
-            errors.add(new ErrorDetail("BPA-11", "Service type is missing"));
-        }
-         
-        return errors;
-    }
+				queryStr.append(" order by appln.createddate desc)");
+				if (tenantItr.hasNext()) {
+					queryStr.append(" union ");
+				}
+			}
 
-    public ErrorDetail validateSearchRequest(final String edcrNumber, final String transactionNumber) {
-        ErrorDetail errorDetail = null;
-        if (isBlank(edcrNumber) && isBlank(transactionNumber))
-            return new ErrorDetail(BPA_07, "Please enter valid edcr number or transaction number");
-        return errorDetail;
-    }
+			final Query query = getCurrentSession().createSQLQuery(queryStr.toString());
+			for (final Map.Entry<String, String> param : params.entrySet())
+				query.setParameter(param.getKey(), param.getValue());
+			List<Object[]> applns = query.list();
+			if (applns.isEmpty()) {
+				EdcrDetail edcrDetail = new EdcrDetail();
+				edcrDetail.setErrors("No Record Found");
+				return Arrays.asList(edcrDetail);
+			} else {
+				List<EdcrDetail> edcrDetails2 = new ArrayList<>();
+				for (Object[] appln : applns)
+					edcrDetails2.add(setEdcrResponseForAcrossTenants(appln, stateCity.getCode()));
+				return edcrDetails2;
+			}
+		} else {
+			final Criteria criteria = getCurrentSession().createCriteria(EdcrApplicationDetail.class,
+					"edcrApplicationDetail");
+			criteria.createAlias("edcrApplicationDetail.application", "application");
+			if (edcrRequest != null && isNotBlank(edcrRequest.getEdcrNumber())) {
+				criteria.add(Restrictions.eq("edcrApplicationDetail.dcrNumber", edcrRequest.getEdcrNumber()));
+			}
+			if (edcrRequest != null && isNotBlank(edcrRequest.getTransactionNumber())) {
+				criteria.add(Restrictions.eq("application.transactionNumber", edcrRequest.getTransactionNumber()));
+			}
 
-    /*
-     * public String getMimeType(final MultipartFile file) {
-     * MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector"); eu.medsea.mimeutil.MimeType mimeType =
-     * null; try { mimeType = MimeUtil.getMostSpecificMimeType(MimeUtil.getMimeTypes(file.getInputStream())); } catch
-     * (MimeException | IOException e) { LOG.error(e); }
-     * MimeUtil.unregisterMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector"); return String.valueOf(mimeType); }
-     */
+			String appliactionType = edcrRequest.getAppliactionType();
 
-    public ErrorDetail validateParam(List<String> allowedExtenstions, List<String> mimeTypes,
-            MultipartFile file, final String maxAllowSizeInMB) {
-        String extension;
-        String mimeType;
-        if (file != null && !file.isEmpty()) {
-            extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
-            if (extension != null && !extension.isEmpty()) {
-                // mimeType = getMimeType(file);
-                if (!allowedExtenstions.contains(extension.toLowerCase())) {
-                    return new ErrorDetail("BPA-02", "Please upload " + allowedExtenstions + " format file only");
-                } else if (file.getSize() > (Long.valueOf(maxAllowSizeInMB) * 1024 * 1024)) {
-                    return new ErrorDetail("BPA-04", "File size should not exceed 30 MB");
-                } /*
-                   * else if (allowedExtenstions.contains(extension.toLowerCase()) && (!mimeTypes.contains(mimeType) ||
-                   * StringUtils.countMatches(file.getOriginalFilename(), ".") > 1 || file.getOriginalFilename().contains("%00")))
-                   * { return new ErrorDetail("BPA-03", "Malicious file upload"); }
-                   */
-            }
-        } else {
-            return new ErrorDetail(BPA_05, "Please, upload plan file is mandatory");
-        }
+			if (edcrRequest != null && isNotBlank(appliactionType)) {
+				ApplicationType applicationType = null;
+				if ("BUILDING_PLAN_SCRUTINY".equalsIgnoreCase(appliactionType)) {
+					applicationType = ApplicationType.PERMIT;
+				} else if ("BUILDING_OC_PLAN_SCRUTINY".equalsIgnoreCase(appliactionType)) {
+					applicationType = ApplicationType.OCCUPANCY_CERTIFICATE;
+				}
+				if ("Permit".equalsIgnoreCase(appliactionType)) {
+					applicationType = ApplicationType.PERMIT;
+				} else if ("Occupancy certificate".equalsIgnoreCase(appliactionType)) {
+					applicationType = ApplicationType.OCCUPANCY_CERTIFICATE;
+				}
+				criteria.add(Restrictions.eq("application.applicationType", applicationType));
+			}
 
-        return null;
-    }
+			if (edcrRequest != null && isNotBlank(edcrRequest.getApplicationSubType())) {
+				criteria.add(Restrictions.eq("application.serviceType", edcrRequest.getApplicationSubType()));
+			}
 
-    public ResponseInfo createResponseInfoFromRequestInfo(RequestInfo requestInfo, Boolean success) {
-        String apiId = null;
-        String ver = null;
-        String ts = null;
-        String resMsgId = "";
-        String msgId = null;
-        if (requestInfo != null) {
-            apiId = requestInfo.getApiId();
-            ver = requestInfo.getVer();
-            if (requestInfo.getTs() != null)
-                ts = requestInfo.getTs().toString();
-            msgId = requestInfo.getMsgId();
-        }
-        String responseStatus = success ? "successful" : "failed";
+			if (onlyTenantId && userInfo != null && isNotBlank(userInfo.getId())) {
+				criteria.add(Restrictions.eq("application.thirdPartyUserCode", userInfo.getId()));
+			}
 
-        return new ResponseInfo(apiId, ver, ts, resMsgId, msgId, responseStatus);
-    }
+			criteria.addOrder(Order.asc("edcrApplicationDetail.createdDate"));
+			criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+			edcrApplications = criteria.list();
+		}
 
-    public String getFileDownloadUrl(final String fileStoreId, final String tenantId) {
-       String dUrl=String.format(FILE_DOWNLOAD_URL, ApplicationThreadLocals.getDomainURL()) + fileStoreId + "?tenantId="
-               + tenantId;
-       if(downloadUrlSupportFlage) {
-    	   dUrl=dUrl.replace("http:", "https:");
-       }
-    	return dUrl;
-    }
+		LOG.info("The number of records = " + edcrApplications.size());
+		if (edcrApplications.isEmpty()) {
+			EdcrDetail edcrDetail = new EdcrDetail();
+			edcrDetail.setErrors("No Record Found");
+			return Arrays.asList(edcrDetail);
+		} else {
+			return edcrDetailsResponse(edcrApplications, edcrRequest);
+		}
+	}
 
+	public ErrorDetail validatePlanFile(final MultipartFile file) {
+		List<String> dcrAllowedExtenstions = new ArrayList<>(
+				Arrays.asList(edcrApplicationSettings.getValue("dcr.dxf.allowed.extenstions").split(",")));
+
+		String fileSize = edcrApplicationSettings.getValue("dcr.dxf.max.size");
+		final String maxAllowSizeInMB = fileSize;
+		String extension;
+		if (file != null && !file.isEmpty()) {
+			extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
+			if (extension != null && !extension.isEmpty()) {
+
+				if (!dcrAllowedExtenstions.contains(extension.toLowerCase())) {
+					return new ErrorDetail("BPA-02", "Please upload " + dcrAllowedExtenstions + " format file only");
+				} else if (file.getSize() > (Long.valueOf(maxAllowSizeInMB) * 1024 * 1024)) {
+					return new ErrorDetail("BPA-04", "File size should not exceed 300 MB");
+				} /*
+					 * else if (allowedExtenstions.contains(extension.toLowerCase()) &&
+					 * (!mimeTypes.contains(mimeType) ||
+					 * StringUtils.countMatches(file.getOriginalFilename(), ".") > 1 ||
+					 * file.getOriginalFilename().contains("%00"))) { return new
+					 * ErrorDetail("BPA-03", "Malicious file upload"); }
+					 */
+			}
+		} else {
+			return new ErrorDetail(BPA_05, "Please upload plan file, It is mandatory");
+		}
+
+		return null;
+	}
+
+	public ErrorDetail validateEdcrRequest(final EdcrRequest edcrRequest, final MultipartFile planFile) {
+		if (edcrRequest.getRequestInfo() == null)
+			return new ErrorDetail(BPA_07, REQ_BODY_REQUIRED);
+		else if (edcrRequest.getRequestInfo().getUserInfo() == null
+				|| (edcrRequest.getRequestInfo().getUserInfo() != null
+						&& isBlank(edcrRequest.getRequestInfo().getUserInfo().getId())))
+			return new ErrorDetail(BPA_07, USER_ID_IS_MANDATORY);
+
+		if (isBlank(edcrRequest.getTransactionNumber()))
+			return new ErrorDetail(BPA_07, "Please enter transaction number");
+		if (isNotBlank(edcrRequest.getTransactionNumber())
+				&& edcrApplicationService.findByTransactionNumber(edcrRequest.getTransactionNumber()) != null) {
+			return new ErrorDetail(BPA_01, MSG_UNQ_TRANSACTION_NUMBER);
+		}
+
+		return validatePlanFile(planFile);
+	}
+
+	public ErrorDetail validateEdcrOcRequest(final EdcrRequest edcrRequest, final MultipartFile planFile) {
+		if (edcrRequest.getRequestInfo() == null)
+			return new ErrorDetail(BPA_07, REQ_BODY_REQUIRED);
+		else if (edcrRequest.getRequestInfo().getUserInfo() == null
+				|| (edcrRequest.getRequestInfo().getUserInfo() != null
+						&& isBlank(edcrRequest.getRequestInfo().getUserInfo().getId())))
+			return new ErrorDetail(BPA_07, USER_ID_IS_MANDATORY);
+
+		if (isBlank(edcrRequest.getTransactionNumber()))
+			return new ErrorDetail(BPA_07, "Transaction number is mandatory");
+
+		if (null == edcrRequest.getPermitDate())
+			return new ErrorDetail("BPA-08", "Permit Date is mandatory");
+		if (isNotBlank(edcrRequest.getTransactionNumber())
+				&& edcrApplicationService.findByTransactionNumber(edcrRequest.getTransactionNumber()) != null) {
+			return new ErrorDetail(BPA_01, MSG_UNQ_TRANSACTION_NUMBER);
+
+		}
+
+		return validatePlanFile(planFile);
+	}
+
+	public List<ErrorDetail> validateScrutinizeOcRequest(final EdcrRequest edcrRequest, final MultipartFile planFile) {
+		List<ErrorDetail> errorDetails = new ArrayList<>();
+
+		if (edcrRequest.getRequestInfo() == null)
+			errorDetails.add(new ErrorDetail(BPA_07, REQ_BODY_REQUIRED));
+		else if (edcrRequest.getRequestInfo().getUserInfo() == null
+				|| (edcrRequest.getRequestInfo().getUserInfo() != null
+						&& isBlank(edcrRequest.getRequestInfo().getUserInfo().getId())))
+			errorDetails.add(new ErrorDetail("BPA-08", USER_ID_IS_MANDATORY));
+
+		if (isBlank(edcrRequest.getTransactionNumber()))
+			errorDetails.add(new ErrorDetail("BPA-09", "Transaction number is mandatory"));
+
+		if (null == edcrRequest.getPermitDate())
+			errorDetails.add(new ErrorDetail("BPA-10", "Permit Date is mandatory"));
+		if (isNotBlank(edcrRequest.getTransactionNumber())
+				&& edcrApplicationService.findByTransactionNumber(edcrRequest.getTransactionNumber()) != null) {
+			errorDetails.add(new ErrorDetail("BPA-11", MSG_UNQ_TRANSACTION_NUMBER));
+
+		}
+
+		String dcrNo = edcrRequest.getComparisonEdcrNumber();
+		if (StringUtils.isBlank(dcrNo)) {
+			errorDetails.add(new ErrorDetail("BPA-29", "Comparison eDcr number is mandatory"));
+		} else {
+			EdcrApplicationDetail permitDcr = applicationDetailService.findByDcrNumberAndTPUserTenant(dcrNo,
+					edcrRequest.getTenantId());
+
+			if (permitDcr != null && permitDcr.getApplication() != null
+					&& StringUtils.isBlank(permitDcr.getApplication().getServiceType())) {
+				errorDetails.add(new ErrorDetail("BPA-26", "No service type found for dcr number " + dcrNo));
+			}
+
+			if (permitDcr == null) {
+				errorDetails.add(new ErrorDetail("BPA-24", "No record found with dcr number " + dcrNo));
+			}
+
+			if (permitDcr != null && permitDcr.getApplication() != null && edcrRequest.getAppliactionType()
+					.equalsIgnoreCase(permitDcr.getApplication().getApplicationType().toString())) {
+				errorDetails.add(new ErrorDetail("BPA-27", "Application types are same"));
+			}
+
+			if (permitDcr != null && permitDcr.getApplication() != null && !edcrRequest.getApplicationSubType()
+					.equalsIgnoreCase(permitDcr.getApplication().getServiceType())) {
+				errorDetails.add(new ErrorDetail("BPA-28", "Service types are not mathing"));
+			}
+		}
+
+		ErrorDetail validatePlanFile = validatePlanFile(planFile);
+		if (validatePlanFile != null)
+			errorDetails.add(validatePlanFile);
+
+		return errorDetails;
+	}
+
+	public List<ErrorDetail> validateEdcrMandatoryFields(final EdcrRequest edcrRequest) {
+		List<ErrorDetail> errors = new ArrayList<>();
+		if (StringUtils.isBlank(edcrRequest.getAppliactionType())) {
+			errors.add(new ErrorDetail("BPA-10", "Application type is missing"));
+		}
+
+		if (StringUtils.isBlank(edcrRequest.getApplicationSubType())) {
+			errors.add(new ErrorDetail("BPA-11", "Service type is missing"));
+		}
+
+		return errors;
+	}
+
+	public ErrorDetail validateSearchRequest(final String edcrNumber, final String transactionNumber) {
+		ErrorDetail errorDetail = null;
+		if (isBlank(edcrNumber) && isBlank(transactionNumber))
+			return new ErrorDetail(BPA_07, "Please enter valid edcr number or transaction number");
+		return errorDetail;
+	}
+
+	/*
+	 * public String getMimeType(final MultipartFile file) {
+	 * MimeUtil.registerMimeDetector(
+	 * "eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
+	 * eu.medsea.mimeutil.MimeType mimeType = null; try { mimeType =
+	 * MimeUtil.getMostSpecificMimeType(MimeUtil.getMimeTypes(file.getInputStream())
+	 * ); } catch (MimeException | IOException e) { LOG.error(e); }
+	 * MimeUtil.unregisterMimeDetector(
+	 * "eu.medsea.mimeutil.detector.MagicMimeMimeDetector"); return
+	 * String.valueOf(mimeType); }
+	 */
+
+	public ErrorDetail validateParam(List<String> allowedExtenstions, List<String> mimeTypes, MultipartFile file,
+			final String maxAllowSizeInMB) {
+		String extension;
+		String mimeType;
+		if (file != null && !file.isEmpty()) {
+			extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
+			if (extension != null && !extension.isEmpty()) {
+				// mimeType = getMimeType(file);
+				if (!allowedExtenstions.contains(extension.toLowerCase())) {
+					return new ErrorDetail("BPA-02", "Please upload " + allowedExtenstions + " format file only");
+				} else if (file.getSize() > (Long.valueOf(maxAllowSizeInMB) * 1024 * 1024)) {
+					return new ErrorDetail("BPA-04", "File size should not exceed 30 MB");
+				} /*
+					 * else if (allowedExtenstions.contains(extension.toLowerCase()) &&
+					 * (!mimeTypes.contains(mimeType) ||
+					 * StringUtils.countMatches(file.getOriginalFilename(), ".") > 1 ||
+					 * file.getOriginalFilename().contains("%00"))) { return new
+					 * ErrorDetail("BPA-03", "Malicious file upload"); }
+					 */
+			}
+		} else {
+			return new ErrorDetail(BPA_05, "Please, upload plan file is mandatory");
+		}
+
+		return null;
+	}
+
+	public ResponseInfo createResponseInfoFromRequestInfo(RequestInfo requestInfo, Boolean success) {
+		String apiId = null;
+		String ver = null;
+		String ts = null;
+		String resMsgId = "";
+		String msgId = null;
+		if (requestInfo != null) {
+			apiId = requestInfo.getApiId();
+			ver = requestInfo.getVer();
+			if (requestInfo.getTs() != null)
+				ts = requestInfo.getTs().toString();
+			msgId = requestInfo.getMsgId();
+		}
+		String responseStatus = success ? "successful" : "failed";
+
+		return new ResponseInfo(apiId, ver, ts, resMsgId, msgId, responseStatus);
+	}
+
+	public String getFileDownloadUrl(final String fileStoreId, final String tenantId) {
+		String dUrl = String.format(FILE_DOWNLOAD_URL, ApplicationThreadLocals.getDomainURL()) + fileStoreId
+				+ "?tenantId=" + tenantId;
+		if (downloadUrlSupportFlage) {
+			dUrl = dUrl.replace("http:", "https:");
+		}
+		return dUrl;
+	}
+
+	/**
+	 * generate permit order pdf using iText
+	 * 
+	 * @param permitOrderRequest
+	 * @param permitReportType   eg: V1, V2
+	 * @return
+	 */
+	@Transactional
+	public List<String> genratePermitOrder(PermitOrderRequest permitOrderRequest) {
+		List<String> fileStoreIds = null;
+		try {
+			String edcrNo = permitOrderRequest.getBpaList().get(0).get("edcrNumber").toString();
+			String bpaApplication = permitOrderRequest.getBpaList().get(0).get("applicationNo").toString();
+			String fileName = bpaApplication + "-" + edcrNo;
+			String bpaAppTenantId = permitOrderRequest.getBpaList().get(0).get("tenantId").toString();
+			String businessService = permitOrderRequest.getBpaList().get(0).get("businessService").toString();
+			
+			List<FileStoreMapper> fileStoreMappers = fileStoreMapperRepository.findByFileNameStartsWith(fileName);
+
+			if (fileStoreMappers == null) {
+				fileStoreMappers = new ArrayList<>();
+			}
+			fileName = fileName + "-V-" + fileStoreMappers.size() + ".pdf";
+
+			EdcrApplicationInfo edcrApplicationInfo = edcrExternalService.loadEdcrApplicationDetails(edcrNo);
+			Plan plan = edcrApplicationInfo.getPlan();
+			PermitOrderService permitOrderService = getPermitOrderServiceBean(businessService);
+			InputStream reportStream = permitOrderService.generateReport(plan, permitOrderRequest.getBpaList().get(0),
+					permitOrderRequest.getRequestInfo());
+			FileStoreMapper fileStoreMapper = storePermitOrder(reportStream, fileName, bpaAppTenantId);
+			fileStoreMappers.add(fileStoreMapper);
+			fileStoreIds = fileStoreMappers.stream()
+					.sorted((fm1, fm2) -> fm2.getCreatedDate().compareTo(fm1.getCreatedDate()))
+					.map(fm -> fm.getFileStoreId()).collect(Collectors.toList());
+		}catch (ApplicationRuntimeException e) {
+			throw e;
+		} 
+		catch (Exception e) {
+			throw new ApplicationRuntimeException("Error while generating permit order pdf", e);
+		}
+		return fileStoreIds;
+	}
+
+	private PermitOrderService getPermitOrderServiceBean(String businessService) {
+		PermitOrderService permitOrderService = null;
+		permitOrderService = (PermitOrderService) specificRuleService
+				.find("permitOrderService" + businessService);
+		if(permitOrderService == null)
+			throw new ApplicationRuntimeException("Permit order not supported for businessService: "+businessService);
+		return permitOrderService;
+	}
+
+	@Transactional
+	private FileStoreMapper storePermitOrder(InputStream reportStream, String fileName, String bpaAppTenantId) {
+		String edcrTenantId = ApplicationThreadLocals.getTenantID();
+		ApplicationThreadLocals.setTenantID(bpaAppTenantId);
+		final FileStoreMapper fileStoreMapper = fileStoreService.store(reportStream, fileName, "application/pdf",
+				DcrConstants.FILESTORE_MODULECODE);
+		ApplicationThreadLocals.setTenantID(edcrTenantId);
+		if (fileStoreMapper != null) {
+			fileStoreMapperRepository.save(fileStoreMapper);
+		}
+		return fileStoreMapper;
+	}
 }

@@ -14,6 +14,12 @@ public class MdmsConfiguration {
 
     @Value("${mdms.enable:false}")
     private Boolean mdmsEnabled;
+    
+    @Value("${egov.collection.service.host:}")
+    private String collectionServiceHost;
+    
+    @Value("${egov.noc.service.host:}")
+    private String nocHost;
 
     public String getMdmsHost() {
         return mdmsHost;
@@ -39,4 +45,21 @@ public class MdmsConfiguration {
         this.mdmsEnabled = mdmsEnabled;
     }
 
+	public String getCollectionServiceHost() {
+		return collectionServiceHost;
+	}
+
+	public void setCollectionServiceHost(String collectionServiceHost) {
+		this.collectionServiceHost = collectionServiceHost;
+	}
+
+	public String getNocHost() {
+		return nocHost;
+	}
+
+	public void setNocHost(String nocHost) {
+		this.nocHost = nocHost;
+	}
+
+    
 }

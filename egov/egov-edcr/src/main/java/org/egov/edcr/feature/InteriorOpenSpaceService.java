@@ -60,6 +60,7 @@ import org.egov.common.entity.edcr.Measurement;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.edcr.constants.DxfFileConstants;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -92,8 +93,8 @@ public class InteriorOpenSpaceService extends FeatureProcess {
 			if (b.getBuilding() != null && b.getBuilding().getFloors() != null
 					&& !b.getBuilding().getFloors().isEmpty()) {
 				for (Floor f : b.getBuilding().getFloors()) {
-					//processVentilationShaft(pl, scrutinyDetail, f);
-					processInteriorCourtYard(pl, scrutinyDetail,b, f,isInteriorOpenSpaceRequired(pl, b));//15meter
+					// processVentilationShaft(pl, scrutinyDetail, f);
+					processInteriorCourtYard(pl, scrutinyDetail, b, f, isInteriorOpenSpaceRequired(pl, b));// 15meter
 				}
 			}
 
@@ -101,85 +102,119 @@ public class InteriorOpenSpaceService extends FeatureProcess {
 		return pl;
 	}
 
-	private void processInteriorCourtYard(Plan pl, ScrutinyDetail scrutinyDetail,Block block, Floor f,boolean isRequired) {
+	private void processInteriorCourtYard(Plan pl, ScrutinyDetail scrutinyDetail, Block block, Floor f,
+			boolean isRequired) {
+		String serviceType = pl.getPlanInformation().getServiceType();
 		if (f.getInteriorOpenSpace() != null && f.getInteriorOpenSpace().getInnerCourtYard() != null
 				&& f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements() != null
 				&& !f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements().isEmpty()) {
 
-			BigDecimal minInteriorCourtYardArea=BigDecimal.ZERO;
-			BigDecimal minInteriorCourtYardWidth=BigDecimal.ZERO;
+			BigDecimal minInteriorCourtYardArea = BigDecimal.ZERO;
+			BigDecimal minInteriorCourtYardWidth = BigDecimal.ZERO;
 			try {
-				minInteriorCourtYardArea = f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements()
-						.stream().map(Measurement::getArea).reduce(BigDecimal::min).get();
-				minInteriorCourtYardArea=minInteriorCourtYardArea.setScale(2,BigDecimal.ROUND_HALF_UP);
-				minInteriorCourtYardWidth = f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements()
-						.stream().map(Measurement::getWidth).reduce(BigDecimal::min).get();
-				minInteriorCourtYardWidth=minInteriorCourtYardWidth.setScale(2,BigDecimal.ROUND_HALF_UP);
-			}catch (Exception e) {
+				minInteriorCourtYardArea = f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements().stream()
+						.map(Measurement::getArea).reduce(BigDecimal::min).get();
+				minInteriorCourtYardArea = minInteriorCourtYardArea.setScale(2, BigDecimal.ROUND_HALF_UP);
+				minInteriorCourtYardWidth = f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements().stream()
+						.map(Measurement::getWidth).reduce(BigDecimal::min).get();
+				minInteriorCourtYardWidth = minInteriorCourtYardWidth.setScale(2, BigDecimal.ROUND_HALF_UP);
+			} catch (Exception e) {
 			}
-			
-			BigDecimal requiredArea=new BigDecimal("9");
-			BigDecimal requiredWidth=new BigDecimal("2");
-			BigDecimal buildingHeight=block.getBuilding().getBuildingHeight();
-			if(buildingHeight.compareTo(new BigDecimal("15"))>0) {
-				double extraHeight=buildingHeight.subtract(new BigDecimal("15")).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
-				int extraIncrement=(int) (extraHeight/3);
-				if((extraHeight%3)!=0) {
+
+			BigDecimal requiredArea = new BigDecimal("9");
+			BigDecimal requiredWidth = new BigDecimal("2");
+			BigDecimal buildingHeight = block.getBuilding().getBuildingHeight();
+			if (buildingHeight.compareTo(new BigDecimal("15")) > 0) {
+				double extraHeight = buildingHeight.subtract(new BigDecimal("15")).setScale(2, BigDecimal.ROUND_HALF_UP)
+						.doubleValue();
+				int extraIncrement = (int) (extraHeight / 3);
+				if ((extraHeight % 3) != 0) {
 					extraIncrement++;
 				}
-				requiredWidth=requiredWidth.add(new BigDecimal(extraIncrement+""));
+				requiredWidth = requiredWidth.add(new BigDecimal(extraIncrement + ""));
 			}
 
-			if (minInteriorCourtYardArea.compareTo(BigDecimal.ZERO) > 0) {
-				Map<String, String> details = new HashMap<>();
-				details.put(RULE_NO, RULE_43);
-				details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
-				details.put(FLOOR, f.getNumber().toString());
-				if (minInteriorCourtYardArea.compareTo(BigDecimal.valueOf(9)) >= 0) {
-					details.put(REQUIRED, "Minimum area 9.0");
-					details.put(PROVIDED, "Area " + minInteriorCourtYardArea );
-					details.put(STATUS, Result.Accepted.getResultVal());
-					scrutinyDetail.getDetail().add(details);
-					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
-
-				} else {
+			if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+				if (minInteriorCourtYardArea.compareTo(BigDecimal.ZERO) > 0) {
+					Map<String, String> details = new HashMap<>();
+					details.put(RULE_NO, RULE_43);
+					details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
+					details.put(FLOOR, f.getNumber().toString());
 					details.put(REQUIRED, "Minimum area 9.0");
 					details.put(PROVIDED, "Area " + minInteriorCourtYardArea);
-					details.put(STATUS, Result.Not_Accepted.getResultVal());
+					details.put(STATUS, Result.Verify.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
-			}
-			if (minInteriorCourtYardWidth.compareTo(BigDecimal.ZERO) > 0) {
-				Map<String, String> details = new HashMap<>();
-				details.put(RULE_NO, RULE_43A);
-				details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
-				details.put(FLOOR, f.getNumber().toString());
-				if (minInteriorCourtYardWidth.compareTo(requiredWidth) >= 0) {
-					details.put(REQUIRED, "Minimum width "+requiredWidth);
-					details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
-					details.put(STATUS, Result.Accepted.getResultVal());
-					scrutinyDetail.getDetail().add(details);
-					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+			} else {
+				if (minInteriorCourtYardArea.compareTo(BigDecimal.ZERO) > 0) {
+					Map<String, String> details = new HashMap<>();
+					details.put(RULE_NO, RULE_43);
+					details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
+					details.put(FLOOR, f.getNumber().toString());
+					if (minInteriorCourtYardArea.compareTo(BigDecimal.valueOf(9)) >= 0) {
+						details.put(REQUIRED, "Minimum area 9.0");
+						details.put(PROVIDED, "Area " + minInteriorCourtYardArea);
+						details.put(STATUS, Result.Accepted.getResultVal());
+						scrutinyDetail.getDetail().add(details);
+						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
-				} else {
-					details.put(REQUIRED, "Minimum width "+requiredWidth);
+					} else {
+						details.put(REQUIRED, "Minimum area 9.0");
+						details.put(PROVIDED, "Area " + minInteriorCourtYardArea);
+						details.put(STATUS, Result.Not_Accepted.getResultVal());
+						scrutinyDetail.getDetail().add(details);
+						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+					}
+				}
+			}
+
+			if (DxfFileConstants.ALTERATION.equals(serviceType)) {
+				if (minInteriorCourtYardWidth.compareTo(BigDecimal.ZERO) > 0) {
+					Map<String, String> details = new HashMap<>();
+					details.put(RULE_NO, RULE_43A);
+					details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
+					details.put(FLOOR, f.getNumber().toString());
+					details.put(REQUIRED, "Minimum width " + requiredWidth);
 					details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
-					details.put(STATUS, Result.Not_Accepted.getResultVal());
+					details.put(STATUS, Result.Verify.getResultVal());
 					scrutinyDetail.getDetail().add(details);
 					pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 				}
+			} else {
+				if (minInteriorCourtYardWidth.compareTo(BigDecimal.ZERO) > 0) {
+					Map<String, String> details = new HashMap<>();
+					details.put(RULE_NO, RULE_43A);
+					details.put(DESCRIPTION, INTERNALCOURTYARD_DESCRIPTION);
+					details.put(FLOOR, f.getNumber().toString());
+					if (minInteriorCourtYardWidth.compareTo(requiredWidth) >= 0) {
+						details.put(REQUIRED, "Minimum width " + requiredWidth);
+						details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
+						details.put(STATUS, Result.Accepted.getResultVal());
+						scrutinyDetail.getDetail().add(details);
+						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+
+					} else {
+						details.put(REQUIRED, "Minimum width " + requiredWidth);
+						details.put(PROVIDED, "Width  " + minInteriorCourtYardWidth);
+						details.put(STATUS, Result.Not_Accepted.getResultVal());
+						scrutinyDetail.getDetail().add(details);
+						pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+					}
+				}
 			}
+
 		}
 	}
-	
-	private boolean isInteriorOpenSpaceRequired(Plan pl,Block block) {
-		boolean flage=false;
-		  for(Floor f:block.getBuilding().getFloors()) {
-			  if(f.getInteriorOpenSpace()!=null && f.getInteriorOpenSpace().getInnerCourtYard()!=null && f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements().size()>0) {
-				  flage=true;
-			  }
-		  }
+
+	private boolean isInteriorOpenSpaceRequired(Plan pl, Block block) {
+		boolean flage = false;
+		for (Floor f : block.getBuilding().getFloors()) {
+			if (f.getInteriorOpenSpace() != null && f.getInteriorOpenSpace().getInnerCourtYard() != null
+					&& f.getInteriorOpenSpace().getInnerCourtYard().getMeasurements().size() > 0) {
+				flage = true;
+			}
+		}
 		return flage;
 	}
 
