@@ -118,6 +118,16 @@ public class DwellingUnits extends FeatureProcess {
 //				multiplicand = 200;
 //			}
 //			  }
+			
+			
+			if (plotArea.compareTo(new BigDecimal("4000")) < 0) {
+				multiplicand = 300;
+			} else if (plotArea.compareTo(new BigDecimal("4000")) >= 0
+					&& plotArea.compareTo(new BigDecimal("10000")) < 0) {
+				multiplicand = 250;
+			} else {
+				multiplicand = 200;
+			}
 
 			BigDecimal perArchSqm = new BigDecimal("4046");
 			int archcount = 0;
