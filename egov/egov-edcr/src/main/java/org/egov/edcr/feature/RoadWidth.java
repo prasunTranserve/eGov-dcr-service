@@ -75,7 +75,10 @@ public class RoadWidth extends FeatureProcess {
     public static final String ROADWIDTH_DESCRIPTION = "Minimum Road Width";
     public static final BigDecimal TWELVE_POINT_TWENTY = BigDecimal.valueOf(12.20);
     public static final String NEW = "NEW";
-
+    public static final String ERROR_MSG1 = "Minimum 4.5 meter required for existing road width.";
+    public static final String ERROR_MSG2 = "Road widening required to meet minimum 6 meter road width requirement.";
+    public static final String ERROR_MSG3 = "Provided road widening width is less than the required width as per the 6 meter requirement.";
+    
     @Override
     public Map<String, Date> getAmendments() {
         return new LinkedHashMap<>();
@@ -83,12 +86,27 @@ public class RoadWidth extends FeatureProcess {
 
     @Override
     public Plan validate(Plan pl) {
+    	BigDecimal expectedvalue=new BigDecimal("6");
+    	BigDecimal roadWidth = pl.getPlanInformation().getTotalRoadWidth();
+    	BigDecimal surrenderRoadWidth =  pl.getPlanInformation().getSurrenderRoadWidth();
+    	BigDecimal totalRoadWidth = roadWidth.add(surrenderRoadWidth.multiply(new BigDecimal("2"))).setScale(2,BigDecimal.ROUND_HALF_UP);
+    	if(roadWidth.compareTo(new BigDecimal("4.5"))>=0) {
+    		if(surrenderRoadWidth.compareTo(BigDecimal.ZERO)>0) {
+    			if(totalRoadWidth.compareTo(expectedvalue)<0) {
+    				pl.addError("ERROR_MSG3", ERROR_MSG3);
+    			}
+    		}else {
+    			pl.addError("ERROR_MSG2", ERROR_MSG2);
+    		}
+    	}else {
+    		pl.addError("ERROR_MSG1", ERROR_MSG1);
+    	}
         return pl;
     }
 
     @Override
     public Plan process(Plan pl) {
-       
+       validate(pl);
         if (pl.getPlanInformation() != null && pl.getPlanInformation().getTotalRoadWidth() != null) {
             BigDecimal roadWidth = pl.getPlanInformation().getTotalRoadWidth();
             String typeOfArea = pl.getPlanInformation().getTypeOfArea();

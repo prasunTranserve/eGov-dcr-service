@@ -1536,51 +1536,6 @@
 				<textFieldExpression><![CDATA["8"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="351" width="16" height="21" uuid="8e7bb0ff-787d-479d-b4c0-27b9cce71f05"/>
-				<box>
-					<pen lineWidth="0.5"/>
-					<topPen lineWidth="0.5"/>
-					<leftPen lineWidth="0.5"/>
-					<bottomPen lineWidth="0.5"/>
-					<rightPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Bottom">
-					<font size="8"/>
-					<paragraph leftIndent="0"/>
-				</textElement>
-				<textFieldExpression><![CDATA["13"]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="351" width="114" height="21" uuid="9fc2ae50-5639-489b-8f8d-0ee32d7ff6dc"/>
-				<box>
-					<pen lineWidth="0.5"/>
-					<topPen lineWidth="0.5"/>
-					<leftPen lineWidth="0.5"/>
-					<bottomPen lineWidth="0.5"/>
-					<rightPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Left" verticalAlignment="Bottom">
-					<font size="8"/>
-					<paragraph leftIndent="3"/>
-				</textElement>
-				<textFieldExpression><![CDATA["TOTAL ROAD WIDTH in  m"]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="142" y="351" width="146" height="21" uuid="64d3559f-3d27-4ebe-b62f-e9eb0e3754db"/>
-				<box>
-					<pen lineWidth="0.5"/>
-					<topPen lineWidth="0.5"/>
-					<leftPen lineWidth="0.5"/>
-					<bottomPen lineWidth="0.5"/>
-					<rightPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Left" verticalAlignment="Bottom">
-					<font size="8"/>
-					<paragraph leftIndent="3"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{planInformation}.getTotalRoadWidth()]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="false">
 				<reportElement x="288" y="351" width="16" height="21" uuid="fb605be5-eea2-4ee3-bd36-f88b0a6ec3f0"/>
 				<box>
 					<pen lineWidth="0.5"/>
@@ -1626,7 +1581,7 @@
 				<textFieldExpression><![CDATA[$F{planInformation}.getDemolitionArea()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="12" y="372" width="16" height="21" uuid="3180332d-0f66-4c09-a2e4-94606679e0d7"/>
+				<reportElement x="12" y="351" width="16" height="21" uuid="3180332d-0f66-4c09-a2e4-94606679e0d7"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1638,10 +1593,10 @@
 					<font size="8"/>
 					<paragraph leftIndent="0"/>
 				</textElement>
-				<textFieldExpression><![CDATA["15"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["13"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement x="28" y="372" width="114" height="21" uuid="3085387e-8759-450e-8bd7-b8aa3646dbc9"/>
+				<reportElement x="28" y="351" width="114" height="21" uuid="3085387e-8759-450e-8bd7-b8aa3646dbc9"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>
@@ -1656,7 +1611,7 @@
 				<textFieldExpression><![CDATA["RISK TYPE"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="142" y="372" width="146" height="21" uuid="dc9dba15-f087-4c34-a381-3a350f71b3c3"/>
+				<reportElement x="142" y="351" width="146" height="21" uuid="dc9dba15-f087-4c34-a381-3a350f71b3c3"/>
 				<box>
 					<pen lineWidth="0.5"/>
 					<topPen lineWidth="0.5"/>

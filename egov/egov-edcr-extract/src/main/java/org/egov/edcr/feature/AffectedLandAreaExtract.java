@@ -77,7 +77,9 @@ public class AffectedLandAreaExtract extends FeatureExtract {
 		BigDecimal extraRoadWidth=wds.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
 		if(extraRoadWidth!=null && planDetail.getPlanInformation().getRoadWidth().compareTo(BigDecimal.ZERO)>0) {
 			planDetail.getPlanInformation().setSurrenderRoadWidth(extraRoadWidth.setScale(2,BigDecimal.ROUND_HALF_UP));
-			planDetail.getPlanInformation().setTotalRoadWidth(extraRoadWidth.add(planDetail.getPlanInformation().getRoadWidth()).setScale(2,BigDecimal.ROUND_HALF_UP));
+			//Discussion point on OBPAS Module progress MOM subject - june 7th 2022 
+			//planDetail.getPlanInformation().setTotalRoadWidth(extraRoadWidth.add(planDetail.getPlanInformation().getRoadWidth()).setScale(2,BigDecimal.ROUND_HALF_UP));
+			planDetail.getPlanInformation().setTotalRoadWidth(planDetail.getPlanInformation().getRoadWidth().setScale(2,BigDecimal.ROUND_HALF_UP));
 		}
 		
 		//Update all plotBndryDeductionArea in plot
