@@ -103,19 +103,13 @@ public abstract class PermitOrderService {
 	}
 
 	public Image getLogo() throws Exception {
-		String logo_url = "%s/citizen/static/media/od-default.1cff8773.png";
-
-//		byte[] b=org.apache.commons.codec.binary.Base64.decodeBase64(image_logo);
-
-		// Image logo1 = Image.getInstance(b);
-
 		return logo;
 	}
-
-	public static void main(String[] args) throws Exception {
-//	System.out.println(b);
+	
+	public String getServiceType(Plan pl) {
+		return  DxfFileConstants.getServiceTypeList().get(pl.getPlanInformation().getServiceType());
 	}
-
+	
 	/**
 	 * extract value of a node from map
 	 * 
@@ -493,5 +487,9 @@ public abstract class PermitOrderService {
 			}
 		}
 		return affectedAreas;
+	}
+	
+	public BigDecimal getGiftedArea(Plan pl) {
+		return pl.getPlot().getPlotBndryDeductionArea();
 	}
 }

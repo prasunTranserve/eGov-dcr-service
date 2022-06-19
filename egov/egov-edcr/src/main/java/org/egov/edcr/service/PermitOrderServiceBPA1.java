@@ -53,7 +53,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 	public static String ADDRESS2 = "KALARAHANGA";
 	public static String ADDRESS1 = "INJANA,";
 
-	public static String PARAGRAPH_1_1 = "For construction of a ";
+	public static String PARAGRAPH_1_1 = "For %s of a ";
 //	public static String PARAGRAPH_1_2 = "S+2 ";
 	public static String PARAGRAPH_1_3 = "storeyed ";
 //	public static String PARAGRAPH_1_4 = "Residential ";
@@ -111,8 +111,6 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 
 
 		Document document = new Document();
-//		PdfWriter.getInstance(document,
-//				new FileOutputStream("C:\\Temp\\Odisha\\permitFile\\001_V3ShortPermit_20220525.pdf"));
 		ByteArrayOutputStream outputBytes;
 		outputBytes = new ByteArrayOutputStream();
 		PdfWriter.getInstance(document, outputBytes);
@@ -160,8 +158,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 
 		Paragraph address3 = new Paragraph(tenantId, fontBold);
 		address3.setIndentationLeft(30);
-
-		Chunk chunk1 = new Chunk(PARAGRAPH_1_1, font1);
+		Chunk chunk1 = new Chunk(String.format("For %s of a ", getServiceType(plan)), font1);
 		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
 		Chunk chunk2 = new Chunk(floorInfo, fontBold);
 		Chunk chunk3 = new Chunk(PARAGRAPH_1_3, font1);
@@ -214,7 +211,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Phrase chunk20 = new Phrase(PARAGRAPH_2_5, font1);
 		list1Item5.add(chunk20);
 		ListItem list1Item6 = new ListItem();
-		String fContent = String.format(PARAGRAPH_2_6, "0",ulbGradeNameAndUlb);
+		String fContent = String.format(PARAGRAPH_2_6, getGiftedArea(plan).toString(),ulbGradeNameAndUlb);
 		Phrase chunk21 = new Phrase(fContent, font1);
 		list1Item6.add(chunk21);
 		ListItem list1Item7 = new ListItem();
@@ -439,7 +436,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 			blockNameCell.setColspan(2);
 			blockNameCell.addElement(blockNamephrase);
 			table1.addCell(blockNameCell);
-
+			
 			java.util.List<DcrReportFloorDetail> floorDetails = block.getDcrReportFloorDetails();
 			for (DcrReportFloorDetail floor : floorDetails) {
 				PdfPCell floorNameCell = new PdfPCell();

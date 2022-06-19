@@ -149,15 +149,12 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		try {
 			return createPdf(plan, bpaApplication, requestInfo);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new ApplicationRuntimeException("Error while generating permit order pdf", e);
 		}
 	}
 
 	public InputStream createPdf(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) throws Exception {
-		String imageUrl = "https://digitaldesksujog051120.blob.core.windows.net" + "/assets/Logos/odlogo.png";
-
 		String applicationNo = getValue(bpaApplication, "applicationNo");
 		String tenantIdActual = getValue(bpaApplication, "tenantId");
 		
@@ -207,8 +204,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		Phrase phrasePara1 = new Phrase();
 		phrasePara1.add(chunk1);
 		phrasePara1.add(chunk2);
-		String serviceType = plan.getPlanInformation().getServiceType().equals("NEW_CONSTRUCTION") ? "new construction"
-				: "addition or alteration in the existing building";
+		String serviceType = getServiceType(plan);
 		Chunk chunk21 = new Chunk(String.format(PARAGRAPH_TWO_I, serviceType), fontPara1);
 		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
 		String occupancy = plan.getPlanInformation().getOccupancy();
