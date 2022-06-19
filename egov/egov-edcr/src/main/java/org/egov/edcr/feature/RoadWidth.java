@@ -76,8 +76,8 @@ public class RoadWidth extends FeatureProcess {
     public static final BigDecimal TWELVE_POINT_TWENTY = BigDecimal.valueOf(12.20);
     public static final String NEW = "NEW";
     public static final String ERROR_MSG1 = "Minimum 4.5 meter required for existing road width.";
-    public static final String ERROR_MSG2 = "Road widening required to meet minimum 6 meter road width requirement.";
-    public static final String ERROR_MSG3 = "Provided road widening width is less than the required width as per the 6 meter requirement.";
+    public static final String ERROR_MSG2 = "Road widening required to meet minimum 6 meter road width requirement. Kindly provide half of the deficit road width to meet the requirement.";
+    public static final String ERROR_MSG3 = "Provided road widening width is less than the required width as per the 6 meter requirement. Kindly provide half of the deficit road width to meet the requirement.";
     
     @Override
     public Map<String, Date> getAmendments() {
