@@ -90,6 +90,7 @@ public class RoadWidth extends FeatureProcess {
     	BigDecimal roadWidth = pl.getPlanInformation().getTotalRoadWidth();
     	BigDecimal surrenderRoadWidth =  pl.getPlanInformation().getSurrenderRoadWidth();
     	BigDecimal totalRoadWidth = roadWidth.add(surrenderRoadWidth.multiply(new BigDecimal("2"))).setScale(2,BigDecimal.ROUND_HALF_UP);
+    	if(roadWidth.compareTo(expectedvalue)<0)
     	if(roadWidth.compareTo(new BigDecimal("4.5"))>=0) {
     		if(surrenderRoadWidth.compareTo(BigDecimal.ZERO)>0) {
     			if(totalRoadWidth.compareTo(expectedvalue)<0) {
