@@ -48,7 +48,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 public class PermitOrderServiceBPA1 extends PermitOrderService {
 
 	public static String PARAGRAPH_ONE = "Permission under sub-section (3) of the Section-16 of the Odisha Development Authorities Act, 1982 is hereby granted in favour of;";
-	public static String ADDRESSED = "Smt. /Shri,";
 	public static String ADDRESS = "LAXMIPRIYA PANDA AND OTHERS,";
 	public static String ADDRESS2 = "KALARAHANGA";
 	public static String ADDRESS1 = "INJANA,";
@@ -96,6 +95,11 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 	public static String PARAGRAPH_7_1 = "FAR : ";
 	// public static String PARAGRAPH_7_2 = "0.55";
 
+	private Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLD);
+	private Font font1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
+	private Font fontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+	private Font fontBoldUnderlined = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.UNDERLINE);
+	
 	@Override
 	public InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) {
 		try {
@@ -107,50 +111,49 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 	}
 
 	public InputStream createPdf(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) throws Exception {
+		
 		String tenantIdActual = getValue(bpaApplication, "tenantId");
-
-
 		Document document = new Document();
 		ByteArrayOutputStream outputBytes;
 		outputBytes = new ByteArrayOutputStream();
 		PdfWriter.getInstance(document, outputBytes);
 		document.open();
-
-		Image logo1 = getLogo();
-
-		Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLD);
-		Font font1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
-		Font fontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
-		Font fontBoldUnderlined = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.UNDERLINE);
-
+		Image logo = getLogo();
 		String[] ulbGradeNameAndUlbArray = getUlbNameAndGradeFromMdms(requestInfo, tenantIdActual);
 		String ulbGradeNameAndUlb = (ulbGradeNameAndUlbArray[0] + " " + ulbGradeNameAndUlbArray[1]);
-		Paragraph para = new Paragraph(ulbGradeNameAndUlb, fontHeader);
-		para.setAlignment(Paragraph.ALIGN_CENTER);
-		Paragraph para1 = new Paragraph("Form-II (Order for Grant of Permission)", font1);
-		para1.setAlignment(Paragraph.ALIGN_CENTER);
+		
+		//Cuttack Municipal Corporation
+		Paragraph headerTitle = new Paragraph(ulbGradeNameAndUlb, fontHeader);
+		headerTitle.setAlignment(Paragraph.ALIGN_CENTER);
+		
+		//Form-II (Order for Grant of Permission)
+		Paragraph headerSubTitle = new Paragraph("Form-II (Order for Grant of Permission)", font1);
+		headerSubTitle.setAlignment(Paragraph.ALIGN_CENTER);
 		
 		String tenantId = StringUtils.capitalize(tenantIdActual.split("\\.")[1]);
 		@SuppressWarnings("deprecation")
 		Date date = new Date(Long.valueOf(getValue(bpaApplication, "approvalDate")));
 		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		String approvalNo = getValue(bpaApplication, "approvalNo");
 		String approvalDate = format.format(date);
-		Paragraph para2 = new Paragraph(
-				"Letter No. " + getValue(bpaApplication, "approvalNo") + ", " + tenantId + ", Dated: " + approvalDate,
+		Paragraph headerSubTitle2 = new Paragraph(
+				"Letter No. " + approvalNo + ", " + tenantId + ", Dated: " + approvalDate,
 				fontBold);
-		para2.setAlignment(Paragraph.ALIGN_CENTER);
+		headerSubTitle2.setAlignment(Paragraph.ALIGN_CENTER);
+		
 		String applicationNo = getValue(bpaApplication, "applicationNo");
-		Paragraph para3 = new Paragraph("Sujog-OBPS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
-		para3.setAlignment(Paragraph.ALIGN_CENTER);
+		Paragraph headerSubTitle3 = new Paragraph("Sujog-OBPS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
+		headerSubTitle3.setAlignment(Paragraph.ALIGN_CENTER);
 
-		Paragraph intro = new Paragraph(PARAGRAPH_ONE, font1);
+		Paragraph paragraph1 = new Paragraph(PARAGRAPH_ONE, font1);
 
-		Paragraph addressed = new Paragraph(ADDRESSED, fontBold);
+		Paragraph addressed = new Paragraph("Smt. /Shri,", fontBold);
 
 		String ownersCsv = getValue(bpaApplication, "$.landInfo.owners.*.name").replace("[", "").replace("]", "")
 				.replace("\"", "");
-		Paragraph address1 = new Paragraph(ownersCsv + ",", fontBold);
-		address1.setIndentationLeft(30);
+		
+		Paragraph applicants = new Paragraph(ownersCsv + ",", fontBold);
+		applicants.setIndentationLeft(30);
 
 		String localityName = getValue(bpaApplication, "$.landInfo.address.locality.name");
 		Paragraph address2 = new Paragraph(localityName + ",", fontBold);
@@ -158,6 +161,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 
 		Paragraph address3 = new Paragraph(tenantId, fontBold);
 		address3.setIndentationLeft(30);
+		
 		Chunk chunk1 = new Chunk(String.format("For %s of a ", getServiceType(plan)), font1);
 		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
 		Chunk chunk2 = new Chunk(floorInfo, fontBold);
@@ -244,9 +248,11 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		chunk32.add(chunk31);
 		list1Item11.add(chunk32);
 		List subList1 = new List(List.UNORDERED);
-		ListItem subList1item1 = new ListItem();
+		
 		// TODO call collection-services to fetch payment details
 		String[] feeDetails = getSanctionFeeAndCWWC(requestInfo, applicationNo, tenantIdActual);
+		
+		ListItem subList1item1 = new ListItem();
 		Phrase chunk33Phrase = new Phrase();
 		Chunk chunk33Pre = new Chunk("Sanction fee : Rs ", font1);
 		Chunk chunk33 = new Chunk(feeDetails[0], font1);
@@ -255,6 +261,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		chunk33Phrase.add(chunk33);
 		chunk33Phrase.add(chunk33post);
 		subList1item1.add(chunk33Phrase);
+		
 		ListItem subList1item2 = new ListItem();
 		Phrase chunk34Phrase = new Phrase();
 		Chunk chunk34Pre = new Chunk("Construction Workers Welfare Cess : Rs ", font1);
@@ -264,6 +271,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		chunk34Phrase.add(chunk34);
 		chunk34Phrase.add(chunk34post);
 		subList1item2.add(chunk34Phrase);
+		
 		subList1.add(subList1item1);
 		subList1.add(subList1item2);
 		list1Item11.add(subList1);
@@ -326,19 +334,19 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Image qrCode = getQrCode(ownersCsv, getValue(bpaApplication, "approvalNo"), approvalDate, getValue(bpaApplication, "edcrNumber"));
 
 		document.add(qrCode);
-		document.add(logo1);
-		document.add(para);
+		document.add(logo);
+		document.add(headerTitle);
 		document.add(Chunk.NEWLINE);
-		document.add(para1);
-		document.add(para2);
-		document.add(para3);
+		document.add(headerSubTitle);
+		document.add(headerSubTitle2);
+		document.add(headerSubTitle3);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
-		document.add(intro);
+		document.add(paragraph1);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
 		document.add(addressed);
-		document.add(address1);
+		document.add(applicants);
 		document.add(address2);
 		document.add(address3);
 		document.add(Chunk.NEWLINE);

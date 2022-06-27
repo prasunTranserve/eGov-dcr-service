@@ -77,6 +77,7 @@ public abstract class PermitOrderService {
 	private static final String RULE_NO = "RuleNo";
 	public static final String BLOCK = "Block";
 	public static final String STATUS = "Status";
+	
 
 	public abstract InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo);
 	@Autowired
@@ -110,13 +111,6 @@ public abstract class PermitOrderService {
 		return  DxfFileConstants.getServiceTypeList().get(pl.getPlanInformation().getServiceType());
 	}
 	
-	/**
-	 * extract value of a node from map
-	 * 
-	 * @param dataMap data
-	 * @param key     jsonpath to extract from data
-	 * @return
-	 */
 	public String getValue(Map dataMap, String key) {
 		String jsonString = new JSONObject(dataMap).toString();
 		DocumentContext context = JsonPath.using(Configuration.defaultConfiguration()).parse(jsonString);
@@ -144,13 +138,17 @@ public abstract class PermitOrderService {
 				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_SANC_FEE')].adjustedAmount");
 		String constructionWelfareCess = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (paymentsLength - 1)
 				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_WORKER_WELFARE_CESS')].adjustedAmount");
-
+		String otherFeeAmount = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (paymentsLength - 1)
+				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_ADJUSTMENT_AMOUNT')].adjustedAmount");
+		
 		sanctionFeeAmount = sanctionFeeAmount.replace("[", "").replace("]", "");
 		constructionWelfareCess = constructionWelfareCess.replace("[", "").replace("]", "");
 
 		String[] sanctionFeeAndCWWC = new String[2];
 		sanctionFeeAndCWWC[0] = sanctionFeeAmount;
 		sanctionFeeAndCWWC[1] = constructionWelfareCess;
+		sanctionFeeAndCWWC[2] = otherFeeAmount;
+		
 		return sanctionFeeAndCWWC;
 	}
 
