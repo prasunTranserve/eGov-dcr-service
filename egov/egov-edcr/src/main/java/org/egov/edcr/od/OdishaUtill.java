@@ -258,7 +258,8 @@ public class OdishaUtill {
 							.setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(new BigDecimal("2.4")));
 				;
 			} else {
-				b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(flrHeight));
+				if (flrHeight.compareTo(new BigDecimal("2.4")) == 0)
+					b.getBuilding().setBuildingHeight(b.getBuilding().getBuildingHeight().subtract(flrHeight));
 			}
 		}
 
