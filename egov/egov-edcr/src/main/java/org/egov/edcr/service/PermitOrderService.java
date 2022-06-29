@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -108,7 +109,15 @@ public abstract class PermitOrderService {
 	}
 	
 	public String getServiceType(Plan pl) {
-		return  DxfFileConstants.getServiceTypeList().get(pl.getPlanInformation().getServiceType());
+		try {
+			 Map<String, String> SERVICE_TYPE = new ConcurrentHashMap<>();
+			 SERVICE_TYPE.put("NEW_CONSTRUCTION", "New Construction");
+			 SERVICE_TYPE.put("ADDITION_AND_ALTERATION", "Addition and Alteration");
+			return SERVICE_TYPE.get(pl.getPlanInformation().getServiceType());
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 	
 	public String getValue(Map dataMap, String key) {
