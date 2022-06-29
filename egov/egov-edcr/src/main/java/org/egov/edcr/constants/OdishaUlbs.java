@@ -168,6 +168,9 @@ public enum OdishaUlbs {
 	}
 
 	public static OdishaUlbs getUlb(String ulbCode) {
+		if(ulbCode==null) {
+			return OdishaUlbs.ODISHA;
+		}
 		for (OdishaUlbs v : values()) {
 			if (v.ulbCode.equals(ulbCode)) {
 				return v;
