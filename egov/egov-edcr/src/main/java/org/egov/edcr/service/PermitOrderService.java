@@ -153,7 +153,7 @@ public abstract class PermitOrderService {
 		sanctionFeeAmount = sanctionFeeAmount.replace("[", "").replace("]", "");
 		constructionWelfareCess = constructionWelfareCess.replace("[", "").replace("]", "");
 
-		String[] sanctionFeeAndCWWC = new String[2];
+		String[] sanctionFeeAndCWWC = new String[3];
 		sanctionFeeAndCWWC[0] = sanctionFeeAmount;
 		sanctionFeeAndCWWC[1] = constructionWelfareCess;
 		sanctionFeeAndCWWC[2] = otherFeeAmount;
