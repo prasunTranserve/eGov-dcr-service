@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.stream.Stream;
 
@@ -64,12 +65,12 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 //	public static String PARAGRAPH_1_10 = "Injana ";
 	public static String PARAGRAPH_1_11 = "of %s within the Development Plan Area subject to following conditions/ restrictions: ";
 
-	public static String PARAGRAPH_2_1 = "The land/ Building shall be used exclusively for Others purpose and the uses shall not be changed to any other use without prior approval of this Authority.\n\n";
+	public static String PARAGRAPH_2_1 = "The land/ Building shall be used exclusively for %s purpose and the uses shall not be changed to any other use without prior approval of this Authority.\n\n";
 	public static String PARAGRAPH_2_2 = "The development shall be undertaken strictly according to plans enclosed with necessary permission endorsement.\n\n";
 	public static String PARAGRAPH_2_3_1 = "Parking space measuring ";
 //	public static String PARAGRAPH_2_3_2 = "134.51 ";
 	public static String PARAGRAPH_2_3_3 = "sq. mtr. as shown in the approved plan shall be exclusively used for parking and no part of it will be used for any other purpose.\n\n";
-	public static String PARAGRAPH_2_4 = "The land over which construction is proposed is accessible by an approved means of access of 6.09mtr. width.\n\n";
+	public static String PARAGRAPH_2_4 = "The land over which construction is proposed is accessible by an approved means of access of %s mtr. width.\n\n";
 	public static String PARAGRAPH_2_5 = "The land in question must be in lawful ownership and peaceful possession of the applicant.\n\n";
 	public static String PARAGRAPH_2_6 = "The applicant shall free gift %s sq.mtr. of located in the %s for the widening of the road/construction of new roads and other public amenities prior to completion of the development as indicated in the plan.\n\n";
 	public static String PARAGRAPH_2_7_1 = "The permission is valid for period of ";
@@ -78,6 +79,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 	public static String PARAGRAPH_2_8 = "Permission accorded under the provision of Section 16 of ODA Act, cannot be construed as an evidence to claim right title interest on the plot on which the permission has been granted.\n\n";
 	public static String PARAGRAPH_2_9 = "If any dispute arises with respect to right, title interest on the land on which the permission has been granted, the permission so granted shall be automatically treated as canceled during the period of dispute.\n\n";
 	public static String PARAGRAPH_2_10 = "Any construction and development made by the applicant or owner on the disputed land will be at his risk without any legal or financial liability on the Authority.\n\n";
+	public static String OTHER_CONDITIONS = "Other conditions to be complied by the applicant are as per the following:\n";
 	public static String PARAGRAPH_2_11_1 = "The ";
 //	public static String PARAGRAPH_2_11_2 = "S+2 residential building ";
 	public static String PARAGRAPH_2_11_3 = "is approved on payment following fees:\n\n";
@@ -122,6 +124,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		String[] ulbGradeNameAndUlbArray = getUlbNameAndGradeFromMdms(requestInfo, tenantIdActual);
 		String ulbGradeNameAndUlb = (ulbGradeNameAndUlbArray[0] + " " + ulbGradeNameAndUlbArray[1]);
 		
+		Map<String, Object> additionalDetails = getAdditionalDetailsMap(bpaApplication);
 		//Cuttack Municipal Corporation
 		Paragraph headerTitle = new Paragraph(ulbGradeNameAndUlb, fontHeader);
 		headerTitle.setAlignment(Paragraph.ALIGN_CENTER);
@@ -162,43 +165,43 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Paragraph address3 = new Paragraph(tenantId, fontBold);
 		address3.setIndentationLeft(30);
 		
-		Chunk chunk1 = new Chunk(String.format("For %s of a ", getServiceType(plan)), font1);
+		Chunk forServiceType = new Chunk(String.format("For %s of a ", getServiceType(plan)), font1);
 		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
-		Chunk chunk2 = new Chunk(floorInfo, fontBold);
-		Chunk chunk3 = new Chunk(PARAGRAPH_1_3, font1);
+		Chunk floorInform = new Chunk(floorInfo, fontBold);
+		Chunk storeyed = new Chunk(PARAGRAPH_1_3, font1);
 		String subOccupancy = plan.getPlanInformation().getSubOccupancy() + " ";
-		Chunk chunk4 = new Chunk(subOccupancy, fontBold);
-		Chunk chunk5 = new Chunk(PARAGRAPH_1_5, font1);
+		Chunk subOccupanc = new Chunk(subOccupancy, fontBold);
+		Chunk buildingInRespectOf = new Chunk(PARAGRAPH_1_5, font1);
 		String plotNo = plan.getPlanInformation().getPlotNo() + " ";
-		Chunk chunk6 = new Chunk(plotNo, fontBold);
+		Chunk pltoNumber = new Chunk(plotNo, fontBold);
 		Chunk chunk7 = new Chunk(PARAGRAPH_1_7, font1);
 		String khataNo = plan.getPlanInformation().getKhataNo() + " ";
-		Chunk chunk8 = new Chunk(khataNo, fontBold);
-		Chunk chunk9 = new Chunk(PARAGRAPH_1_9, font1);
-		Chunk chunk10 = new Chunk(localityName + " ", fontBold);
-		Chunk chunk11 = new Chunk(String.format(PARAGRAPH_1_11, tenantId), font1);
+		Chunk khataNumber = new Chunk(khataNo, fontBold);
+		Chunk village = new Chunk(PARAGRAPH_1_9, font1);
+		Chunk locality = new Chunk(localityName + " ", fontBold);
+		Chunk withinDevelopmentPlanArea = new Chunk(String.format(PARAGRAPH_1_11, tenantId), font1);
 
-		Phrase phrase1 = new Phrase();
-		phrase1.add(chunk1);
-		phrase1.add(chunk2);
-		phrase1.add(chunk3);
-		phrase1.add(chunk4);
-		phrase1.add(chunk5);
-		phrase1.add(chunk6);
-		phrase1.add(chunk7);
-		phrase1.add(chunk8);
-		phrase1.add(chunk9);
-		phrase1.add(chunk10);
-		phrase1.add(chunk11);
-		Paragraph chunk12 = new Paragraph(phrase1);
+		Phrase paragraph2 = new Phrase();
+		paragraph2.add(forServiceType);
+		paragraph2.add(floorInform);
+		paragraph2.add(storeyed);
+		paragraph2.add(subOccupanc);
+		paragraph2.add(buildingInRespectOf);
+		paragraph2.add(pltoNumber);
+		paragraph2.add(chunk7);
+		paragraph2.add(khataNumber);
+		paragraph2.add(village);
+		paragraph2.add(locality);
+		paragraph2.add(withinDevelopmentPlanArea);
+		Paragraph secondPara = new Paragraph(paragraph2);
 
 		List list1 = new List(List.ORDERED, List.ALPHABETICAL);
 		ListItem list1Item1 = new ListItem();
-		Phrase chunk13 = new Phrase(PARAGRAPH_2_1, font1);
-		list1Item1.add(chunk13);
+		Phrase landUsePhrase = new Phrase(String.format(PARAGRAPH_2_1, subOccupancy), font1);
+		list1Item1.add(landUsePhrase);
 		ListItem list1Item2 = new ListItem();
-		Phrase chunk14 = new Phrase(PARAGRAPH_2_2, font1);
-		list1Item2.add(chunk14);
+		Phrase developmentUndertakenPhrase = new Phrase(PARAGRAPH_2_2, font1);
+		list1Item2.add(developmentUndertakenPhrase);
 		ListItem list1Item3 = new ListItem();
 		Chunk chunk15 = new Chunk(PARAGRAPH_2_3_1, font1);
 		Chunk chunk16 = new Chunk(plan.getPlanInformation().getTotalParking() + " ", fontBold);
@@ -209,7 +212,8 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		chunk18.add(chunk17);
 		list1Item3.add(chunk18);
 		ListItem list1Item4 = new ListItem();
-		Phrase chunk19 = new Phrase(PARAGRAPH_2_4, font1);
+		BigDecimal roadWidth = plan.getPlanInformation().getTotalRoadWidth();
+		Phrase chunk19 = new Phrase(String.format(PARAGRAPH_2_4, roadWidth), font1);
 		list1Item4.add(chunk19);
 		ListItem list1Item5 = new ListItem();
 		Phrase chunk20 = new Phrase(PARAGRAPH_2_5, font1);
@@ -236,6 +240,16 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		ListItem list1Item10 = new ListItem();
 		Phrase chunk28 = new Phrase(PARAGRAPH_2_10, font1);
 		list1Item10.add(chunk28);
+		ListItem otherConditionsItem = new ListItem();
+		Phrase OtherConditionsPhrase = new Phrase(OTHER_CONDITIONS, font1);
+		// dynamic Other conditions from additionalDetails of application--
+		if (Objects.nonNull(additionalDetails)
+				&& Objects.nonNull(additionalDetails.get("otherConditionsForPermitCertificate"))) {
+			Chunk otherConditions = new Chunk(
+					String.valueOf(additionalDetails.get("otherConditionsForPermitCertificate"))+"\n\n", font1);
+			otherConditionsItem.add(OtherConditionsPhrase);
+			otherConditionsItem.add(otherConditions);
+		}
 		ListItem list1Item11 = new ListItem();
 		Chunk chunk29 = new Chunk(PARAGRAPH_2_11_1, font1);
 		Chunk chunk30 = new Chunk(
@@ -247,34 +261,37 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		chunk32.add(chunk30);
 		chunk32.add(chunk31);
 		list1Item11.add(chunk32);
-		List subList1 = new List(List.UNORDERED);
+		List payments = new List(List.UNORDERED);
 		
-		// TODO call collection-services to fetch payment details
-		String[] feeDetails = getSanctionFeeAndCWWC(requestInfo, applicationNo, tenantIdActual);
+		// call collection-services to fetch payment details
+		java.util.List<Map<String,Object>> permitFeeBillAccountDetails = getPermitFeeBillAccountDetails(requestInfo, applicationNo, tenantIdActual);
+		for(Map<String,Object> billAccountDetail:permitFeeBillAccountDetails) {
+			String adjustedAmount = String.valueOf(billAccountDetail.get("adjustedAmount"));
+			//skip those taxheadcodes for which adjustedAmount is 0-
+			if(StringUtils.isNotEmpty(adjustedAmount) && "0.0".equals(adjustedAmount))
+				continue;
+			String taxHeadCode = String.valueOf(billAccountDetail.get("taxHeadCode"));
+			String taxHeadName = getFeeComponentNameFromTaxHeadCode(taxHeadCode);
+			
+			ListItem individualPaymentSentence = new ListItem();
+			Phrase paymentLine = new Phrase();
+			Chunk paymentSentencePre = new Chunk(taxHeadName+" : Rs ", font1);
+			Chunk paymentSentence = new Chunk(adjustedAmount, font1);
+			Chunk paymentSentencePost = new Chunk("/-Only", font1);
+			paymentLine.add(paymentSentencePre);
+			paymentLine.add(paymentSentence);
+			paymentLine.add(paymentSentencePost);
+			// add reason for adjustment/other fee-
+			if ("BPA_SANC_ADJUSTMENT_AMOUNT".equalsIgnoreCase(taxHeadCode)) {
+				String modificationReasonSanctionFeeAdjustmentAmount = getValue(bpaApplication,
+						"$.additionalDetails.modificationReasonSanctionFeeAdjustmentAmount");
+				paymentLine.add(new Chunk(" (" + modificationReasonSanctionFeeAdjustmentAmount + ")", font1));
+			}
+			individualPaymentSentence.add(paymentLine);
+			payments.add(individualPaymentSentence);
+		}
 		
-		ListItem subList1item1 = new ListItem();
-		Phrase chunk33Phrase = new Phrase();
-		Chunk chunk33Pre = new Chunk("Sanction fee : Rs ", font1);
-		Chunk chunk33 = new Chunk(feeDetails[0], font1);
-		Chunk chunk33post = new Chunk("/-Only", font1);
-		chunk33Phrase.add(chunk33Pre);
-		chunk33Phrase.add(chunk33);
-		chunk33Phrase.add(chunk33post);
-		subList1item1.add(chunk33Phrase);
-		
-		ListItem subList1item2 = new ListItem();
-		Phrase chunk34Phrase = new Phrase();
-		Chunk chunk34Pre = new Chunk("Construction Workers Welfare Cess : Rs ", font1);
-		Chunk chunk34 = new Chunk(feeDetails[1], font1);
-		Chunk chunk34post = new Chunk("/-Only", font1);
-		chunk34Phrase.add(chunk34Pre);
-		chunk34Phrase.add(chunk34);
-		chunk34Phrase.add(chunk34post);
-		subList1item2.add(chunk34Phrase);
-		
-		subList1.add(subList1item1);
-		subList1.add(subList1item2);
-		list1Item11.add(subList1);
+		list1Item11.add(payments);
 		list1.add(list1Item1);
 		list1.add(list1Item2);
 		list1.add(list1Item3);
@@ -285,11 +302,12 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		list1.add(list1Item8);
 		list1.add(list1Item9);
 		list1.add(list1Item10);
+		list1.add(otherConditionsItem);
 		list1.add(list1Item11);
 
 		BigDecimal plotAreaAsPerDeclaration = plan.getPlot().getArea();
 		Chunk chunk35 = new Chunk(PARAGRAPH_3_1, font1);
-		Chunk chunk36 = new Chunk(plotAreaAsPerDeclaration + DxfFileConstants.SQM, fontBold);
+		Chunk chunk36 = new Chunk(plotAreaAsPerDeclaration + SQM, fontBold);
 		Paragraph chunk37 = new Paragraph();
 		chunk37.add(chunk35);
 		chunk37.add(chunk36);
@@ -297,14 +315,14 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		BigDecimal plotAreaAsPerPossession = plotAreaAsPerDeclaration;
 		Chunk chunk38 = new Chunk(PARAGRAPH_4_1, font1);
 		// TODO: to check which parameter in scrutiny gives occupied plot area
-		Chunk chunk39 = new Chunk(plotAreaAsPerPossession + DxfFileConstants.SQM, fontBold);
+		Chunk chunk39 = new Chunk(plotAreaAsPerPossession + SQM, fontBold);
 		Paragraph chunk40 = new Paragraph();
 		chunk40.add(chunk38);
 		chunk40.add(chunk39);
 
 		Chunk chunk41 = new Chunk(PARAGRAPH_5_1, font1);
 		Chunk chunk42 = new Chunk(plan.getVirtualBuilding() != null
-				? plan.getVirtualBuilding().getTotalBuitUpArea().setScale(2, BigDecimal.ROUND_UP) + DxfFileConstants.SQM
+				? plan.getVirtualBuilding().getTotalBuitUpArea().setScale(2, BigDecimal.ROUND_UP) + SQM
 				: "0", fontBold);
 		Paragraph chunk43 = new Paragraph();
 		chunk43.add(chunk41);
@@ -313,7 +331,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Chunk chunk44 = new Chunk(PARAGRAPH_6_1, font1);
 		BigDecimal providedFar = BigDecimal.valueOf(plan.getFarDetails().getProvidedFar());
 		Chunk chunk45 = new Chunk(
-				plan.getVirtualBuilding().getTotalFloorArea().setScale(2, BigDecimal.ROUND_UP) + DxfFileConstants.SQM,
+				plan.getVirtualBuilding().getTotalFloorArea().setScale(2, BigDecimal.ROUND_UP) + SQM,
 				fontBold);
 		Paragraph chunk46 = new Paragraph();
 		chunk46.add(chunk44);
@@ -351,7 +369,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		document.add(address3);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
-		document.add(chunk12);
+		document.add(secondPara);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
 		document.add(list1);
@@ -397,28 +415,23 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Phrase cellValue2 = new Phrase(stiltParking + "", fontPara1);
 		cell2.addElement(cellValue2);
 		PdfPCell cell3 = new PdfPCell();
-		// TODO SetBackData is private class, cannot provide static method in
-		// OdishaUtil.java
-		Map<String, BigDecimal> setBackData = getSetBackData(plan);
-		BigDecimal frontSetbackProvided = setBackData.get("frontSetbackProvided");
-		BigDecimal rearSetbackProvided = setBackData.get("rearSetbackProvided");
-		BigDecimal leftSetbackProvided = setBackData.get("leftSetbackProvided");
-		BigDecimal rightSetbackProvided = setBackData.get("rightSetbackProvided");
-
-		Phrase cellValue3 = new Phrase(frontSetbackProvided + "", fontPara1);
+		
+		Phrase cellValue3 = new Phrase("", fontPara1);
 		int rowSpanParking = 2;
+		//set rowspanhelper as rowspan has to be only 2 and then for each block-
+		rowSpanHelper=0;
 		cell3.setRowspan(rowSpanParking + rowSpanHelper);
 		cell3.addElement(cellValue3);
 		PdfPCell cell4 = new PdfPCell();
-		Phrase cellValue4 = new Phrase(rearSetbackProvided + "", fontPara1);
+		Phrase cellValue4 = new Phrase("", fontPara1);
 		cell4.setRowspan(rowSpanParking + rowSpanHelper);
 		cell4.addElement(cellValue4);
 		PdfPCell cell5 = new PdfPCell();
-		Phrase cellValue5 = new Phrase(leftSetbackProvided + "", fontPara1);
+		Phrase cellValue5 = new Phrase("", fontPara1);
 		cell5.setRowspan(rowSpanParking + rowSpanHelper);
 		cell5.addElement(cellValue5);
 		PdfPCell cell6 = new PdfPCell();
-		Phrase cellValue6 = new Phrase(rightSetbackProvided + "", fontPara1);
+		Phrase cellValue6 = new Phrase("", fontPara1);
 		cell6.setRowspan(rowSpanParking + rowSpanHelper);
 		cell6.addElement(cellValue6);
 		PdfPCell cell7 = new PdfPCell();
@@ -445,7 +458,41 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 			blockNameCell.addElement(blockNamephrase);
 			table1.addCell(blockNameCell);
 			
+			//my code starts-
+			Map<String, BigDecimal> setBackData = getSetBackData(plan,plan.getBlockByName(block.getBlockNo()));
+			BigDecimal frontSetbackProvided = setBackData.get("frontSetbackProvided");
+			BigDecimal rearSetbackProvided = setBackData.get("rearSetbackProvided");
+			BigDecimal leftSetbackProvided = setBackData.get("leftSetbackProvided");
+			BigDecimal rightSetbackProvided = setBackData.get("rightSetbackProvided");
+
+			int noOfFloors=0;
 			java.util.List<DcrReportFloorDetail> floorDetails = block.getDcrReportFloorDetails();
+			for (DcrReportFloorDetail floor : floorDetails) {
+				noOfFloors++;
+			}
+			noOfFloors++;
+			PdfPCell frontSetBackCell = new PdfPCell();
+			Phrase frontSetBackPhrase = new Phrase(frontSetbackProvided + "", fontPara1);
+			frontSetBackCell.setRowspan(noOfFloors);
+			frontSetBackCell.addElement(frontSetBackPhrase);
+			PdfPCell rearSetBackCell = new PdfPCell();
+			Phrase rearSetBackPhrase = new Phrase(rearSetbackProvided + "", fontPara1);
+			rearSetBackCell.setRowspan(noOfFloors);
+			rearSetBackCell.addElement(rearSetBackPhrase);
+			PdfPCell leftSetBackCell = new PdfPCell();
+			Phrase leftSetBackPhrase = new Phrase(leftSetbackProvided + "", fontPara1);
+			leftSetBackCell.setRowspan(noOfFloors);
+			leftSetBackCell.addElement(leftSetBackPhrase);
+			PdfPCell rightSetBackCell = new PdfPCell();
+			Phrase rightSetBackPhrase = new Phrase(rightSetbackProvided + "", fontPara1);
+			rightSetBackCell.setRowspan(noOfFloors);
+			rightSetBackCell.addElement(rightSetBackPhrase);
+			table1.addCell(frontSetBackCell);
+			table1.addCell(rearSetBackCell);
+			table1.addCell(leftSetBackCell);
+			table1.addCell(rightSetBackCell);
+			// my code ends
+			
 			for (DcrReportFloorDetail floor : floorDetails) {
 				PdfPCell floorNameCell = new PdfPCell();
 				Phrase floorNamephrase = new Phrase("Floor " + floor.getFloorNo(), fontPara1);
@@ -473,44 +520,4 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 				});
 	}
 
-	public static Map<String, BigDecimal> getSetBackData(Plan plan) {
-		SetBack setBack = null;
-		for (Block block : plan.getBlocks()) {
-			setBack = block.getSetBacks().get(0);
-		}
-
-		// these are provided setbacks-
-		BigDecimal frontSetbackProvided = BigDecimal.ZERO;
-		BigDecimal rearSetbackProvided = BigDecimal.ZERO;
-		BigDecimal leftSetbackProvided = BigDecimal.ZERO;
-		BigDecimal rightSetbackProvided = BigDecimal.ZERO;
-
-		if (setBack != null) {
-			frontSetbackProvided = setBack.getFrontYard() != null ? setBack.getFrontYard().getMinimumDistance()
-					: BigDecimal.ZERO;
-			rearSetbackProvided = setBack.getRearYard() != null ? setBack.getRearYard().getMinimumDistance()
-					: BigDecimal.ZERO;
-			leftSetbackProvided = setBack.getSideYard1() != null ? setBack.getSideYard1().getMinimumDistance()
-					: BigDecimal.ZERO;
-			rightSetbackProvided = setBack.getSideYard2() != null ? setBack.getSideYard2().getMinimumDistance()
-					: BigDecimal.ZERO;
-		}
-
-		Map<String, BigDecimal> setBackData = new HashMap<>();
-		setBackData.put("frontSetbackProvided", frontSetbackProvided);
-		setBackData.put("rearSetbackProvided", rearSetbackProvided);
-		setBackData.put("leftSetbackProvided", leftSetbackProvided);
-		setBackData.put("rightSetbackProvided", rightSetbackProvided);
-
-		// these are required setbacks-
-		BigDecimal frontSetbackRequired = BigDecimal.ZERO;
-		BigDecimal rearSetbackRequired = BigDecimal.ZERO;
-		BigDecimal leftSetbackRequired = BigDecimal.ZERO;
-		BigDecimal rightSetbackRequired = BigDecimal.ZERO;
-		setBackData.put("frontSetbackRequired", frontSetbackRequired);
-		setBackData.put("rearSetbackRequired", rearSetbackRequired);
-		setBackData.put("leftSetbackRequired", leftSetbackRequired);
-		setBackData.put("rightSetbackRequired", rightSetbackRequired);
-		return setBackData;
-	}
 }

@@ -4,16 +4,19 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.AdditionalReportDetail;
 import org.egov.common.entity.edcr.Block;
@@ -23,9 +26,12 @@ import org.egov.common.entity.edcr.DcrReportFloorDetail;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Occupancy;
 import org.egov.common.entity.edcr.Plan;
+import org.egov.common.entity.edcr.ScrutinyDetail;
+import org.egov.common.entity.edcr.SetBack;
 import org.egov.edcr.config.properties.EdcrApplicationSettings;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.feature.AdditionalFeature;
+import org.egov.edcr.od.OdishaUtill;
 import org.egov.infra.exception.ApplicationRuntimeException;
 import org.egov.infra.microservice.models.RequestInfo;
 import org.json.simple.JSONObject;
@@ -78,6 +84,47 @@ public abstract class PermitOrderService {
 	private static final String RULE_NO = "RuleNo";
 	public static final String BLOCK = "Block";
 	public static final String STATUS = "Status";
+	public static final String SQM =" SQM";
+	public static final String PROVIDED_LIFT_DETAIL = "providedLiftDetail";
+	public static final String REQUIRED_LIFT_DETAIL = "requiredLiftDetail";
+	public static final String SCRUTINY_DETAIL_PROVIDED = "Provided";
+	public static final String SCRUTINY_DETAIL_REQUIRED = "Required";
+	public static final String GROUND_FLOOR_NO = "0";
+	public static final String DETAIL = "Detail";
+	public static final String DESCRIPTION_IN_SCRUTINY_DETAIL = "Description";
+	public static final String NO_OF_TREE_PER_PLOT = "No of tree as per plot";
+	public static final String PAYMENTS_RESPONSE_FIELD = "Payments";
+	
+	public static final String TAXHEAD_BPA_SANC_FEES_CODE = "BPA_SANC_FEES";
+	public static final String TAXHEAD_BPA_SANC_FEES_NAME = "Sanction Fee";
+	public static final String TAXHEAD_BPA_SANC_TEMP_RETENTION_FEE_CODE = "BPA_SANC_TEMP_RETENTION_FEE";
+	public static final String TAXHEAD_BPA_SANC_TEMP_RETENTION_FEE_NAME = "Temporary Retention Fee";
+	public static final String TAXHEAD_BPA_SANC_SECURITY_DEPOSIT_CODE = "BPA_SANC_SECURITY_DEPOSIT";
+	public static final String TAXHEAD_BPA_SANC_SECURITY_DEPOSIT_NAME = "Security Deposit";
+	public static final String TAXHEAD_BPA_SANC_WORKER_WELFARE_CESS_CODE = "BPA_SANC_WORKER_WELFARE_CESS";
+	public static final String TAXHEAD_BPA_SANC_WORKER_WELFARE_CESS_NAME = "Construction Workers Welfare Cess";
+	public static final String TAXHEAD_BPA_SANC_PUR_FAR_CODE = "BPA_SANC_PUR_FAR";
+	public static final String TAXHEAD_BPA_SANC_PUR_FAR_NAME = "Purchasable FAR";
+	public static final String TAXHEAD_BPA_SANC_SHELTER_FEE_CODE = "BPA_SANC_SHELTER_FEE";
+	public static final String TAXHEAD_BPA_SANC_SHELTER_FEE_NAME = "Shelter Fee";
+	public static final String TAXHEAD_BPA_SANC_SANC_FEE_CODE = "BPA_SANC_SANC_FEE";
+	public static final String TAXHEAD_BPA_SANC_SANC_FEE_NAME = "Sanction Fee";
+	public static final String TAXHEAD_BPA_SANC_EIDP_FEE_CODE = "BPA_SANC_EIDP_FEE";
+	public static final String TAXHEAD_BPA_SANC_EIDP_FEE_NAME = "EIDP FEE";
+	public static final String TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE = "BPA_SANC_ADJUSTMENT_AMOUNT";
+	public static final String TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_NAME = "Other Fee";
+	public static final String TAXHEAD_BPA_BLDNG_OPRN_FEE_REWORK_ADJUSTMENT_CODE = 
+			"BPA_BLDNG_OPRN_FEE_REWORK_ADJUSTMENT";
+	public static final String TAXHEAD_BPA_BLDNG_OPRN_FEE_REWORK_ADJUSTMENT_NAME = 
+			"Building Operation Fee Rework Adjustment Amount";
+	public static final String TAXHEAD_BPA_LAND_DEV_FEE_REWORK_ADJUSTMENT_CODE="BPA_LAND_DEV_FEE_REWORK_ADJUSTMENT";
+	public static final String TAXHEAD_BPA_LAND_DEV_FEE_REWORK_ADJUSTMENT_NAME=
+			"Land Development Fee Rework Adjustment Amount";
+	public static final String TAXHEAD_BPA_LAND_DEV_FEE_CODE = "BPA_LAND_DEV_FEE";
+	public static final String TAXHEAD_BPA_LAND_DEV_FEE_NAME = "Development Fee";
+	public static final String TAXHEAD_BPA_BLDNG_OPRN_FEE_CODE = "BPA_BLDNG_OPRN_FEE";
+	public static final String TAXHEAD_BPA_BLDNG_OPRN_FEE_NAME = "Fee for Building Operation";
+	
 	
 
 	public abstract InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo);
@@ -125,114 +172,143 @@ public abstract class PermitOrderService {
 		DocumentContext context = JsonPath.using(Configuration.defaultConfiguration()).parse(jsonString);
 		return context.read(key) + "";
 	}
+	
+	public Map<String, Object> getAdditionalDetailsMap(Map bpa) {
+		String jsonString = new JSONObject(bpa).toString();
+		DocumentContext context = JsonPath.using(Configuration.defaultConfiguration()).parse(jsonString);
+		return context.read("additionalDetails");
+	}
 
 	public Object fetchPaymentDetails(RequestInfo requestInfo, String consumercode, String tenantId) {
 		paymentService.fetchApplicationFeePaymentDetails(requestInfo, consumercode, tenantId);
 		paymentService.fetchPermitFeePaymentDetails(requestInfo, consumercode, tenantId);
 		return null;
 	}
-
-	public String[] getSanctionFeeAndCWWC(RequestInfo requestInfo, String consumercode, String tenantId) {
+	
+	public List<Map<String, Object>> getPermitFeeBillAccountDetails(RequestInfo requestInfo, String consumercode,
+			String tenantId) {
 		Object permitFeePaymentDetails = paymentService.fetchPermitFeePaymentDetails(requestInfo, consumercode,
 				tenantId);
+		return getBillAccountDetailsFromPaymentResponse(permitFeePaymentDetails);
+	}
+	
+	public List<Map<String, Object>> getBillAccountDetailsFromPaymentResponse(Object permitFeePaymentDetails) {
+		List<Map<String, Object>> billAccountDetails = new ArrayList<>();
+
 		int paymentsLength = 1;
 		if (Objects.nonNull(permitFeePaymentDetails) && permitFeePaymentDetails instanceof Map
-				&& ((Map) permitFeePaymentDetails).get("Payments") instanceof List
-				&& !CollectionUtils.isEmpty((List) ((Map) permitFeePaymentDetails).get("Payments"))) {
-			List payments = (List) ((Map) permitFeePaymentDetails).get("Payments");
+				&& ((Map) permitFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD) instanceof List
+				&& !CollectionUtils.isEmpty((List) ((Map) permitFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD))) {
+			List payments = (List) ((Map) permitFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD);
 			paymentsLength = payments.size();
 		}
-
-		String sanctionFeeAmount = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (paymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_SANC_FEE')].adjustedAmount");
-		String constructionWelfareCess = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (paymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_WORKER_WELFARE_CESS')].adjustedAmount");
-		String otherFeeAmount = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (paymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_ADJUSTMENT_AMOUNT')].adjustedAmount");
-		
-		sanctionFeeAmount = sanctionFeeAmount.replace("[", "").replace("]", "");
-		constructionWelfareCess = constructionWelfareCess.replace("[", "").replace("]", "");
-
-		String[] sanctionFeeAndCWWC = new String[3];
-		sanctionFeeAndCWWC[0] = sanctionFeeAmount;
-		sanctionFeeAndCWWC[1] = constructionWelfareCess;
-		sanctionFeeAndCWWC[2] = otherFeeAmount;
-		
-		return sanctionFeeAndCWWC;
+		String jsonString = new JSONObject((Map) permitFeePaymentDetails).toString();
+		DocumentContext context = JsonPath.using(Configuration.defaultConfiguration()).parse(jsonString);
+		billAccountDetails = context.read(
+				"$.Payments[" + (paymentsLength - 1) + "].paymentDetails[0].bill.billDetails[0].billAccountDetails");
+		return billAccountDetails;
 	}
+	
+	public String getFeeComponentNameFromTaxHeadCode(String taxHeadCode) {
+		String taxHeadName = "";
+		switch (taxHeadCode) {
+		case TAXHEAD_BPA_SANC_FEES_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_FEES_NAME;
+			break;
+		case TAXHEAD_BPA_SANC_TEMP_RETENTION_FEE_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_TEMP_RETENTION_FEE_NAME;
+			break;
+		case TAXHEAD_BPA_SANC_SECURITY_DEPOSIT_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_SECURITY_DEPOSIT_NAME;
+			break;
+		case TAXHEAD_BPA_SANC_WORKER_WELFARE_CESS_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_WORKER_WELFARE_CESS_NAME;
+			break;
+		case TAXHEAD_BPA_SANC_PUR_FAR_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_PUR_FAR_NAME;
+			break;
+		case TAXHEAD_BPA_SANC_SHELTER_FEE_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_SHELTER_FEE_NAME;
+			break;
+		case TAXHEAD_BPA_SANC_SANC_FEE_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_SANC_FEE_NAME;
+			break;
+		case TAXHEAD_BPA_SANC_EIDP_FEE_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_EIDP_FEE_NAME;
+			break;
+		case TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE:
+			taxHeadName = TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_NAME;
+			break;
+		case TAXHEAD_BPA_BLDNG_OPRN_FEE_REWORK_ADJUSTMENT_CODE:
+			taxHeadName = TAXHEAD_BPA_BLDNG_OPRN_FEE_REWORK_ADJUSTMENT_NAME;
+			break;
+		case TAXHEAD_BPA_LAND_DEV_FEE_REWORK_ADJUSTMENT_CODE:
+			taxHeadName = TAXHEAD_BPA_LAND_DEV_FEE_REWORK_ADJUSTMENT_NAME;
+			break;
+		case TAXHEAD_BPA_LAND_DEV_FEE_CODE:
+			taxHeadName = TAXHEAD_BPA_LAND_DEV_FEE_NAME;
+			break;
+		case TAXHEAD_BPA_BLDNG_OPRN_FEE_CODE:
+			taxHeadName = TAXHEAD_BPA_BLDNG_OPRN_FEE_NAME;
+			break;
+		default:
+			taxHeadName = taxHeadCode;
+		}
+		return taxHeadName;
+	}
+	
+	public Map<String, String> getAllFeeDetailsMap(LinkedHashMap bpaApplication, RequestInfo requestInfo,
+			String consumercode, String tenantId) {
 
-	public String[] getAllFeeDetails(RequestInfo requestInfo, String consumercode, String tenantId) {
+		Map<String, String> paymentDetailsMap = new HashMap<>();
 		Object permitFeePaymentDetails = paymentService.fetchPermitFeePaymentDetails(requestInfo, consumercode,
 				tenantId);
 		int PermitFeePaymentsLength = 1;
 		if (Objects.nonNull(permitFeePaymentDetails) && permitFeePaymentDetails instanceof Map
-				&& ((Map) permitFeePaymentDetails).get("Payments") instanceof List
-				&& !CollectionUtils.isEmpty((List) ((Map) permitFeePaymentDetails).get("Payments"))) {
-			List payments = (List) ((Map) permitFeePaymentDetails).get("Payments");
+				&& ((Map) permitFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD) instanceof List
+				&& !CollectionUtils.isEmpty((List) ((Map) permitFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD))) {
+			List payments = (List) ((Map) permitFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD);
 			PermitFeePaymentsLength = payments.size();
 		}
-
-		String sanctionFeeAmount = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (PermitFeePaymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_SANC_FEE')].adjustedAmount");
-		String constructionWelfareCess = getValue((Map) permitFeePaymentDetails, "$.Payments["
-				+ (PermitFeePaymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_WORKER_WELFARE_CESS')].adjustedAmount");
-		String shelterFees = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (PermitFeePaymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_SHELTER_FEE')].adjustedAmount");
-		String purchasedFarFees = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (PermitFeePaymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_PUR_FAR')].adjustedAmount");
-		String EIDPFees = getValue((Map) permitFeePaymentDetails, "$.Payments[" + (PermitFeePaymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_EIDP_FEE')].adjustedAmount");
+		List<Map<String, Object>> permitFeeBillAccountDetails = getBillAccountDetailsFromPaymentResponse(
+				permitFeePaymentDetails);
+		for (Map<String, Object> billAccountDetail : permitFeeBillAccountDetails) {
+			String adjustedAmount = String.valueOf(billAccountDetail.get("adjustedAmount"));
+			String taxHeadCode = String.valueOf(billAccountDetail.get("taxHeadCode"));
+			paymentDetailsMap.put(taxHeadCode, adjustedAmount);
+			if ("BPA_SANC_ADJUSTMENT_AMOUNT".equalsIgnoreCase(taxHeadCode)) {
+				paymentDetailsMap.put("modificationReasonSanctionFeeAdjustmentAmount",
+					getValue(bpaApplication, "$.additionalDetails.modificationReasonSanctionFeeAdjustmentAmount"));
+			}
+		}
 		String totalPermitFeeAmountPaid = getValue((Map) permitFeePaymentDetails,
 				"$.Payments[" + (PermitFeePaymentsLength - 1) + "].paymentDetails[0].totalAmountPaid");
-		String temporaryRetentionFee = getValue((Map) permitFeePaymentDetails, "$.Payments["
-				+ (PermitFeePaymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_SANC_TEMP_RETENTION_FEE')].adjustedAmount");
-
-		sanctionFeeAmount = sanctionFeeAmount.replace("[", "").replace("]", "");
-		constructionWelfareCess = constructionWelfareCess.replace("[", "").replace("]", "");
-		shelterFees = shelterFees.replace("[", "").replace("]", "");
-		purchasedFarFees = purchasedFarFees.replace("[", "").replace("]", "");
-		EIDPFees = EIDPFees.replace("[", "").replace("]", "");
-		totalPermitFeeAmountPaid = totalPermitFeeAmountPaid.replace("[", "").replace("]", "");
-		temporaryRetentionFee = temporaryRetentionFee.replace("[", "").replace("]", "");
-		String[] allFeeDetails = new String[11];
-		allFeeDetails[0] = sanctionFeeAmount;
-		allFeeDetails[1] = constructionWelfareCess;
-		allFeeDetails[2] = shelterFees;
-		allFeeDetails[3] = purchasedFarFees;
-		allFeeDetails[4] = EIDPFees;
-		allFeeDetails[5] = totalPermitFeeAmountPaid;
+		paymentDetailsMap.put("totalPermitFeeAmountPaid", totalPermitFeeAmountPaid);
 
 		Object applicationFeePaymentDetails = paymentService.fetchApplicationFeePaymentDetails(requestInfo,
 				consumercode, tenantId);
 		int applicationFeePaymentsLength = 1;
 		if (Objects.nonNull(applicationFeePaymentDetails) && applicationFeePaymentDetails instanceof Map
-				&& ((Map) applicationFeePaymentDetails).get("Payments") instanceof List
-				&& !CollectionUtils.isEmpty((List) ((Map) applicationFeePaymentDetails).get("Payments"))) {
-			List payments = (List) ((Map) applicationFeePaymentDetails).get("Payments");
+				&& ((Map) applicationFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD) instanceof List
+				&& !CollectionUtils.isEmpty((List) ((Map) applicationFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD))) {
+			List payments = (List) ((Map) applicationFeePaymentDetails).get(PAYMENTS_RESPONSE_FIELD);
 			applicationFeePaymentsLength = payments.size();
 		}
-		String developmentFeeAmount = getValue((Map) applicationFeePaymentDetails, "$.Payments["
-				+ (applicationFeePaymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_LAND_DEV_FEE')].adjustedAmount");
-		String buildingOperationFee = getValue((Map) applicationFeePaymentDetails, "$.Payments["
-				+ (applicationFeePaymentsLength - 1)
-				+ "].paymentDetails[0].bill.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'BPA_BLDNG_OPRN_FEE')].adjustedAmount");
+		List<Map<String, Object>> applicationFeeBillAccountDetails = getBillAccountDetailsFromPaymentResponse(
+				applicationFeePaymentDetails);
+		for (Map<String, Object> billAccountDetail : applicationFeeBillAccountDetails) {
+			String adjustedAmount = String.valueOf(billAccountDetail.get("adjustedAmount"));
+			String taxHeadCode = String.valueOf(billAccountDetail.get("taxHeadCode"));
+			paymentDetailsMap.put(taxHeadCode, adjustedAmount);
+		}
 		String totalApplicationFeeAmountPaid = getValue((Map) applicationFeePaymentDetails,
 				"$.Payments[" + (applicationFeePaymentsLength - 1) + "].paymentDetails[0].totalAmountPaid");
-		developmentFeeAmount = developmentFeeAmount.replace("[", "").replace("]", "");
-		buildingOperationFee = buildingOperationFee.replace("[", "").replace("]", "");
-		totalApplicationFeeAmountPaid = totalApplicationFeeAmountPaid.replace("[", "").replace("]", "");
-		developmentFeeAmount = developmentFeeAmount.isEmpty() ? "0.0" : developmentFeeAmount;
-		allFeeDetails[6] = developmentFeeAmount;
-		allFeeDetails[7] = buildingOperationFee;
-		allFeeDetails[8] = totalApplicationFeeAmountPaid;
+		paymentDetailsMap.put("totalApplicationFeeAmountPaid", totalApplicationFeeAmountPaid);
+
 		BigDecimal totalApplicationAndPermitFee = new BigDecimal(totalPermitFeeAmountPaid)
 				.add(new BigDecimal(totalApplicationFeeAmountPaid)).setScale(2, BigDecimal.ROUND_HALF_UP);
-		allFeeDetails[9] = totalApplicationAndPermitFee + "";
-		allFeeDetails[10] = temporaryRetentionFee;
-		return allFeeDetails;
+		paymentDetailsMap.put("totalApplicationAndPermitFee", totalApplicationAndPermitFee + "");
+		return paymentDetailsMap;
 	}
 
 	public String[] getUlbNameAndGradeFromMdms(RequestInfo requestInfo, String tenantId) {
@@ -255,6 +331,11 @@ public abstract class PermitOrderService {
 				case "NMA_NOC":
 					nocviewableNames.add("NOC from National Monuments Authority");
 					break;
+				case "AAI_NOC":
+					nocviewableNames.add("NOC from Airports Authority of India");
+					break;
+				default:
+					nocviewableNames.add(nocName);
 				}
 			}
 		}
@@ -475,7 +556,7 @@ public abstract class PermitOrderService {
 		StringBuilder result = new StringBuilder(" - Total plot area: ");
 		BigDecimal totalPlotArea = pl.getPlanInformation().getTotalPlotArea();
 		BigDecimal totalPlotAreaInAcr = totalPlotArea.divide(new BigDecimal("4046.2"), 3, BigDecimal.ROUND_HALF_UP);
-		result.append(totalPlotAreaInAcr + " Acre ( " + totalPlotArea + DxfFileConstants.SQM + " ) ");
+		result.append(totalPlotAreaInAcr + " Acre ( " + totalPlotArea + SQM + " ) ");
 		return result.toString();
 	}
 
@@ -488,15 +569,192 @@ public abstract class PermitOrderService {
 				BigDecimal area = affectedLandArea.getMeasurements().stream().map(l -> l.getArea())
 						.reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_HALF_UP);
 				Chunk chunk = new Chunk(
-						" - " + affectedLandArea.getName() + " affected area: " + area + DxfFileConstants.SQM + "\n",
+						" - " + affectedLandArea.getName() + " affected area: " + area + SQM + "\n",
 						fontPara1Bold);
 				affectedAreas.add(chunk);
 			}
 		}
 		return affectedAreas;
 	}
+
+	public String getRoadAffectedArea(Plan pl) {
+		String roadAffectedArea = BigDecimal.ZERO + "";
+		try {
+			for (org.egov.common.entity.edcr.AffectedLandArea affectedLandArea : pl.getAffectedLandAreas()) {
+				// affected area
+				if (affectedLandArea.getMeasurements() != null && !affectedLandArea.getMeasurements().isEmpty()) {
+					BigDecimal area = affectedLandArea.getMeasurements().stream().map(l -> l.getArea())
+							.reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_HALF_UP);
+					roadAffectedArea = area + "";
+				}
+			}
+		} catch (Exception ex) {
+			LOG.error("error while extracting road affected area for permit letter");
+		}
+		return roadAffectedArea;
+	}
 	
 	public BigDecimal getGiftedArea(Plan pl) {
 		return pl.getPlot().getPlotBndryDeductionArea();
+	}
+	
+	public static Map<String, BigDecimal> getSetBackData(Plan plan, Block block) {
+		SetBack setBack = block.getSetBacks().get(0);
+
+		// these are provided setbacks-
+		BigDecimal frontSetbackProvided = BigDecimal.ZERO;
+		BigDecimal rearSetbackProvided = BigDecimal.ZERO;
+		BigDecimal leftSetbackProvided = BigDecimal.ZERO;
+		BigDecimal rightSetbackProvided = BigDecimal.ZERO;
+
+		if (setBack != null) {
+			frontSetbackProvided = setBack.getFrontYard() != null ? setBack.getFrontYard().getMinimumDistance()
+					: BigDecimal.ZERO;
+			rearSetbackProvided = setBack.getRearYard() != null ? setBack.getRearYard().getMinimumDistance()
+					: BigDecimal.ZERO;
+			leftSetbackProvided = setBack.getSideYard1() != null ? setBack.getSideYard1().getMinimumDistance()
+					: BigDecimal.ZERO;
+			rightSetbackProvided = setBack.getSideYard2() != null ? setBack.getSideYard2().getMinimumDistance()
+					: BigDecimal.ZERO;
+		}
+
+		Map<String, BigDecimal> setBackData = new HashMap<>();
+		setBackData.put("frontSetbackProvided", frontSetbackProvided);
+		setBackData.put("rearSetbackProvided", rearSetbackProvided);
+		setBackData.put("leftSetbackProvided", leftSetbackProvided);
+		setBackData.put("rightSetbackProvided", rightSetbackProvided);
+
+		// these are required setbacks-
+		BigDecimal frontSetbackRequired = BigDecimal.ZERO;
+		BigDecimal rearSetbackRequired = BigDecimal.ZERO;
+		BigDecimal leftSetbackRequired = BigDecimal.ZERO;
+		BigDecimal rightSetbackRequired = BigDecimal.ZERO;
+		setBackData.put("frontSetbackRequired", frontSetbackRequired);
+		setBackData.put("rearSetbackRequired", rearSetbackRequired);
+		setBackData.put("leftSetbackRequired", leftSetbackRequired);
+		setBackData.put("rightSetbackRequired", rightSetbackRequired);
+		return setBackData;
+	}
+	
+	public String getStairCount(Plan pl) {
+		String count = DxfFileConstants.NA;
+		//TODO required stair
+		StringBuilder requiredStairCount = new StringBuilder();
+		StringBuilder stairDetail = new StringBuilder();
+		try {
+			for (Block block : pl.getBlocks()) {
+				Optional<Integer> maxStairCount = block.getBuilding().getFloors().stream()
+						.map(floor -> floor.getGeneralStairs() == null ? 0 : floor.getGeneralStairs().size())
+						.reduce(Integer::max);
+				if (maxStairCount.isPresent())
+					stairDetail.append( ", "+"B"+block.getName() + "-" + maxStairCount.get());
+			}
+		} catch (Exception ex) {
+			LOG.error("error while extracting the stair count for permit letter", ex);
+		}
+		if (!stairDetail.toString().isEmpty()) {
+			count = stairDetail.toString();
+			count = count.replaceFirst(", ", "");
+		}
+		return count;
+	}
+	
+	public String getRequiredStairCount(Plan plan) {
+		String count = DxfFileConstants.NA;
+		StringBuilder requiredStairs = new StringBuilder();
+		try {
+			for (Block block : plan.getBlocks()) {
+				int requiredStair = org.egov.edcr.feature.GeneralStair.requiredGenralStairPerFloor(plan, block);
+				requiredStairs.append(", B" + block.getName() + "-" + requiredStair);
+			}
+			if (!requiredStairs.toString().isEmpty())
+				count = requiredStairs.toString().replaceFirst(", ", "");
+		} catch (Exception ex) {
+			LOG.error("error while extracting required no of stairs for permit letter", ex);
+		}
+		return count;
+	}
+	
+	public Map<String, String> getLiftDetails(Plan plan) {
+		String detail = DxfFileConstants.NA;
+		StringBuilder providedLiftDetail = new StringBuilder();
+		StringBuilder requiredLiftDetail = new StringBuilder();
+		Map<String, String> liftDetail = new HashMap<>();
+		try {
+			for (Block block : plan.getBlocks()) {
+				java.util.List<ScrutinyDetail> scrutinyDetails = OdishaUtill.getScrutinyDetailsFromPlan(plan,
+						"Block_" + block.getNumber() + "_" + "General Lift");
+				if (!CollectionUtils.isEmpty(scrutinyDetails)) {
+					// use ground floor detail-
+					Optional<Map<String, String>> groundFloorDetail = scrutinyDetails.get(0).getDetail().stream()
+							.filter(floorDetail -> floorDetail.get("Floor").equals(GROUND_FLOOR_NO)).findFirst();
+					if (groundFloorDetail.isPresent() && StringUtils.isNotEmpty(groundFloorDetail.get().get(SCRUTINY_DETAIL_REQUIRED))
+							&& StringUtils.isNotEmpty(groundFloorDetail.get().get(SCRUTINY_DETAIL_PROVIDED))) {
+						requiredLiftDetail
+								.append( ", "+"B"+block.getName() + "-" + groundFloorDetail.get().get(SCRUTINY_DETAIL_REQUIRED));
+						providedLiftDetail
+								.append( ", "+"B"+block.getName() + "-" + groundFloorDetail.get().get(SCRUTINY_DETAIL_PROVIDED));
+					}
+
+				}
+			}
+		} catch (Exception ex) {
+			LOG.error("error while extracting the lift count for permit letter", ex);
+		}
+		String addProvidedLiftDetail = !providedLiftDetail.toString().isEmpty()
+				? liftDetail.put(PROVIDED_LIFT_DETAIL, providedLiftDetail.toString().replaceFirst(", ", ""))
+				: liftDetail.put(PROVIDED_LIFT_DETAIL, detail);
+		String addRequiredLiftDetail = !requiredLiftDetail.toString().isEmpty()
+				? liftDetail.put(REQUIRED_LIFT_DETAIL, requiredLiftDetail.toString().replaceFirst(", ", ""))
+				: liftDetail.put(REQUIRED_LIFT_DETAIL, detail);
+		return liftDetail;
+	}
+	
+	public String getNoOfTreesRequired(Plan plan) {
+		String noOfTreesRequired = DxfFileConstants.NA;
+		try {
+			java.util.List<ScrutinyDetail> scrutinyDetails = OdishaUtill.getScrutinyDetailsFromPlan(plan,
+					"Common_Plantation Tree Cover");
+			if (!CollectionUtils.isEmpty(scrutinyDetails)) {
+				ScrutinyDetail scrutinyDetail = scrutinyDetails.get(0);
+				Optional<Map<String, String>> treeDetail = scrutinyDetail.getDetail().stream()
+						.filter(detail -> StringUtils.isNotEmpty(detail.get(DESCRIPTION_IN_SCRUTINY_DETAIL))
+								&& NO_OF_TREE_PER_PLOT.equalsIgnoreCase(detail.get(DESCRIPTION_IN_SCRUTINY_DETAIL)))
+						.findFirst();
+				if (treeDetail.isPresent() && StringUtils.isNotEmpty(treeDetail.get().get(SCRUTINY_DETAIL_REQUIRED)))
+					noOfTreesRequired = treeDetail.get().get(SCRUTINY_DETAIL_REQUIRED);
+			}
+		} catch (Exception ex) {
+			LOG.error("error while extracting no of trees required for permit letter", ex);
+		}
+		return noOfTreesRequired;
+	}
+
+	public String getNoOfTreesProvided(Plan plan) {
+		String noOfTreesProvided = DxfFileConstants.NA;
+		try {
+			int noOfCutTree = plan.getPlantation().getCutTreeCount();
+			int noOfExistingTree = plan.getPlantation().getExistingTreeCount();
+			int noOfPlantedTree = plan.getPlantation().getPlantedTreeCount();
+			noOfTreesProvided = noOfExistingTree - noOfCutTree + noOfPlantedTree + "";
+		} catch (Exception ex) {
+			LOG.error("error while extracting no of trees provided for permit letter", ex);
+		}
+		return noOfTreesProvided;
+	}
+	
+	public String getHeight(Plan plan) {
+		String height = DxfFileConstants.NA;
+		StringBuilder heights = new StringBuilder();
+		try {
+			for (Block block : plan.getBlocks()) {
+				heights.append(", B" + block.getName() + "-" + block.getBuilding().getBuildingHeight());
+			}
+			if (!heights.toString().isEmpty())
+				height = heights.toString().replaceFirst(", ", "");
+		} catch (Exception ex) {
+			LOG.error("error while extracting height og blocks for permit letter", ex);
+		}
+		return height;
 	}
 }

@@ -98,7 +98,7 @@ public class GeneralStair extends FeatureProcess {
 		return flage;
 	}
 
-	private int requiredGenralStairPerFloor(Plan pl, Block block) {
+	public static int requiredGenralStairPerFloor(Plan pl, Block block) {
 		int required = 0;
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		for (Floor floor : block.getBuilding().getFloors()) {
