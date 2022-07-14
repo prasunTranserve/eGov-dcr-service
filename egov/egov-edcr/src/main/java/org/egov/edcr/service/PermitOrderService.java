@@ -31,6 +31,7 @@ import org.egov.common.entity.edcr.SetBack;
 import org.egov.edcr.config.properties.EdcrApplicationSettings;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.feature.AdditionalFeature;
+import org.egov.edcr.od.FloorNumberToWord;
 import org.egov.edcr.od.OdishaUtill;
 import org.egov.infra.exception.ApplicationRuntimeException;
 import org.egov.infra.microservice.models.RequestInfo;
@@ -491,9 +492,9 @@ public abstract class PermitOrderService {
 									if (floor.getTerrace())
 										floorNo = "Terrace";
 									else if (occupancy.getIsMezzanine())
-										floorNo = floor.getNumber() + " (Mezzanine " + floor.getNumber() + ")";
+										floorNo = FloorNumberToWord.floorName(floor.getNumber(), floor.getIsStiltFloor(), floor.getIsServiceFloor()) + " (Mezzanine " + floor.getNumber() + ")";
 									else
-										floorNo = String.valueOf(floor.getNumber());
+										floorNo = FloorNumberToWord.floorName(floor.getNumber(), floor.getIsStiltFloor(), floor.getIsServiceFloor());
 									dcrReportFloorDetail.setFloorNo(floorNo);
 									dcrReportFloorDetail.setOccupancy(occupancyName);
 									dcrReportFloorDetail.setBuiltUpArea(
