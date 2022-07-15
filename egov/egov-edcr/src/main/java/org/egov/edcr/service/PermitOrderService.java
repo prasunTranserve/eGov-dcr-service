@@ -125,6 +125,10 @@ public abstract class PermitOrderService {
 	public static final String TAXHEAD_BPA_LAND_DEV_FEE_NAME = "Development Fee";
 	public static final String TAXHEAD_BPA_BLDNG_OPRN_FEE_CODE = "BPA_BLDNG_OPRN_FEE";
 	public static final String TAXHEAD_BPA_BLDNG_OPRN_FEE_NAME = "Fee for Building Operation";
+	public static final String ADJUSTED_AMOUNT_ZERO = "0.0";
+	public static final String OWNERSHIP_MAJOR_TYPE_INDIVIDUAL = "INDIVIDUAL";
+	public static final String OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_PRIVATE = "INSTITUTIONALPRIVATE";
+	public static final String OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_GOVERNMENT = "INSTITUTIONALGOVERNMENT";
 	
 	
 
@@ -277,7 +281,8 @@ public abstract class PermitOrderService {
 			String adjustedAmount = String.valueOf(billAccountDetail.get("adjustedAmount"));
 			String taxHeadCode = String.valueOf(billAccountDetail.get("taxHeadCode"));
 			paymentDetailsMap.put(taxHeadCode, adjustedAmount);
-			if ("BPA_SANC_ADJUSTMENT_AMOUNT".equalsIgnoreCase(taxHeadCode)) {
+			if (TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE.equalsIgnoreCase(taxHeadCode)
+					&& !ADJUSTED_AMOUNT_ZERO.equals(adjustedAmount)) {	
 				paymentDetailsMap.put("modificationReasonSanctionFeeAdjustmentAmount",
 					getValue(bpaApplication, "$.additionalDetails.modificationReasonSanctionFeeAdjustmentAmount"));
 			}
@@ -430,7 +435,7 @@ public abstract class PermitOrderService {
 
 						}
 						dcrReportFloorDetails = dcrReportFloorDetails.stream()
-								.sorted(Comparator.comparing(DcrReportFloorDetail::getFloorNo))
+								.sorted(Comparator.comparing(DcrReportFloorDetail::getFloorNumberInteger))
 								.collect(Collectors.toList());
 
 						dcrReportBlockDetail.setDcrReportFloorDetails(dcrReportFloorDetails);
@@ -489,6 +494,7 @@ public abstract class PermitOrderService {
 										}
 									DcrReportFloorDetail dcrReportFloorDetail = new DcrReportFloorDetail();
 									String floorNo;
+									dcrReportFloorDetail.setFloorNumberInteger(floor.getNumber());
 									if (floor.getTerrace())
 										floorNo = "Terrace";
 									else if (occupancy.getIsMezzanine())
@@ -521,7 +527,7 @@ public abstract class PermitOrderService {
 
 						}
 						dcrReportFloorDetails = dcrReportFloorDetails.stream()
-								.sorted(Comparator.comparing(DcrReportFloorDetail::getFloorNo))
+								.sorted(Comparator.comparing(DcrReportFloorDetail::getFloorNumberInteger))
 								.collect(Collectors.toList());
 
 						dcrReportBlockDetail.setDcrReportFloorDetails(dcrReportFloorDetails);
@@ -757,5 +763,108 @@ public abstract class PermitOrderService {
 			LOG.error("error while extracting height og blocks for permit letter", ex);
 		}
 		return height;
+	}
+	
+	public String getCorrespondenceAddress(LinkedHashMap bpaApplication) {
+		String correspondenceAddress = "";
+		try {
+			String ownershipMajorType = getOwnershipMajorType(bpaApplication);
+			String jsonPathForCorrespondenceAddress = "";
+			if (StringUtils.isNotEmpty(ownershipMajorType)) {
+				switch (ownershipMajorType) {
+				case OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_PRIVATE:
+					// only one owner allowed from UI-
+					jsonPathForCorrespondenceAddress = "$.landInfo.owners[0].correspondenceAddress";
+					break;
+				case OWNERSHIP_MAJOR_TYPE_INDIVIDUAL:
+					jsonPathForCorrespondenceAddress = "$.landInfo.owners[?(@.isPrimaryOwner==true)].correspondenceAddress";
+					break;
+				case OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_GOVERNMENT:
+					// only one owner allowed from UI-
+					jsonPathForCorrespondenceAddress = "$.landInfo.owners[0].correspondenceAddress";
+					break;
+				default:
+					LOG.info("unsupported ownershipMajorType:" + ownershipMajorType);
+				}
+			} else {
+				String ownershipCategory = getOwnershipCategory(bpaApplication);
+				if (ownershipCategory.contains(OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_PRIVATE))
+					jsonPathForCorrespondenceAddress = "$.landInfo.owners[0].correspondenceAddress";
+				else if (ownershipCategory.contains(OWNERSHIP_MAJOR_TYPE_INDIVIDUAL))
+					jsonPathForCorrespondenceAddress = "$.landInfo.owners[?(@.isPrimaryOwner==true)].correspondenceAddress";
+				else if (ownershipCategory.contains(OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_GOVERNMENT))
+					jsonPathForCorrespondenceAddress = "$.landInfo.owners[0].correspondenceAddress";
+				else
+					LOG.info("unsupported ownershipCategory:" + ownershipCategory);
+			}
+			correspondenceAddress = getValue(bpaApplication, jsonPathForCorrespondenceAddress).replace("[", "")
+					.replace("]", "").replace("\"", "");
+		} catch (Exception ex) {
+			LOG.error("error while extracting corresponding address of owner", ex);
+		}
+		return correspondenceAddress;
+	}
+
+	public String getNameOfOwner(LinkedHashMap bpaApplication) {
+		String ownerName = "";
+		try {
+			// first look for ownershipMajorType.If not available then look for
+			// ownershipCategory
+			String ownershipMajorType = getOwnershipMajorType(bpaApplication);
+			String jsonPathForOwnerName = "";
+			if (StringUtils.isNotEmpty(ownershipMajorType)) {
+				switch (ownershipMajorType) {
+				case OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_PRIVATE:
+					// only one owner allowed from UI-
+					jsonPathForOwnerName = "$.landInfo.additionalDetails.institutionName";
+					break;
+				case OWNERSHIP_MAJOR_TYPE_INDIVIDUAL:
+					jsonPathForOwnerName = "$.landInfo.owners.*.name";
+					break;
+				case OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_GOVERNMENT:
+					// only one owner allowed from UI-
+					jsonPathForOwnerName = "$.landInfo.additionalDetails.institutionName";
+					break;
+				default:
+					LOG.info("unsupported ownershipMajorType:" + ownershipMajorType);
+				}
+			} else {
+				String ownershipCategory = getOwnershipCategory(bpaApplication);
+				if (ownershipCategory.contains(OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_PRIVATE))
+					jsonPathForOwnerName = "$.landInfo.additionalDetails.institutionName";
+				else if (ownershipCategory.contains(OWNERSHIP_MAJOR_TYPE_INDIVIDUAL))
+					jsonPathForOwnerName = "$.landInfo.owners.*.name";
+				else if (ownershipCategory.contains(OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_GOVERNMENT))
+					jsonPathForOwnerName = "$.landInfo.additionalDetails.institutionName";
+				else
+					LOG.info("unsupported ownershipCategory:" + ownershipCategory);
+			}
+			ownerName = getValue(bpaApplication, jsonPathForOwnerName).replace("[", "").replace("]", "").replace("\"",
+					"");
+
+		} catch (Exception ex) {
+			LOG.error("error while extracting owner name", ex);
+		}
+		return ownerName;
+	}
+
+	private String getOwnershipMajorType(LinkedHashMap bpaApplication) {
+		String ownershipMajorType = "";
+		try {
+			ownershipMajorType = getValue(bpaApplication, "$.landInfo.ownerShipMajorType");
+		} catch (Exception ex) {
+			LOG.error("exception while extracting ownershipMajorType");
+		}
+		return ownershipMajorType;
+	}
+
+	private String getOwnershipCategory(LinkedHashMap bpaApplication) {
+		String ownershipCategory = "";
+		try {
+			ownershipCategory = getValue(bpaApplication, "$.landInfo.ownershipCategory");
+		} catch (Exception ex) {
+			LOG.error("exception while extracting ownerShipCategory");
+		}
+		return ownershipCategory;
 	}
 }

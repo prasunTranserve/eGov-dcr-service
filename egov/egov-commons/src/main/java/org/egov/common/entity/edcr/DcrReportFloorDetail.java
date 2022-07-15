@@ -52,6 +52,8 @@ import java.math.BigDecimal;
 public class DcrReportFloorDetail {
 
     private String floorNo;
+    
+    private int floorNumber;
 
     private String occupancy;
 
@@ -65,6 +67,14 @@ public class DcrReportFloorDetail {
 
     public String getFloorNo() {
         return floorNo;
+    }
+    
+    public int getFloorNumberInteger() {
+    	return floorNumber;
+    }
+    
+    public void setFloorNumberInteger(int floorNumber) {
+        this.floorNumber = floorNumber;
     }
 
     public void setFloorNo(String floorNo) {

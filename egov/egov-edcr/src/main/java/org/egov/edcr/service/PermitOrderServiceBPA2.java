@@ -205,8 +205,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		Font fontPara1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
 		Chunk chunk1 = new Chunk(PARAGRAPH_ONE, fontPara1);
-		String ownersCsv = getValue(bpaApplication, "$.landInfo.owners.*.name").replace("[", "").replace("]", "")
-				.replace("\"", "");
+		String ownersCsv = getNameOfOwner(bpaApplication);
 		Chunk chunk2 = new Chunk(ownersCsv, fontPara1Bold);
 		Phrase phrasePara1 = new Phrase();
 		phrasePara1.add(chunk1);
@@ -276,7 +275,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 			addTableHeader1(table1, block,plan);
 			java.util.List<DcrReportFloorDetail> floorDetails = block.getDcrReportFloorDetails();
 			for (DcrReportFloorDetail floor : floorDetails) {
-				totalFloorArea = addRowsPerFloorAndAggregateFlrAreas(table1, floor, totalFloorArea,planBlock.getBuilding().getFloorNumber(Integer.parseInt(floor.getFloorNo())));
+				totalFloorArea = addRowsPerFloorAndAggregateFlrAreas(table1, floor, totalFloorArea,planBlock.getBuilding().getFloorNumber(floor.getFloorNumberInteger()));
 
 			}
 			addTotalRow(table1, totalFloorArea,planBlock);
@@ -915,9 +914,9 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 			table35.addCell(header);
 		});
-	if (StringUtils.isNotEmpty(paymentDetailsMap.get("BPA_SANC_ADJUSTMENT_AMOUNT"))
-			&& !paymentDetailsMap.get("BPA_SANC_ADJUSTMENT_AMOUNT").equals("0.0")) {
-			Stream.of(sequence.next() + ". Other Fee ", paymentDetailsMap.get("BPA_SANC_ADJUSTMENT_AMOUNT"), "Paid")
+	if (StringUtils.isNotEmpty(paymentDetailsMap.get(TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE))
+			&& !paymentDetailsMap.get(TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE).equals("0.0")) {
+			Stream.of(sequence.next() + ". Other Fee ", paymentDetailsMap.get(TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE), "Paid")
 					.forEach(columnTitle -> {
 						PdfPCell header = new PdfPCell();
 						header.setBackgroundColor(orange);
@@ -1728,7 +1727,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 	private BigDecimal addRowsPerFloorAndAggregateFlrAreas(PdfPTable table, DcrReportFloorDetail floor,
 			BigDecimal totalFloorArea,Floor planFloor) {
 		PdfPCell floorNameCell = new PdfPCell();
-		Phrase floorNamephrase = new Phrase("Floor " + floor.getFloorNo());
+		Phrase floorNamephrase = new Phrase(floor.getFloorNo());
 		floorNameCell.addElement(floorNamephrase);
 		table.addCell(floorNameCell);
 		PdfPCell floorAreaCell = new PdfPCell();

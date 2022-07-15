@@ -17,6 +17,7 @@ import java.util.TimeZone;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.DcrReportBlockDetail;
 import org.egov.common.entity.edcr.DcrReportFloorDetail;
@@ -47,6 +48,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
 public class PermitOrderServiceBPA1 extends PermitOrderService {
+	
+	private static final Logger LOG = Logger.getLogger(PermitOrderServiceBPA1.class);
 
 	public static String PARAGRAPH_ONE = "Permission under sub-section (3) of the Section-16 of the Odisha Development Authorities Act, 1982 is hereby granted in favour of;";
 	public static String ADDRESS = "LAXMIPRIYA PANDA AND OTHERS,";
@@ -152,17 +155,18 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 
 		Paragraph addressed = new Paragraph("Smt. /Shri,", fontBold);
 
-		String ownersCsv = getValue(bpaApplication, "$.landInfo.owners.*.name").replace("[", "").replace("]", "")
-				.replace("\"", "");
+		String ownersNamesCsv = getNameOfOwner(bpaApplication);
 		
-		Paragraph applicants = new Paragraph(ownersCsv + ",", fontBold);
+		Paragraph applicants = new Paragraph(ownersNamesCsv + ",", fontBold);
 		applicants.setIndentationLeft(30);
 
 		String localityName = getValue(bpaApplication, "$.landInfo.address.locality.name");
 		Paragraph address2 = new Paragraph(localityName + ",", fontBold);
 		address2.setIndentationLeft(30);
 
-		Paragraph address3 = new Paragraph(tenantId, fontBold);
+		// to show correspondenceAddress from owner details--
+		String primaryOwnerCorrespondenceAddress = getCorrespondenceAddress(bpaApplication);
+		Paragraph address3 = new Paragraph(primaryOwnerCorrespondenceAddress, fontBold);
 		address3.setIndentationLeft(30);
 		
 		Chunk forServiceType = new Chunk(String.format("For %s of a ", getServiceType(plan)), font1);
@@ -282,7 +286,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 			paymentLine.add(paymentSentence);
 			paymentLine.add(paymentSentencePost);
 			// add reason for adjustment/other fee-
-			if ("BPA_SANC_ADJUSTMENT_AMOUNT".equalsIgnoreCase(taxHeadCode)) {
+			if (TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE.equalsIgnoreCase(taxHeadCode)) {
 				String modificationReasonSanctionFeeAdjustmentAmount = getValue(bpaApplication,
 						"$.additionalDetails.modificationReasonSanctionFeeAdjustmentAmount");
 				paymentLine.add(new Chunk(" (" + modificationReasonSanctionFeeAdjustmentAmount + ")", font1));
@@ -349,7 +353,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		addTableHeader1(table1);
 		addRows1(table1, plan);
 
-		Image qrCode = getQrCode(ownersCsv, getValue(bpaApplication, "approvalNo"), approvalDate, getValue(bpaApplication, "edcrNumber"));
+		Image qrCode = getQrCode(ownersNamesCsv, getValue(bpaApplication, "approvalNo"), approvalDate, getValue(bpaApplication, "edcrNumber"));
 
 		document.add(qrCode);
 		document.add(logo);
@@ -495,7 +499,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 			
 			for (DcrReportFloorDetail floor : floorDetails) {
 				PdfPCell floorNameCell = new PdfPCell();
-				Phrase floorNamephrase = new Phrase("Floor " + floor.getFloorNo(), fontPara1);
+				Phrase floorNamephrase = new Phrase(floor.getFloorNo(), fontPara1);
 				floorNameCell.addElement(floorNamephrase);
 				table1.addCell(floorNameCell);
 				PdfPCell floorAreaCell = new PdfPCell();
