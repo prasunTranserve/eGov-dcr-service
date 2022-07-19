@@ -90,15 +90,22 @@ public class InfoCommsTechService extends FeatureProcess {
 		OccupancyTypeHelper helper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 		boolean isApplicable = false;
 
-		if (DxfFileConstants.APARTMENT_BUILDING.equals(helper.getSubtype().getCode()))
-			isApplicable = true;
-		if ((DxfFileConstants.OC_COMMERCIAL.equals(helper.getType().getCode()) || DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL.equals(helper.getType().getCode()))
-				&& pl.getPlot().getArea().compareTo(ONE_ARCH) >= 0)
-			isApplicable = true;
-		if(OdishaUtill.getMaxBuildingHeight(pl).compareTo(FIFTEEN)>0)
-			isApplicable=true;
+//		if (DxfFileConstants.APARTMENT_BUILDING.equals(helper.getSubtype().getCode()) && pl.getPlot().getArea().compareTo(ONE_ARCH) >= 0)
+//			isApplicable = true;
+//		if ((DxfFileConstants.OC_COMMERCIAL.equals(helper.getType().getCode()) || DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL.equals(helper.getType().getCode()))
+//				&& pl.getPlot().getArea().compareTo(ONE_ARCH) >= 0)
+//			isApplicable = true;
+//		if(OdishaUtill.getMaxBuildingHeight(pl).compareTo(FIFTEEN)>0)
+//			isApplicable=true;
 		if(pl.getPlot().getArea().compareTo(ONE_ARCH) >= 0)
 			isApplicable=true;
+		
+		if(DxfFileConstants.PLOTTED_DETACHED_OR_INDIVIDUAL_RESIDENTIAL_BUILDING.equals(helper.getSubtype().getCode())
+			||	DxfFileConstants.SEMI_DETACHED.equals(helper.getSubtype().getCode())
+			||	DxfFileConstants.ROW_HOUSING.equals(helper.getSubtype().getCode())
+				) {
+			isApplicable = false;
+		}
 		
 		//height
 		BigDecimal requiredHeight=new BigDecimal("3");//min

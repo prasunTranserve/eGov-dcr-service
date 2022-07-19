@@ -309,7 +309,7 @@ public class OdishaUtill {
 	public static void setPlanInfoBlkWise(Plan pl, String key) {
 		BigDecimal totalUserInPlan = BigDecimal.ZERO;
 		for (Block block : pl.getBlocks()) {
-			String value = pl.getPlanInfoProperties().get(key + "_" + block.getNumber());
+			String value = pl.getPlanInfoProperties().get(key.replace("%S", block.getNumber()));
 			String glassFacadeOpening = pl.getPlanInfoProperties()
 					.get(DxfFileConstants.IS_BLOCK_S_HAVING_ENTIRE_FACADE_IN_GLASS.replace("%S", block.getNumber()));
 			try {
@@ -322,7 +322,7 @@ public class OdishaUtill {
 							"Number Of Occupants/Users/Bed is not defined in block " + block.getNumber());
 			} catch (Exception e) {
 				pl.addError("NUMBER_OF_OCCUPANTS_OR_USERS_" + block.getNumber(),
-						"Number Of Occupants/Users/Bed is invalid in block " + block.getNumber());
+						key+" is invalid in block " + block.getNumber());
 			}
 		}
 		pl.getPlanInformation().setNumberOfOccupantsOrUsers(totalUserInPlan);

@@ -659,7 +659,7 @@ public class DxfFileConstants {
 		return Collections.unmodifiableMap(SERVICE_TYPE);
 	}
 	
-	public static final String NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK="NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK";
+	public static final String NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK="NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK_%S";
 	public static final String LAND_USE_ZONE="LAND_USE_ZONE";
 	public static final String IS_BLOCK_S_HAVING_ENTIRE_FACADE_IN_GLASS="IS_BLOCK_%S_HAVING_ENTIRE_FACADE_IN_GLASS";
 	

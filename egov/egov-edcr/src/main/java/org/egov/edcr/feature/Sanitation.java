@@ -531,7 +531,7 @@ public class Sanitation extends FeatureProcess {
 					case DxfFileConstants.REHABILITAION_CENTER:
 					case DxfFileConstants.VETERINARY_HOSPITAL_FOR_PET_ANIMALS_AND_BIRDS:
 						double noOfBed = Double
-								.parseDouble(pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK));
+								.parseDouble(pl.getPlanInfoProperties().get(DxfFileConstants.NUMBER_OF_OCCUPANTS_OR_USERS_OR_BED_BLK.replace("%S", b.getNumber())));
 						helper.commonWc = noOfBed * 0.125;
 						helper.maleWc = noOfPerson * 0.01;
 						helper.femaleWc = noOfPerson * 0.04;
