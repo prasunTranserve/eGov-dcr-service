@@ -238,6 +238,8 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		// affected area)
 		BigDecimal netPlotArea = plan.getPlot().getPlotBndryArea();
 		BigDecimal roadWidth = plan.getPlanInformation().getTotalRoadWidth();
+		if(roadWidth == null || roadWidth.compareTo(BigDecimal.ZERO)<=0) //for old scrutiny support
+			roadWidth = plan.getPlanInformation().getRoadWidth();
 		Font fontList1 = FontFactory.getFont("Bold", 12, Font.UNDERLINE);
 		Phrase list1 = new Phrase("Parameters:\n", fontList1);
 		Chunk chunk31 = new Chunk(Chunk.TABBING);

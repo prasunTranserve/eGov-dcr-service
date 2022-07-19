@@ -217,6 +217,8 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		list1Item3.add(chunk18);
 		ListItem list1Item4 = new ListItem();
 		BigDecimal roadWidth = plan.getPlanInformation().getTotalRoadWidth();
+		if(roadWidth == null || roadWidth.compareTo(BigDecimal.ZERO)<=0) // for old scrutiny support
+			roadWidth = plan.getPlanInformation().getRoadWidth();
 		Phrase chunk19 = new Phrase(String.format(PARAGRAPH_2_4, roadWidth), font1);
 		list1Item4.add(chunk19);
 		ListItem list1Item5 = new ListItem();
