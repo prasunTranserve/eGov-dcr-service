@@ -721,6 +721,8 @@ public class EdcrRestService {
 		List<String> fileStoreIds = null;
 		try {
 			String edcrNo = permitOrderRequest.getBpaList().get(0).get("edcrNumber").toString();
+			if(edcrNo!=null)
+				edcrNo.trim();
 			String bpaApplication = permitOrderRequest.getBpaList().get(0).get("applicationNo").toString();
 			String fileName = bpaApplication + "-" + edcrNo;
 			String bpaAppTenantId = permitOrderRequest.getBpaList().get(0).get("tenantId").toString();
