@@ -562,6 +562,8 @@ public abstract class PermitOrderService {
 		// " - Total plot area: Ac1.830Dec. (" + plotArea + " Sqm.)\n", fontPara1Bold
 		StringBuilder result = new StringBuilder(" - Total plot area: ");
 		BigDecimal totalPlotArea = pl.getPlanInformation().getTotalPlotArea();
+		if(totalPlotArea == null || totalPlotArea.compareTo(BigDecimal.ZERO)<=0)
+			totalPlotArea = pl.getPlot().getPlotBndryArea();
 		BigDecimal totalPlotAreaInAcr = totalPlotArea.divide(new BigDecimal("4046.2"), 3, BigDecimal.ROUND_HALF_UP);
 		result.append(totalPlotAreaInAcr + " Acre ( " + totalPlotArea + SQM + " ) ");
 		return result.toString();
