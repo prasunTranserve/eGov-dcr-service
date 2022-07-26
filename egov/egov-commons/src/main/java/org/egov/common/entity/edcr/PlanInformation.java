@@ -278,6 +278,8 @@ public class PlanInformation implements Serializable {
     
     private BigDecimal additionalTdr;
     
+    private Boolean isRevisionApplication = Boolean.FALSE;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -1136,5 +1138,12 @@ public class PlanInformation implements Serializable {
 		this.totalPlotArea = totalPlotArea;
 	}
 
-	
+	public Boolean getIsRevisionApplication() {
+		return isRevisionApplication;
+	}
+
+	public void setIsRevisionApplication(Boolean isRevisionApplication) {
+		this.isRevisionApplication = isRevisionApplication;
+	}
+
 }

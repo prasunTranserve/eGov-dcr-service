@@ -82,6 +82,8 @@ public class EdcrRequest {
     private String applicationSubType;
 
     private String comparisonEdcrNumber;
+    
+    private Boolean isRevisionApplication;
 
     public RequestInfo getRequestInfo() {
         return requestInfo;
@@ -171,4 +173,13 @@ public class EdcrRequest {
         this.comparisonEdcrNumber = comparisonEdcrNumber;
     }
 
+	public Boolean getIsRevisionApplication() {
+		return isRevisionApplication;
+	}
+
+	public void setIsRevisionApplication(Boolean isRevisionApplication) {
+		this.isRevisionApplication = isRevisionApplication;
+	}
+    
+    
 }

@@ -143,7 +143,10 @@ public class PlanService {
 		}
 		if (isAborted)
 			plan = getAbortedSupportPlan(plan);
-
+		
+		if(dcrApplication.getIsRevisionApplication()!=null)
+			plan.getPlanInformation().setIsRevisionApplication(dcrApplication.getIsRevisionApplication());
+		
 		String comparisonDcrNumber = dcrApplication.getEdcrApplicationDetails().get(0).getComparisonDcrNumber();
 		if (ApplicationType.PERMIT.getApplicationTypeVal()
 				.equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())

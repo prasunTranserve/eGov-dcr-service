@@ -103,6 +103,8 @@ public class EdcrApplication extends AbstractAuditable {
     private transient Map<String, List<Object>> mdmsMasterData;
 
     private transient String deviationStatus;
+    
+    private transient Boolean isRevisionApplication;
 
     @Override
     public Long getId() {
@@ -306,4 +308,13 @@ public class EdcrApplication extends AbstractAuditable {
         this.deviationStatus = deviationStatus;
     }
 
+	public Boolean getIsRevisionApplication() {
+		return isRevisionApplication;
+	}
+
+	public void setIsRevisionApplication(Boolean isRevisionApplication) {
+		this.isRevisionApplication = isRevisionApplication;
+	}
+
+    
 }

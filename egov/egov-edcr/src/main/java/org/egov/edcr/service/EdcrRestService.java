@@ -218,7 +218,10 @@ public class EdcrRestService {
 					StringUtils.isNotBlank(edcrRequest.getTenantId()) ? edcrRequest.getTenantId()
 							: edcrRequest.getRequestInfo().getUserInfo().getTenantId());
 		}
-
+		
+		if(edcrRequest.getIsRevisionApplication()!=null)
+			edcrApplication.setIsRevisionApplication(edcrRequest.getIsRevisionApplication());
+		
 		edcrApplication = edcrApplicationService.createRestEdcr(edcrApplication);
 		return setEdcrResponse(edcrApplication.getEdcrApplicationDetails().get(0), edcrRequest);
 	}
