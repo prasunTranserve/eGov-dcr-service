@@ -57,6 +57,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 //These are the declarations of the applicant in the plan using PLAN_INFO layer.
 public class PlanInformation implements Serializable {
 
@@ -230,6 +232,7 @@ public class PlanInformation implements Serializable {
     
     private String doesHospitalHaveCriticalCareUnit;
     
+    @JsonProperty(value="isSecurityDepositRequired") 
     private boolean isSecurityDepositRequired;
     
     private BigDecimal offSiteParkingprovisionsArea=BigDecimal.ZERO;
