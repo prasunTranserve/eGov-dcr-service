@@ -181,8 +181,8 @@ public class Parking extends FeatureProcess {
 				case COLOR_LAYER_SPECIAL_PARKING_MIG_PARKING:
 					helper.mIGParkingProvided = helper.mIGParkingProvided.add(measurement.getArea()).setScale(2,
 							BigDecimal.ROUND_HALF_UP);
-					if(DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode()))
-					 totalParking=totalParking.add(measurement.getArea());
+//					if(DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(pl.getVirtualBuilding().getMostRestrictiveFarHelper().getSubtype().getCode()))
+//					 totalParking=totalParking.add(measurement.getArea());
 					break;
 				case COLOR_LAYER_SPECIAL_PARKING_STILT_PARKING:
 					helper.stiltParkingProvided = helper.stiltParkingProvided.add(measurement.getArea()).setScale(2,
@@ -356,7 +356,7 @@ public class Parking extends FeatureProcess {
 			BigDecimal totalStiltParkingArea = helper.stiltParkingProvided;
 
 			if (plotArea.compareTo(new BigDecimal("750")) > 0 || (totalStiltArea.compareTo(BigDecimal.ZERO) <= 0
-					|| totalStiltArea.compareTo(totalStiltParkingArea) != 0)) {
+					&& totalStiltArea.compareTo(totalStiltParkingArea) != 0) || totalNumberOfDu <= 8) {
 				if (totalNumberOfDu > 4 && totalNumberOfDu <= 8) {
 					helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 							.multiply(new BigDecimal("0.20")).setScale(2, BigDecimal.ROUND_HALF_UP);
