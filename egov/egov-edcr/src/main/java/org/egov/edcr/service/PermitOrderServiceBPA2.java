@@ -1372,9 +1372,9 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 
 			addCellForSetBackTable(table15, block.getName(), 4);
 			addCellForSetBackTable(table15, "Front Set back", null);
-			addCellForSetBackTable(table15, rearSetbackProvided + "", null);
-			addCellForSetBackTable(table15, "Rear Set back", null);
 			addCellForSetBackTable(table15, frontSetbackProvided + "", null);
+			addCellForSetBackTable(table15, "Rear Set back", null);
+			addCellForSetBackTable(table15, rearSetbackProvided + "", null);
 			addCellForSetBackTable(table15, "Left side", null);
 			addCellForSetBackTable(table15, leftSetbackProvided + "", null);
 			addCellForSetBackTable(table15, "Right side", null);

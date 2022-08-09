@@ -215,21 +215,23 @@ public class LiftService extends FeatureProcess {
 				|| DxfFileConstants.LOW_INCOME_HOUSING.equals(typeHelper.getSubtype().getCode())) {
 			if (buildingHeight.compareTo(new BigDecimal("15")) <= 0) {
 				requiredcount = 0;
+				// nothing else like dwellingunit to be considered if building height less than 15
 			} else {
 				requiredcount = 1;
+				if (buildingHeight.compareTo(new BigDecimal("21")) >= 0) {
+					requiredcount = 2;
+				}
+				int totalDUAbove2Floor = getTotalDUAbove2Floor(block);
+				int requiredCountWithRespectToDU = 0;
+				if (totalDUAbove2Floor > 0) {
+					requiredCountWithRespectToDU = totalDUAbove2Floor / 20;
+					if ((totalDUAbove2Floor % 20) != 0)
+						requiredcount++;
+				}
+				if (requiredCountWithRespectToDU > requiredcount)
+					requiredcount = requiredCountWithRespectToDU;
 			}
-			if (buildingHeight.compareTo(new BigDecimal("21")) >= 0) {
-				requiredcount = 2;
-			}
-			int totalDUAbove2Floor = getTotalDUAbove2Floor(block);
-			int requiredCountWithRespectToDU = 0;
-			if (totalDUAbove2Floor > 0) {
-				requiredCountWithRespectToDU = totalDUAbove2Floor / 20;
-				if ((totalDUAbove2Floor % 20) != 0)
-					requiredcount++;
-			}
-			if (requiredCountWithRespectToDU > requiredcount)
-				requiredcount = requiredCountWithRespectToDU;
+			
 		} else if (!DxfFileConstants.OC_RESIDENTIAL.equals(typeHelper.getType().getCode())) {
 			if (buildingHeight.compareTo(new BigDecimal("10")) <= 0) {
 				requiredcount = 0;
