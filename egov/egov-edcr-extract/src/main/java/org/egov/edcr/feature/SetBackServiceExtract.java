@@ -179,6 +179,12 @@ public class SetBackServiceExtract extends FeatureExtract {
     private void setSideYard1Details(PlanDetail pl, DXFDocument doc, SetBack setBack, String yardName) {
         boolean layerPresent;
         layerPresent = doc.containsDXFLayer(yardName);
+        try {
+        	notifyAll();
+        } catch(Exception ex) {
+        	ex.printStackTrace();
+        }
+        
         if (layerPresent) {
             YardDetail sideYard1 = getYard(pl, doc, yardName, setBack.getLevel());
             if (sideYard1 != null && sideYard1.getPolyLine() != null) {
