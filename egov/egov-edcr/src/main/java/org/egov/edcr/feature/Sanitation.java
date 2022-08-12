@@ -912,8 +912,8 @@ public class Sanitation extends FeatureProcess {
 				wcList.addAll(sanityDetails.getMaleWaterClosets());
 				wcList.addAll(sanityDetails.getFemaleWaterClosets());
 				wcList.addAll(sanityDetails.getCommonWaterClosets());
-				checkDimension(totalWCExpected.intValue(), detail, wcList, 1d, 1.1d, BLDG_PART_WATER_CLOSET,
-						DIMESION_DESC_KEY, RULE_38_1);
+//				checkDimension(totalWCExpected.intValue(), detail, wcList, 1d, 1.1d, BLDG_PART_WATER_CLOSET,
+//						DIMESION_DESC_KEY, RULE_38_1);
 
 				expected = "" + totalWCExpected.intValue();
 				actual = "" + totalWCActual.intValue();

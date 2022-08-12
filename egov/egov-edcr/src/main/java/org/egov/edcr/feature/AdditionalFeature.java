@@ -292,7 +292,8 @@ public class AdditionalFeature extends FeatureProcess {
 				|| DxfFileConstants.EWS.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.LOW_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.MEDIUM_INCOME_HOUSING.equals(occupancyTypeHelper.getSubtype().getCode())) {
-			isMandatory = true;
+			if(totalDU>8)
+				isMandatory = true;
 		}
 
 		BigDecimal requiredArea = new BigDecimal("12");

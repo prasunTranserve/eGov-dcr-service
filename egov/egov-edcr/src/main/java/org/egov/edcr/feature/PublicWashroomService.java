@@ -223,5 +223,5 @@ public class PublicWashroomService extends FeatureProcess {
 			flage=false;
 		return flage;
 	}
-
+//test comment
 }

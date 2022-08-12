@@ -702,7 +702,7 @@ public class GeneralStair extends FeatureProcess {
 					} else {
 						setReportOutputDetailsFloorStairWise(plan, RULE42_5_II, value,
 								String.format(TREAD_DESCRIPTION, generalStair.getNumber(), flight.getNumber()),
-								requiredTread.toString(), minTread.toString(), Result.Not_Accepted.getResultVal(),
+								requiredTread.toString(), minTread.toString(), Result.Verify.getResultVal(),
 								scrutinyDetail3);
 					}
 				}
