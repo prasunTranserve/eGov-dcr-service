@@ -13,7 +13,7 @@ import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.constants.OdishaUlbs;
 
 public class DataPreparation {
-
+	private static final boolean BPA5_FLAGE = false;
 	public static void updatePlanDetails(Plan pl) {
 		updateNmaData(pl);
 		updateVirtualBuildingHeight(pl);
@@ -136,7 +136,7 @@ public class DataPreparation {
 			if (!isSpecialBuilding) {
 				if ((buildingHeight <= 10) || (plotArea <= 500)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_PA_MODULE_CODE);
-					if(isPlanApplicableForAccreditedWorkflow(pl, buildingHeight, plotArea)) {
+					if(BPA5_FLAGE && isPlanApplicableForAccreditedWorkflow(pl, buildingHeight, plotArea)) {
 						pl.getPlanInformation().setBusinessService(pl.getPlanInformation().getBusinessService().concat("|"+DxfFileConstants.BPA_APPROVAL_BY_AN_ACCREDITED_PERSON));
 					}
 				}
@@ -180,7 +180,7 @@ public class DataPreparation {
 			if (!isSpecialBuilding) {
 				if ((buildingHeight <= 10) || (plotArea <= 500)) {
 					pl.getPlanInformation().setBusinessService(DxfFileConstants.BPA_OC_PA_MODULE_CODE);
-					if(isPlanApplicableForAccreditedWorkflow(pl, buildingHeight, plotArea)) {
+					if(BPA5_FLAGE && isPlanApplicableForAccreditedWorkflow(pl, buildingHeight, plotArea)) {
 						pl.getPlanInformation().setBusinessService(pl.getPlanInformation().getBusinessService().concat("|"+DxfFileConstants.BPA_APPROVAL_BY_AN_ACCREDITED_PERSON));
 					}
 				}
