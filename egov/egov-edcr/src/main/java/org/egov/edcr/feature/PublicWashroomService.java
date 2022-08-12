@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Occupancy;
@@ -74,7 +75,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PublicWashroomService extends FeatureProcess {
-	
+	private static final Logger LOG = Logger.getLogger(PublicWashroomService.class);
 	@Autowired
 	private Sanitation sanitation;
 	
@@ -82,7 +83,7 @@ public class PublicWashroomService extends FeatureProcess {
 	public Plan validate(Plan pl) {
 
 		List<Block> publicwashrooms = pl.getPublicWashroom();
-
+		LOG.info(publicwashrooms);
 		if (isOCApplicable(pl) && pl.getPlot().getArea().compareTo(new BigDecimal("4046.86")) >= 0 && publicwashrooms.size() ==0) {
 			pl.addError("publicwashroomNotAllowed", "publicwashroom is mandatory");
 			return pl;

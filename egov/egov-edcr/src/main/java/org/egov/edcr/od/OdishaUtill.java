@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.egov.common.entity.dcr.helper.OccupancyHelperDetail;
 import org.egov.common.entity.edcr.AccessoryBlock;
 import org.egov.common.entity.edcr.Ammenity;
@@ -33,6 +34,7 @@ import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.constants.OdishaUlbs;
 import org.egov.edcr.feature.Parking;
+import org.egov.edcr.feature.PublicWashroomService;
 
 public class OdishaUtill {
 
@@ -45,6 +47,8 @@ public class OdishaUtill {
 	private static final int COLOR_ROOM = 6;
 	private static final int COLOR_OWNERS_SOCIETY_OFFICE = 8;
 
+	private static final Logger LOG = Logger.getLogger(OdishaUtill.class);
+	
 	public static boolean isAssemblyBuildingCriteria(Plan pl) {
 		boolean isAssemblyBuilding = false;
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
@@ -611,6 +615,7 @@ public class OdishaUtill {
 			boolean pulicwashroomFlage = false;
 			for (Floor floor : block.getBuilding().getFloors()) {
 				for (Occupancy occupancy : floor.getOccupancies()) {
+					LOG.info("block - "+block.getNumber()+" floor - "+floor.getNumber()+" occupancy - "+occupancy.getTypeHelper()!=null && occupancy.getTypeHelper().getSubtype()!=null?occupancy.getTypeHelper().getSubtype().getCode():"");
 					if (occupancy.getTypeHelper() != null && occupancy.getTypeHelper().getSubtype() != null
 							&& DxfFileConstants.OUTHOUSE.equals(occupancy.getTypeHelper().getSubtype().getCode())) {
 						outhousesFlage = true;
