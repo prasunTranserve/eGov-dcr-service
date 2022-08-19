@@ -123,8 +123,8 @@ public class OdishaMixedUseUtill {
 		OccupancyPercentage occupancyPercentage = getMostOccupancyPercentage(
 				pl.getPlanInformation().getOccupancyPercentages());
 
-		if (DxfFileConstants.APARTMENT_BUILDING.equals(occupancyPercentage.getSubOccupancy())
-				|| DxfFileConstants.HOUSING_PROJECT.equals(occupancyPercentage.getSubOccupancy())) {
+		if (DxfFileConstants.APARTMENT_BUILDING.equals(occupancyPercentage.getSubOccupancyCode())
+				|| DxfFileConstants.HOUSING_PROJECT.equals(occupancyPercentage.getSubOccupancyCode())) {
 			isUnderTheProvision = provisionService.isCommercialActivityPermisibleForRes(pl);
 			subOccupancyCode.remove(DxfFileConstants.APARTMENT_BUILDING);
 			subOccupancyCode.remove(DxfFileConstants.HOUSING_PROJECT);
