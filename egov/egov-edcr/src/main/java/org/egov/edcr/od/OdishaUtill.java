@@ -731,8 +731,9 @@ public class OdishaUtill {
 				perPersonBuildupArea = BigDecimal.valueOf(6);
 
 		}
-
-		numberOfPerson = perPersonBuildupArea.divide(perPersonBuildupArea);
+		
+		if(perPersonBuildupArea.compareTo(BigDecimal.ZERO)>0)
+			numberOfPerson = perPersonBuildupArea.divide(perPersonBuildupArea);
 
 		return new BigDecimal(String.format("%.0f", numberOfPerson));
 
@@ -805,11 +806,20 @@ public class OdishaUtill {
 					BigDecimal existingBua = ocPercentage.get(ohd.getName()) != null
 							? ocPercentage.get(ohd.getName()).getTotalBuildUpArea()
 							: BigDecimal.ZERO;
-
+					BigDecimal existingFlrArea = ocPercentage.get(ohd.getName()) != null
+							? ocPercentage.get(ohd.getName()).getTotalFloorArea()
+							: BigDecimal.ZERO;
+					BigDecimal existingcarpetArea = ocPercentage.get(ohd.getName()) != null
+							? ocPercentage.get(ohd.getName()).getTotalCarpetArea()
+							: BigDecimal.ZERO;
 					OccupancyPercentage ocp = new OccupancyPercentage();
 					ocp.setOccupancy(oc.getTypeHelper().getType().getName());
 					ocp.setSubOccupancy(ohd.getName());
+					ocp.setOccupancyCode(oc.getTypeHelper().getType().getCode());
+					ocp.setSubOccupancyCode(ohd.getCode());
 					ocp.setTotalBuildUpArea(existingBua.add(oc.getBuiltUpArea()));
+					ocp.setTotalCarpetArea(existingcarpetArea.add(oc.getCarpetArea()));
+					ocp.setTotalFloorArea(existingFlrArea.add(oc.getFloorArea()));
 					ocPercentage.put(ohd.getName(), ocp);
 				}
 			}

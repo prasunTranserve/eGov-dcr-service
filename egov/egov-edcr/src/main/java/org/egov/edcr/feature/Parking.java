@@ -349,7 +349,9 @@ public class Parking extends FeatureProcess {
 			subType = typeHelper.getSubtype().getCode();
 
 		BigDecimal plotArea = pl.getPlot().getArea();
-		if (DxfFileConstants.OC_RESIDENTIAL.equals(ocType)) {
+		if (DxfFileConstants.OC_RESIDENTIAL.equals(ocType)
+				|| DxfFileConstants.OC_MIXED_USE.equals(ocType)
+				) {
 			// Total required
 			long totalNumberOfDu = pl.getPlanInformation().getTotalNoOfDwellingUnits();
 			BigDecimal totalStiltArea = totalStiltArea(pl);
@@ -371,7 +373,8 @@ public class Parking extends FeatureProcess {
 							|| DxfFileConstants.WORK_CUM_RESIDENTIAL.equals(subType)
 							|| DxfFileConstants.DHARMASALA.equals(subType) || DxfFileConstants.DORMITORY.equals(subType)
 							|| DxfFileConstants.HOSTEL.equals(subType) || DxfFileConstants.SHELTER_HOUSE.equals(subType)
-							|| DxfFileConstants.STAFF_QAURTER.equals(subType)) {
+							|| DxfFileConstants.STAFF_QAURTER.equals(subType)
+							|| DxfFileConstants.MIXED_USE.equals(subType)) {
 						helper.totalParkingRequired = pl.getVirtualBuilding().getTotalFloorArea()
 								.multiply(new BigDecimal("0.30")).setScale(2, BigDecimal.ROUND_HALF_UP);
 

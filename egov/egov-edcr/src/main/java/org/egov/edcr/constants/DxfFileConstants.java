@@ -18,6 +18,10 @@ public class DxfFileConstants {
 	public static final String M = "M"; // MIXED USE
 	public static final String AF="AF"; //Additional Feature
 	
+	public static final String M_M = "M-M";
+	public static final String MIXED_USE = "M-M"; 
+	public static final int MIXED_USE_COLOR_CODE = -1;
+	
 	//version 2
 	public static final String OC_RESIDENTIAL = "A"; // Residential
 	public static final String OC_COMMERCIAL= "B"; // Commercial
@@ -796,4 +800,6 @@ public class DxfFileConstants {
 	public static final String SETBACK_REAR_EXISTING = "BLK_%s_SETBACK_REAR_EXISTING"; 
 	public static final String SETBACK_LEFT_EXISTING = "BLK_%s_SETBACK_LEFT_EXISTING"; 
 	public static final String SETBACK_RIGHT_EXISTING = "BLK_%s_SETBACK_RIGHT_EXISTING"; 
+	
+	public static final String COLOUR_CODE_OF_PRINCIPAL_USE_OF_THE_BUILDING_IN_CASE_OF_MIXED_USE_PROJECTS = "COLOUR_CODE_OF_PRINCIPAL_USE_OF_THE_BUILDING_IN_CASE_OF_MIXED_USE_PROJECTS";
 }

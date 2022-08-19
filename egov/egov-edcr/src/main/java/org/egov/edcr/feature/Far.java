@@ -82,10 +82,12 @@ import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.od.OdishaMixedUseUtill;
 import org.egov.edcr.od.OdishaUtill;
 import org.egov.edcr.service.ProcessPrintHelper;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -135,7 +137,13 @@ public class Far extends FeatureProcess {
 	public static final String NEW_AREA_ERROR = "road width new area";
 	public static final String OLD_AREA_ERROR_MSG = "No construction shall be permitted if the road width is less than 2.4m for old area.";
 	public static final String NEW_AREA_ERROR_MSG = "No construction shall be permitted if the road width is less than 6.1m for new area.";
-
+	
+	@Autowired
+	private AdditionalMixedUseFeature additionalMixedUseFeature;
+	
+	@Autowired
+	private OdishaMixedUseUtill odishaMixedUseUtill;
+	
 	@Override
 	public Plan validate(Plan pl) {
 		if (pl.getPlot() == null || (pl.getPlot() != null
@@ -405,11 +413,11 @@ public class Far extends FeatureProcess {
 			Set<OccupancyTypeHelper> setOfBlockDistinctOccupancyTypes = new HashSet<>(blockWiseOccupancyTypes);
 			
 			//multiple Sub-Occupancies not allowed in one block
-			if(setOfBlockDistinctOccupancyTypes.size()>1) {
-				pl.addError("multiple_Occupancy_Type_b_"+blk.getNumber(), "Found sub-Occupancy "+setOfBlockDistinctOccupancyTypes.stream().map(o -> o.getSubtype()!=null?o.getSubtype().getName():null).collect(Collectors.toList())+" in block "+blk.getNumber()+", You cannot use multiple Sub-Occupancies in a single building block.");
-			}
+//			if(setOfBlockDistinctOccupancyTypes.size()>1) {
+//				pl.addError("multiple_Occupancy_Type_b_"+blk.getNumber(), "Found sub-Occupancy "+setOfBlockDistinctOccupancyTypes.stream().map(o -> o.getSubtype()!=null?o.getSubtype().getName():null).collect(Collectors.toList())+" in block "+blk.getNumber()+", You cannot use multiple Sub-Occupancies in a single building block.");
+//			}
 			
-			OccupancyTypeHelper mostRestrictiveFar = getMostRestrictiveFar(setOfBlockDistinctOccupancyTypes);
+			OccupancyTypeHelper mostRestrictiveFar = getMostRestrictiveFar(setOfBlockDistinctOccupancyTypes,pl,true);
 			blk.getBuilding().setMostRestrictiveFarHelper(mostRestrictiveFar);
 
 			for (Floor flr : building.getFloors()) {
@@ -525,8 +533,8 @@ public class Far extends FeatureProcess {
 		pl.getVirtualBuilding().setTotalExistingCarpetArea(totalExistingCarpetArea);
 		pl.getVirtualBuilding().setOccupancyTypes(distinctOccupancyTypesHelper);
 		pl.getVirtualBuilding().setTotalBuitUpArea(totalBuiltUpArea);
-		pl.getVirtualBuilding().setMostRestrictiveFarHelper(getMostRestrictiveFar(setOfDistinctOccupancyTypes));
-
+		pl.getVirtualBuilding().setMostRestrictiveFarHelper(getMostRestrictiveFar(setOfDistinctOccupancyTypes,pl,false));
+		
 		if (!distinctOccupancyTypesHelper.isEmpty()) {
 			int allResidentialOccTypesForPlan = 0;
 			for (OccupancyTypeHelper occupancy : distinctOccupancyTypesHelper) {
@@ -560,7 +568,7 @@ public class Far extends FeatureProcess {
 			}
 			pl.getVirtualBuilding().setResidentialOrCommercialBuilding(allResidentialOrCommercialOccTypesForPlan == 1);
 		}
-
+		
 		OccupancyTypeHelper mostRestrictiveOccupancy = pl.getVirtualBuilding() != null
 				? pl.getVirtualBuilding().getMostRestrictiveFarHelper()
 				: null;
@@ -640,6 +648,11 @@ public class Far extends FeatureProcess {
 //                        }
 		}
 		ProcessPrintHelper.print(pl);
+		
+//		//computeOccupancyPercentage
+//		OdishaUtill.computeOccupancyPercentage(pl);
+		//Mixed use case
+		additionalMixedUseFeature.process(pl);
 		return pl;
 	}
 	
@@ -736,7 +749,17 @@ public class Far extends FeatureProcess {
 		}
 	}
 
-	protected OccupancyTypeHelper getMostRestrictiveFar(Set<OccupancyTypeHelper> distinctOccupancyTypes) {
+	protected OccupancyTypeHelper getMostRestrictiveFar(Set<OccupancyTypeHelper> distinctOccupancyTypes,Plan pl,boolean isBuildingLevel) {
+		if(!isBuildingLevel) {
+			//computeOccupancyPercentage
+			OdishaUtill.computeOccupancyPercentage(pl);
+			if(distinctOccupancyTypes!=null && distinctOccupancyTypes.size()>1) {
+				OccupancyTypeHelper occupancyTypeHelper = checkMostRestrictiveFarForMixedUse(distinctOccupancyTypes, pl);
+				if(occupancyTypeHelper!=null)
+					return occupancyTypeHelper;
+			}
+		}
+		
 		Set<String> codes = new HashSet<>();
 		Map<String, OccupancyTypeHelper> codesMap = new HashMap<>();
 		for (OccupancyTypeHelper typeHelper : distinctOccupancyTypes) {
@@ -1072,7 +1095,17 @@ public class Far extends FeatureProcess {
 
 	}
 
-//	private Boolean processFarForSpecialOccupancy(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far,
+	protected OccupancyTypeHelper checkMostRestrictiveFarForMixedUse(Set<OccupancyTypeHelper> distinctOccupancyTypes,Plan pl) {
+		OccupancyTypeHelper occupancyTypeHelper = null;
+		if(distinctOccupancyTypes==null || distinctOccupancyTypes.size()<1) {
+			return occupancyTypeHelper;
+		}
+		if(!odishaMixedUseUtill.allowedProvision(distinctOccupancyTypes, pl))
+			occupancyTypeHelper = odishaMixedUseUtill.getMisxedUseOccupancyTypeHelper(pl);
+		return occupancyTypeHelper;
+	}
+	
+	//	private Boolean processFarForSpecialOccupancy(Plan pl, OccupancyTypeHelper occupancyType, BigDecimal far,
 //			String typeOfArea, BigDecimal roadWidth, HashMap<String, String> errors) {
 //		boolean flage = false;
 //		if (!flage)
@@ -1258,6 +1291,8 @@ public class Far extends FeatureProcess {
 				|| DxfFileConstants.COUNTRY_HOMES.equals(occupancyTypeHelper.getSubtype().getCode())) {
 
 			validateBuilupArea(pl);
+		} else if(DxfFileConstants.MIXED_USE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+			generalCriteriasFar(pl.getFarDetails(), roadWidth);
 		}
 
 		// far validation

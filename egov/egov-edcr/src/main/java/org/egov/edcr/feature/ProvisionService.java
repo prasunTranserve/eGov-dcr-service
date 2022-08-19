@@ -15,6 +15,7 @@ import java.util.Map;
 import org.egov.common.entity.edcr.Block;
 import org.egov.common.entity.edcr.Floor;
 import org.egov.common.entity.edcr.Occupancy;
+import org.egov.common.entity.edcr.OccupancyPercentage;
 import org.egov.common.entity.edcr.OccupancyTypeHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.Result;
@@ -71,7 +72,7 @@ public class ProvisionService extends FeatureProcess {
 
 	@Override
 	public Plan process(Plan pl) {
-		validateCommercialActivity(pl);
+//		validateCommercialActivity(pl);
 		processEwsProvision(pl);
 		otherProvisions(pl);
 		return pl;
@@ -80,40 +81,51 @@ public class ProvisionService extends FeatureProcess {
 	private void otherProvisions(Plan pl) {
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 
-		if (DxfFileConstants.OC_COMMERCIAL.equals(occupancyTypeHelper.getType().getCode())) {
-			provisionForCommercial(pl);
-		} else if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL
-				.equals(occupancyTypeHelper.getType().getCode())) {
-			provisionsForPublicSemiOrInstitutional(pl);
-		} else if (DxfFileConstants.OC_AGRICULTURE.equals(occupancyTypeHelper.getType().getCode())) {
-			provisionsForAgriculture(pl);
-		}
+//		if (DxfFileConstants.OC_COMMERCIAL.equals(occupancyTypeHelper.getType().getCode())) {
+//			provisionForCommercial(pl);
+//		} else if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL
+//				.equals(occupancyTypeHelper.getType().getCode())) {
+//			provisionsForPublicSemiOrInstitutional(pl);
+//		} else if (DxfFileConstants.OC_AGRICULTURE.equals(occupancyTypeHelper.getType().getCode())) {
+//			provisionsForAgriculture(pl);
+//		}
 
 	}
 
-	private void provisionsForAgriculture(Plan pl) {
-		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+	public boolean provisionsForAgriculture(Plan pl,OccupancyPercentage occupancyPercentage) {
+		//OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		boolean isUnderTheProvision = false;
 		BigDecimal maxAccomodation = BigDecimal.ZERO;
-		if (DxfFileConstants.FARM_HOUSE.equals(occupancyTypeHelper.getSubtype().getCode())) {
+		if (DxfFileConstants.FARM_HOUSE.equals(occupancyPercentage.getSubOccupancyCode())) {
 			maxAccomodation = MAX_ACCOMODATION_FOR_FARM_HOUSE;
-		} else if (DxfFileConstants.COUNTRY_HOMES.equals(occupancyTypeHelper.getSubtype().getCode())) {
+		} else if (DxfFileConstants.COUNTRY_HOMES.equals(occupancyPercentage.getSubOccupancyCode())) {
 			maxAccomodation = MAX_ACCOMODATION_FOR_COUNTRY_HOMES;
 		}
 
 		BigDecimal providedAccomodation = calculateBuildUpArea(pl,
 				Arrays.asList(DxfFileConstants.ACCOMODATION_OF_WATCH_AND_WARD_MAINTENANCE_STAFF));
 		if (maxAccomodation.compareTo(providedAccomodation) < 0) {
+			isUnderTheProvision = true;
+		}else {
+			isUnderTheProvision = false;
 		}
+		return isUnderTheProvision;
 	}
 
-	private void provisionsForPublicSemiOrInstitutional(Plan pl) {
-		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-		if (DxfFileConstants.CINEMA.equals(occupancyTypeHelper.getSubtype().getCode())) {
+
+	public boolean provisionsForPublicSemiOrInstitutional(Plan pl,OccupancyPercentage occupancyPercentage) {
+		//OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		boolean isUnderTheProvision = false;
+		if (DxfFileConstants.CINEMA.equals(occupancyPercentage.getSubOccupancyCode())) {
 			BigDecimal cinemaBUA = calculateBuildUpArea(pl, Arrays.asList(DxfFileConstants.CINEMA));
 			BigDecimal cinemaPercentage = cinemaBUA.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4)
 					.multiply(BigDecimal.valueOf(100)).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
 			if (BigDecimal.valueOf(90).compareTo(cinemaPercentage) > 0) {
 				// less than 90%. considered as Mixed use building
+				isUnderTheProvision = false;
+				return isUnderTheProvision;
+			}else {
+				isUnderTheProvision = true;
 			}
 
 			BigDecimal commercialBua = calculateBuildUpArea(pl, getCommercialSubOccupancies());
@@ -121,15 +133,19 @@ public class ProvisionService extends FeatureProcess {
 					.multiply(BigDecimal.valueOf(100)).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
 			if (BigDecimal.valueOf(10).compareTo(commercialPercentage) < 0) {
 				// More than 10%. considered as Mixed use building
+				isUnderTheProvision = false;
+			}else {
+				isUnderTheProvision = true;
 			}
 		}
-
+		return isUnderTheProvision;
 	}
 
-	private void provisionForCommercial(Plan pl) {
-		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
-		if (DxfFileConstants.HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())) {
+	public boolean provisionForCommercial(Plan pl,OccupancyPercentage occupancyPercentage) {
+		//OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
+		boolean isUnderTheProvision = false;
+		if (DxfFileConstants.HOTEL.equals(occupancyPercentage.getSubOccupancyCode())
+				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyPercentage.getSubOccupancyCode())) {
 			BigDecimal comOfcAndRetAndSerShopFloorArea = BigDecimal.ZERO;
 			for (Block b : pl.getBlocks()) {
 				for (Floor fl : b.getBuilding().getFloors()) {
@@ -140,6 +156,10 @@ public class ProvisionService extends FeatureProcess {
 										|| DxfFileConstants.FIVE_STAR_HOTEL
 												.equals(type.getTypeHelper().getSubtype().getCode()))) {
 							/* Other than allowed occupancy present. considered as Mixed use building */
+							isUnderTheProvision = false;
+							return isUnderTheProvision;
+						}else {
+							isUnderTheProvision = true;
 						}
 
 						if (getCommercialOfficeAndRetailServiceList()
@@ -153,10 +173,13 @@ public class ProvisionService extends FeatureProcess {
 			BigDecimal percentage = comOfcAndRetAndSerShopFloorArea
 					.divide(pl.getVirtualBuilding().getTotalFloorArea(), 4).multiply(BigDecimal.valueOf(100))
 					.setScale(SCALE, BigDecimal.ROUND_HALF_UP);
-			if (BigDecimal.valueOf(20).compareTo(percentage) < 0) {
+			if (BigDecimal.valueOf(20).compareTo(percentage) <= 0) {
 				// More than 20%. Considered as Mixed use building
+				isUnderTheProvision = true;
+			}else {
+				isUnderTheProvision = false;
 			}
-		} else if (DxfFileConstants.SHOP_CUM_RESIDENTIAL.equals(occupancyTypeHelper.getSubtype().getCode())) {
+		} else if (DxfFileConstants.SHOP_CUM_RESIDENTIAL.equals(occupancyPercentage.getSubOccupancyCode())) {
 			BigDecimal shopCumResidentialFloorArea = calculateTotalDeductedBuildupArea(pl,
 					Arrays.asList(DxfFileConstants.SHOP_CUM_RESIDENTIAL));
 			if (pl.getVirtualBuilding().getTotalFloorArea().multiply(BigDecimal.valueOf(2))
@@ -166,10 +189,13 @@ public class ProvisionService extends FeatureProcess {
 
 			if (isOtherThanAllowedSubOccupanciesPresent(pl)) {
 				// Mixed Occupancies
+				isUnderTheProvision = false;
 			} else {
+				isUnderTheProvision = true;
 				checkingGoundFloor(pl);
 			}
 		}
+		return isUnderTheProvision;
 	}
 
 	private void checkingGoundFloor(Plan pl) {
@@ -222,7 +248,45 @@ public class ProvisionService extends FeatureProcess {
 		}
 		return false;
 	}
+	
+	public boolean isCommercialActivityPermisibleForRes(Plan pl) {
+		boolean flage = false;
+		BigDecimal commercialBua = calculateBuildUpArea(pl, getCommercialSubOccupancies());
+		BigDecimal commercialActivityPercentage = commercialBua
+				.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4).multiply(BigDecimal.valueOf(100))
+				.setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+		if (COMERCIAL_ACTIVITY_MAX_PERCENTAGE.compareTo(commercialActivityPercentage) >= 0) {
+			// not a Mixed Use
+			flage = true;
+		}
+		
+		if(commercialActivityPercentage.compareTo(BigDecimal.ZERO)>0) {
+			validateCommercialActivityWithRoadWidth(pl);
+			commercialBua = calculateBuildUpArea(pl, getCommercialSubOccupancies());
+			commercialActivityPercentage = commercialBua
+					.divide(pl.getVirtualBuilding().getTotalBuitUpArea(), 4).multiply(BigDecimal.valueOf(100))
+					.setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+			
+			ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+			scrutinyDetail.addColumnHeading(1, RULE_NO);
+			scrutinyDetail.addColumnHeading(2, DESCRIPTION);
+			scrutinyDetail.addColumnHeading(3, REQUIRED);
+			scrutinyDetail.addColumnHeading(4, PROVIDED);
+			scrutinyDetail.addColumnHeading(5, STATUS);
+			scrutinyDetail.setKey("Common_Commercial Activity Provisions");
 
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, "");
+			details.put(DESCRIPTION, "Commercial activity percentage");
+			details.put(REQUIRED, "Max 5%");
+			details.put(PROVIDED, commercialActivityPercentage.toString());
+			details.put(STATUS, Result.Accepted.getResultVal());
+			scrutinyDetail.getDetail().add(details);
+			pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
+		}
+		return flage;
+	}
+	
 	private void validateCommercialActivity(Plan pl) {
 		OccupancyTypeHelper occupancyTypeHelper = pl.getVirtualBuilding().getMostRestrictiveFarHelper();
 
@@ -518,7 +582,7 @@ public class ProvisionService extends FeatureProcess {
 		return buildUpArea;
 	}
 
-	private List<String> getCommercialSubOccupancies() {
+	public List<String> getCommercialSubOccupancies() {
 		return Arrays.asList(DxfFileConstants.HOTEL, DxfFileConstants.FIVE_STAR_HOTEL, DxfFileConstants.MOTELS,
 				DxfFileConstants.SERVICES_FOR_HOUSEHOLDS, DxfFileConstants.SHOP_CUM_RESIDENTIAL, DxfFileConstants.BANK,
 				DxfFileConstants.RESORTS, DxfFileConstants.LAGOONS_AND_LAGOON_RESORT,
@@ -552,7 +616,7 @@ public class ProvisionService extends FeatureProcess {
 				DxfFileConstants.LOCAL_RETAIL_SHOPPING);
 	}
 
-	private List<String> getOtherAllowedSubOccupanciesInOcCommercial() {
+	public List<String> getOtherAllowedSubOccupanciesInOcCommercial() {
 		return Arrays.asList(DxfFileConstants.APARTMENT_BUILDING, DxfFileConstants.STUDIO_APARTMENTS,
 				DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX,
 				DxfFileConstants.CONVENIENCE_AND_NEIGHBORHOOD_SHOPPING, DxfFileConstants.PROFESSIONAL_OFFICES,
@@ -562,7 +626,7 @@ public class ProvisionService extends FeatureProcess {
 				DxfFileConstants.HEALTH_CENTRE);
 	}
 
-	private List<String> getCommercialOfficeAndRetailServiceList() {
+	public List<String> getCommercialOfficeAndRetailServiceList() {
 		return Arrays.asList(DxfFileConstants.COMMERCIAL_AND_BUSINESS_OFFICES_OR_COMPLEX,
 				DxfFileConstants.CONVENIENCE_AND_NEIGHBORHOOD_SHOPPING, DxfFileConstants.PROFESSIONAL_OFFICES,
 				DxfFileConstants.LOCAL_RETAIL_SHOPPING, DxfFileConstants.SHOPPING_CENTER, DxfFileConstants.MERCENTILE);

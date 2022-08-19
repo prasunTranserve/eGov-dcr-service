@@ -133,7 +133,7 @@ public class PlanService {
 				NocAndDocumentsUtill.updateDocuments(plan);
 				FeeCalculationUtill.checkShelterFeePrevalidation(plan);
 				DataPreparation.updatePlanDetails(plan);
-				OdishaUtill.computeOccupancyPercentage(plan);
+				
 			}
 
 		} catch (Exception e) {

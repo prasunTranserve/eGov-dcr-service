@@ -95,7 +95,8 @@ public class DataPreparation {
 				|| DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.WHOLESALE_MARKET.equals(occupancyTypeHelper.getSubtype().getCode())
 				|| DxfFileConstants.HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
-				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyTypeHelper.getSubtype().getCode()))
+				|| DxfFileConstants.FIVE_STAR_HOTEL.equals(occupancyTypeHelper.getSubtype().getCode())
+				|| DxfFileConstants.MIXED_USE.equals(occupancyTypeHelper.getSubtype().getCode()))
 			isSplOccupancy = true;
 
 		boolean isMixedOccupancies = false;// need to add condition

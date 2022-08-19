@@ -1006,21 +1006,36 @@ public class PlanReportService {
 			FastReportBuilder frb = new FastReportBuilder();
 			AbstractColumn occupancy = ColumnBuilder.getNew()
 					.setColumnProperty("occupancy", String.class.getName())
-					.setTitle("Occupancy").setWidth(120).setStyle(reportService.getTotalNumberStyle())
+					.setTitle("Occupancy").setWidth(80).setStyle(reportService.getTotalNumberStyle())
 					.build();
 			
 			AbstractColumn subOccupancy = ColumnBuilder.getNew()
 					.setColumnProperty("subOccupancy", String.class.getName())
-					.setTitle("Sub-Occupancy").setWidth(120).setStyle(reportService.getTotalNumberStyle())
+					.setTitle("Sub-Occupancy").setWidth(100).setStyle(reportService.getTotalNumberStyle())
 					.build();
 
 			AbstractColumn buaPercentage = ColumnBuilder.getNew()
-					.setColumnProperty("percentage", BigDecimal.class.getName()).setTitle("Build Up Area percentage")
-					.setWidth(120).setStyle(reportService.getTotalNumberStyle()).build();
+					.setColumnProperty("percentage", BigDecimal.class.getName()).setTitle("Build Up Area in %")
+					.setWidth(90).setStyle(reportService.getTotalNumberStyle()).build();
+			
+			AbstractColumn buaToatlArea = ColumnBuilder.getNew()
+					.setColumnProperty("buildUpArea", BigDecimal.class.getName()).setTitle("Built Up Area in m²")
+					.setWidth(90).setStyle(reportService.getTotalNumberStyle()).build();
+			
+			AbstractColumn floorToatlArea= ColumnBuilder.getNew()
+					.setColumnProperty("floorArea", BigDecimal.class.getName()).setTitle("Floor Area in m²")
+					.setWidth(90).setStyle(reportService.getTotalNumberStyle()).build();
+			
+			AbstractColumn carpetToatlArea = ColumnBuilder.getNew()
+					.setColumnProperty("carpetArea", BigDecimal.class.getName()).setTitle("Carpet Area in m²")
+					.setWidth(90).setStyle(reportService.getTotalNumberStyle()).build();
 
 			frb.addColumn(occupancy);
 			frb.addColumn(subOccupancy);
 			frb.addColumn(buaPercentage);
+			frb.addColumn(buaToatlArea);
+			frb.addColumn(floorToatlArea);
+			frb.addColumn(carpetToatlArea);
 
 			frb.setTitle("Sub-Occupancy occupied Percentage");
 			frb.setTitleStyle(reportService.getTitleStyle());
@@ -1060,6 +1075,9 @@ public class PlanReportService {
 				ort.setOccupancy(ocp.getOccupancy());
 				ort.setSubOccupancy(ocp.getSubOccupancy());
 				ort.setPercentage(ocp.getPercentage());
+				ort.setBuildUpArea(ocp.getTotalBuildUpArea());
+				ort.setCarpetArea(ocp.getTotalCarpetArea());
+				ort.setFloorArea(ocp.getTotalFloorArea());
 				occupanciesReport.add(ort);
 			}
 		}

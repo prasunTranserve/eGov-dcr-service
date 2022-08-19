@@ -11,6 +11,14 @@ public class OccupancyPercentage {
 	private BigDecimal totalBuildUpArea;
 	
 	private BigDecimal percentage;
+	
+	private BigDecimal totalFloorArea;
+	
+	private BigDecimal totalCarpetArea;
+	
+	private String occupancyCode;
+	
+	private String subOccupancyCode;
 
 	public String getOccupancy() {
 		return occupancy;
@@ -44,5 +52,38 @@ public class OccupancyPercentage {
 		this.percentage = percentage;
 	}
 
+	public BigDecimal getTotalFloorArea() {
+		return totalFloorArea;
+	}
+
+	public void setTotalFloorArea(BigDecimal totalFloorArea) {
+		this.totalFloorArea = totalFloorArea;
+	}
+
+	public BigDecimal getTotalCarpetArea() {
+		return totalCarpetArea;
+	}
+
+	public void setTotalCarpetArea(BigDecimal totalCarpetArea) {
+		this.totalCarpetArea = totalCarpetArea;
+	}
+
+	public String getOccupancyCode() {
+		return occupancyCode;
+	}
+
+	public void setOccupancyCode(String occupancyCode) {
+		this.occupancyCode = occupancyCode;
+	}
+
+	public String getSubOccupancyCode() {
+		return subOccupancyCode;
+	}
+
+	public void setSubOccupancyCode(String subOccupancyCode) {
+		this.subOccupancyCode = subOccupancyCode;
+	}
+
+	
 	
 }
