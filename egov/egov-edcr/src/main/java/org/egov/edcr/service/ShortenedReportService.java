@@ -930,13 +930,8 @@ public class ShortenedReportService{
 					DateUtils.toDefaultDateFormat(dcrApplication.getPermitApplicationDate()));
 		}
 		if (finalReportStatus) {
-			String dcrApplicationNumber = "";
-			if (ApplicationType.OCCUPANCY_CERTIFICATE.equals(dcrApplication.getApplicationType()))
-				dcrApplicationNumber = ocPlanScrutinyNumberGenerator.generateEdcrApplicationNumber();
-			else
-				dcrApplicationNumber = dcrApplicationNumberGenerator.generateEdcrApplicationNumber(dcrApplication);
 			EdcrApplicationDetail edcrApplicationDetail = dcrApplication.getEdcrApplicationDetails().get(0);
-			edcrApplicationDetail.setDcrNumber(dcrApplicationNumber);
+			String dcrApplicationNumber = edcrApplicationDetail.getDcrNumber()!=null?edcrApplicationDetail.getDcrNumber():"";
 			valuesMap.put("dcrNo", dcrApplicationNumber);
 		}
 		if (finalReportStatus) {

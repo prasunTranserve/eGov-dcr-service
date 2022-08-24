@@ -783,8 +783,8 @@ public class PlanService {
 			}
 			edcrApplicationDetail.setCreatedDate(new Date());
 			edcrApplicationDetail.setReportOutputId(reportOutput);
-			if (plan.getEdcrPassed())
-				edcrApplicationDetail.setShortenedreportOutputId(generateShortenedReport(plan, edcrApplication));
+//			if (plan.getEdcrPassed())
+//				edcrApplicationDetail.setShortenedreportOutputId(generateShortenedReport(plan, edcrApplication));
 			List<EdcrApplicationDetail> edcrApplicationDetails = new ArrayList<>();
 			edcrApplicationDetails.add(edcrApplicationDetail);
 			savePlanDetail(plan, edcrApplicationDetail);
