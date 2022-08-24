@@ -1187,14 +1187,34 @@ public class Util {
     }
 
     public static boolean pointsEqualsWith2PercentError(Point point1, Point point) {
-        BigDecimal px = BigDecimal.valueOf(point.getX()).setScale(COMPARE_WITH_2_PERCENT_ERROR_DIGITS,
-                BigDecimal.ROUND_DOWN);
-        BigDecimal py = BigDecimal.valueOf(point.getY()).setScale(COMPARE_WITH_2_PERCENT_ERROR_DIGITS,
-                BigDecimal.ROUND_DOWN);
-        BigDecimal p1x = BigDecimal.valueOf(point1.getX()).setScale(COMPARE_WITH_2_PERCENT_ERROR_DIGITS,
-                BigDecimal.ROUND_DOWN);
-        BigDecimal p1y = BigDecimal.valueOf(point1.getY()).setScale(COMPARE_WITH_2_PERCENT_ERROR_DIGITS,
-                BigDecimal.ROUND_DOWN);
+    	BigDecimal px = BigDecimal.ZERO;
+    	BigDecimal py = BigDecimal.ZERO;
+    	BigDecimal p1x = BigDecimal.ZERO;
+    	BigDecimal p1y = BigDecimal.ZERO;
+        try {
+        	px = BigDecimal.valueOf(point.getX()).setScale(COMPARE_WITH_2_PERCENT_ERROR_DIGITS,
+                    BigDecimal.ROUND_DOWN);
+        }catch (Exception e) {
+			e.printStackTrace();
+		}
+        try {
+        	py = BigDecimal.valueOf(point.getY()).setScale(COMPARE_WITH_2_PERCENT_ERROR_DIGITS,
+                    BigDecimal.ROUND_DOWN);
+        }catch (Exception e) {
+			e.printStackTrace();
+		}
+        try {
+        	p1x = BigDecimal.valueOf(point1.getX()).setScale(COMPARE_WITH_2_PERCENT_ERROR_DIGITS,
+                    BigDecimal.ROUND_DOWN);
+        }catch (Exception e) {
+			e.printStackTrace();
+		}
+        try {
+        	p1y = BigDecimal.valueOf(point1.getY()).setScale(COMPARE_WITH_2_PERCENT_ERROR_DIGITS,
+                    BigDecimal.ROUND_DOWN);
+        }catch (Exception e) {
+			e.printStackTrace();
+		}
         double d = 0.01;
 
         if (px.compareTo(p1x) == 0 && py.compareTo(p1y) == 0) {
