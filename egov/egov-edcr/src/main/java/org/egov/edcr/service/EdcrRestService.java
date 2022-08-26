@@ -737,9 +737,13 @@ public class EdcrRestService {
 				fileStoreMappers = new ArrayList<>();
 			}
 			fileName = fileName + "-V-" + fileStoreMappers.size() + ".pdf";
-
-			EdcrApplicationInfo edcrApplicationInfo = edcrExternalService.loadEdcrApplicationDetails(edcrNo);
-			Plan plan = edcrApplicationInfo.getPlan();
+			
+			Plan plan = null;
+			
+			if(!DxfFileConstants.BPA_PRE_APPROVED_CODE.equals(businessService)) {
+				EdcrApplicationInfo edcrApplicationInfo = edcrExternalService.loadEdcrApplicationDetails(edcrNo);
+				plan = edcrApplicationInfo.getPlan();
+			}
 			PermitOrderService permitOrderService = getPermitOrderServiceBean(businessService);
 			InputStream reportStream = permitOrderService.generateReport(plan, permitOrderRequest.getBpaList().get(0),
 					permitOrderRequest.getRequestInfo());
