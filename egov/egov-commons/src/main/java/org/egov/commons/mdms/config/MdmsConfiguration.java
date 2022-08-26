@@ -20,6 +20,20 @@ public class MdmsConfiguration {
     
     @Value("${egov.noc.service.host:}")
     private String nocHost;
+    
+    @Value("${egov.bpa.service.host:}")
+    private String bpaHost;
+
+
+
+
+    public String getBpaHost() {
+		return bpaHost;
+	}
+
+	public void setBpaHost(String bpaHost) {
+		this.bpaHost = bpaHost;
+	}
 
     public String getMdmsHost() {
         return mdmsHost;
