@@ -13,7 +13,7 @@ import org.egov.edcr.constants.DxfFileConstants;
 import org.egov.edcr.constants.OdishaUlbs;
 
 public class DataPreparation {
-	private static final boolean BPA5_FLAGE = false;
+	private static final boolean BPA5_FLAGE = true;
 	public static void updatePlanDetails(Plan pl) {
 		updateNmaData(pl);
 		updateVirtualBuildingHeight(pl);
