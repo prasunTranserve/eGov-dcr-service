@@ -100,10 +100,10 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 	public static String PARAGRAPH_7_1 = "FAR : ";
 	// public static String PARAGRAPH_7_2 = "0.55";
 
-	private Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLD);
-	private Font font1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
-	private Font fontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
-	private Font fontBoldUnderlined = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.UNDERLINE);
+	public Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLD);
+	public Font font1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
+	public Font fontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+	public Font fontBoldUnderlined = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.UNDERLINE);
 	
 	@Override
 	public InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) {
@@ -395,7 +395,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		return new ByteArrayInputStream(outputBytes.toByteArray());
 	}
 
-	private void addRows1(PdfPTable table1, Plan plan) {
+	public void addRows1(PdfPTable table1, Plan plan) {
 
 		java.util.List<DcrReportBlockDetail> blockDetails = buildBlockWiseProposedInfo(plan);
 
@@ -513,7 +513,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 
 	}
 
-	private void addTableHeader1(PdfPTable table1) {
+	public void addTableHeader1(PdfPTable table1) {
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
 		Stream.of("Category", "Area(sqmt)", "Front set back(mt)", "Rear set back(mt)", "Left setback(mt)",
 				"Right setback(mt)").forEach(columnTitle -> {

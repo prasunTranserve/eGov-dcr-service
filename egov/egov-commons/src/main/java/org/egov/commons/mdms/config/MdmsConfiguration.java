@@ -25,6 +25,16 @@ public class MdmsConfiguration {
     private String bpaHost;
 
 
+    @Value("${egov.user.service.host:}")
+    private String userServiceHost;
+
+    public String getUserServiceHost() {
+		return userServiceHost;
+	}
+
+	public void setUserServiceHost(String userServiceHost) {
+		this.userServiceHost = userServiceHost;
+	}
 
 
     public String getBpaHost() {

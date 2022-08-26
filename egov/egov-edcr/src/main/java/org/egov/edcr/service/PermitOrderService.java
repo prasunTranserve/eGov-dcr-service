@@ -63,6 +63,9 @@ public abstract class PermitOrderService {
 
 	@Autowired
 	private NocService nocService;
+	
+	@Autowired
+	private UserInfoService userService;
 
 	private static final Logger LOG = Logger.getLogger(PermitOrderService.class);
 
@@ -848,6 +851,31 @@ public abstract class PermitOrderService {
 			LOG.error("error while extracting owner name", ex);
 		}
 		return ownerName;
+	}
+	
+	public Map<String, Object> getApproverDetails(RequestInfo requestInfo, String tenantId, String businessService,
+			String userUUID, String userType) {
+		Map<String, Object> approverDetails = new HashMap<>();
+		try {
+			if (StringUtils.isNotEmpty(userType) && "CITIZEN".equals(userType) && tenantId.contains(".")) {
+				tenantId = tenantId.split("\\.")[0];
+			}
+			Object userSearchResponseObject = userService.fetchUserInfo(requestInfo, tenantId, businessService,
+					userUUID);
+			if (Objects.isNull(userSearchResponseObject) || !(userSearchResponseObject instanceof Map)
+					|| Objects.isNull(((Map) userSearchResponseObject).get("user"))
+					|| !(((Map) userSearchResponseObject).get("user") instanceof List)
+					|| CollectionUtils.isEmpty((List) ((Map) userSearchResponseObject).get("user"))) {
+				LOG.info("user not found for approver");
+			}
+			String nameOfApprover = getValue((Map) userSearchResponseObject, "$.user[0].name");
+			String mobileNumberOfApprover = getValue((Map) userSearchResponseObject, "$.user[0].userName");
+			approverDetails.put("nameOfApprover", nameOfApprover);
+			approverDetails.put("mobileNumberOfApprover", mobileNumberOfApprover);
+		} catch (Exception ex) {
+			LOG.error("error while extracting approver details", ex);
+		}
+		return approverDetails;
 	}
 
 	private String getOwnershipMajorType(LinkedHashMap bpaApplication) {
