@@ -151,9 +151,13 @@ private static final Logger LOG = Logger.getLogger(PermitOrderServiceBPA6.class)
 				fontBold);
 		headerSubTitle2.setAlignment(Paragraph.ALIGN_CENTER);
 		
-		String applicationNo = getValue(bpaApplication, "applicationNo");
-		Paragraph headerSubTitle3 = new Paragraph("Sujog-OBPS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
+		String drawingCode = bpaService.getDrawingCode(bpaApplication);
+		Paragraph headerSubTitle3 = new Paragraph("Preapproved Notified Drawing No. " + drawingCode, fontBoldUnderlined);
 		headerSubTitle3.setAlignment(Paragraph.ALIGN_CENTER);
+		
+		String applicationNo = getValue(bpaApplication, "applicationNo");
+		Paragraph headerSubTitle4 = new Paragraph("Sujog-OBPS APPLICATION NO. " + applicationNo, fontBoldUnderlined);
+		headerSubTitle4.setAlignment(Paragraph.ALIGN_CENTER);
 
 		Paragraph paragraph1 = new Paragraph(PARAGRAPH_ONE, font1);
 
@@ -368,6 +372,7 @@ private static final Logger LOG = Logger.getLogger(PermitOrderServiceBPA6.class)
 		document.add(headerSubTitle);
 		document.add(headerSubTitle2);
 		document.add(headerSubTitle3);
+		document.add(headerSubTitle4);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
 		document.add(paragraph1);
