@@ -413,9 +413,9 @@ public class Far extends FeatureProcess {
 			Set<OccupancyTypeHelper> setOfBlockDistinctOccupancyTypes = new HashSet<>(blockWiseOccupancyTypes);
 			
 			//multiple Sub-Occupancies not allowed in one block
-//			if(setOfBlockDistinctOccupancyTypes.size()>1) {
-//				pl.addError("multiple_Occupancy_Type_b_"+blk.getNumber(), "Found sub-Occupancy "+setOfBlockDistinctOccupancyTypes.stream().map(o -> o.getSubtype()!=null?o.getSubtype().getName():null).collect(Collectors.toList())+" in block "+blk.getNumber()+", You cannot use multiple Sub-Occupancies in a single building block.");
-//			}
+			if(setOfBlockDistinctOccupancyTypes.size()>1) {
+				pl.addError("multiple_Occupancy_Type_b_"+blk.getNumber(), "Found sub-Occupancy "+setOfBlockDistinctOccupancyTypes.stream().map(o -> o.getSubtype()!=null?o.getSubtype().getName():null).collect(Collectors.toList())+" in block "+blk.getNumber()+", You cannot use multiple Sub-Occupancies in a single building block.");
+			}
 			
 			OccupancyTypeHelper mostRestrictiveFar = getMostRestrictiveFar(setOfBlockDistinctOccupancyTypes,pl,true);
 			blk.getBuilding().setMostRestrictiveFarHelper(mostRestrictiveFar);
