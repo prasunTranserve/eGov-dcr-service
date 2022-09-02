@@ -2,8 +2,12 @@ package org.egov.edcr.service;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -876,6 +880,15 @@ public abstract class PermitOrderService {
 			LOG.error("error while extracting approver details", ex);
 		}
 		return approverDetails;
+	}
+	
+	public String getApprovalDate() {
+		// approval date to be taken from the date on which permit letter generated(actually dsc signature done)-
+		// Date date = new Date(Long.valueOf(getValue(bpaApplication, "approvalDate")));
+		Date date = new Date(Calendar.getInstance().getTimeInMillis());
+		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		String approvalDate = format.format(date);
+		return approvalDate;
 	}
 
 	private String getOwnershipMajorType(LinkedHashMap bpaApplication) {
