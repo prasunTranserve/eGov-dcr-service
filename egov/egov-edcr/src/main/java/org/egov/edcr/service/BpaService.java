@@ -54,13 +54,15 @@ public class BpaService {
 	}
 	    
 
-	    Object DrawingDetails =null;
+	    Object DrawingDetails =new Object();
+	    
+	    Object preApprovedPlanResponse = new Object();
 	    
 	    public PlanPreApproved loadPreApprovedData(String eDcrNumber,LinkedHashMap bpaApplication, RequestInfo requestInfo) {
 	    	
 	    	
 	    	
-	    	Object preApprovedPlanResponse = fetchPreApproved(requestInfo,eDcrNumber);
+	    	 preApprovedPlanResponse = fetchPreApproved(requestInfo,eDcrNumber);
 	          LOG.info(preApprovedPlanResponse);
 	    	return buildDcrPreApprovedApplicationdetails(preApprovedPlanResponse,bpaApplication);
 	    }
@@ -186,6 +188,17 @@ public class BpaService {
 			 flr.put("builtUpArea", builtUpArea);
 			
 			return flr;
+		}
+
+		public String getDrawingCode(LinkedHashMap bpaApplication) {
+			
+			//preApprovedCode
+			PlanPreApproved plan = new PlanPreApproved();
+	    	Object obj = ((List)preApprovedPlanResponse).get(0);
+			
+	    	 Object code= ((Map) obj).get("preApprovedCode");
+	    	 
+	    	 return code.toString();
 		}
 }
 	
