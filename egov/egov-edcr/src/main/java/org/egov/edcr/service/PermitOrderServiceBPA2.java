@@ -192,9 +192,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		
 		String tenantId = StringUtils.capitalize(tenantIdActual.split("\\.")[1]);
 		@SuppressWarnings("deprecation")
-		Date date = new Date(Long.valueOf(getValue(bpaApplication, "approvalDate")));
-		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-		String approvalDate = format.format(date);
+		String approvalDate = getApprovalDate();
 		Paragraph para12 = new Paragraph(
 				"Letter No. " + getValue(bpaApplication, "approvalNo") + ", " + tenantId + ", Dated: " + approvalDate,
 				fontBold);

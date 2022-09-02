@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -138,10 +139,8 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		
 		String tenantId = StringUtils.capitalize(tenantIdActual.split("\\.")[1]);
 		@SuppressWarnings("deprecation")
-		Date date = new Date(Long.valueOf(getValue(bpaApplication, "approvalDate")));
-		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		String approvalNo = getValue(bpaApplication, "approvalNo");
-		String approvalDate = format.format(date);
+		String approvalDate = getApprovalDate();
 		Paragraph headerSubTitle2 = new Paragraph(
 				"Letter No. " + approvalNo + ", " + tenantId + ", Dated: " + approvalDate,
 				fontBold);

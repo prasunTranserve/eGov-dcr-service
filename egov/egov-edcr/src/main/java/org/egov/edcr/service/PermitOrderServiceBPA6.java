@@ -142,10 +142,8 @@ private static final Logger LOG = Logger.getLogger(PermitOrderServiceBPA6.class)
 		
 		String tenantId = StringUtils.capitalize(tenantIdActual.split("\\.")[1]);
 		@SuppressWarnings("deprecation")
-		Date date = new Date(Long.valueOf(getValue(bpaApplication, "approvalDate")));
-		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		String approvalNo = getValue(bpaApplication, "approvalNo");
-		String approvalDate = format.format(date);
+		String approvalDate = getApprovalDate();
 		Paragraph headerSubTitle2 = new Paragraph(
 				"Letter No. " + approvalNo + ", " + tenantId + ", Dated: " + approvalDate,
 				fontBold);
