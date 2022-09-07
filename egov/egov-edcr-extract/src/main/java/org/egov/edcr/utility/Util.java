@@ -1187,6 +1187,7 @@ public class Util {
     }
 
     public static boolean pointsEqualsWith2PercentError(Point point1, Point point) {
+    	System.out.println("file changed for setback");
     	BigDecimal px = BigDecimal.ZERO;
     	BigDecimal py = BigDecimal.ZERO;
     	BigDecimal p1x = BigDecimal.ZERO;
