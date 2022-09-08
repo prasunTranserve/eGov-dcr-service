@@ -88,6 +88,7 @@ import org.egov.edcr.service.ProcessPrintHelper;
 import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -143,6 +144,9 @@ public class Far extends FeatureProcess {
 	
 	@Autowired
 	private OdishaMixedUseUtill odishaMixedUseUtill;
+	
+	@Value("${od.mixed-use.enabled:false}")
+	private boolean isMixedUseEnable;
 	
 	@Override
 	public Plan validate(Plan pl) {
@@ -411,11 +415,6 @@ public class Far extends FeatureProcess {
 					blockWiseOccupancyTypes.add(occupancy.getTypeHelper());
 			}
 			Set<OccupancyTypeHelper> setOfBlockDistinctOccupancyTypes = new HashSet<>(blockWiseOccupancyTypes);
-			
-			//multiple Sub-Occupancies not allowed in one block
-			if(setOfBlockDistinctOccupancyTypes.size()>1) {
-				pl.addError("multiple_Occupancy_Type_b_"+blk.getNumber(), "Found sub-Occupancy "+setOfBlockDistinctOccupancyTypes.stream().map(o -> o.getSubtype()!=null?o.getSubtype().getName():null).collect(Collectors.toList())+" in block "+blk.getNumber()+", You cannot use multiple Sub-Occupancies in a single building block.");
-			}
 			
 			OccupancyTypeHelper mostRestrictiveFar = getMostRestrictiveFar(setOfBlockDistinctOccupancyTypes,pl,true);
 			blk.getBuilding().setMostRestrictiveFarHelper(mostRestrictiveFar);
@@ -755,8 +754,12 @@ public class Far extends FeatureProcess {
 			OdishaUtill.computeOccupancyPercentage(pl);
 			if(distinctOccupancyTypes!=null && distinctOccupancyTypes.size()>1) {
 				OccupancyTypeHelper occupancyTypeHelper = checkMostRestrictiveFarForMixedUse(distinctOccupancyTypes, pl);
-				if(occupancyTypeHelper!=null)
+				if(occupancyTypeHelper!=null) {
+					if(!isMixedUseEnable) {
+						pl.addError("isMixedUseEnable", "Mixed use is currently under development.");
+					}
 					return occupancyTypeHelper;
+				}
 			}
 		}
 		
