@@ -110,9 +110,9 @@ public class PublicWashroomService extends FeatureProcess {
 	@Override
 	public Plan process(Plan pl) {
 		System.out.println("file changed for public washroom");
-		boolean flage = true;
-		if(flage)
-			return pl;
+//		boolean flage = true;
+//		if(flage)
+//			return pl;
 		validate(pl);
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Public Washroom complex in front setback area");

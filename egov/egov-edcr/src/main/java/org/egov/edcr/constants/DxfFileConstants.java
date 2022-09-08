@@ -377,12 +377,12 @@ public class DxfFileConstants {
 	public static final String HORTICULTURE = "H-H";// Horticulture
 	public static final String SERI_CULTURE = "H-SC";// Seri culture
 	
-	public static final String AF_OH="AF-OH";	//Outhouse
-	public static final String AF_PW="AF-PW";	//Outhouse
+//	public static final String AF_OH="AF-OH";	//Outhouse
+//	public static final String AF_PW="AF-PW";	//Outhouse
 	
 	public static final String OUTHOUSE="AF-OH";	//Outhouse
 	public static final String PUBLIC_WASHROOMS="AF-PW";	//Public Washrooms
-	public static final String ACCOMODATION_OF_WATCH_AND_WARD_MAINTENANCE_STAFF="AF-AWWS";	//Public Washrooms
+	public static final String ACCOMODATION_OF_WATCH_AND_WARD_MAINTENANCE_STAFF="AF-AWWS";	//Accommodation of watch and ward/maintenance staff
 
 	public static final String VERT_CLEAR_OHE = "VERT_CLEAR_OHEL";
 	public static final String REAR_YARD = "REAR_YARD";

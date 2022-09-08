@@ -117,9 +117,15 @@ public class OdishaMixedUseUtill {
 
 	public boolean allowedProvision(Set<OccupancyTypeHelper> distinctOccupancyTypes, Plan pl) {
 		boolean isUnderTheProvision = false;
-		List<String> subOccupancyCode = distinctOccupancyTypes.stream()
+		List<String> subOccupancyCode = distinctOccupancyTypes.stream().filter(ot -> ot!=null && ot.getType()!=null && !DxfFileConstants.OC_ADDITIONAL_FEATURE.equals(ot.getType().getCode()))
 				.map(oth -> (oth != null && oth.getSubtype() != null) ? oth.getSubtype().getCode() : null)
 				.collect(Collectors.toList());
+		
+		if(subOccupancyCode.size()==1) {
+			isUnderTheProvision = true;
+			return isUnderTheProvision;
+		}
+		
 		OccupancyPercentage occupancyPercentage = getMostOccupancyPercentage(
 				pl.getPlanInformation().getOccupancyPercentages());
 
@@ -166,6 +172,9 @@ public class OdishaMixedUseUtill {
 			}
 			if (isUnderTheProvision && subOccupancyCode.size() > 0)
 				isUnderTheProvision = false;
+			else if(isUnderTheProvision && subOccupancyCode.size()==0)
+				isUnderTheProvision = true;
+				
 		}
 		return isUnderTheProvision;
 	}
