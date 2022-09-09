@@ -117,8 +117,15 @@ public class SetBackServiceExtract extends FeatureExtract {
                         pl.addError(yardName + "_MIN_DISTANCE", String.format(ERR_MIN_DISTANCE, yardName));
                     }
                 } else {
-                    yard.setMinimumDistance(
-                            minDistance.getYardMinDistance(pl, yardName, String.valueOf(setBack.getLevel()), doc));
+                	List<BigDecimal> yardWidthDistance = Util.getListOfDimensionByColourCode(pl, yardName,
+                            DxfFileConstants.YARD_DIMENSION_COLOR);
+                    if (!yardWidthDistance.isEmpty()) {
+                        yard.setMinimumDistance(Collections.min(yardWidthDistance));
+                    } else {
+                    	yard.setMinimumDistance(
+                                minDistance.getYardMinDistance(pl, yardName, String.valueOf(setBack.getLevel()), doc));
+                    }
+                    
                 }
                 setYardHeight(doc, yardName, yard);
             }
@@ -195,8 +202,14 @@ public class SetBackServiceExtract extends FeatureExtract {
                         pl.addError(yardName + "_MIN_DISTANCE", String.format(ERR_MIN_DISTANCE, yardName));
                     }
                 } else {
-                    sideYard1.setMinimumDistance(
-                            minDistance.getYardMinDistance(pl, yardName, String.valueOf(setBack.getLevel()), doc));
+                	List<BigDecimal> yardWidthDistance = Util.getListOfDimensionByColourCode(pl, yardName,
+                            DxfFileConstants.YARD_DIMENSION_COLOR);
+                    if (!yardWidthDistance.isEmpty()) {
+                        sideYard1.setMinimumDistance(Collections.min(yardWidthDistance));
+                    } else {
+                    	sideYard1.setMinimumDistance(
+                                minDistance.getYardMinDistance(pl, yardName, String.valueOf(setBack.getLevel()), doc));
+                    }
                 }
                 setYardHeight(doc, yardName, sideYard1);
             } 
@@ -226,8 +239,14 @@ public class SetBackServiceExtract extends FeatureExtract {
                         pl.addError(yardName + "_MIN_DISTANCE", String.format(ERR_MIN_DISTANCE, yardName));
                     }
                 } else {
-                    rearYard.setMinimumDistance(
-                            minDistance.getYardMinDistance(pl, yardName, String.valueOf(setBack.getLevel()), doc));
+                	 List<BigDecimal> yardWidthDistance = Util.getListOfDimensionByColourCode(pl, yardName,
+                             DxfFileConstants.YARD_DIMENSION_COLOR);
+                     if (!yardWidthDistance.isEmpty()) {
+                         rearYard.setMinimumDistance(Collections.min(yardWidthDistance));
+                     } else {
+                    	 rearYard.setMinimumDistance(
+                                 minDistance.getYardMinDistance(pl, yardName, String.valueOf(setBack.getLevel()), doc));
+                     }
                 }
                 setYardHeight(doc, yardName, rearYard);
             }
@@ -252,8 +271,14 @@ public class SetBackServiceExtract extends FeatureExtract {
                         pl.addError(yardName + "_MIN_DISTANCE", String.format(ERR_MIN_DISTANCE, yardName));
                     }
                 } else {
-                    frontYard.setMinimumDistance(
-                            minDistance.getYardMinDistance(pl, yardName, String.valueOf(setBack.getLevel()), doc));
+                	 List<BigDecimal> yardWidthDistance = Util.getListOfDimensionByColourCode(pl, yardName,
+                             DxfFileConstants.YARD_DIMENSION_COLOR);
+                	 if (!yardWidthDistance.isEmpty()) {
+                         frontYard.setMinimumDistance(Collections.min(yardWidthDistance));
+                     } else {
+                    	 frontYard.setMinimumDistance(
+                                 minDistance.getYardMinDistance(pl, yardName, String.valueOf(setBack.getLevel()), doc));
+                     }
                 }
                 setYardHeight(doc, yardName, frontYard);
             } else
