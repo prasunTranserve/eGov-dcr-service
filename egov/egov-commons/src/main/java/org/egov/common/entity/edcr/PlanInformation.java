@@ -283,6 +283,10 @@ public class PlanInformation implements Serializable {
     
     private Boolean isRevisionApplication = Boolean.FALSE;
     
+    private Boolean isApplicationPersentInSujogSystem;
+    
+    private Boolean isPermitLetterExpried;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -1149,4 +1153,21 @@ public class PlanInformation implements Serializable {
 		this.isRevisionApplication = isRevisionApplication;
 	}
 
+	public Boolean getIsApplicationPersentInSujogSystem() {
+		return isApplicationPersentInSujogSystem;
+	}
+
+	public void setIsApplicationPersentInSujogSystem(Boolean isApplicationPersentInSujogSystem) {
+		this.isApplicationPersentInSujogSystem = isApplicationPersentInSujogSystem;
+	}
+
+	public Boolean getIsPermitLetterExpried() {
+		return isPermitLetterExpried;
+	}
+
+	public void setIsPermitLetterExpried(Boolean isPermitLetterExpried) {
+		this.isPermitLetterExpried = isPermitLetterExpried;
+	}
+
+	
 }

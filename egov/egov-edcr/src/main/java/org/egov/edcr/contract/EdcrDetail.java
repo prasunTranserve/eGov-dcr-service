@@ -91,6 +91,8 @@ public class EdcrDetail {
 
     private String comparisonEdcrNumber;
     
+    private String alterationSubService;
+    
     public String getPlanReport() {
         return planReport;
     }
@@ -235,4 +237,12 @@ public class EdcrDetail {
 		this.shortenedPlanReport = shortenedPlanReport;
 	}
 
+	public String getAlterationSubService() {
+		return alterationSubService;
+	}
+
+	public void setAlterationSubService(String alterationSubService) {
+		this.alterationSubService = alterationSubService;
+	}
+	
 }

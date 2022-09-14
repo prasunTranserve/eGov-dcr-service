@@ -111,7 +111,7 @@ public class PlanService {
 		try {
 			plan = extractService.extract(dcrApplication.getSavedDxfFile(), amd, asOnDate,
 					featureService.getFeatures());
-			isAborted = checkAbortCaseTrue(plan);
+ 			isAborted = checkAbortCaseTrue(plan);
 			end = System.currentTimeMillis();
 			execution = end - start;
 			LOG.info("Total time taken to extract plan : " + execution);
@@ -144,12 +144,15 @@ public class PlanService {
 		if (isAborted)
 			plan = getAbortedSupportPlan(plan);
 		
+		boolean isComparisonReportRequired = isComparisonReportApplicable(dcrApplication, plan);
+		
 		if(dcrApplication.getIsRevisionApplication()!=null)
 			plan.getPlanInformation().setIsRevisionApplication(dcrApplication.getIsRevisionApplication());
 		
 		String comparisonDcrNumber = dcrApplication.getEdcrApplicationDetails().get(0).getComparisonDcrNumber();
-		if (ApplicationType.PERMIT.getApplicationTypeVal()
-				.equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())
+		if ((ApplicationType.PERMIT.getApplicationTypeVal()
+				.equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType()) 
+				&& (!isComparisonReportRequired && StringUtils.isBlank(comparisonDcrNumber)))
 				|| (ApplicationType.OCCUPANCY_CERTIFICATE.getApplicationTypeVal()
 						.equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())
 						&& StringUtils.isBlank(comparisonDcrNumber))) {
@@ -159,9 +162,11 @@ public class PlanService {
 			end = System.currentTimeMillis();
 			execution = end - start;
 			LOG.info("Total time taken to persist scrutiny report in temp storage : " + execution);
-		} else if (ApplicationType.OCCUPANCY_CERTIFICATE.getApplicationTypeVal()
+		} else if ((ApplicationType.OCCUPANCY_CERTIFICATE.getApplicationTypeVal()
 				.equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())
-				&& StringUtils.isNotBlank(comparisonDcrNumber)) {
+				&& StringUtils.isNotBlank(comparisonDcrNumber))
+				|| (isComparisonReportRequired && StringUtils.isNotBlank(comparisonDcrNumber))
+				) {
 			ComparisonRequest comparisonRequest = new ComparisonRequest();
 			EdcrApplicationDetail edcrApplicationDetail = dcrApplication.getEdcrApplicationDetails().get(0);
 			comparisonRequest.setEdcrNumber(edcrApplicationDetail.getComparisonDcrNumber());
@@ -230,7 +235,26 @@ public class PlanService {
 		}
 		return plan;
 	}
-
+	
+	private boolean isComparisonReportApplicable(EdcrApplication dcrApplication,Plan pl) {
+		boolean isApplicable = false;
+		
+		if(dcrApplication.getIsApplicationPersentInSujogSystem() != null)
+			pl.getPlanInformation().setIsApplicationPersentInSujogSystem(dcrApplication.getIsApplicationPersentInSujogSystem());
+		
+		if(dcrApplication.getIsPermitLetterExpried() != null)
+			pl.getPlanInformation().setIsPermitLetterExpried(dcrApplication.getIsPermitLetterExpried());
+		
+		if(dcrApplication.getAlterationSubService()!=null 
+				&& (DxfFileConstants.ALTERATION_SERVICE_A.equals(dcrApplication.getAlterationSubService())
+						|| DxfFileConstants.ALTERATION_SERVICE_B.equals(dcrApplication.getAlterationSubService()))) {
+			if(dcrApplication.getIsApplicationPersentInSujogSystem() != null 
+					&& dcrApplication.getIsApplicationPersentInSujogSystem() == true)
+				isApplicable = true;
+		}
+		
+		return isApplicable;
+	}
 	private boolean checkAbortCaseTrue(Plan pl) {
 		boolean flage = false;
 		if (pl == null || pl.getBlocks() == null || pl.getBlocks().size() == 0

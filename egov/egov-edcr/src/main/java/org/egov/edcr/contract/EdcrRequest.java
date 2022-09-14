@@ -84,6 +84,12 @@ public class EdcrRequest {
     private String comparisonEdcrNumber;
     
     private Boolean isRevisionApplication;
+    
+    private Boolean isApplicationPersentInSujogSystem;
+    
+    private Boolean isPermitLetterExpried;
+    
+    private String alterationSubService;
 
     public RequestInfo getRequestInfo() {
         return requestInfo;
@@ -180,6 +186,31 @@ public class EdcrRequest {
 	public void setIsRevisionApplication(Boolean isRevisionApplication) {
 		this.isRevisionApplication = isRevisionApplication;
 	}
+
+	public Boolean getIsApplicationPersentInSujogSystem() {
+		return isApplicationPersentInSujogSystem;
+	}
+
+	public void setIsApplicationPersentInSujogSystem(Boolean isApplicationPersentInSujogSystem) {
+		this.isApplicationPersentInSujogSystem = isApplicationPersentInSujogSystem;
+	}
+
+	public Boolean getIsPermitLetterExpried() {
+		return isPermitLetterExpried;
+	}
+
+	public void setIsPermitLetterExpried(Boolean isPermitLetterExpried) {
+		this.isPermitLetterExpried = isPermitLetterExpried;
+	}
+
+	public String getAlterationSubService() {
+		return alterationSubService;
+	}
+
+	public void setAlterationSubService(String alterationSubService) {
+		this.alterationSubService = alterationSubService;
+	}
     
+	
     
 }

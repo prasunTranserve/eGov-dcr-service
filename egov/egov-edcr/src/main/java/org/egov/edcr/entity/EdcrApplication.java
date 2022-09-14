@@ -105,6 +105,12 @@ public class EdcrApplication extends AbstractAuditable {
     private transient String deviationStatus;
     
     private transient Boolean isRevisionApplication;
+    
+    private transient Boolean isApplicationPersentInSujogSystem;
+    
+    private transient Boolean isPermitLetterExpried;
+    
+    private String alterationSubService;
 
     @Override
     public Long getId() {
@@ -316,5 +322,28 @@ public class EdcrApplication extends AbstractAuditable {
 		this.isRevisionApplication = isRevisionApplication;
 	}
 
-    
+	public Boolean getIsApplicationPersentInSujogSystem() {
+		return isApplicationPersentInSujogSystem;
+	}
+
+	public void setIsApplicationPersentInSujogSystem(Boolean isApplicationPersentInSujogSystem) {
+		this.isApplicationPersentInSujogSystem = isApplicationPersentInSujogSystem;
+	}
+
+	public Boolean getIsPermitLetterExpried() {
+		return isPermitLetterExpried;
+	}
+
+	public void setIsPermitLetterExpried(Boolean isPermitLetterExpried) {
+		this.isPermitLetterExpried = isPermitLetterExpried;
+	}
+
+	public String getAlterationSubService() {
+		return alterationSubService;
+	}
+
+	public void setAlterationSubService(String alterationSubService) {
+		this.alterationSubService = alterationSubService;
+	}
+ 
 }

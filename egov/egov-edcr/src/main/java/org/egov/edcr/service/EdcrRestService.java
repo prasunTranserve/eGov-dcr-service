@@ -185,7 +185,8 @@ public class EdcrRestService {
 		EdcrApplicationDetail edcrApplicationDetail = new EdcrApplicationDetail();
 		if (ApplicationType.OCCUPANCY_CERTIFICATE.toString().equalsIgnoreCase(edcrRequest.getAppliactionType())) {
 			edcrApplicationDetail.setComparisonDcrNumber(edcrRequest.getComparisonEdcrNumber());
-		}
+		}else if(edcrRequest.getComparisonEdcrNumber() != null)
+			edcrApplicationDetail.setComparisonDcrNumber(edcrRequest.getComparisonEdcrNumber());
 		List<EdcrApplicationDetail> edcrApplicationDetails = new ArrayList<>();
 		edcrApplicationDetails.add(edcrApplicationDetail);
 		edcrApplication.setTransactionNumber(edcrRequest.getTransactionNumber());
@@ -221,6 +222,18 @@ public class EdcrRestService {
 		
 		if(edcrRequest.getIsRevisionApplication()!=null)
 			edcrApplication.setIsRevisionApplication(edcrRequest.getIsRevisionApplication());
+		
+		if(edcrRequest.getIsApplicationPersentInSujogSystem()!=null) {
+			edcrApplication.setIsApplicationPersentInSujogSystem(edcrRequest.getIsApplicationPersentInSujogSystem());
+		}
+		
+		if(edcrRequest.getIsPermitLetterExpried()!=null) {
+			edcrApplication.setIsPermitLetterExpried(edcrRequest.getIsPermitLetterExpried());
+		}
+		
+		if(edcrRequest.getAlterationSubService()!=null) {
+			edcrApplication.setAlterationSubService(edcrRequest.getAlterationSubService());
+		}
 		
 		edcrApplication = edcrApplicationService.createRestEdcr(edcrApplication);
 		return setEdcrResponse(edcrApplication.getEdcrApplicationDetails().get(0), edcrRequest);
@@ -288,6 +301,9 @@ public class EdcrRestService {
 		} else {
 			edcrDetail.setShortenedPlanReport(edcrDetail.getPlanReport());
 		}
+		
+		if(edcrApplnDtl.getApplication() != null && edcrApplnDtl.getApplication().getAlterationSubService() != null)
+			edcrDetail.setAlterationSubService(edcrApplnDtl.getApplication().getAlterationSubService());
 
 		File file = edcrApplnDtl.getPlanDetailFileStore() != null
 				? fileStoreService.fetch(edcrApplnDtl.getPlanDetailFileStore().getFileStoreId(),
