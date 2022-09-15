@@ -331,7 +331,12 @@ public class LiftService extends FeatureProcess {
 			}
 		} else if (DxfFileConstants.OC_PUBLIC_SEMI_PUBLIC_OR_INSTITUTIONAL.equals(typeHelper.getType().getCode())
 				|| DxfFileConstants.OC_EDUCATION.equals(typeHelper.getType().getCode())
-				|| DxfFileConstants.OC_TRANSPORTATION.equals(typeHelper.getType().getCode())) {
+				|| (DxfFileConstants.OC_TRANSPORTATION.equals(typeHelper.getType().getCode()))
+				&& !(DxfFileConstants.AUTO_STAND.equals(typeHelper.getSubtype().getCode()) 
+						|| DxfFileConstants.BUS_STAND.equals(typeHelper.getSubtype().getCode())
+						|| DxfFileConstants.TAXI_STAND.equals(typeHelper.getSubtype().getCode())
+						|| DxfFileConstants.TOLL_PLAZA.equals(typeHelper.getSubtype().getCode())
+						|| DxfFileConstants.PUBLIC_PARKING.equals(typeHelper.getSubtype().getCode()))) {
 			isMandatory = true;
 		}
 
