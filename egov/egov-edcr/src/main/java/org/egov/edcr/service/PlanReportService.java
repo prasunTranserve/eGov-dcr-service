@@ -946,7 +946,8 @@ public class PlanReportService {
 			finalReportStatus = finalReportStatus && (dcrApplication.getDeviationStatus().equalsIgnoreCase("Accepted"));
 		}else {
 			plan.setMainDcrPassed(finalReportStatus);
-			finalReportStatus = finalReportStatus && (dcrApplication.getDeviationStatus().equalsIgnoreCase("Accepted"));
+			if(dcrApplication.getDeviationStatus() != null)
+				finalReportStatus = finalReportStatus && (dcrApplication.getDeviationStatus().equalsIgnoreCase("Accepted"));
 		}
 
 		reportBuilder.append("Report Status : " + (finalReportStatus ? "Accepted" : "Not Accepted")).append("\\n")
