@@ -190,7 +190,7 @@ public class NocAndDocumentsUtill {
 			} else if (DxfFileConstants.OC_EDUCATION.equals(ocCode)) {
 				if (buildingHeight.compareTo(new BigDecimal("12")) >= 0
 						|| buildUpArea.compareTo(new BigDecimal("1000")) >= 0
-						|| pl.getVirtualBuilding().getFloorsAboveGround().compareTo(new BigDecimal("3")) >= 0) {
+						|| getMaxNumberOfFloorAboveGroundFloor(pl).compareTo(new BigDecimal("3")) >= 0) {
 					list.add(NOCConstants.FIRE_SERVICE_NOC);
 				}
 			} else {
@@ -376,4 +376,15 @@ public class NocAndDocumentsUtill {
 		return count;
 	}
 
+	private static BigDecimal getMaxNumberOfFloorAboveGroundFloor(Plan pl) {
+		BigDecimal count = BigDecimal.ZERO;
+
+		for (Block block : pl.getBlocks()) {
+			if (block.getBuilding() != null && block.getBuilding().getFloorsAboveGround() != null
+					&& count.compareTo(block.getBuilding().getFloorsAboveGround()) < 0)
+				count = block.getBuilding().getFloorsAboveGround();
+		}
+
+		return count;
+	}
 }

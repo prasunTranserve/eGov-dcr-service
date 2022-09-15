@@ -69,8 +69,8 @@ public class VirtualBuilding implements Serializable {
     private OccupancyType mostRestrictiveCoverage;
     private OccupancyTypeHelper mostRestrictiveFarHelper;
     private OccupancyTypeHelper mostRestrictiveCoverageHelper;
-    private BigDecimal floorsAboveGround;
-    private BigDecimal totalCoverageArea;
+    private BigDecimal floorsAboveGround = BigDecimal.ZERO;
+    private BigDecimal totalCoverageArea = BigDecimal.ZERO;
     private transient Boolean residentialOrCommercialBuilding = false;
     private transient Boolean residentialBuilding = false;
     private BigDecimal totalConstructedArea;
