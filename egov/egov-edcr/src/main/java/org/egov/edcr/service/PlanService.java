@@ -239,6 +239,12 @@ public class PlanService {
 	private boolean isComparisonReportApplicable(EdcrApplication dcrApplication,Plan pl) {
 		boolean isApplicable = false;
 		
+		//update plan information for alterationSubService
+		pl.getPlanInformation().setPermitNumber(dcrApplication.getPlanPermitNumber());
+		pl.getPlanInformation().setIsRevisionApplication(dcrApplication.getIsRevisionApplication());
+		pl.getPlanInformation().setIsApplicationPersentInSujogSystem(dcrApplication.getIsApplicationPersentInSujogSystem());
+		pl.getPlanInformation().setAlterationSubService(dcrApplication.getAlterationSubService());
+		
 		if(dcrApplication.getIsApplicationPersentInSujogSystem() != null)
 			pl.getPlanInformation().setIsApplicationPersentInSujogSystem(dcrApplication.getIsApplicationPersentInSujogSystem());
 		

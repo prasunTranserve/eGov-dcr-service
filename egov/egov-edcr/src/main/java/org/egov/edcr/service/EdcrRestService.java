@@ -207,6 +207,10 @@ public class EdcrRestService {
 			edcrApplication.setApplicationDate(edcrRequest.getPermitDate());
 			edcrApplication.setPermitApplicationDate(edcrRequest.getPermitDate());
 		}
+		
+		if(edcrRequest.getPermitNumber() != null) {
+			edcrApplication.setPlanPermitNumber(edcrRequest.getPermitNumber());
+		}
 
 		edcrApplication.setEdcrApplicationDetails(edcrApplicationDetails);
 		edcrApplication.setDxfFile(file);

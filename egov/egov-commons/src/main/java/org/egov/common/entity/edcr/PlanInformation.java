@@ -287,6 +287,10 @@ public class PlanInformation implements Serializable {
     
     private Boolean isPermitLetterExpried;
     
+    private String permitNumber;
+    
+    private String alterationSubService;
+    
     public Boolean getGovernmentOrAidedSchool() {
         return governmentOrAidedSchool;
     }
@@ -1169,5 +1173,22 @@ public class PlanInformation implements Serializable {
 		this.isPermitLetterExpried = isPermitLetterExpried;
 	}
 
+	public String getPermitNumber() {
+		return permitNumber;
+	}
+
+	public void setPermitNumber(String permitNumber) {
+		this.permitNumber = permitNumber;
+	}
+
+	public String getAlterationSubService() {
+		return alterationSubService;
+	}
+
+	public void setAlterationSubService(String alterationSubService) {
+		this.alterationSubService = alterationSubService;
+	}
+
+	
 	
 }
