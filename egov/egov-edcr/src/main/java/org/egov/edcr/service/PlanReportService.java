@@ -670,6 +670,8 @@ public class PlanReportService {
 		LOG.info(OdishaUlbs.getUlb(plan.getThirdPartyUserTenantld()));
 		 odishaUlbs = OdishaUlbs.getUlb(plan.getThirdPartyUserTenantld());
 		 LOG.info("odisha ulbs:"+odishaUlbs.getUlbName());
+		String subTitle = getSubTitle(dcrApplication.getApplicationType(), dcrApplication.getAlterationSubService(), dcrApplication);
+		valuesMap.put("subTitle",subTitle);
 		valuesMap.put("ulbName",odishaUlbs.getUlbName());
 		valuesMap.put("applicantName", dcrApplication.getApplicantName());
 		valuesMap.put("licensee", plan.getArchitectInformation());
@@ -1407,5 +1409,25 @@ public class PlanReportService {
 		conditionalStyles.add(cs);
 
 		return conditionalStyles;
+	}
+	
+	private String getSubTitle(ApplicationType applicationType,String alterationSubService,EdcrApplication dcrApplication) {
+		String subTitle = null;
+		
+		if(ApplicationType.OCCUPANCY_CERTIFICATE.getApplicationTypeVal()
+				.equalsIgnoreCase(applicationType.getApplicationType())) {
+			String planPermissionNumber = dcrApplication.getPlanPermitNumber();
+			String bpaApplicationDate = DateUtils.toDefaultDateFormat(dcrApplication.getPermitApplicationDate());
+			subTitle = "The occupancy certificate plan is scrutinised with the by-laws which were prevailing on the date "+bpaApplicationDate+" on which the eDCR scrutiny of the building permit application with plan permission number "+planPermissionNumber+" was done";
+		}else if(ApplicationType.PERMIT.getApplicationTypeVal()
+				.equalsIgnoreCase(applicationType.getApplicationType())) {
+			if(DxfFileConstants.ALTERATION_SERVICE_A.equalsIgnoreCase(alterationSubService)) {
+				subTitle = "Modification in the received permit letter (No Construction present at site)";
+			}else if(DxfFileConstants.ALTERATION_SERVICE_B.equalsIgnoreCase(alterationSubService)) {
+				subTitle = "Modification in the received permit letter (With Existing Construction present at site)";
+			}
+		}
+		
+		return subTitle;
 	}
 }

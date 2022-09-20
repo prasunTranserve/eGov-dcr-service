@@ -46,6 +46,7 @@
 	<parameter name="applicantName" class="java.lang.String"/>
 	<parameter name="licensee" class="java.lang.String"/>
 	<parameter name="ulbName" class="java.lang.String"/>
+	<parameter name="subTitle" class="java.lang.String"/>
 	<parameter name="reportGeneratedDate" class="java.lang.String"/>
 	<parameter name="dcrNo" class="java.lang.String"/>
 	<parameter name="applicationType" class="java.lang.String"/>
@@ -1484,12 +1485,6 @@
 				</textElement>
 				<textFieldExpression><![CDATA["SURRENDER ROAD WIDTH in  m"]]></textFieldExpression>
 			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="12" y="62" width="537" height="28" isRemoveLineWhenBlank="true" uuid="283d9cc4-203f-4c6b-9cbe-a1f081f3c94e">
-					<printWhenExpression><![CDATA[$P{planPermissionNumber}  != null && $P{bpaApplicationDate} != null]]></printWhenExpression>
-				</reportElement>
-				<textFieldExpression><![CDATA["The occupancy certificate plan is scrutinised with the by-laws which were prevailing on the date "+  $P{bpaApplicationDate}+" on which the eDCR scrutiny of the building permit application with plan permission number "+ $P{planPermissionNumber} +" was done"]]></textFieldExpression>
-			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement x="304" y="186" width="114" height="21" uuid="a174acc9-e176-4a25-8fa9-d465d96e1cf7"/>
 				<box>
@@ -1624,6 +1619,15 @@
 					<paragraph leftIndent="3"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{planInformation}.getRiskTypeDes()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="14" y="66" width="532" height="23" uuid="55415365-dfde-4bc1-b65f-10cefb000b70">
+					<printWhenExpression><![CDATA[$P{subTitle} != null]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="12" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{subTitle}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
