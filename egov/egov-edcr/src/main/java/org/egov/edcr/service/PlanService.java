@@ -152,7 +152,7 @@ public class PlanService {
 		String comparisonDcrNumber = dcrApplication.getEdcrApplicationDetails().get(0).getComparisonDcrNumber();
 		if ((ApplicationType.PERMIT.getApplicationTypeVal()
 				.equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType()) 
-				&& (!isComparisonReportRequired && StringUtils.isBlank(comparisonDcrNumber)))
+				&& !isComparisonReportRequired)
 				|| (ApplicationType.OCCUPANCY_CERTIFICATE.getApplicationTypeVal()
 						.equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType())
 						&& StringUtils.isBlank(comparisonDcrNumber))) {
