@@ -110,7 +110,7 @@ public class ApprovedConstruction extends FeatureProcess {
 						.reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_HALF_UP);
 				if (existingBuiltUpArea.compareTo(BigDecimal.ZERO) > 0
 						|| approvedConstructionArea.compareTo(BigDecimal.ZERO) > 0) {
-					boolean isAccepted = existingBuiltUpArea.compareTo(approvedConstructionArea) == 0 ? true : false;
+					boolean isAccepted = existingBuiltUpArea.compareTo(approvedConstructionArea) <= 0 ? true : false;
 					setReportOutputDetails(SUBRULE_88_1, block.getName(), floor.getNumber().toString(),
 							existingBuiltUpArea.toString(), approvedConstructionArea.toString(), isAccepted,
 							scrutinyDetail3);
