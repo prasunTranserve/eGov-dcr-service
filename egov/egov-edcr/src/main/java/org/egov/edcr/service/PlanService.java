@@ -172,7 +172,12 @@ public class PlanService {
 			comparisonRequest.setEdcrNumber(edcrApplicationDetail.getComparisonDcrNumber());
 			comparisonRequest.setTenantId(edcrApplicationDetail.getApplication().getThirdPartyUserTenant());
 			edcrApplicationDetail.setPlan(plan);
-
+			
+			if(!ApplicationType.OCCUPANCY_CERTIFICATE.getApplicationTypeVal()
+				.equalsIgnoreCase(dcrApplication.getApplicationType().getApplicationType()) 
+				&& edcrApplicationDetail.getApplication().getAlterationSubService() != null)
+				comparisonRequest.setAlterationSubService(edcrApplicationDetail.getApplication().getAlterationSubService());
+			
 			OcComparisonDetail processCombinedStatus = ocComparisonService.processCombinedStatus(comparisonRequest,
 					edcrApplicationDetail);
 

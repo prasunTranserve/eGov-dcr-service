@@ -134,7 +134,8 @@ public class OcComparisonService {
         String ocdcrNo = comparisonRequest.getOcdcrNumber();
         String dcrNo = comparisonRequest.getEdcrNumber();
         String tenantId = comparisonRequest.getTenantId();
-
+        String alterationSubService = comparisonRequest.getAlterationSubService();
+        
         EdcrApplicationDetail permitDcr = applicationDetailService.findByDcrNumberAndTPUserTenant(dcrNo, tenantId);
 
         EdcrApplication dcrApplication = ocDcr.getApplication();
@@ -149,6 +150,7 @@ public class OcComparisonService {
         ocComparisonDetailE.setDcrNumber(dcrNo);
         ocComparisonDetailE.setTenantId(tenantId);
         ocComparisonDetailE.setPermitDcr(permitDcr);
+        ocComparisonDetailE.setAlterationSubService(alterationSubService);
 
         getComparisonReportStatus(applicationDate, amd, ocDcr, permitDcr, ocComparisonDetailE);
 
@@ -264,8 +266,11 @@ public class OcComparisonService {
             if (service == null) {
                 service = (OcComparisonReportService) specificRuleService.find(beanName);
             }
-
-            reportStream = service.generatePreOcComparisonReport(ocDcr, permitDcr, detail);
+            
+            if(detail.getAlterationSubService()==null)
+            	reportStream = service.generatePreOcComparisonReport(ocDcr, permitDcr, detail);
+            else
+            	reportStream = service.generatePreOcComparisonReportAlt(ocDcr, permitDcr, detail);
 
         } catch (BeansException e) {
             LOG.error("No Bean Defined for the Rule " + beanName);

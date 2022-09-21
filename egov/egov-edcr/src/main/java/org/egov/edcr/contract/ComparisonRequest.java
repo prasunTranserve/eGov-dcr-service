@@ -64,6 +64,8 @@ public class ComparisonRequest {
     private String ocdcrNumber;
 
     private String tenantId;
+    
+    private String alterationSubService;
 
     public RequestInfo getRequestInfo() {
         return requestInfo;
@@ -97,4 +99,12 @@ public class ComparisonRequest {
         this.tenantId = tenantId;
     }
 
+	public String getAlterationSubService() {
+		return alterationSubService;
+	}
+
+	public void setAlterationSubService(String alterationSubService) {
+		this.alterationSubService = alterationSubService;
+	}
+    
 }

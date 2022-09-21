@@ -92,6 +92,8 @@ public class OcComparisonDetail extends AbstractAuditable {
 
     @Transient
     private EdcrApplicationDetail permitDcr;
+    
+    private String alterationSubService;
 
     @Override
     public Long getId() {
@@ -170,5 +172,13 @@ public class OcComparisonDetail extends AbstractAuditable {
     public void setPermitDcr(EdcrApplicationDetail permitDcr) {
         this.permitDcr = permitDcr;
     }
+
+	public String getAlterationSubService() {
+		return alterationSubService;
+	}
+
+	public void setAlterationSubService(String alterationSubService) {
+		this.alterationSubService = alterationSubService;
+	}
 
 }

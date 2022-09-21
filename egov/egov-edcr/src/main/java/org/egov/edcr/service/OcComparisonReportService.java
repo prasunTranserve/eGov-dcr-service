@@ -410,7 +410,7 @@ public class OcComparisonReportService {
 
 	}
 
-	public OcComparisonDetail getComparisonReportStatus(EdcrApplicationDetail ocDcr, EdcrApplicationDetail permitDcr,
+	public InputStream generatePreOcComparisonReportAlt(EdcrApplicationDetail ocDcr, EdcrApplicationDetail permitDcr,
 			OcComparisonDetail comparisonDetail) {
 
 		Plan ocPlan = ocDcr.getPlan();
@@ -428,9 +428,173 @@ public class OcComparisonReportService {
 			LOG.log(Level.ERROR, e);
 		}
 
-		List<OcComparisonBlockDetail> ocComparison = buildOcComparison(permitPlan, ocPlan);
-		List<ScrutinyDetail> scrutinyDetails = buildReportObject(ocComparison, permitPlan, ocPlan);
+		List<ScrutinyDetail> scrutinyDetails = comparisonDetail.getScrutinyDetails();
 
+		boolean finalReportStatus = true;
+		FastReportBuilder drb = new FastReportBuilder();
+
+		final Style titleStyle = new Style("titleStyle");
+		titleStyle.setFont(new Font(50, Font._FONT_TIMES_NEW_ROMAN, true));
+		titleStyle.setHorizontalAlign(HorizontalAlign.CENTER);
+
+		titleStyle.setFont(new Font(2, Font._FONT_TIMES_NEW_ROMAN, false));
+		String applicationNumber = StringUtils.isNotBlank(ocDcr.getApplication().getApplicationNumber())
+				? ocDcr.getApplication().getApplicationNumber()
+				: "NA";
+		String applicationDate = DateUtils.toDefaultDateFormat(ocDcr.getApplication().getApplicationDate());
+
+		drb.setPageSizeAndOrientation(new Page(842, 595, true));
+		final JRDataSource ds = new JRBeanCollectionDataSource(scrutinyDetails);
+
+		final Map<String, Object> valuesMap = new HashMap<>();
+		valuesMap.put("ulbName", ApplicationThreadLocals.getMunicipalityName());
+		valuesMap.put("applicationNumber", applicationNumber);
+		valuesMap.put("oldedcrNo", permitDcr.getDcrNumber());
+		valuesMap.put("dcrNo", ocDcr.getDcrNumber());
+		valuesMap.put("applicationDate", applicationDate);
+		valuesMap.put("applicantName", ocDcr.getApplication().getApplicantName());
+		valuesMap.put("reportGeneratedDate", DateUtils.toDefaultDateTimeFormat(new Date()));
+		String imageURL = ReportUtil.getImageURL("/egi/resources/global/images/digit-logo-black.png");
+		valuesMap.put("egovLogo", imageURL);
+		valuesMap.put("cityLogo", cityService.getCityLogoURLByCurrentTenant());
+
+		Set<String> common = new TreeSet<>();
+		Map<String, ScrutinyDetail> allMap = new HashMap<>();
+		Map<String, Set<String>> blocks = new TreeMap<>();
+		LOG.info("Generate Report.......");
+		for (ScrutinyDetail sd : scrutinyDetails) {
+			LOG.info(sd.getKey());
+			LOG.info(sd.getHeading());
+			String[] split = {};
+			if (sd.getKey() != null)
+				split = sd.getKey().split("_");
+			if (split.length == 2) {
+				common.add(split[1]);
+				allMap.put(split[1], sd);
+
+			} else if (split.length == 3) {
+				if (blocks.get(split[1]) == null) {
+					Set<String> features = new TreeSet<>();
+					features.add(split[2]);
+					blocks.put(split[1], features);
+				} else {
+					blocks.get(split[1]).add(split[2]);
+				}
+				allMap.put(split[1] + split[2], sd);
+			}
+		}
+
+		int i = 0;
+		List<String> cmnHeading = new ArrayList<>();
+		cmnHeading.add("Common");
+		drb.addConcatenatedReport(createHeaderSubreport("Common - Scrutiny Details", "Common"));
+		valuesMap.put("Common", cmnHeading);
+		for (String cmnFeature : common) {
+			i++;
+			drb.addConcatenatedReport(getSub(allMap.get(cmnFeature), i, i + "." + cmnFeature,
+					allMap.get(cmnFeature).getHeading(), allMap.get(cmnFeature).getSubHeading(), cmnFeature));
+			valuesMap.put(cmnFeature, allMap.get(cmnFeature).getDetail());
+		}
+
+		for (String blkName : blocks.keySet()) {
+			List blkHeading = new ArrayList();
+			blkHeading.add(BLOCK + blkName);
+			drb.addConcatenatedReport(createHeaderSubreport("Block " + blkName, BLOCK + blkName));
+			valuesMap.put(BLOCK + blkName, blkHeading);
+			int j = 0;
+
+			// This is only for rest
+			for (String blkFeature : blocks.get(blkName)) {
+				j++;
+				drb.addConcatenatedReport(getSub(allMap.get(blkName + blkFeature), j, j + "." + blkFeature,
+						allMap.get(blkName + blkFeature).getHeading(), allMap.get(blkName + blkFeature).getSubHeading(),
+						blkName + blkFeature));
+				valuesMap.put(blkName + blkFeature, allMap.get(blkName + blkFeature).getDetail());
+
+				List featureFooter = new ArrayList();
+				if (allMap.get(blkName + blkFeature).getRemarks() != null) {
+					drb.addConcatenatedReport(
+							createFooterSubreport("Remarks :  " + allMap.get(blkName + blkFeature).getRemarks(),
+									"Remarks_" + blkName + blkFeature));
+					featureFooter.add(allMap.get(blkName + blkFeature).getRemarks());
+					valuesMap.put("Remarks_" + blkName + blkFeature, featureFooter);
+
+				}
+
+			}
+
+		}
+
+		if (finalReportStatus)
+			for (String cmnFeature : common) {
+				for (Map<String, String> commonStatus : allMap.get(cmnFeature).getDetail()) {
+					if (commonStatus.get(STATUS) != null
+							&& commonStatus.get(STATUS).equalsIgnoreCase(Result.Not_Accepted.getResultVal())) {
+						finalReportStatus = false;
+					}
+				}
+			}
+
+		if (finalReportStatus)
+			for (String blkName : blocks.keySet()) {
+				for (String blkFeature : blocks.get(blkName)) {
+					for (Map<String, String> blkStatus : allMap.get(blkName + blkFeature).getDetail()) {
+						if (blkStatus.get(STATUS) != null
+								&& blkStatus.get(STATUS).equalsIgnoreCase(Result.Not_Accepted.getResultVal())) {
+							finalReportStatus = false;
+						}
+					}
+				}
+			}
+		drb.setTemplateFile("/reports/templates/comparison_report.jrxml");
+		drb.setMargins(5, 0, 33, 20);
+		String endStatus = finalReportStatus ? "Accepted" : "Not Accepted";
+		valuesMap.put("reportStatus", endStatus);
+		comparisonDetail.setStatus(endStatus);
+
+		valuesMap.put("qrCode", generatePDF417Code(buildQRCodeDetails(ocDcr.getApplication(), finalReportStatus)));
+
+		final DynamicReport dr = drb.build();
+		InputStream exportPdf = null;
+		try {
+			JasperPrint generateJasperPrint = DynamicJasperHelper.generateJasperPrint(dr, new ClassicLayoutManager(),
+					ds, valuesMap);
+			exportPdf = reportService.exportPdf(generateJasperPrint);
+		} catch (IOException | JRException e) {
+			LOG.error("Error occurred when generating Jasper report", e);
+		}
+		return exportPdf;
+
+	}
+	
+	public OcComparisonDetail getComparisonReportStatus(EdcrApplicationDetail ocDcr, EdcrApplicationDetail permitDcr,
+			OcComparisonDetail comparisonDetail) {
+
+		Plan ocPlan = ocDcr.getPlan();
+
+		FileStoreMapper permitFileMapper = permitDcr.getPlanDetailFileStore();
+		File permitFile = permitFileMapper != null
+				? fileStoreService.fetch(permitFileMapper.getFileStoreId(), DcrConstants.APPLICATION_MODULE_TYPE)
+				: null;
+		ObjectMapper permitMapper = new ObjectMapper();
+		permitMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		Plan permitPlan = null;
+		try {
+			permitPlan = permitMapper.readValue(permitFile, Plan.class);
+		} catch (IOException e) {
+			LOG.log(Level.ERROR, e);
+		}
+		
+		List<OcComparisonBlockDetail> ocComparison = new ArrayList<>();
+		List<ScrutinyDetail> scrutinyDetails = new ArrayList<>();
+		
+		if(comparisonDetail.getAlterationSubService() == null) {
+			ocComparison = buildOcComparison(permitPlan, ocPlan);
+			scrutinyDetails = buildReportObject(ocComparison, permitPlan, ocPlan);
+		}else {
+			ocComparison = buildComparisonForAlt(permitPlan, ocPlan,comparisonDetail.getAlterationSubService());
+			scrutinyDetails = buildReportObjectAlt(ocComparison, permitPlan, ocPlan,comparisonDetail.getAlterationSubService());
+		}
 		boolean finalReportStatus = true;
 
 		Set<String> common = new TreeSet<>();
@@ -609,6 +773,119 @@ public class OcComparisonReportService {
 	}
 
 	private List<OcComparisonBlockDetail> buildOcComparison(Plan permit, Plan oc) {
+		List<OcComparisonBlockDetail> blockDetails = new ArrayList<>();
+		List<Block> permitBlks = permit.getBlocks();
+		List<Block> ocBlks = oc.getBlocks();
+
+		if (!permitBlks.isEmpty()) {
+
+			for (Block permitBlk : permitBlks) {
+				Block currentOcBlk = null;
+				for (Block ocBlk : ocBlks) {
+					if (ocBlk.getNumber().equalsIgnoreCase(permitBlk.getNumber())) {
+						currentOcBlk = ocBlk;
+					}
+				}
+				OcComparisonBlockDetail blockDetail = new OcComparisonBlockDetail();
+				updateSetBackDetails(blockDetail, permitBlk, currentOcBlk);
+				blockDetail.setNumber(Long.valueOf(permitBlk.getNumber()));
+				Building permitBuilding = permitBlk.getBuilding();
+				Building ocBuilding = null;
+				if (currentOcBlk != null) {
+					ocBuilding = currentOcBlk.getBuilding();
+				}
+				if (permitBuilding != null) {
+
+					List<Floor> permitFloors = permitBuilding.getFloors();
+					List<Floor> ocFloors = new ArrayList<>();
+					if (ocBuilding != null) {
+						ocFloors = ocBuilding.getFloors();
+						BigDecimal noOfFloorsOc = ocBuilding.getFloorsAboveGround();
+						BigDecimal buildingHeight = ocBuilding.getBuildingHeight();
+						blockDetail.setNoOfFloorsOc(Long.valueOf(noOfFloorsOc.toString()));
+						blockDetail.setHghtFromGroundOc(buildingHeight);
+					}
+
+					if (permitFloors != null && !permitFloors.isEmpty()) {
+						List<OcComparisonReportFloorDetail> comparisonReportFloorDetails = new ArrayList<>();
+						for (Floor permitFloor : permitFloors) {
+							Floor ocFloor = null;
+
+							if (ocFloors != null && !ocFloors.isEmpty()) {
+								for (Floor floor : ocFloors) {
+									if (floor.getNumber() == permitFloor.getNumber()) {
+										ocFloor = floor;
+									}
+								}
+							}
+							OcComparisonReportFloorDetail comparisonReportFloorDetail = new OcComparisonReportFloorDetail();
+							List<Occupancy> permitOccupancies = permitFloor.getOccupancies();
+							BigDecimal permitBltUpArea = BigDecimal.ZERO;
+							BigDecimal permitCarpetArea = BigDecimal.ZERO;
+							BigDecimal permitFloorArea = BigDecimal.ZERO;
+							if (!permitOccupancies.isEmpty()) {
+								for (Occupancy occupancy : permitOccupancies) {
+									permitBltUpArea = permitBltUpArea.add(occupancy.getBuiltUpArea());
+									permitCarpetArea = permitCarpetArea.add(occupancy.getCarpetArea());
+									permitFloorArea = permitFloorArea.add(occupancy.getFloorArea());
+								}
+							}
+							comparisonReportFloorDetail.setPermitBltUpArea(Util.roundOffTwoDecimal(permitBltUpArea));
+							comparisonReportFloorDetail.setPermitCarpetArea(Util.roundOffTwoDecimal(permitCarpetArea));
+							comparisonReportFloorDetail.setPermitFloorArea(Util.roundOffTwoDecimal(permitFloorArea));
+
+							if (ocFloor != null) {
+								List<Occupancy> ocOccupancies = ocFloor.getOccupancies();
+								BigDecimal ocBltUpArea = BigDecimal.ZERO;
+								BigDecimal ocCarpetArea = BigDecimal.ZERO;
+								BigDecimal ocFloorArea = BigDecimal.ZERO;
+								if (!ocOccupancies.isEmpty()) {
+									for (Occupancy ocOccupancy : ocOccupancies) {
+										ocBltUpArea = ocBltUpArea
+												.add(Util.roundOffTwoDecimal(ocOccupancy.getBuiltUpArea()));
+										ocCarpetArea = ocCarpetArea
+												.add(Util.roundOffTwoDecimal(ocOccupancy.getCarpetArea()));
+										ocFloorArea = ocFloorArea
+												.add(Util.roundOffTwoDecimal(ocOccupancy.getFloorArea()));
+									}
+								}
+								comparisonReportFloorDetail.setOcBltUpArea(ocBltUpArea);
+								comparisonReportFloorDetail.setOcCarpetArea(ocCarpetArea);
+								comparisonReportFloorDetail.setOcFloorArea(ocFloorArea);
+							}
+
+							BigDecimal bltUpAreaDeviation = getDeviation(comparisonReportFloorDetail.getOcBltUpArea(),
+									comparisonReportFloorDetail.getPermitBltUpArea());
+							BigDecimal carpetAreaDeviation = getDeviation(comparisonReportFloorDetail.getOcCarpetArea(),
+									comparisonReportFloorDetail.getPermitCarpetArea());
+							BigDecimal floorAreaDeviation = getDeviation(comparisonReportFloorDetail.getOcFloorArea(),
+									comparisonReportFloorDetail.getPermitFloorArea());
+
+							comparisonReportFloorDetail.setBltUpAreaDeviation(bltUpAreaDeviation);
+							comparisonReportFloorDetail.setCarpetAreaDeviation(carpetAreaDeviation);
+							comparisonReportFloorDetail.setFloorAreaDeviation(floorAreaDeviation);
+							comparisonReportFloorDetail.setNumber(Long.valueOf(permitFloor.getNumber()));
+							comparisonReportFloorDetails.add(comparisonReportFloorDetail);
+						}
+
+						blockDetail.setComparisonReportFloorDetails(comparisonReportFloorDetails);
+					}
+					BigDecimal noOfFloorsPermit = permitBuilding.getFloorsAboveGround();
+					BigDecimal buildingHeight = permitBuilding.getBuildingHeight();
+
+					blockDetail.setNoOfFloorsPermit(Long.valueOf(noOfFloorsPermit.toString()));
+					blockDetail.setHgtFromGroundPermit(buildingHeight);
+				}
+
+				blockDetails.add(blockDetail);
+			}
+		}
+
+		return blockDetails;
+
+	}
+	
+	private List<OcComparisonBlockDetail> buildComparisonForAlt(Plan permit, Plan oc,String alterationSubService) {
 		List<OcComparisonBlockDetail> blockDetails = new ArrayList<>();
 		List<Block> permitBlks = permit.getBlocks();
 		List<Block> ocBlks = oc.getBlocks();
@@ -906,6 +1183,123 @@ public class OcComparisonReportService {
 		}
 		return scrutinyDetails;
 	}
+	
+	private List<ScrutinyDetail> buildReportObjectAlt(List<OcComparisonBlockDetail> ocComparison, Plan permitPlan,
+			Plan ocPlan,String alterationSubService) {
+
+		List<ScrutinyDetail> scrutinyDetails = new ArrayList<>();
+
+		scrutinyDetails.add(getFarBuildReportAlt(permitPlan, ocPlan));
+		scrutinyDetails.add(getCoverageBuildReportAlt(permitPlan, ocPlan));
+		for (OcComparisonBlockDetail blockDetail : ocComparison) {
+			Map<String, String> floorNos = new HashMap<>();
+			Map<String, String> bldngHgts = new HashMap<>();
+
+			ScrutinyDetail bltUpAreaSd = new ScrutinyDetail();
+			bltUpAreaSd.setKey("Block_" + blockDetail.getNumber() + "_" + "BuiltUp Area");
+			bltUpAreaSd.addColumnHeading(1, "Floor");
+			bltUpAreaSd.addColumnHeading(2, "Previous built up area");
+			bltUpAreaSd.addColumnHeading(3, "New built up area");
+			bltUpAreaSd.addColumnHeading(4, "Deviation in %");
+			//bltUpAreaSd.addColumnHeading(5, "Status");
+
+			ScrutinyDetail floorAreaSd = new ScrutinyDetail();
+			floorAreaSd.setKey("Block_" + blockDetail.getNumber() + "_" + "Floor Area");
+			floorAreaSd.addColumnHeading(1, "Floor");
+			floorAreaSd.addColumnHeading(2, "Previous floor area");
+			floorAreaSd.addColumnHeading(3, "New floor area");
+			floorAreaSd.addColumnHeading(4, "Deviation in %");
+			//floorAreaSd.addColumnHeading(5, "Status");
+
+			ScrutinyDetail crptAreaSd = new ScrutinyDetail();
+			crptAreaSd.setKey("Block_" + blockDetail.getNumber() + "_" + "Carpet Area");
+			crptAreaSd.addColumnHeading(1, "Floor");
+			crptAreaSd.addColumnHeading(2, "Previous carpet area");
+			crptAreaSd.addColumnHeading(3, "New carpet area");
+			crptAreaSd.addColumnHeading(4, "Deviation in %");
+			//crptAreaSd.addColumnHeading(5, "Status");
+
+			ScrutinyDetail floors = new ScrutinyDetail();
+			floors.setKey("Block_" + blockDetail.getNumber() + "_" + "Number of Floors");
+			floors.addColumnHeading(1, "Previous Floors");
+			floors.addColumnHeading(2, "New Floors");
+			floors.addColumnHeading(3, "Deviation in %");
+			//floors.addColumnHeading(3, "Status");
+
+			floorNos.put("Previous Floors", blockDetail.getNoOfFloorsOc().toString());
+			floorNos.put("New Floors", blockDetail.getNoOfFloorsPermit().toString());
+			floorNos.put("Deviation in %",DxfFileConstants.NA);
+			floorNos.put("Status",
+					blockDetail.getNoOfFloorsOc() > blockDetail.getNoOfFloorsPermit() ? Result.Verify.getResultVal()
+							: Result.Verify.getResultVal());
+			floors.getDetail().add(floorNos);
+
+			ScrutinyDetail bldngHgt = new ScrutinyDetail();
+			bldngHgt.setKey("Block_" + blockDetail.getNumber() + "_" + "Height of building");
+			bldngHgt.addColumnHeading(1, "Previous building height");
+			bldngHgt.addColumnHeading(2, "New building height");
+			bldngHgt.addColumnHeading(3, "Deviation in %");
+			//bldngHgt.addColumnHeading(3, "Status");
+
+			bldngHgts.put("Previous building height", blockDetail.getHghtFromGroundOc().toString());
+			bldngHgts.put("New building height", blockDetail.getHgtFromGroundPermit().toString());
+			bldngHgts.put("Deviation in %", getDeviation(blockDetail.getHghtFromGroundOc(), blockDetail.getHgtFromGroundPermit()).toString());
+			bldngHgts.put("Status",
+					blockDetail.getHghtFromGroundOc().compareTo(blockDetail.getHgtFromGroundPermit()) > 0
+							? Result.Verify.getResultVal()
+							: Result.Verify.getResultVal());
+			bldngHgt.getDetail().add(bldngHgts);
+			
+			scrutinyDetails.add(getSetbackBuildReportAlt(blockDetail, permitPlan, ocPlan));
+			
+			List<OcComparisonReportFloorDetail> comparisonReportFloorDetails = blockDetail
+					.getComparisonReportFloorDetails();
+			if (!comparisonReportFloorDetails.isEmpty()) {
+				for (OcComparisonReportFloorDetail floor : comparisonReportFloorDetails) {
+					Map<String, String> bltUpAreaDetails = new HashMap<>();
+					Map<String, String> flrAreaDetails = new HashMap<>();
+					Map<String, String> crptAreaDetails = new HashMap<>();
+
+					bltUpAreaDetails.put("Floor", floor.getNumber().toString());
+					bltUpAreaDetails.put("Previous built up area", floor.getOcBltUpArea().toString());
+					bltUpAreaDetails.put("New built up area", floor.getPermitBltUpArea().toString());
+					BigDecimal bltUpAreaDeviation = floor.getBltUpAreaDeviation();
+					bltUpAreaDetails.put("Deviation in %", bltUpAreaDeviation.toString());
+
+					bltUpAreaDetails.put("Status",
+							bltUpAreaDeviation.compareTo(DEVIATION_VALUE) > 0 ? Result.Verify.getResultVal()
+									: Result.Verify.getResultVal());
+					bltUpAreaSd.getDetail().add(bltUpAreaDetails);
+
+					flrAreaDetails.put("Floor", floor.getNumber().toString());
+					flrAreaDetails.put("Previous floor area", floor.getOcFloorArea().toString());
+					flrAreaDetails.put("New floor area", floor.getPermitFloorArea().toString());
+					BigDecimal flrAreaDeviation = floor.getFloorAreaDeviation();
+					flrAreaDetails.put("Deviation in %", flrAreaDeviation.toString());
+					flrAreaDetails.put("Status",
+							flrAreaDeviation.compareTo(DEVIATION_VALUE) > 0 ? Result.Verify.getResultVal()
+									: Result.Verify.getResultVal());
+					floorAreaSd.getDetail().add(flrAreaDetails);
+
+					crptAreaDetails.put("Floor", floor.getNumber().toString());
+					crptAreaDetails.put("Previous carpet area", floor.getOcCarpetArea().toString());
+					crptAreaDetails.put("New carpet area", floor.getPermitCarpetArea().toString());
+					BigDecimal crptAreaDeviation = floor.getCarpetAreaDeviation();
+					crptAreaDetails.put("Deviation in %", crptAreaDeviation.toString());
+					crptAreaDetails.put("Status",
+							crptAreaDeviation.compareTo(DEVIATION_VALUE) > 0 ? Result.Verify.getResultVal()
+									: Result.Verify.getResultVal());
+					crptAreaSd.getDetail().add(crptAreaDetails);
+				}
+			}
+			scrutinyDetails.add(bltUpAreaSd);
+			scrutinyDetails.add(floorAreaSd);
+			scrutinyDetails.add(crptAreaSd);
+			scrutinyDetails.add(floors);
+			scrutinyDetails.add(bldngHgt);
+		}
+		return scrutinyDetails;
+	}
 
 	private ScrutinyDetail getFarBuildReport(Plan permitPlan, Plan ocPlan) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
@@ -926,6 +1320,25 @@ public class OcComparisonReportService {
 		return scrutinyDetail;
 	}
 	
+	private ScrutinyDetail getFarBuildReportAlt(Plan permitPlan, Plan ocPlan) {
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_FAR");
+		scrutinyDetail.addColumnHeading(1, "Previous Far");
+		scrutinyDetail.addColumnHeading(2, "New Far");
+		scrutinyDetail.addColumnHeading(3, "Deviation in %");
+
+		Map<String, String> details = new HashMap<>();
+
+		details.put("Previous Far", ocPlan.getFarDetails().getProvidedFar().toString());
+		details.put("New Far", permitPlan.getFarDetails().getProvidedFar().toString());
+		BigDecimal farDeviation = getDeviation(new BigDecimal(ocPlan.getFarDetails().getProvidedFar()),
+				new BigDecimal(permitPlan.getFarDetails().getProvidedFar()));
+		details.put("Deviation in %", farDeviation.toString());
+
+		scrutinyDetail.getDetail().add(details);
+		return scrutinyDetail;
+	}
+	
 	private ScrutinyDetail getCoverageBuildReport(Plan permitPlan, Plan ocPlan) {
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.setKey("Common_Coverage in Percentage");
@@ -937,6 +1350,24 @@ public class OcComparisonReportService {
 
 		details.put("Oc Coverage", ocPlan.getCoverage().toString());
 		details.put("Permit Coverage", permitPlan.getCoverage().toString());
+		BigDecimal farDeviation = getDeviation(ocPlan.getCoverage(),permitPlan.getCoverage());
+		details.put("Deviation in %", farDeviation.toString());
+
+		scrutinyDetail.getDetail().add(details);
+		return scrutinyDetail;
+	}
+	
+	private ScrutinyDetail getCoverageBuildReportAlt(Plan permitPlan, Plan ocPlan) {
+		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
+		scrutinyDetail.setKey("Common_Coverage in Percentage");
+		scrutinyDetail.addColumnHeading(1, "Previous Coverage");
+		scrutinyDetail.addColumnHeading(2, "New Coverage");
+		scrutinyDetail.addColumnHeading(3, "Deviation in %");
+
+		Map<String, String> details = new HashMap<>();
+
+		details.put("Previous Coverage", ocPlan.getCoverage().toString());
+		details.put("New Coverage", permitPlan.getCoverage().toString());
 		BigDecimal farDeviation = getDeviation(ocPlan.getCoverage(),permitPlan.getCoverage());
 		details.put("Deviation in %", farDeviation.toString());
 
@@ -1079,6 +1510,70 @@ public class OcComparisonReportService {
 		details3.put("Description", "Min Side2 setback ");
 		details3.put("OC", blockDetail.getMinSide2Oc().toString());
 		details3.put("Permit", blockDetail.getMinSide2Permit().toString());
+		BigDecimal deviation3 = getDeviation(blockDetail.getMinSide2Oc(),blockDetail.getMinSide2Permit());
+		details3.put("Deviation in %", deviation3.abs().toString());
+		details3.put("Status",
+				deviation3.compareTo(SETBACK_DEVIATION_VALUE) >= 0 ? Result.Accepted.getResultVal()
+						: Result.Not_Accepted.getResultVal());
+		setback.getDetail().add(details3);
+
+		
+		return setback;
+	}
+	
+	private ScrutinyDetail getSetbackBuildReportAlt(OcComparisonBlockDetail blockDetail,Plan permitPlan, Plan ocPlan) {
+		ScrutinyDetail setback = new ScrutinyDetail();
+		setback.setKey("Block_" + blockDetail.getNumber() + "_" + "Setback");
+		setback.addColumnHeading(1, "Description");
+		setback.addColumnHeading(2, "Previous");
+		setback.addColumnHeading(3, "New");
+		setback.addColumnHeading(4, "Deviation in %");
+		//setback.addColumnHeading(5, "Status");
+		boolean isLowRisk=false;
+		if(permitPlan.getPlanInformation().isLowRiskBuilding()!=ocPlan.getPlanInformation().isLowRiskBuilding()) {
+			ocPlan.addError("Oc-setback", "Risk type of the project should be same as in buliding permit");
+			return setback;
+		}else {
+			isLowRisk=ocPlan.getPlanInformation().isLowRiskBuilding();
+		}
+			
+		Map<String, String> details = new HashMap<>();
+		details.put("Description", "Min Front setback ");
+		details.put("Previous", blockDetail.getMinFrontOc().toString());
+		details.put("New", blockDetail.getMinFrontPermit().toString());
+		BigDecimal deviation = getDeviation(blockDetail.getMinFrontOc(),blockDetail.getMinFrontPermit());
+		details.put("Deviation in %", deviation.abs().toString());
+		details.put("Status",
+				deviation.compareTo(SETBACK_DEVIATION_VALUE) >= 0 ? Result.Accepted.getResultVal()
+						: Result.Not_Accepted.getResultVal());
+		setback.getDetail().add(details);
+		
+		Map<String, String> details1 = new HashMap<>();
+		details1.put("Description", "Min Rear setback ");
+		details1.put("Previous", blockDetail.getMinRearOc().toString());
+		details1.put("New", blockDetail.getMinRearPermit().toString());
+		BigDecimal deviation1 = getDeviation(blockDetail.getMinRearOc(),blockDetail.getMinRearPermit());
+		details1.put("Deviation in %", deviation1.abs().toString());
+		details1.put("Status",
+				deviation1.compareTo(SETBACK_DEVIATION_VALUE) >= 0 ? Result.Accepted.getResultVal()
+						: Result.Not_Accepted.getResultVal());
+		setback.getDetail().add(details1);
+		
+		Map<String, String> details2 = new HashMap<>();
+		details2.put("Description", "Min Side1 setback ");
+		details2.put("Previous", blockDetail.getMinSide1Oc().toString());
+		details2.put("New", blockDetail.getMinSide1Permit().toString());
+		BigDecimal deviation2 = getDeviation(blockDetail.getMinSide1Oc(),blockDetail.getMinSide1Permit());
+		details2.put("Deviation in %", deviation2.abs().toString());
+		details2.put("Status",
+				deviation2.compareTo(SETBACK_DEVIATION_VALUE) >= 0 ? Result.Accepted.getResultVal()
+						: Result.Not_Accepted.getResultVal());
+		setback.getDetail().add(details2);
+		
+		Map<String, String> details3 = new HashMap<>();
+		details3.put("Description", "Min Side2 setback ");
+		details3.put("Previous", blockDetail.getMinSide2Oc().toString());
+		details3.put("New", blockDetail.getMinSide2Permit().toString());
 		BigDecimal deviation3 = getDeviation(blockDetail.getMinSide2Oc(),blockDetail.getMinSide2Permit());
 		details3.put("Deviation in %", deviation3.abs().toString());
 		details3.put("Status",
