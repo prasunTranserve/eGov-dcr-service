@@ -599,7 +599,11 @@ public class ProvisionService extends FeatureProcess {
 				DxfFileConstants.WHOLESALE_STORAGE_PERISHABLE, DxfFileConstants.WHOLESALE_STORAGE_NON_PERISHABLE,
 				DxfFileConstants.STORAGE_OR_HANGERS_OR_TERMINAL_DEPOT, DxfFileConstants.SUPERMARKETS,
 				DxfFileConstants.WARE_HOUSE, DxfFileConstants.WHOLESALE_MARKET, DxfFileConstants.MEDIA_CENTRES,
-				DxfFileConstants.FOOD_COURTS, DxfFileConstants.WEIGH_BRIDGES, DxfFileConstants.MERCENTILE);
+				DxfFileConstants.FOOD_COURTS, DxfFileConstants.WEIGH_BRIDGES, DxfFileConstants.MERCENTILE,
+				DxfFileConstants.CLUB,DxfFileConstants.COMMUNITY_HALL,DxfFileConstants.CONFERNCE_HALL,
+				DxfFileConstants.CONVENTION_HALL,DxfFileConstants.CULTURAL_COMPLEX,DxfFileConstants.GYMNASIA,
+				DxfFileConstants.PUBLIC_LIBRARIES,DxfFileConstants.RECREATION_BLDG,DxfFileConstants.SPORTS_COMPLEX,
+				DxfFileConstants.HEALTH_CENTRE,DxfFileConstants.LAB);
 
 	}
 

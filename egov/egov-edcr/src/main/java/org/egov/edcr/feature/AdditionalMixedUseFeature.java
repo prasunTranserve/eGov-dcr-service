@@ -133,7 +133,14 @@ public class AdditionalMixedUseFeature extends FeatureProcess {
 
 		OccupancyPercentage occupancyPercentage = occupancyPercentages
 				.get(principalOccupancyTypeHelper.getSubtype().getName());
-
+		
+		BigDecimal BaseFarArea = pl.getPlot().getPlotBndryArea().multiply(BigDecimal.valueOf(pl.getFarDetails().getBaseFar()));
+		BigDecimal totalFloorAreaProvided = pl.getVirtualBuilding().getTotalFloorArea();
+		
+		BigDecimal totalFloorAreaTillBaseFar = totalFloorAreaProvided.compareTo(BaseFarArea)>0?BaseFarArea:totalFloorAreaProvided;
+		BigDecimal totalFloorAreaOverBaseFar = totalFloorAreaProvided.compareTo(BaseFarArea)>0?totalFloorAreaProvided.subtract(BaseFarArea):BigDecimal.ZERO;
+		
+				
 		ScrutinyDetail scrutinyDetail = new ScrutinyDetail();
 		scrutinyDetail.addColumnHeading(1, RULE_NO);
 		scrutinyDetail.addColumnHeading(2, DESCRIPTION);
@@ -142,24 +149,44 @@ public class AdditionalMixedUseFeature extends FeatureProcess {
 		scrutinyDetail.addColumnHeading(5, STATUS);
 		scrutinyDetail.setKey("Common_Principal use of the building");
 		
-		BigDecimal required = new BigDecimal("66.66");
-		String permissibleStr = "Minimum 2/3rd (66.66%) of total built up area";
+		BigDecimal requiredTillBaseFar = totalFloorAreaTillBaseFar.multiply(new BigDecimal("0.6666"));
+		requiredTillBaseFar = requiredTillBaseFar.setScale(2,BigDecimal.ROUND_HALF_UP);
 		
-		FarDetails farDetails = pl.getFarDetails();
-		if(farDetails.getBaseFar()!=null && farDetails.getProvidedFar() > farDetails.getBaseFar()) {
-			required = new BigDecimal("33.33");
-			permissibleStr = "Minimum 1/3rd (33.33%) of total built up area";
+		if(totalFloorAreaTillBaseFar.compareTo(BigDecimal.ZERO) > 0) {
+			
+			String permissibleStr = "Minimum 2/3rd (66.66%) of base far area ("+requiredTillBaseFar+").";
+			
+			boolean isAccepted = requiredTillBaseFar.compareTo(occupancyPercentage.getTotalFloorArea()) <= 0 ? true : false;
+
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, "10A");
+			details.put(DESCRIPTION, occupancyPercentage.getSubOccupancy()+" - Principal use of the building within Base FAR");
+			details.put(PERMISSIBLE, permissibleStr);
+			details.put(PROVIDED, occupancyPercentage.getTotalFloorArea().toString());
+			details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+			scrutinyDetail.getDetail().add(details);
 		}
 		
-		boolean isAccepted = required.compareTo(occupancyPercentage.getPercentage()) <= 0 ? true : false;
+		if(totalFloorAreaOverBaseFar.compareTo(BigDecimal.ZERO) > 0) {
+			
+			BigDecimal  requiredOverBasefar =totalFloorAreaOverBaseFar.multiply(new BigDecimal("0.3333"));
+			requiredOverBasefar = requiredOverBasefar.setScale(2,BigDecimal.ROUND_HALF_UP);
+			String permissibleStr = "Minimum 1/3rd (33.33%) of over base far ("+requiredOverBasefar+").";
+			
+			BigDecimal provided = occupancyPercentage.getTotalFloorArea().subtract(requiredTillBaseFar).setScale(2,BigDecimal.ROUND_HALF_UP);
+			
+			boolean isAccepted = requiredOverBasefar.compareTo(provided) <= 0 ? true : false;
 
-		Map<String, String> details = new HashMap<>();
-		details.put(RULE_NO, "10A");
-		details.put(DESCRIPTION, occupancyPercentage.getSubOccupancy());
-		details.put(PERMISSIBLE, permissibleStr);
-		details.put(PROVIDED, occupancyPercentage.getPercentage().toString());
-		details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
-		scrutinyDetail.getDetail().add(details);
+			Map<String, String> details = new HashMap<>();
+			details.put(RULE_NO, "10A");
+			details.put(DESCRIPTION, occupancyPercentage.getSubOccupancy()+" - Principal use of the building over Base FAR");
+			details.put(PERMISSIBLE, permissibleStr);
+			details.put(PROVIDED, provided.toString());
+			details.put(STATUS, isAccepted ? Result.Accepted.getResultVal() : Result.Not_Accepted.getResultVal());
+			scrutinyDetail.getDetail().add(details);
+		}
+	
+		
 
 		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail);
 
