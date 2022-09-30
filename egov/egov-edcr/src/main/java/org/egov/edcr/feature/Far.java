@@ -145,7 +145,7 @@ public class Far extends FeatureProcess {
 	@Autowired
 	private OdishaMixedUseUtill odishaMixedUseUtill;
 	
-	@Value("${od.mixed-use.enabled:false}")
+	@Value("${od.mixed-use.enabled:true}")
 	private boolean isMixedUseEnable;
 	
 	@Override
