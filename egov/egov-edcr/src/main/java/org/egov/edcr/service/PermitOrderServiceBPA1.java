@@ -62,6 +62,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 	public static String PARAGRAPH_1_3 = "storeyed ";
 //	public static String PARAGRAPH_1_4 = "Residential ";
 	public static String PARAGRAPH_1_5 = "Building in respect of plot No.";
+	public static String PARAGRAPH_1_5_ALTERATION = "Building %s in respect of plot No.";
 //	public static String PARAGRAPH_1_6 = "1337, ";
 	public static String PARAGRAPH_1_7 = "Khata No.";
 //	public static String PARAGRAPH_1_8 = "180 ";
@@ -168,13 +169,18 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		Paragraph address3 = new Paragraph(primaryOwnerCorrespondenceAddress, fontBold);
 		address3.setIndentationLeft(30);
 		
-		Chunk forServiceType = new Chunk(String.format("For %s of a ", getServiceType(plan)), font1);
+		Chunk forServiceType = new Chunk(String.format("For %s of a ", getServiceType(plan, additionalDetails)), font1);
 		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
 		Chunk floorInform = new Chunk(floorInfo, fontBold);
 		Chunk storeyed = new Chunk(PARAGRAPH_1_3, font1);
 		String subOccupancy = plan.getPlanInformation().getSubOccupancy() + " ";
 		Chunk subOccupanc = new Chunk(subOccupancy, fontBold);
-		Chunk buildingInRespectOf = new Chunk(PARAGRAPH_1_5, font1);
+		String oldPermitNo = getPreviousPermitNo(additionalDetails);
+		String buildingInRespectOfPlusAlteration = PARAGRAPH_1_5_ALTERATION;
+		buildingInRespectOfPlusAlteration = String.format(buildingInRespectOfPlusAlteration,
+				getAlterationSubserviceStatement(additionalDetails));
+		buildingInRespectOfPlusAlteration = buildingInRespectOfPlusAlteration.replace("xxxxx", oldPermitNo);
+		Chunk buildingInRespectOf = new Chunk(buildingInRespectOfPlusAlteration, font1);
 		String plotNo = plan.getPlanInformation().getPlotNo() + " ";
 		Chunk pltoNumber = new Chunk(plotNo, fontBold);
 		Chunk chunk7 = new Chunk(PARAGRAPH_1_7, font1);
@@ -352,7 +358,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		table1.setLockedWidth(false);
 		table1.setWidthPercentage(100f);
 		addTableHeader1(table1);
-		addRows1(table1, plan);
+		addRows1(table1, plan, additionalDetails);
 
 		Image qrCode = getQrCode(ownersNamesCsv, getValue(bpaApplication, "approvalNo"), approvalDate, getValue(bpaApplication, "edcrNumber"));
 
@@ -386,6 +392,7 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		document.add(Chunk.NEWLINE);
 		document.add(chunk43);
 		document.add(chunk46);
+		addProvidedAreasForAlteration(additionalDetails, plan, document);
 		document.add(chunk49);
 		document.add(Chunk.NEWLINE);
 		document.add(Chunk.NEWLINE);
@@ -394,8 +401,17 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 		return new ByteArrayInputStream(outputBytes.toByteArray());
 	}
 
-	public void addRows1(PdfPTable table1, Plan plan) {
+	public void addRows1(PdfPTable table1, Plan plan, Map<String, Object> additionalDetails) {
 
+		//TODO:This method is called from BPA5.java also.So handle specifically for subservice and alteration.
+		String subService = null;
+		if(Objects.nonNull(additionalDetails) && Objects.nonNull(additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+				&& additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY) instanceof Map
+				&& Objects.nonNull(((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+						.get(BPA_ADD_DETAILS_SUBSERVICE_KEY))) {
+			subService = ((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY)).get(BPA_ADD_DETAILS_SUBSERVICE_KEY)
+					+ "";
+		}
 		java.util.List<DcrReportBlockDetail> blockDetails = buildBlockWiseProposedInfo(plan);
 
 		int rowSpanHelper = 0;
@@ -404,6 +420,12 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 			java.util.List<DcrReportFloorDetail> floorDetails = block.getDcrReportFloorDetails();
 			for (DcrReportFloorDetail floor : floorDetails) {
 				rowSpanHelper++;
+				if (Objects.nonNull(subService) && !ALTERATION_SUBSERVICE_A.equals(subService)
+						&& Objects.nonNull(getExistingFloorBuiltupArea(floor))) {
+					// if existing builtup area information of that floor is present, we need to add
+					// that row in table-
+					rowSpanHelper++;
+				}
 			}
 			rowSpanHelper++;
 		}
@@ -474,7 +496,14 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 			java.util.List<DcrReportFloorDetail> floorDetails = block.getDcrReportFloorDetails();
 			for (DcrReportFloorDetail floor : floorDetails) {
 				noOfFloors++;
+				if (Objects.nonNull(subService) && !ALTERATION_SUBSERVICE_A.equals(subService)
+						&& Objects.nonNull(getExistingFloorBuiltupArea(floor))) {
+					// if existing builtup area information of that floor is present, we need to add
+					// that row in table-
+					noOfFloors++;
+				}
 			}
+			// add one row for block no-
 			noOfFloors++;
 			PdfPCell frontSetBackCell = new PdfPCell();
 			Phrase frontSetBackPhrase = new Phrase(frontSetbackProvided + "", fontPara1);
@@ -507,6 +536,18 @@ public class PermitOrderServiceBPA1 extends PermitOrderService {
 				Phrase floorAreaphrase = new Phrase(floor.getBuiltUpArea() + "", fontPara1);
 				floorAreaCell.addElement(floorAreaphrase);
 				table1.addCell(floorAreaCell);
+				if (Objects.nonNull(subService) && !ALTERATION_SUBSERVICE_A.equals(subService)
+						&& Objects.nonNull(getExistingFloorBuiltupArea(floor))) {
+					// add one row for existing area -
+					PdfPCell floorNameExistingCell = new PdfPCell();
+					Phrase floorNameExistingphrase = new Phrase(floor.getFloorNo() + " (Existing)", fontPara1);
+					floorNameExistingCell.addElement(floorNameExistingphrase);
+					table1.addCell(floorNameExistingCell);
+					PdfPCell floorAreaExistingCell = new PdfPCell();
+					Phrase floorAreaExistingPhrase = new Phrase(floor.getBuiltUpArea() + "", fontPara1);
+					floorAreaExistingCell.addElement(floorAreaExistingPhrase);
+					table1.addCell(floorAreaExistingCell);
+				}
 			}
 		}
 

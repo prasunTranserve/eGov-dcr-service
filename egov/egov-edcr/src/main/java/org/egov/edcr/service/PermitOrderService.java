@@ -44,11 +44,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.CollectionUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.BarcodeQRCode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
@@ -70,6 +75,9 @@ public abstract class PermitOrderService {
 	
 	@Autowired
 	private UserInfoService userService;
+	
+	@Autowired
+	private BpaService bpaService;
 
 	private static final Logger LOG = Logger.getLogger(PermitOrderService.class);
 
@@ -136,8 +144,25 @@ public abstract class PermitOrderService {
 	public static final String OWNERSHIP_MAJOR_TYPE_INDIVIDUAL = "INDIVIDUAL";
 	public static final String OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_PRIVATE = "INSTITUTIONALPRIVATE";
 	public static final String OWNERSHIP_MAJOR_TYPE_INSTITUTIONAL_GOVERNMENT = "INSTITUTIONALGOVERNMENT";
+	public static final String BPA_ADD_DETAILS_SERVICE_KEY = "alterationService";
+	public static final String BPA_ADD_DETAILS_SUBSERVICE_KEY = "alterationSubService";
+	public static final String BPA_ADD_DETAILS_PERMIT_NO_KEY = "permitNumber";
+	public static final String ALTERATION_SUBSERVICE_D = "ALTERATION_SERVICE_D";
+	public static final String ALTERATION_SUBSERVICE_C = "ALTERATION_SERVICE_C";
+	public static final String ALTERATION_SUBSERVICE_B = "ALTERATION_SERVICE_B";
+	public static final String ALTERATION_SUBSERVICE_A = "ALTERATION_SERVICE_A";
 	
+	public static BaseColor GREY = new BaseColor(216, 216, 216);
+	public static BaseColor ORANGE = new BaseColor(248, 203, 172);
+	public static BaseColor LIME = new BaseColor(226, 239, 217);
+	public static BaseColor BLUE = new BaseColor(188, 214, 238);
+	public static BaseColor PINK = new BaseColor(251, 228, 213);
+	public static BaseColor GREEN = new BaseColor(197, 224, 178);
+	public static BaseColor YELLOW = new BaseColor(255, 231, 154);
+	public static BaseColor DEEPYELLOW = new BaseColor(255, 255, 0);
 	
+	public static String PARAGRAPH_EXISTING_BUILTUP_AREA = "Total built up area (existing) : ";
+	public static String PARAGRAPH_EXISTING_FLOOR_AREA = "Total FAR area (existing) : ";
 
 	public abstract InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo);
 	@Autowired
@@ -167,11 +192,17 @@ public abstract class PermitOrderService {
 		return logo;
 	}
 	
-	public String getServiceType(Plan pl) {
+	public String getServiceType(Plan pl, Map<String, Object> additionalDetails) {
 		try {
 			 Map<String, String> SERVICE_TYPE = new ConcurrentHashMap<>();
 			 SERVICE_TYPE.put("NEW_CONSTRUCTION", "New Construction");
 			 SERVICE_TYPE.put("ADDITION_AND_ALTERATION", "Addition and Alteration");
+				// handling for subservice--
+				if (Objects.nonNull(additionalDetails)
+						&& Objects.nonNull(additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+						&& additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY) instanceof Map) {
+					SERVICE_TYPE.put("NEW_CONSTRUCTION", "Addition and Alteration");
+				}
 			return SERVICE_TYPE.get(pl.getPlanInformation().getServiceType());
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -267,6 +298,28 @@ public abstract class PermitOrderService {
 			taxHeadName = taxHeadCode;
 		}
 		return taxHeadName;
+	}
+	
+	public String getFeeComponentNameFromTaxHeadCodeForPaymentTable(String taxHeadCode) {
+		//these are BDA provided format display names in their payment table
+		switch (taxHeadCode) {
+		case TAXHEAD_BPA_SANC_SANC_FEE_CODE:
+			return "Sanction fees";
+		case TAXHEAD_BPA_SANC_WORKER_WELFARE_CESS_CODE:
+			return "Construction worker welfare Cess (CWWC)";
+		case TAXHEAD_BPA_SANC_TEMP_RETENTION_FEE_CODE:
+			return "Temporary Retention Fee";
+		case TAXHEAD_BPA_SANC_SHELTER_FEE_CODE:
+			return "Shelter Fees for mandatory 10% EWS Housing (carpet area) @ 25% of construction cost of EWS housing ";
+		case TAXHEAD_BPA_SANC_PUR_FAR_CODE:
+			return "Charges for Purchasable FAR Area";
+		case TAXHEAD_BPA_SANC_EIDP_FEE_CODE:
+			return "EIDP Fees ";
+		case TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE:
+			return "Other Fee";
+		default:
+			return "";
+		}
 	}
 	
 	public Map<String, String> getAllFeeDetailsMap(LinkedHashMap bpaApplication, RequestInfo requestInfo,
@@ -889,6 +942,124 @@ public abstract class PermitOrderService {
 		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		String approvalDate = format.format(date);
 		return approvalDate;
+	}
+	
+	public Object getAllInstallments(String consumerCode, RequestInfo requestInfo) {
+		return bpaService.getAllInstallments(consumerCode, requestInfo);
+	}
+	
+	public BaseColor getBackGroundColorForTaxHeadcode(String taxHeadCode) {
+		switch (taxHeadCode) {
+		case TAXHEAD_BPA_SANC_FEES_CODE:
+			return GREEN;
+		case TAXHEAD_BPA_SANC_TEMP_RETENTION_FEE_CODE:
+			return PINK;
+		case TAXHEAD_BPA_SANC_SECURITY_DEPOSIT_CODE:
+			return BLUE;
+		case TAXHEAD_BPA_SANC_WORKER_WELFARE_CESS_CODE:
+			return BLUE;
+		case TAXHEAD_BPA_SANC_PUR_FAR_CODE:
+			return YELLOW;
+		case TAXHEAD_BPA_SANC_SHELTER_FEE_CODE:
+			return GREEN;
+		case TAXHEAD_BPA_SANC_SANC_FEE_CODE:
+			return LIME;
+		case TAXHEAD_BPA_SANC_EIDP_FEE_CODE:
+			return ORANGE;
+		case TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE:
+			return ORANGE;
+		case TAXHEAD_BPA_BLDNG_OPRN_FEE_REWORK_ADJUSTMENT_CODE:
+			return YELLOW;
+		case TAXHEAD_BPA_LAND_DEV_FEE_REWORK_ADJUSTMENT_CODE:
+			return YELLOW;
+		case TAXHEAD_BPA_LAND_DEV_FEE_CODE:
+			return ORANGE;
+		case TAXHEAD_BPA_BLDNG_OPRN_FEE_CODE:
+			return ORANGE;
+		default:
+			return YELLOW;
+		}
+	}
+	
+	public String getAlterationSubserviceStatement(Map<String, Object> additionalDetails) {
+		String subService = null;
+		String alterationSubServiceStatement = "";
+		if (Objects.nonNull(additionalDetails) && Objects.nonNull(additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+				&& additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY) instanceof Map
+				&& Objects.nonNull(((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+						.get(BPA_ADD_DETAILS_SUBSERVICE_KEY))) {
+			subService = ((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY)).get(BPA_ADD_DETAILS_SUBSERVICE_KEY)
+					+ "";
+			switch (subService) {
+			case ALTERATION_SUBSERVICE_A:
+				alterationSubServiceStatement = " (modification of the previously received permit letter xxxxx with No Construction present at site) ";
+				break;
+			case ALTERATION_SUBSERVICE_B:
+				alterationSubServiceStatement = " (modification of the previously received permit letter xxxxx with existing Construction present at site) ";
+				break;
+			case ALTERATION_SUBSERVICE_C:
+			case ALTERATION_SUBSERVICE_D:
+				alterationSubServiceStatement = " with previously received permit letter xxxxx ";
+				break;
+			}
+		}
+		return alterationSubServiceStatement;
+	}
+	
+	public String getPreviousPermitNo(Map<String, Object> additionalDetails) {
+		String previousPermitNo = "";
+		if (Objects.nonNull(additionalDetails) && Objects.nonNull(additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+				&& additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY) instanceof Map
+				&& Objects.nonNull(((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+						.get(BPA_ADD_DETAILS_SUBSERVICE_KEY))) {
+			previousPermitNo = ((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+					.get(BPA_ADD_DETAILS_PERMIT_NO_KEY) + "";
+		}
+		return previousPermitNo;
+	}
+	
+	public BigDecimal getExistingFloorBuiltupArea(DcrReportFloorDetail floor) {
+		// TODO: use correct parameter in below line-
+		BigDecimal existingFloorBuiltUpArea = floor.getBuiltUpArea();
+		if (existingFloorBuiltUpArea.compareTo(BigDecimal.ZERO) > 0) {
+			return existingFloorBuiltUpArea;
+		}
+		// return null if no existing floor
+		return null;
+	}
+	
+	public void addProvidedAreasForAlteration(Map<String, Object> additionalDetails, Plan plan, Document document)
+			throws DocumentException {
+		String subService = null;
+		if (Objects.nonNull(additionalDetails) && Objects.nonNull(additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+				&& additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY) instanceof Map
+				&& Objects.nonNull(((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+						.get(BPA_ADD_DETAILS_SUBSERVICE_KEY))) {
+			subService = ((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY)).get(BPA_ADD_DETAILS_SUBSERVICE_KEY)
+					+ "";
+			if (!ALTERATION_SUBSERVICE_A.equals(subService)) {
+				Font font1 = FontFactory.getFont(FontFactory.HELVETICA, 12);
+				Font fontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+				Chunk existingBuiltupAreaTextChunk = new Chunk(PARAGRAPH_EXISTING_BUILTUP_AREA, font1);
+				Chunk existingBuiltupAreaValueChunk = new Chunk(plan.getVirtualBuilding() != null
+						? plan.getVirtualBuilding().getTotalExistingBuiltUpArea().setScale(2, BigDecimal.ROUND_UP) + SQM
+						: "0", fontBold);
+				Paragraph existingBuiltupAreaParagraph = new Paragraph();
+				existingBuiltupAreaParagraph.add(existingBuiltupAreaTextChunk);
+				existingBuiltupAreaParagraph.add(existingBuiltupAreaValueChunk);
+
+				Chunk existingFloorAreaTextChunk = new Chunk(PARAGRAPH_EXISTING_FLOOR_AREA, font1);
+				Chunk existingFloorAreaValueChunk = new Chunk(
+						plan.getVirtualBuilding().getTotalExistingFloorArea().setScale(2, BigDecimal.ROUND_UP) + SQM,
+						fontBold);
+				Paragraph existingFloorAreaParagraph = new Paragraph();
+				existingFloorAreaParagraph.add(existingFloorAreaTextChunk);
+				existingFloorAreaParagraph.add(existingFloorAreaValueChunk);
+
+				document.add(existingBuiltupAreaParagraph);
+				document.add(existingFloorAreaParagraph);
+			}
+		}
 	}
 
 	private String getOwnershipMajorType(LinkedHashMap bpaApplication) {

@@ -28,6 +28,7 @@ import org.egov.common.entity.edcr.OdishaParkingHelper;
 import org.egov.common.entity.edcr.Plan;
 import org.egov.common.entity.edcr.ScrutinyDetail;
 import org.egov.edcr.constants.DxfFileConstants;
+import org.egov.edcr.entity.Installment;
 import org.egov.edcr.feature.AdditionalFeature;
 import org.egov.edcr.feature.Parking;
 import org.egov.edcr.od.OdishaUtill;
@@ -36,6 +37,7 @@ import org.egov.infra.microservice.models.RequestInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -59,7 +61,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 	public static String PARAGRAPH_ONE_BOLD = " KRJ PROJECT LLP authorized representated by Sri Sachin Kumar Singh (Authorized signatory) and SRI HARI INFRACON PVT.LTD authorized Representative Binod Kumar Agrawalla.";
 
 	public static String PARAGRAPH_TWO_I = "for %s of ";
-	public static String PARAGRAPH_TWO_II = "%s %s over Plot No. %s pertaining to Khata No. %s in Mouza-%s ";
+	public static String PARAGRAPH_TWO_II = "%s %s %s over Plot No. %s pertaining to Khata No. %s in Mouza-%s ";
 	public static String PARAGRAPH_TWO_III = "in the Development Plan area of ";
 	public static String PARAGRAPH_TWO_IV = "Bhubaneswar ";
 	public static String PARAGRAPH_TWO_V = " with the following parameters and conditions;";
@@ -150,7 +152,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 	public static String PARAGRAPH_TWENTY_I_T = "The Authority shall in no way be held responsible for any structural failure and damage due to earthquake/cyclone/any other natural disaster.";
 	public static String PARAGRAPH_TWENTY_I_U = "The number of dwelling units so approved shall not be changed in any manner.";
 	public static String PARAGRAPH_TWENTY_I_V = "Lift shall be provided as per the provision of NBCI, 2016 in pursuance with note(ii) of sub-rule (2) of Rule 42 of ODA Rules, 2020. If the same isn’t provided by the applicant, appropriate action shall be taken as per law.";
-
+	
 	@Override
 	public InputStream generateReport(Plan plan, LinkedHashMap bpaApplication, RequestInfo requestInfo) {
 		try {
@@ -208,7 +210,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		Phrase phrasePara1 = new Phrase();
 		phrasePara1.add(chunk1);
 		phrasePara1.add(chunk2);
-		String serviceType = getServiceType(plan);
+		String serviceType = getServiceType(plan, additionalDetails);
 		Chunk chunk21 = new Chunk(String.format(PARAGRAPH_TWO_I, serviceType), fontPara1);
 		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
 		String occupancy = plan.getPlanInformation().getOccupancy();
@@ -217,8 +219,11 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		String khataNo = plan.getPlanInformation().getKhataNo() + " ";
 		String localityName = getValue(bpaApplication, "$.landInfo.address.locality.name");
 
+		String oldPermitNo = getPreviousPermitNo(additionalDetails);
+		String alterationStatement = getAlterationSubserviceStatement(additionalDetails);
+		alterationStatement = alterationStatement.replace("xxxxx", oldPermitNo);
 		Chunk chunk22 = new Chunk(
-				String.format(PARAGRAPH_TWO_II, floorInfo, occupancy+", "+subOccupancy, plotNo, khataNo, localityName), fontPara1Bold);
+				String.format(PARAGRAPH_TWO_II, floorInfo, occupancy+", "+subOccupancy, alterationStatement, plotNo, khataNo, localityName), fontPara1Bold);
 		Chunk chunk23 = new Chunk(PARAGRAPH_TWO_III, fontPara1);
 
 		Chunk chunk24 = new Chunk(tenantId, fontPara1Bold);
@@ -264,7 +269,22 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		list11.add(chunk31);
 		list11.add(chunk35);
 
-		PdfPTable table1 = new PdfPTable(4);
+		String subService = null;
+		if (Objects.nonNull(additionalDetails) && Objects.nonNull(additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+				&& additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY) instanceof Map
+				&& Objects.nonNull(((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY))
+						.get(BPA_ADD_DETAILS_SUBSERVICE_KEY))) {
+			subService = ((Map) additionalDetails.get(BPA_ADD_DETAILS_SERVICE_KEY)).get(BPA_ADD_DETAILS_SUBSERVICE_KEY)
+					+ "";
+		}
+		
+		PdfPTable table1 = null;
+		if (Objects.nonNull(subService) && !ALTERATION_SUBSERVICE_A.equals(subService)) {
+			// for existing area column
+			table1 = new PdfPTable(5);
+		} else {
+			table1 = new PdfPTable(4);
+		}
 		table1.setWidthPercentage(100f);
 
 		java.util.List<DcrReportBlockDetail> blockDetails = buildBlockWiseProposedInfo(plan);
@@ -272,13 +292,14 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 			BigDecimal totalFloorArea = BigDecimal.ZERO;
 			Block planBlock = plan.getBlockByName(block.getBlockNo());
 			//Block planBlock = plan.getBlocks().get(Integer.parseInt(block.getBlockNo()));
-			addTableHeader1(table1, block,plan);
+			addTableHeader1(table1, block,plan, subService);
 			java.util.List<DcrReportFloorDetail> floorDetails = block.getDcrReportFloorDetails();
 			for (DcrReportFloorDetail floor : floorDetails) {
-				totalFloorArea = addRowsPerFloorAndAggregateFlrAreas(table1, floor, totalFloorArea,planBlock.getBuilding().getFloorNumber(floor.getFloorNumberInteger()));
+				totalFloorArea = addRowsPerFloorAndAggregateFlrAreas(table1, floor, totalFloorArea,
+						planBlock.getBuilding().getFloorNumber(floor.getFloorNumberInteger()), subService);
 
 			}
-			addTotalRow(table1, totalFloorArea,planBlock);
+			addTotalRow(table1, totalFloorArea,planBlock, subService);
 
 		}
 
@@ -533,6 +554,33 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		topLevel.add(item35);
 
 		boolean isInstallment = false;
+		Map<String,Object> installmentData = (Map<String, Object>) getAllInstallments(applicationNo, requestInfo);
+		//check if installment applicable or not.If applicable,then check if full payment or not
+		if (Objects.isNull(installmentData)
+				|| (Objects.nonNull(installmentData) && Objects.nonNull(installmentData.get("installments"))
+						&& installmentData.get("installments") instanceof java.util.List
+						&& ((java.util.List) installmentData.get("installments")).isEmpty())
+				|| (Objects.nonNull(installmentData) && Objects.nonNull(installmentData.get("fullPayment"))
+						&& installmentData.get("fullPayment") instanceof java.util.List
+						&& !((java.util.List) installmentData.get("fullPayment")).isEmpty()
+						&& Objects.nonNull(((Map) ((java.util.List) installmentData.get("fullPayment")).get(0))
+								.get("isPaymentCompletedInDemand"))
+						&& (Boolean) ((Map) ((java.util.List) installmentData.get("fullPayment")).get(0))
+								.get("isPaymentCompletedInDemand"))) {
+			//first condition in || = null response
+			//second condition in || = empty installment response
+			//third condition in || = full payment done
+			//For all above 3 cases,full payment to be shown from payment details like before-
+			//Map<String,String> paymentDetailsMap = getAllFeeDetailsMap(bpaApplication, requestInfo, applicationNo, tenantIdActual);
+		}
+		else if (Objects.nonNull(installmentData) && Objects.nonNull(installmentData.get("installments"))
+				&& installmentData.get("installments") instanceof java.util.List
+				&& !((java.util.List) installmentData.get("installments")).isEmpty()) {
+			// if payment done in installments
+			isInstallment = true;
+		}
+		
+		
 		//String[] feeDetails = getAllFeeDetails(requestInfo, applicationNo, tenantIdActual);
 		Map<String,String> paymentDetailsMap = getAllFeeDetailsMap(bpaApplication, requestInfo, applicationNo, tenantIdActual);
 
@@ -560,11 +608,108 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		PdfPTable table35 = new PdfPTable(3);
 		PdfPTable otherFeeReasonTable = new PdfPTable(1);
 
-		if (isInstallment)
-
-		{
+		java.util.List<PdfPTable> tablesForInstallments = new ArrayList<>();
+		ObjectMapper mapper = new ObjectMapper();
+		if (isInstallment) {
+			Map<String, java.util.List<Installment>> installmentMapper = prepareTaxHeadCodeToInstallmentsMap(
+					installmentData, mapper);
+			// scrutiny fees tables-
 			table16.setWidthPercentage(100f);
 			addTableHeader16(table16);
+			
+			// permit fees tables-
+			table17.setWidthPercentage(100f);
+			addScrutinyFeeDetails(table17, otherFeeReasonTable, paymentDetailsMap, additionalDetails);
+			String[] seq="B C D E F G H I J K L M N O P Q R S T U V W X Y Z".split("\\s");
+			java.util.List<String> list = new ArrayList<>(Arrays.asList(seq));
+			Iterator<String> sequence = list.iterator();
+			// any change in this list and display name has to be done in method addTableRow35 also 
+			java.util.List<String> taxHeadsToShowInOrder = Arrays.asList(new String[] { TAXHEAD_BPA_SANC_SANC_FEE_CODE,
+					TAXHEAD_BPA_SANC_WORKER_WELFARE_CESS_CODE, TAXHEAD_BPA_SANC_TEMP_RETENTION_FEE_CODE,
+					TAXHEAD_BPA_SANC_SHELTER_FEE_CODE, TAXHEAD_BPA_SANC_PUR_FAR_CODE, TAXHEAD_BPA_SANC_EIDP_FEE_CODE,
+					TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE });
+			BigDecimal totalPaidFromInstallments=BigDecimal.ZERO;
+			BigDecimal totalRemainingFeesFromInstallments = BigDecimal.ZERO;
+			for (String taxHeadCode : taxHeadsToShowInOrder) {
+				if (!installmentMapper.containsKey(taxHeadCode)) {
+					continue;
+				}
+				if (installmentMapper.get(taxHeadCode).get(0).getTaxAmount().compareTo(BigDecimal.ZERO) == 0) {
+					continue;
+				}
+				String feeComponentName = getFeeComponentNameFromTaxHeadCodeForPaymentTable(taxHeadCode);
+				if (feeComponentName.equals("")) {
+					// display name if not found from BDA provided format then use standard names
+					feeComponentName = getFeeComponentNameFromTaxHeadCode(taxHeadCode);
+				}
+				BaseColor backGroundColor = getBackGroundColorForTaxHeadcode(taxHeadCode);
+				boolean isSingleInstallment = (installmentMapper.get(taxHeadCode).size() == 1) ? true : false;
+				if (isSingleInstallment) {
+					// handling for single installment taxheads
+					PdfPTable singleInstallmentTable = new PdfPTable(3);
+					singleInstallmentTable.setWidthPercentage(100f);
+					setTablesForSingleInstallmentTaxHeads(singleInstallmentTable,
+							sequence.next() + ". " + feeComponentName,
+							installmentMapper.get(taxHeadCode).get(0).getTaxAmount() + "", backGroundColor);
+					tablesForInstallments.add(singleInstallmentTable);
+					// maintain total paid and remaining-
+					if (installmentMapper.get(taxHeadCode).get(0).isPaymentCompletedInDemand()) {
+						totalPaidFromInstallments = totalPaidFromInstallments
+								.add(installmentMapper.get(taxHeadCode).get(0).getTaxAmount());
+					}
+				} else {
+					// handling for multiple installment taxheads
+
+					// taxheadname header table-
+					PdfPTable headerTable = getInstallmentCellForFeeComponentName(
+							sequence.next() + ". " + feeComponentName, backGroundColor);
+					tablesForInstallments.add(headerTable);
+
+					// installment wise table rows-
+					PdfPTable installmentTable = getTableForInstallmentBreakup();
+					BigDecimal totalPayable = BigDecimal.ZERO;
+					for (Installment installment : installmentMapper.get(taxHeadCode)) {
+						addInstallmentCellToTable(installmentTable, backGroundColor, installment);
+						totalPayable = totalPayable.add(installment.getTaxAmount());
+
+						// maintain total paid and remaining-
+						if (installment.isPaymentCompletedInDemand()) {
+							totalPaidFromInstallments = totalPaidFromInstallments.add(installment.getTaxAmount());
+						} else {
+							totalRemainingFeesFromInstallments = totalRemainingFeesFromInstallments
+									.add(installment.getTaxAmount());
+						}
+					}
+					tablesForInstallments.add(installmentTable);
+					// total payable table-
+					PdfPTable totalPayableTable = getTableForTotalOfInstallment();
+					setTableForTotalOfInstallment(totalPayableTable, feeComponentName, totalPayable + "",
+							backGroundColor);
+					tablesForInstallments.add(totalPayableTable);
+				}
+				// reason for other fee--
+				if (taxHeadCode.equalsIgnoreCase(TAXHEAD_BPA_SANC_ADJUSTMENT_AMOUNT_CODE)) {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(ORANGE);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_LEFT);
+					header.setPhrase(new Phrase(
+							"Other Fee Detail: "
+									+ additionalDetails.get("modificationReasonSanctionFeeAdjustmentAmount"),
+							fontPara1Bold));
+					otherFeeReasonTable.addCell(header);
+				}
+			}
+			table31.setWidthPercentage(100f);
+			Map<String,String> paymentDetailsMapFromInstallments = new HashMap<>();
+			String totalApplicationFeeAmountPaid = paymentDetailsMap.get("totalApplicationFeeAmountPaid");
+			paymentDetailsMapFromInstallments.put("totalApplicationAndPermitFee", totalPaidFromInstallments.add(new BigDecimal(totalApplicationFeeAmountPaid))+"");
+			paymentDetailsMapFromInstallments.put("totalRemainingFeesFromInstallments", totalRemainingFeesFromInstallments+"");
+			addTableHeader31(table31, paymentDetailsMapFromInstallments);
+			addRemainingInstallmentAmountToBePaid(table31, paymentDetailsMapFromInstallments);
+			
+			
+			/*
 			table17.setWidthPercentage(100f);
 			addTableHeader171(table17);
 			addTableHeader172(table17);
@@ -614,6 +759,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 			addTableHeader33(table33);
 			table34.setWidthPercentage(100f);
 			addTableHeader34(table34);
+			*/
 		} else {
 			table16.setWidthPercentage(100f);
 			addTableHeader16(table16);
@@ -792,6 +938,13 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		document.add(table29);
 		document.add(table30);
 		document.add(table35);
+		//payment table if installment is available-
+		for(PdfPTable table:tablesForInstallments) {
+			document.add(table);
+		}
+		//
+		
+		
 		//if(!otherFeeReasonTable.getChunks().isEmpty())
 			document.add(otherFeeReasonTable);
 		document.add(table31);
@@ -819,6 +972,29 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 
 		document.close();
 		return new ByteArrayInputStream(outputBytes.toByteArray());
+	}
+	
+	private void addScrutinyFeeDetails(PdfPTable table35, PdfPTable otherFeeReasonTable, Map<String, String> paymentDetailsMap,
+			Map<String, Object> additionalDetails) {
+		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
+		if(StringUtils.isNotEmpty(paymentDetailsMap.get("BPA_BLDNG_OPRN_FEE")) && !paymentDetailsMap.get("BPA_BLDNG_OPRN_FEE").equals("0.0"))
+		Stream.of("A. (i) Fee for building operation", paymentDetailsMap.get("BPA_BLDNG_OPRN_FEE"), "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(ORANGE);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			table35.addCell(header);
+		});
+		if(StringUtils.isNotEmpty(paymentDetailsMap.get("BPA_LAND_DEV_FEE")) && !paymentDetailsMap.get("BPA_LAND_DEV_FEE").equals("0.0"))
+			Stream.of("A. (ii) Development Fees", paymentDetailsMap.get("BPA_LAND_DEV_FEE"), "Paid").forEach(columnTitle -> {
+				PdfPCell header = new PdfPCell();
+				header.setBackgroundColor(ORANGE);
+				header.setBorderWidth(2);
+				header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+				header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+				table35.addCell(header);
+			});
 	}
 
 	private void addTableRow35(PdfPTable table35, PdfPTable otherFeeReasonTable, Map<String, String> paymentDetailsMap,
@@ -853,6 +1029,10 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 				header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
 				table35.addCell(header);
 			});
+		// the following sequence of tax head codes to be shown in permit letter, is
+		// also used in the variable "taxHeadsToShowInOrder" in another method for
+		// installment.Any change in this also should be done there.
+		//Same for display names of taxheadcodes in method getFeeComponentNameFromTaxHeadCodeForPaymentTable.
 		if(StringUtils.isNotEmpty(paymentDetailsMap.get("BPA_SANC_SANC_FEE")) && !paymentDetailsMap.get("BPA_SANC_SANC_FEE").equals("0.0")) {
 		Stream.of(sequence.next() +". Sanction fees", paymentDetailsMap.get("BPA_SANC_SANC_FEE"), "Paid").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
@@ -931,6 +1111,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 			header.setVerticalAlignment(Element.ALIGN_LEFT);
 			header.setPhrase(new Phrase("Other Fee Detail: "+additionalDetails.get("modificationReasonSanctionFeeAdjustmentAmount"), fontPara1Bold));
 			otherFeeReasonTable.addCell(header);
+			otherFeeReasonTable.setWidthPercentage(100f);
 		}
 			
 	}
@@ -984,6 +1165,20 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 			table31.addCell(header);
 		});
 
+	}
+	
+	private void addRemainingInstallmentAmountToBePaid(PdfPTable table31, Map<String, String> paymentDetailsMap) {
+		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
+		BaseColor deepYellow = new BaseColor(255, 255, 0);
+		Stream.of("REMAINING FEES PAYABLE ", paymentDetailsMap.get("totalRemainingFeesFromInstallments"))
+				.forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(deepYellow);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					table31.addCell(header);
+				});
 	}
 
 	private void addTableHeader30(PdfPTable table30) {
@@ -1725,7 +1920,7 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 
 
 	private BigDecimal addRowsPerFloorAndAggregateFlrAreas(PdfPTable table, DcrReportFloorDetail floor,
-			BigDecimal totalFloorArea,Floor planFloor) {
+			BigDecimal totalFloorArea,Floor planFloor, String subService) {
 		PdfPCell floorNameCell = new PdfPCell();
 		Phrase floorNamephrase = new Phrase(floor.getFloorNo());
 		floorNameCell.addElement(floorNamephrase);
@@ -1734,6 +1929,12 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		Phrase floorAreaphrase = new Phrase(floor.getBuiltUpArea() + "");
 		floorAreaCell.addElement(floorAreaphrase);
 		table.addCell(floorAreaCell);
+		if (Objects.nonNull(subService) && !ALTERATION_SUBSERVICE_A.equals(subService)) {
+			PdfPCell floorExistingAreaCell = new PdfPCell();
+			Phrase floorExistingAreaphrase = new Phrase(getExistingFloorBuiltupArea(floor) + "");
+			floorExistingAreaCell.addElement(floorExistingAreaphrase);
+			table.addCell(floorExistingAreaCell);
+		}
 		PdfPCell floorOccupancyCell = new PdfPCell();
 		Phrase floorOccupancyphrase = new Phrase(floor.getOccupancy());
 		floorOccupancyCell.addElement(floorOccupancyphrase);
@@ -1752,13 +1953,17 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		return floor.getEwsUnit().size()+floor.getLigUnit().size()+floor.getMig1Unit().size()+floor.getMig2Unit().size()+floor.getOthersUnit().size()+floor.getRoomUnit().size();
 	}
 
-	private void addTotalRow(PdfPTable table, BigDecimal totalFloorArea,Block planBlock) {
+	private void addTotalRow(PdfPTable table, BigDecimal totalFloorArea,Block planBlock, String subService) {
 		int totalDuInBlock = 0;
 		for(Floor floor:planBlock.getBuilding().getFloors()) {
 			totalDuInBlock +=totalDU(floor);
 		}
 		table.addCell("Total Far Area");
 		table.addCell(totalFloorArea + "");
+		if (Objects.nonNull(subService) && !ALTERATION_SUBSERVICE_A.equals(subService)) {
+			// add empty cell if extra column added for existing area in alteration subservice B,C,D-
+			table.addCell(" ");
+		}
 		table.addCell(" ");
 		table.addCell(totalDuInBlock+"");
 	}
@@ -1801,20 +2006,37 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 		table.addCell(pdfWordCell4);
 	}
 	AdditionalFeature additionalFeature = new AdditionalFeature();
-	private void addTableHeader1(PdfPTable table1, DcrReportBlockDetail block,Plan plan) {
+	private void addTableHeader1(PdfPTable table1, DcrReportBlockDetail block,Plan plan, String subService) {
 
 		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD);
 		String noOfFloor = additionalFeature.getNoOfFloor(plan.getBlockByName(block.getBlockNo()));
-		Stream.of("Block-No." + block.getBlockNo()+ " (" + noOfFloor + ")", "Covered area approved (Sqm.)", "Proposed use", "No. of Dwelling Units")
-				.forEach(columnTitle -> {
-					PdfPCell header = new PdfPCell();
-					header.setBackgroundColor(BaseColor.LIGHT_GRAY);
-					header.setBorderWidth(2);
-					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
-					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
-					table1.addCell(header);
+		if(Objects.nonNull(subService)&&!ALTERATION_SUBSERVICE_A.equals(subService)) {
+			// for alteration subservices other than subservice A, show one extra column for existing area-
+			Stream.of("Block-No." + block.getBlockNo() + " (" + noOfFloor + ")", "Covered area approved -Proposed(Sqm.)",
+					"Covered area approved -Existing(Sqm.)", "Proposed use", "No. of Dwelling Units")
+			.forEach(columnTitle -> {
+				PdfPCell header = new PdfPCell();
+				header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+				header.setBorderWidth(2);
+				header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+				header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+				table1.addCell(header);
 
-				});
+			});
+		}
+		else {
+			Stream.of("Block-No." + block.getBlockNo()+ " (" + noOfFloor + ")", "Covered area approved (Sqm.)", "Proposed use", "No. of Dwelling Units")
+			.forEach(columnTitle -> {
+				PdfPCell header = new PdfPCell();
+				header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+				header.setBorderWidth(2);
+				header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+				header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+				table1.addCell(header);
+
+			});
+		}
+		
 	}
 
 	private void addNocs(Document document, RequestInfo requestInfo, String tenantId, String applicationNo)
@@ -1842,6 +2064,167 @@ public class PermitOrderServiceBPA2 extends PermitOrderService {
 
 	private String getChargingStationsProvided(Plan plan) {
 		return "0";
+	}
+	
+	private  PdfPTable getInstallmentCellForFeeComponentName(String feeComponentName, BaseColor backgroundColor) {
+		PdfPTable feeComponentNameTable = new PdfPTable(1);
+		feeComponentNameTable.setWidthPercentage(100f);
+		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
+		Stream.of(feeComponentName).forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(backgroundColor);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			feeComponentNameTable.addCell(header);
+		});
+		return feeComponentNameTable;
+	}
+	
+	private  PdfPTable getTableForInstallmentBreakup() {
+		PdfPTable installmentBreakupTable = new PdfPTable(3);
+		installmentBreakupTable.setWidthPercentage(100f);
+		return installmentBreakupTable;
+	}
+	
+	private  PdfPTable getTableForTotalOfInstallment() {
+		PdfPTable totalOfInstallmentTable = new PdfPTable(2);
+		totalOfInstallmentTable.setWidthPercentage(100f);
+		return totalOfInstallmentTable;
+	}
+	
+	private void setTableForTotalOfInstallment(PdfPTable totalTable, String feeComponentName, String totalFee,
+			BaseColor backgroundColor) {
+		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
+		Stream.of("Total payable " + feeComponentName, totalFee).forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(backgroundColor);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			totalTable.addCell(header);
+		});
+	}
+	
+	private void addTableHeader(PdfPTable table,String headerName,Font fontStyle,BaseColor backgroundColor) {
+		Stream.of(headerName).forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(backgroundColor);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontStyle));
+			table.addCell(header);
+		});
+
+	}
+	
+	private void addInstallmentCellToTable(PdfPTable installmentTable, BaseColor backgroundColour,
+			Installment installment) {
+		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
+		Stream.of(getInstallmentNoShowText(installment.getInstallmentNo()), installment.getTaxAmount() + "",
+				getCommentForTaxHeadInstallment(installment)).forEach(columnTitle -> {
+					PdfPCell header = new PdfPCell();
+					header.setBackgroundColor(backgroundColour);
+					header.setBorderWidth(2);
+					header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+					header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+					installmentTable.addCell(header);
+				});
+	}
+	
+	private String getInstallmentNoShowText(int installmentNo) {
+		switch (installmentNo) {
+		case 1:
+			return "1st installment";
+		case 2:
+			return "2nd installment";
+		case 3:
+			return "3rd installment";
+		case 4:
+			return "4th installment";
+		case 5:
+			return "5th installment";
+		default:
+			return installmentNo + " installment";
+		}
+	}
+	
+	private String getCommentForTaxHeadInstallment(Installment installment) {
+		int installmentNo = installment.getInstallmentNo();
+		String taxHeadCode = installment.getTaxHeadCode();
+		if (installmentNo == 1 || installment.isPaymentCompletedInDemand())
+			return "Paid";
+		switch (taxHeadCode) {
+		case TAXHEAD_BPA_SANC_WORKER_WELFARE_CESS_CODE:
+		case TAXHEAD_BPA_SANC_SHELTER_FEE_CODE:
+			switch (installmentNo) {
+			case 2:
+				return "To be paid before one year of issue of permission letter";
+			case 3:
+				return "To be paid before two years of issue of permission letter";
+			case 4:
+				return "To be paid before three years of issue of permission letter";
+			}
+			break;
+		case TAXHEAD_BPA_SANC_PUR_FAR_CODE:
+			switch (installmentNo) {
+			case 2:
+				return "To be paid At the time of Plinth level";
+			case 3:
+				return "To be paid At the time of Ground Floor Roof Casting";
+			case 4:
+				return "To be paid At the time of application of occupancy certificate";
+			}
+			break;
+		case TAXHEAD_BPA_SANC_EIDP_FEE_CODE:
+			switch (installmentNo) {
+			case 2:
+				return "To be paid at the time of Plinth level";
+			case 3:
+				return "To be paid at the time of Ground Floor Roof Casting";
+			case 4:
+				return "To be paid at the time of application of occupancy certificate";
+			}
+			break;
+		}
+		return "";
+	}
+	
+	private void setTablesForSingleInstallmentTaxHeads(PdfPTable singleInstallmentTable, String feeComponentName,
+			String feeAmount, BaseColor backgroundColor) {
+		Font fontPara1Bold = FontFactory.getFont(FontFactory.COURIER, 13, Font.BOLD);
+		Stream.of(feeComponentName, feeAmount, "Paid").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(backgroundColor);
+			header.setBorderWidth(2);
+			header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			header.setPhrase(new Phrase(columnTitle, fontPara1Bold));
+			singleInstallmentTable.addCell(header);
+		});
+
+	}
+	
+	private Map<String, java.util.List<Installment>> prepareTaxHeadCodeToInstallmentsMap(
+			Map<String, Object> installmentData, ObjectMapper mapper) {
+		Map<String, java.util.List<Installment>> installmentMapper = new HashMap<>();
+		java.util.List<Object> allInstallments = (java.util.List<Object>) installmentData.get("installments");
+		for (Object installmentsinOneInstallmentNoObject : allInstallments) {
+			java.util.List<Object> installmentsinOneInstallmentNoList = (java.util.List<Object>) installmentsinOneInstallmentNoObject;
+			for (Object installmentObject : installmentsinOneInstallmentNoList) {
+				Installment installment = mapper.convertValue(installmentObject, Installment.class);
+				if (installmentMapper.containsKey(installment.getTaxHeadCode())) {
+					java.util.List<Installment> installmentsForTaxHead = installmentMapper
+							.get(installment.getTaxHeadCode());
+					installmentsForTaxHead.add(installment);
+				} else {
+					java.util.List<Installment> installmentsForTaxHead = new ArrayList<>();
+					installmentsForTaxHead.add(installment);
+					installmentMapper.put(installment.getTaxHeadCode(), installmentsForTaxHead);
+				}
+			}
+		}
+		// System.out.println(mapper.writeValueAsString(installmentMapper));
+		return installmentMapper;
 	}
 	
 	
