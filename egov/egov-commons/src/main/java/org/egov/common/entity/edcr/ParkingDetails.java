@@ -79,6 +79,11 @@ public class ParkingDetails implements Serializable {
 	private Integer validSpecialSlots = 0;
 	private List<Measurement> stilts = new ArrayList<>();
 	private List<Measurement> mechanicalLifts = new ArrayList<>();
+	
+	//for Haryana demo
+	private List<Measurement> frontParking = new ArrayList<>();
+	private List<Measurement> rearParking = new ArrayList<>();
+	
 
 	public List<Measurement> getCars() {
 		return cars;
@@ -240,4 +245,21 @@ public class ParkingDetails implements Serializable {
 		this.mechanicalLifts = mechanicalLifts;
 	}
 
+	public List<Measurement> getFrontParking() {
+		return frontParking;
+	}
+
+	public void setFrontParking(List<Measurement> frontParking) {
+		this.frontParking = frontParking;
+	}
+
+	public List<Measurement> getRearParking() {
+		return rearParking;
+	}
+
+	public void setRearParking(List<Measurement> rearParking) {
+		this.rearParking = rearParking;
+	}
+	
+	
 }

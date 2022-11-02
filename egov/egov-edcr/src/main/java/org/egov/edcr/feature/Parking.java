@@ -333,6 +333,9 @@ public class Parking extends FeatureProcess {
 			genralParking(pl, helper);
 		}
 		validateDAParking(pl, helper);
+		
+		// For Haryana demo
+		processHaryanaDemo(pl);
 		return pl;
 	}
 
@@ -1511,5 +1514,43 @@ public class Parking extends FeatureProcess {
 	@Override
 	public Map<String, Date> getAmendments() {
 		return new LinkedHashMap<>();
+	}
+	
+	 // For Haryana demo
+	private void processHaryanaDemo(Plan pl) {
+		ScrutinyDetail scrutinyDetail1 = new ScrutinyDetail();
+		scrutinyDetail1.setKey("Common_Open Parking");
+		scrutinyDetail1.addColumnHeading(1, RULE_NO);
+		scrutinyDetail1.addColumnHeading(2, DESCRIPTION);
+		scrutinyDetail1.addColumnHeading(3, REQUIRED);
+		scrutinyDetail1.addColumnHeading(4, PROVIDED);
+		scrutinyDetail1.addColumnHeading(5, STATUS);
+		
+		BigDecimal totalFrontParking = BigDecimal.ZERO;
+		BigDecimal totalRearParking = BigDecimal.ZERO;
+		
+		if(pl.getParkingDetails()!=null && pl.getParkingDetails().getFrontParking()!=null) {
+			for(Measurement measurement:pl.getParkingDetails().getFrontParking()) {
+				totalFrontParking = totalFrontParking.add(measurement.getArea()).setScale(2,
+						BigDecimal.ROUND_HALF_UP);
+			}
+		}
+		
+		if(pl.getParkingDetails()!=null && pl.getParkingDetails().getRearParking()!=null) {
+			for(Measurement measurement:pl.getParkingDetails().getRearParking()) {
+				totalRearParking = totalRearParking.add(measurement.getArea()).setScale(2,
+						BigDecimal.ROUND_HALF_UP);
+			}
+		}
+		
+		if(totalFrontParking.compareTo(BigDecimal.ZERO)>0)
+			setReport(SUB_RULE_40, "Open parking in front side", "NA", totalFrontParking.toString(),
+				Result.Verify, scrutinyDetail1);
+		
+		if(totalRearParking.compareTo(BigDecimal.ZERO)>0)
+			setReport(SUB_RULE_40, "Open parking in rear side", "NA", totalRearParking.toString(),
+				Result.Verify, scrutinyDetail1);
+		
+		pl.getReportOutput().getScrutinyDetails().add(scrutinyDetail1);
 	}
 }
