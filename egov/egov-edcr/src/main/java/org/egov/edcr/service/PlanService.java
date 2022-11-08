@@ -55,6 +55,7 @@ import org.egov.edcr.utility.DcrConstants;
 import org.egov.infra.custom.CustomImplProvider;
 import org.egov.infra.filestore.entity.FileStoreMapper;
 import org.egov.infra.filestore.service.FileStoreService;
+import org.egov.infra.utils.FileStoreUtils;
 import org.egov.infra.validation.exception.ValidationError;
 import org.egov.infra.validation.exception.ValidationException;
 import org.springframework.beans.BeansException;
@@ -633,14 +634,16 @@ public class PlanService {
 
 		if (LOG.isInfoEnabled())
 			LOG.info("*************Before serialization******************");
-		File f = new File("plandetail.txt");
+		File f = new File(FileStoreUtils.TEMP_DIRECTORY+"plandetail.txt");
 		try (FileOutputStream fos = new FileOutputStream(f); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 			mapper.writeValue(f, plan);
+			oos.flush();
+			oos.close();
 			detail.setPlanDetailFileStore(
 					fileStoreService.store(f, f.getName(), "text/plain", DcrConstants.APPLICATION_MODULE_TYPE));
-			oos.flush();
+			
 		} catch (IOException e) {
 			LOG.error("Unable to serialize!!!!!!", e);
 		}

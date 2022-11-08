@@ -97,6 +97,11 @@ public class FileStoreUtils {
     @Autowired
     private FileStoreMapperRepository fileStoreMapperRepository;
 
+    public static final String TEMP_DIRECTORY = "\\tmp\\";
+    
+//    public static final String TEMP_DIRECTORY = "";
+    
+    
     public Path getFileAsPath(String fileStoreId, String moduleName) {
         return fileStoreService.fetchAsPath(fileStoreId, moduleName);
     }

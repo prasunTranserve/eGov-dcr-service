@@ -32,6 +32,7 @@ import org.egov.infra.filestore.entity.FileStoreMapper;
 import org.egov.infra.filestore.service.FileStoreService;
 import org.egov.infra.security.utils.SecurityUtils;
 import org.egov.infra.utils.ApplicationNumberGenerator;
+import org.egov.infra.utils.FileStoreUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -257,12 +258,13 @@ public class EdcrApplicationService {
         String readFile = readFile(edcrApplication.getSavedDxfFile());
         String replace = readFile.replace("ENTITIES", "ENTITIES\n0\n" + pl.getAdditionsToDxf());
         String newFile = edcrApplication.getDxfFile().getOriginalFilename().replace(".dxf", "_system_scrutinized.dxf");
-        File f = new File(newFile);
+        File f = new File(FileStoreUtils.TEMP_DIRECTORY+newFile);
         try (FileOutputStream fos = new FileOutputStream(f)) {
             if (!f.exists())
                 f.createNewFile();
             fos.write(replace.getBytes());
             fos.flush();
+            fos.close();
             FileStoreMapper fileStoreMapper = fileStoreService.store(f, f.getName(),
                     edcrApplication.getDxfFile().getContentType(), FILESTORE_MODULECODE);
             edcrApplication.getEdcrApplicationDetails().get(0).setScrutinizedDxfFileId(fileStoreMapper);

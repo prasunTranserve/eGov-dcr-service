@@ -70,6 +70,7 @@ import org.egov.infra.exception.ApplicationRuntimeException;
 import org.egov.infra.filestore.entity.FileStoreMapper;
 import org.egov.infra.filestore.service.FileStoreService;
 import org.egov.infra.microservice.contract.StorageResponse;
+import org.egov.infra.utils.FileStoreUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,7 +98,7 @@ public class EgovMicroServiceStore implements FileStoreService {
 	private String url;
 
 	private RestTemplate restTemplate;
-
+	
 	@Autowired
 	public EgovMicroServiceStore(@Value("${ms.url}") String url) {
 		this.restTemplate = new RestTemplate();
@@ -123,7 +124,8 @@ public class EgovMicroServiceStore implements FileStoreService {
 			
 			headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 			MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
-			map.add("file", new FileSystemResource(file.getName()));
+//			map.add("file", new FileSystemResource(file.getName()));
+			map.add("file", new FileSystemResource(file));
 			map.add("tenantId", ApplicationThreadLocals.getTenantID());
 			map.add("module", moduleName);
 			HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(map,
@@ -136,8 +138,9 @@ public class EgovMicroServiceStore implements FileStoreService {
 		
 			fileMapper.setContentType(mimeType);
 			
-			Files.deleteIfExists(Paths.get(fileName));
-
+//			Files.deleteIfExists(Paths.get(fileName));
+			Files.deleteIfExists(file.toPath());
+			
 			return fileMapper;
 		} catch (RestClientException e) {
 			LOG.error("Error while Saving to FileStore", e);
@@ -154,17 +157,21 @@ public class EgovMicroServiceStore implements FileStoreService {
 
 		try {
 			HttpHeaders headers = new HttpHeaders();
-			File f = new File(fileName);
+			File f = new File(FileStoreUtils.TEMP_DIRECTORY+fileName);
 			FileUtils.copyToFile(fileStream, f);
 			if (closeStream) {
 				fileStream.close();
 			}
-			if(LOG.isDebugEnabled())
-			LOG.debug(String.format("Uploading .....  %s    with size %s   " ,f.getName() , f.length()));  
+//			if(LOG.isDebugEnabled())
+//				LOG.debug(String.format("Uploading .....  %s    with size %s   " ,f.getName() , f.length()));  
 			
+//			if(LOG.isDebugEnabled())
+				LOG.info(String.format("Uploading .....  %s    with size %s   " ,f.getName() , f.length()));  
+				
 			headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 			MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
-			map.add("file", new FileSystemResource(f.getName()));
+//			map.add("file", new FileSystemResource(f.getName()));
+			map.add("file", new FileSystemResource(f));
 			map.add("tenantId", ApplicationThreadLocals.getTenantID());
 			map.add("module", moduleName);
 			HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(map,
@@ -176,9 +183,13 @@ public class EgovMicroServiceStore implements FileStoreService {
 			LOG.debug(String.format("Upload completed for  %s   with filestoreid   " ,f.getName() , fileMapper.getFileStoreId()));
 			
 			fileMapper.setContentType(mimeType);
-			if (closeStream)
-				Files.deleteIfExists(Paths.get(fileName));
+//			if (closeStream)
+//				Files.deleteIfExists(Paths.get(fileName));
 
+			if (closeStream)
+				Files.deleteIfExists(f.toPath());
+
+			
 			return fileMapper;
 		} catch (RestClientException | IOException e) {
 			LOG.error("Error while Saving to FileStore", e);   
@@ -209,7 +220,8 @@ public class EgovMicroServiceStore implements FileStoreService {
 
 		RequestCallback requestCallback = request -> request.getHeaders()
 				.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
-		Path path = Paths.get("/tmp/" + RandomUtils.nextLong());
+//		Path path = Paths.get("/tmp/" + RandomUtils.nextLong());
+		Path path = Paths.get(FileStoreUtils.TEMP_DIRECTORY + RandomUtils.nextLong());
 		ResponseExtractor<Void> responseExtractor = response -> {
 			Files.copy(response.getBody(), path);
 			return null;
