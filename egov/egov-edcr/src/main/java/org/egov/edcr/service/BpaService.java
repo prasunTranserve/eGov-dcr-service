@@ -1,16 +1,19 @@
 package org.egov.edcr.service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.egov.edcr.utility.DcrConstants.ROUNDMODE_MEASUREMENTS;
 import org.apache.log4j.Logger;
 import org.egov.commons.mdms.config.MdmsConfiguration;
 import org.egov.commons.service.RestCallService;
+import org.egov.edcr.entity.Installment;
 import org.egov.edcr.preapproved.helper.PlanPreApproved;
 import org.egov.infra.filestore.service.FileStoreService;
 import org.egov.infra.microservice.models.RequestInfo;
@@ -199,6 +202,29 @@ public class BpaService {
 	    	 Object code= ((Map) obj).get("preApprovedCode");
 	    	 
 	    	 return code.toString();
+		}
+		
+		public Object getAllInstallments(String consumerCode, RequestInfo requestInfo) {
+			String hostUrl = mdmsConfiguration.getBpaHost();
+			String url = String.format("%s/bpa-services/v1/bpa/_getAllInstallments", hostUrl);
+			LOG.info("url" + url);
+			Map<String, Object> requestPayload = new HashMap<>();
+			requestPayload.put("RequestInfo", requestInfo);
+			Map<String, Object> consumerCodeMap = new HashMap<>();
+			consumerCodeMap.put("consumerCode", consumerCode);
+			requestPayload.put("InstallmentSearchCriteria", consumerCodeMap);
+			Object result = serviceRequestRepository.fetchResult(new StringBuilder(url), requestPayload);
+			return result;
+			/*
+			if (Objects.nonNull(result) && result instanceof Map
+					&& Objects.nonNull(((Map) result).get("installments"))) {
+				return result;
+			} else {
+				Map<String, Object> response = new HashMap<>();
+				response.put("installments", Collections.EMPTY_LIST);
+				return response;
+			}
+			*/
 		}
 }
 	

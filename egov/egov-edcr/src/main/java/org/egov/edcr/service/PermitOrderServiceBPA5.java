@@ -95,7 +95,7 @@ public class PermitOrderServiceBPA5 extends PermitOrderServiceBPA1 {
 		Paragraph address3 = new Paragraph(primaryOwnerCorrespondenceAddress, fontBold);
 		address3.setIndentationLeft(30);
 		
-		Chunk forServiceType = new Chunk(String.format("For %s of a ", getServiceType(plan)), font1);
+		Chunk forServiceType = new Chunk(String.format("For %s of a ", getServiceType(plan, additionalDetails)), font1);
 		String floorInfo = plan.getPlanInformation().getFloorInfo() + " ";
 		Chunk floorInform = new Chunk(floorInfo, fontBold);
 		Chunk storeyed = new Chunk(PARAGRAPH_1_3, font1);
@@ -279,7 +279,7 @@ public class PermitOrderServiceBPA5 extends PermitOrderServiceBPA1 {
 		table1.setLockedWidth(false);
 		table1.setWidthPercentage(100f);
 		addTableHeader1(table1);
-		addRows1(table1, plan);
+		addRows1(table1, plan, additionalDetails);
 
 		Image qrCode = getQrCode(ownersNamesCsv, getValue(bpaApplication, "approvalNo"), approvalDate, getValue(bpaApplication, "edcrNumber"));
 
