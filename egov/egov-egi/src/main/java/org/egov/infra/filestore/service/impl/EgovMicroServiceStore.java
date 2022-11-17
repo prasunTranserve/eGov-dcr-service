@@ -99,6 +99,7 @@ public class EgovMicroServiceStore implements FileStoreService {
 
 	private RestTemplate restTemplate;
 	
+	
 	@Autowired
 	public EgovMicroServiceStore(@Value("${ms.url}") String url) {
 		this.restTemplate = new RestTemplate();

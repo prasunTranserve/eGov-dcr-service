@@ -54,6 +54,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -95,6 +96,7 @@ import org.egov.infra.microservice.contract.ResponseInfo;
 import org.egov.infra.microservice.models.RequestInfo;
 import org.egov.infra.microservice.models.UserInfo;
 import org.egov.infra.security.utils.SecurityUtils;
+import org.egov.infra.utils.FileStoreUtils;
 import org.egov.infra.utils.TenantUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -240,8 +242,10 @@ public class EdcrRestService {
 		}
 		
 		edcrApplication = edcrApplicationService.createRestEdcr(edcrApplication);
+		FileStoreUtils.removeFileFromPath(edcrApplication.getSavedDxfFile());
 		return setEdcrResponse(edcrApplication.getEdcrApplicationDetails().get(0), edcrRequest);
 	}
+	
 
 	@Transactional
 	public List<EdcrDetail> edcrDetailsResponse(List<EdcrApplicationDetail> edcrApplications, EdcrRequest edcrRequest) {
@@ -352,7 +356,12 @@ public class EdcrRestService {
 
 		if (!edcrApplnDtl.getStatus().equalsIgnoreCase("Accepted"))
 			edcrDetail.setStatus(edcrApplnDtl.getStatus());
-
+		try {
+			Files.deleteIfExists(file.toPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return edcrDetail;
 	}
 

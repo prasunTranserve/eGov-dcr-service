@@ -59,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -96,10 +97,15 @@ public class FileStoreUtils {
 
     @Autowired
     private FileStoreMapperRepository fileStoreMapperRepository;
-
-    public static final String TEMP_DIRECTORY = "/tmp/";
+    
+    public static String TEMP_DIRECTORY = null;
     
 //    public static final String TEMP_DIRECTORY = "";
+    
+    @Value("${filestore.temp.dir:/tmp/}")
+    public void setTempDirectory(String tempDir) {
+    	FileStoreUtils.TEMP_DIRECTORY = tempDir;
+    }
     
     
     public Path getFileAsPath(String fileStoreId, String moduleName) {
@@ -116,6 +122,7 @@ public class FileStoreUtils {
             if (fileStoreMapper.isPresent()) {
                 Path file = getFileAsPath(fileStoreId, moduleName);
                 byte[] fileBytes = Files.readAllBytes(file);
+                Files.deleteIfExists(file);
                 return ResponseEntity
                         .ok()
                         .contentType(MediaType.parseMediaType(fileStoreMapper.get().getContentType()))
@@ -209,4 +216,14 @@ public class FileStoreUtils {
             throw new ApplicationRuntimeException("Error while reading file", e);
         }
     }
+    
+
+	public static void removeFileFromPath(File file) {
+		try {
+			Files.deleteIfExists(file.toPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
